@@ -53,6 +53,73 @@
     .hero-gradient {
       background: radial-gradient(ellipse at top, rgba(0,122,255,0.06), transparent 70%);
     }
+
+    /* ===== Service/Feature Cards ===== */
+    .service-card {
+      transition: all 0.3s ease;
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    }
+    .service-icon {
+      font-size: 2.8rem;
+      color: #007AFF;
+      margin-bottom: 1rem;
+    }
+
+    /* ===== Stats ===== */
+    .stat-number {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #1c1c1e;
+    }
+    .stat-label {
+      font-size: 1rem;
+      color: #8e8e93;
+    }
+
+    /* ===== How it works step ===== */
+    .step-number {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: #e5e7eb;
+      margin: 0 1rem;
+    }
+    @media (max-width: 768px) {
+      .step-line { display: none; }
+    }
+
+    /* ===== Trust Badge ===== */
+    .trust-badge {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px);
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      border: 1px solid rgba(255,255,255,0.8);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #374151;
+    }
+    .trust-badge i {
+      font-size: 1.2rem;
+    }
   </style>
 </head>
 <body>
@@ -60,21 +127,29 @@
     <div id="navbar-placeholder"></div>
 
     <main class="main-content">
-      <!-- ===== হিরো ===== -->
+      <!-- ===== হিরো (আপডেটেড – Trust Badges সহ) ===== -->
       <section class="hero-gradient pt-32 pb-16 px-6 min-h-screen flex items-center">
         <div class="max-w-7xl mx-auto text-center">
+          <!-- Trust Badges -->
+          <div class="flex flex-wrap justify-center gap-3 mb-6 fade-up">
+            <span class="trust-badge"><i class="fas fa-shield-alt text-blue-500"></i> 100% Secure</span>
+            <span class="trust-badge"><i class="fas fa-clock text-green-500"></i> 24/7 Support</span>
+            <span class="trust-badge"><i class="fas fa-check-circle text-emerald-500"></i> 150+ Projects</span>
+          </div>
+
           <h1 class="text-5xl md:text-7xl font-bold text-gray-900 leading-tight fade-up">
             Build Your <span class="gradient-text">Dream Website</span> Today
           </h1>
           <p class="text-xl text-gray-500 mt-4 max-w-2xl mx-auto fade-up" style="transition-delay:0.1s;">
-            Choose from ready-made packages or get a fully custom solution. Fast, reliable, and modern.
+            Professional website development, fixing, and maintenance – tailored for your business.
           </p>
           <div class="mt-10 flex flex-wrap justify-center gap-4 fade-up" style="transition-delay:0.2s;">
             <a href="get-new-website.html" class="btn-primary"><i class="fas fa-shopping-cart"></i> Explore Store</a>
             <a href="fix-website.html" class="btn-outline"><i class="fas fa-wrench"></i> Fix My Site</a>
+            <a href="#services" class="btn-outline"><i class="fas fa-info-circle"></i> Learn More</a>
           </div>
 
-          <!-- ===== ডাইনামিক প্যাকেজ ===== -->
+          <!-- ===== ডাইনামিক প্যাকেজ (আগের মতো) ===== -->
           <div id="featuredPackages" class="mt-16 grid md:grid-cols-3 gap-6 text-left">
             <!-- Skeleton Loading -->
             <div class="glass-card fade-up"><div class="h-8 w-20 bg-gray-200 rounded animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
@@ -84,8 +159,141 @@
         </div>
       </section>
 
-      <!-- ===== টেস্টিমোনিয়াল ===== -->
-      <section id="testimonials" class="py-16 px-6 bg-gray-50">
+      <!-- ===== SERVICES / WHAT WE OFFER (নতুন) ===== -->
+      <section id="services" class="py-20 px-6 bg-gray-50/50">
+        <div class="max-w-7xl mx-auto">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 fade-up">What We Offer</h2>
+            <p class="text-gray-500 mt-2 max-w-2xl mx-auto fade-up">Complete web solutions from development to maintenance.</p>
+          </div>
+          <div class="grid md:grid-cols-3 gap-8">
+            <div class="glass-card service-card fade-up text-center">
+              <div class="service-icon"><i class="fas fa-code"></i></div>
+              <h3 class="text-xl font-bold text-gray-900">Custom Website Development</h3>
+              <p class="text-gray-500 mt-2">Fully responsive, fast, and SEO‑friendly websites built with modern technologies.</p>
+            </div>
+            <div class="glass-card service-card fade-up text-center" style="transition-delay:0.1s;">
+              <div class="service-icon"><i class="fas fa-tools"></i></div>
+              <h3 class="text-xl font-bold text-gray-900">Website Fix & Repair</h3>
+              <p class="text-gray-500 mt-2">Bug fixes, speed optimization, security patches, and error resolution.</p>
+            </div>
+            <div class="glass-card service-card fade-up text-center" style="transition-delay:0.2s;">
+              <div class="service-icon"><i class="fas fa-mobile-alt"></i></div>
+              <h3 class="text-xl font-bold text-gray-900">Responsive Design</h3>
+              <p class="text-gray-500 mt-2">Pixel‑perfect design that works flawlessly on all devices – mobile, tablet, desktop.</p>
+            </div>
+            <div class="glass-card service-card fade-up text-center" style="transition-delay:0.3s;">
+              <div class="service-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+              <h3 class="text-xl font-bold text-gray-900">Hosting & Maintenance</h3>
+              <p class="text-gray-500 mt-2">Reliable hosting, regular backups, updates, and performance monitoring.</p>
+            </div>
+            <div class="glass-card service-card fade-up text-center" style="transition-delay:0.4s;">
+              <div class="service-icon"><i class="fas fa-shopping-cart"></i></div>
+              <h3 class="text-xl font-bold text-gray-900">E‑Commerce Solutions</h3>
+              <p class="text-gray-500 mt-2">Online stores with secure payment integration and inventory management.</p>
+            </div>
+            <div class="glass-card service-card fade-up text-center" style="transition-delay:0.5s;">
+              <div class="service-icon"><i class="fas fa-headset"></i></div>
+              <h3 class="text-xl font-bold text-gray-900">24/7 Support</h3>
+              <p class="text-gray-500 mt-2">Dedicated support team available round the clock for any queries or issues.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== HOW IT WORKS (নতুন) ===== -->
+      <section id="how-it-works" class="py-20 px-6">
+        <div class="max-w-5xl mx-auto">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 fade-up">How It Works</h2>
+            <p class="text-gray-500 mt-2 fade-up">Simple steps to get your website or fix your existing one.</p>
+          </div>
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex-1 text-center fade-up">
+              <div class="step-number mx-auto">1</div>
+              <h4 class="font-bold text-gray-900 mt-3">Choose a Package</h4>
+              <p class="text-sm text-gray-500">Browse our store and select the website package that fits your needs.</p>
+            </div>
+            <div class="step-line"></div>
+            <div class="flex-1 text-center fade-up" style="transition-delay:0.1s;">
+              <div class="step-number mx-auto">2</div>
+              <h4 class="font-bold text-gray-900 mt-3">Place Order or Request Fix</h4>
+              <p class="text-sm text-gray-500">Add to cart and checkout, or submit a fix request with details.</p>
+            </div>
+            <div class="step-line"></div>
+            <div class="flex-1 text-center fade-up" style="transition-delay:0.2s;">
+              <div class="step-number mx-auto">3</div>
+              <h4 class="font-bold text-gray-900 mt-3">Payment & Confirmation</h4>
+              <p class="text-sm text-gray-500">Complete payment via BKash, Nagad, or USDT. We'll start working immediately.</p>
+            </div>
+            <div class="step-line"></div>
+            <div class="flex-1 text-center fade-up" style="transition-delay:0.3s;">
+              <div class="step-number mx-auto">4</div>
+              <h4 class="font-bold text-gray-900 mt-3">Delivery & Support</h4>
+              <p class="text-sm text-gray-500">Get your website delivered or issue resolved within 24 hours. Ongoing support.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== WHY CHOOSE US (নতুন) ===== -->
+      <section id="why-us" class="py-20 px-6 bg-gray-50/50">
+        <div class="max-w-7xl mx-auto">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 fade-up">Why Choose SWD Store?</h2>
+            <p class="text-gray-500 mt-2 fade-up">We are committed to delivering quality and building trust.</p>
+          </div>
+          <div class="grid md:grid-cols-4 gap-6">
+            <div class="glass-card text-center fade-up">
+              <i class="fas fa-medal text-4xl text-yellow-500 mb-3"></i>
+              <h4 class="font-bold text-gray-900">Quality Assurance</h4>
+              <p class="text-sm text-gray-500">Every project passes strict quality checks before delivery.</p>
+            </div>
+            <div class="glass-card text-center fade-up" style="transition-delay:0.1s;">
+              <i class="fas fa-clock text-4xl text-blue-500 mb-3"></i>
+              <h4 class="font-bold text-gray-900">Fast Turnaround</h4>
+              <p class="text-sm text-gray-500">Most projects are completed within 24–48 hours.</p>
+            </div>
+            <div class="glass-card text-center fade-up" style="transition-delay:0.2s;">
+              <i class="fas fa-handshake text-4xl text-green-500 mb-3"></i>
+              <h4 class="font-bold text-gray-900">Client-Centric</h4>
+              <p class="text-sm text-gray-500">We listen, adapt, and deliver exactly what you need.</p>
+            </div>
+            <div class="glass-card text-center fade-up" style="transition-delay:0.3s;">
+              <i class="fas fa-lock text-4xl text-purple-500 mb-3"></i>
+              <h4 class="font-bold text-gray-900">Secure & Reliable</h4>
+              <p class="text-sm text-gray-500">Your data and payments are always safe with us.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== STATISTICS (নতুন – বাস্তবসম্মত) ===== -->
+      <section id="stats" class="py-16 px-6">
+        <div class="max-w-6xl mx-auto">
+          <div class="grid md:grid-cols-4 gap-8 text-center">
+            <div class="fade-up">
+              <div class="stat-number">150+</div>
+              <div class="stat-label">Projects Delivered</div>
+            </div>
+            <div class="fade-up" style="transition-delay:0.1s;">
+              <div class="stat-number">90+</div>
+              <div class="stat-label">Happy Clients</div>
+            </div>
+            <div class="fade-up" style="transition-delay:0.2s;">
+              <div class="stat-number">3+</div>
+              <div class="stat-label">Years of Experience</div>
+            </div>
+            <div class="fade-up" style="transition-delay:0.3s;">
+              <div class="stat-number">98%</div>
+              <div class="stat-label">Client Satisfaction</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== TESTIMONIALS (আগের মতো) ===== -->
+      <section id="testimonials" class="py-16 px-6 bg-gray-50/50">
         <div class="max-w-6xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">What Our Clients Say</h2>
           <div id="testimonialList" class="mt-8 grid md:grid-cols-3 gap-6">
@@ -96,7 +304,7 @@
         </div>
       </section>
 
-      <!-- ===== FAQ ===== -->
+      <!-- ===== FAQ (আগের মতো) ===== -->
       <section id="faq" class="py-16 px-6">
         <div class="max-w-3xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">Frequently Asked Questions</h2>
@@ -104,6 +312,23 @@
             <div class="glass-card fade-up"><div class="h-6 bg-gray-200 rounded animate-pulse"></div></div>
             <div class="glass-card fade-up"><div class="h-6 bg-gray-200 rounded animate-pulse"></div></div>
             <div class="glass-card fade-up"><div class="h-6 bg-gray-200 rounded animate-pulse"></div></div>
+            <div class="glass-card fade-up"><div class="h-6 bg-gray-200 rounded animate-pulse"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CTA / CONTACT (নতুন) ===== -->
+      <section id="cta" class="py-20 px-6 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div class="max-w-4xl mx-auto text-center">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 fade-up">Ready to Get Started?</h2>
+          <p class="text-gray-600 mt-3 text-lg fade-up">Contact us today or explore our store to find the perfect solution for your business.</p>
+          <div class="mt-8 flex flex-wrap justify-center gap-4 fade-up">
+            <a href="get-new-website.html" class="btn-primary"><i class="fas fa-store"></i> Visit Store</a>
+            <a href="fix-website.html" class="btn-outline"><i class="fas fa-wrench"></i> Fix My Website</a>
+            <a href="messages.html" class="btn-outline"><i class="fas fa-comment"></i> Chat with Us</a>
+          </div>
+          <div class="mt-6 text-sm text-gray-500 fade-up">
+            <i class="fas fa-envelope mr-1"></i> support@swdstore.com &nbsp;|&nbsp; <i class="fas fa-phone mr-1"></i> +880 1XXX-XXXXXX
           </div>
         </div>
       </section>
@@ -117,7 +342,7 @@
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- ===== অথ মডাল (Forgot Password লিংক সরানো হয়েছে) ===== -->
+  <!-- ===== অথ মডাল (ইতিমধ্যে ছিল) ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -136,7 +361,6 @@
         <button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button>
         <button onclick="window.socialLogin('github')" class="btn-outline w-full justify-center"><i class="fab fa-github"></i> Sign in with GitHub</button>
       </div>
-      <!-- Forgot Password লিংক সম্পূর্ণ সরানো হয়েছে -->
       <p class="mt-4 text-sm text-gray-500 text-center">
         <span id="authToggleText">Don't have an account?</span>
         <a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a>
@@ -148,7 +372,9 @@
   <div id="toast-container"></div>
 
   <script type="module">
-    // ===== ইমপোর্ট =====
+    // ================================================================
+    // ইমপোর্ট (আগের মতোই)
+    // ================================================================
     import { 
       auth, db, collection, doc, getDoc, getDocs, onSnapshot, 
       signInWithEmailAndPassword, createUserWithEmailAndPassword, 
@@ -205,7 +431,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ===== অথ মডাল =====
+    // ===== অথ মডাল (আগের মতো) =====
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -282,8 +508,6 @@
       }
     };
 
-    // showResetPasswordModal সম্পূর্ণ সরানো হয়েছে
-
     onAuthStateChanged(auth, async (user) => {
       let name = null;
       if (user) {
@@ -298,7 +522,7 @@
       showToast('✅ Logged out', 'success');
     };
 
-    // ===== ডাইনামিক প্যাকেজ =====
+    // ===== ডাইনামিক প্যাকেজ (আগের মতো) =====
     const packagesContainer = document.getElementById('featuredPackages');
     onSnapshot(collection(db, 'products'), (snapshot) => {
       if (snapshot.empty) {
@@ -319,11 +543,10 @@
         `;
       });
       packagesContainer.innerHTML = html;
-      // নতুন এলিমেন্টগুলোর জন্য Observer পুনরায় চালু
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     });
 
-    // ===== টেস্টিমোনিয়াল =====
+    // ===== টেস্টিমোনিয়াল (আগের মতো) =====
     const testimonialContainer = document.getElementById('testimonialList');
     onSnapshot(collection(db, 'testimonials'), (snapshot) => {
       if (snapshot.empty) {
@@ -345,7 +568,7 @@
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     });
 
-    // ===== FAQ =====
+    // ===== FAQ (আগের মতো) =====
     const faqContainer = document.getElementById('faqList');
     onSnapshot(collection(db, 'faqs'), (snapshot) => {
       if (snapshot.empty) {
