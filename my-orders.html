@@ -2,49 +2,343 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>My Orders – SWD Store</title>
+  
+  <!-- ✅ Preconnect & Preload for faster font loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  
   <style>
-    .order-status {
+    /* ===== BASE ===== */
+    * { box-sizing: border-box; }
+    body {
+      background: #f2f4f7;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* ===== FONT DISPLAY SWAP ===== */
+    @font-face {
+      font-family: 'Inter';
+      font-display: swap;
+    }
+
+    /* ===== GLASS CARD ===== */
+    .glass-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+      transform: translateY(-3px);
+    }
+
+    /* ===== ORDER CARD ===== */
+    .order-card {
+      transition: all 0.3s ease;
+    }
+
+    /* ===== STATUS BADGE ===== */
+    .status-badge {
       padding: 4px 14px;
-      border-radius: 20px;
-      font-size: 0.75rem;
+      border-radius: 60px;
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: capitalize;
+      display: inline-block;
     }
-    .order-status.pending { background: #fef3c7; color: #d97706; }
-    .order-status.processing { background: #dbeafe; color: #2563eb; }
-    .order-status.completed { background: #d1fae5; color: #059669; }
-    .order-status.cancelled { background: #fee2e2; color: #dc2626; }
+    .status-badge.pending { background: #fef3c7; color: #d97706; }
+    .status-badge.processing { background: #dbeafe; color: #2563eb; }
+    .status-badge.completed { background: #d1fae5; color: #059669; }
+    .status-badge.cancelled { background: #fee2e2; color: #dc2626; }
 
-    .order-card { transition: all 0.3s ease; }
-    .order-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
-    .detail-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-    .detail-item:last-child { border-bottom: none; }
-    .empty-state-icon { font-size: 4rem; opacity: 0.3; }
-
-    .fade-up { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
-
-    .scroll-top-btn {
-      position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%;
-      background: linear-gradient(135deg, #007AFF, #5856D6); color: #fff; border: none; font-size: 1.2rem;
-      cursor: pointer; box-shadow: 0 8px 30px rgba(0,122,255,0.35); z-index: 999;
-      opacity: 0; transform: scale(0.8); transition: opacity 0.3s ease, transform 0.3s ease;
-      pointer-events: none;
+    /* ===== STATS CARDS ===== */
+    .stat-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 14px;
+      padding: 1rem;
+      text-align: center;
+      transition: all 0.3s ease;
     }
-    .scroll-top-btn.show { opacity: 1; transform: scale(1); pointer-events: auto; }
-    .scroll-top-btn:hover { transform: scale(1.05); }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
+    .stat-card .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1c1c1e;
+    }
+    .stat-card .stat-label {
+      font-size: 0.75rem;
+      color: #8e8e93;
+      margin-top: 2px;
+    }
+    .stat-card .stat-number.pending { color: #d97706; }
+    .stat-card .stat-number.processing { color: #2563eb; }
+    .stat-card .stat-number.completed { color: #059669; }
 
-    .skeleton-card { background: #f3f4f6; border-radius: 16px; padding: 1.5rem; animation: pulse 1.5s ease-in-out infinite; }
-    .skeleton-card .skeleton-line { height: 16px; background: #e5e7eb; border-radius: 8px; margin-bottom: 0.75rem; }
+    /* ===== FORM INPUTS ===== */
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid rgba(60, 60, 67, 0.08);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.8);
+      transition: all 0.3s ease;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      color: #1c1c1e;
+    }
+    .form-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
+      background: #ffffff;
+    }
+    .form-input::placeholder {
+      color: #8e8e93;
+      opacity: 0.7;
+    }
+    select.form-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238e8e93' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      text-decoration: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
+    }
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #1c1c1e;
+      padding: 10px 22px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1.5px solid rgba(60,60,67,0.08);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.5);
+      min-height: 48px;
+      text-decoration: none;
+    }
+    .btn-outline:hover {
+      background: rgba(0,122,255,0.04);
+      border-color: #007AFF;
+      color: #007AFF;
+      transform: translateY(-2px);
+    }
+
+    /* ===== SKELETON ===== */
+    .skeleton-card {
+      background: #f3f4f6;
+      border-radius: 16px;
+      padding: 1.25rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .skeleton-card .skeleton-line {
+      height: 16px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+    }
     .skeleton-card .skeleton-line.short { width: 40%; }
     .skeleton-card .skeleton-line.medium { width: 70%; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .skeleton-card .skeleton-line.long { width: 90%; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+    .empty-state i {
+      font-size: 4rem;
+      opacity: 0.3;
+      color: #8e8e93;
+    }
+    .empty-state h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1c1c1e;
+      margin-top: 1rem;
+    }
+    .empty-state p {
+      color: #8e8e93;
+      margin-top: 0.5rem;
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: white;
+      border-radius: 24px;
+      padding: 1.5rem;
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: scaleIn 0.3s ease forwards;
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-box .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .modal-box .modal-header h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #8e8e93;
+      transition: 0.2s;
+    }
+    .modal-close:hover { color: #1c1c1e; }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .detail-item:last-child { border-bottom: none; }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== FADE-UP ===== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== BACK TO TOP ===== */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(0,122,255,0.35);
+      z-index: 999;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .scroll-top-btn.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    .scroll-top-btn:hover { transform: scale(1.05); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .glass-card { padding: 1rem; border-radius: 12px; }
+      .stat-card .stat-number { font-size: 1.5rem; }
+      .btn-primary, .btn-outline { font-size: 0.85rem; min-height: 42px; padding: 8px 16px; }
+      .modal-box { padding: 1rem; border-radius: 16px; }
+      .detail-item { font-size: 0.9rem; }
+    }
+    @media (max-width: 480px) {
+      .stat-card { padding: 0.75rem; }
+      .stat-card .stat-number { font-size: 1.2rem; }
+      .modal-box { padding: 0.75rem; }
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      border-left: 4px solid #007AFF;
+    }
+    .toast.success { border-left-color: #34C759; }
+    .toast.error { border-left-color: #FF3B30; }
+    .toast.warning { border-left-color: #FF9500; }
   </style>
 </head>
 <body>
@@ -53,15 +347,19 @@
 
     <main class="main-content">
       <section class="pt-28 pb-16 px-6 max-w-4xl mx-auto">
+        <!-- Header -->
         <div class="flex items-center gap-3 mb-2 fade-up">
-          <i class="fas fa-shopping-bag text-3xl text-blue-500"></i>
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <i class="fas fa-shopping-bag text-xl text-white"></i>
+          </div>
           <h1 class="text-3xl font-bold text-gray-900">My Orders</h1>
         </div>
-        <p class="text-gray-500 mb-4 fade-up">View all your orders and their status</p>
+        <p class="text-gray-500 mb-6 fade-up">View all your orders and their status</p>
 
+        <!-- ===== FILTERS ===== -->
         <div class="flex flex-wrap gap-3 items-center mb-6 fade-up">
           <div class="relative flex-1 min-w-[200px]">
-            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input type="text" id="searchOrders" placeholder="Search by order ID..." class="form-input pl-10" />
           </div>
           <select id="statusFilter" class="form-input max-w-xs">
@@ -71,14 +369,37 @@
             <option value="completed">🟢 Completed</option>
             <option value="cancelled">🔴 Cancelled</option>
           </select>
-          <button onclick="resetFilters()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-undo"></i> Reset</button>
-          <button onclick="window.location.reload()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-sync"></i> Refresh</button>
+          <button onclick="resetFilters()" class="btn-outline text-sm py-2 px-4">
+            <i class="fas fa-undo"></i> Reset
+          </button>
+          <button onclick="window.location.reload()" class="btn-outline text-sm py-2 px-4">
+            <i class="fas fa-sync"></i> Refresh
+          </button>
         </div>
 
+        <!-- ===== STATS ===== -->
+        <div id="statsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 fade-up">
+          <div class="stat-card">
+            <div class="stat-number" id="totalCount">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number pending" id="pendingCount">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number processing" id="processingCount">0</div>
+            <div class="stat-label">Processing</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number completed" id="completedCount">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+
+        <!-- ===== ORDER LIST ===== -->
         <div id="orderList" class="space-y-4">
-          <!-- Skeleton -->
-          <div class="skeleton-card fade-up"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line"></div></div>
-          <div class="skeleton-card fade-up"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line"></div></div>
+          <!-- Skeleton will be rendered by JS -->
         </div>
       </section>
     </main>
@@ -86,25 +407,34 @@
     <div id="footer-placeholder"></div>
   </div>
 
-  <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
+  <!-- ===== BACK TO TOP ===== -->
+  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
 
-  <!-- Order Detail Modal -->
-  <div id="orderDetailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[300] hidden">
-    <div class="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-2xl font-bold text-gray-900" id="detailOrderTitle">Order Details</h3>
-        <button onclick="closeOrderDetail()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+  <!-- ===== ORDER DETAIL MODAL ===== -->
+  <div id="orderDetailModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="detailOrderTitle" class="text-2xl font-bold text-gray-900">Order Details</h3>
+        <button onclick="closeOrderDetail()" class="modal-close" aria-label="Close">&times;</button>
       </div>
-      <div id="orderDetailContent"></div>
-      <div class="mt-6 flex flex-wrap gap-3">
-        <button onclick="downloadInvoice()" class="btn-primary text-sm py-2 px-4"><i class="fas fa-file-pdf"></i> Download Invoice (TXT)</button>
-        <button onclick="printOrder()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-print"></i> Print</button>
-        <button onclick="closeOrderDetail()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-times"></i> Close</button>
+      <div id="orderDetailContent" class="space-y-4"></div>
+      <div class="mt-6 flex flex-wrap gap-3 border-t border-gray-200 pt-4">
+        <button onclick="downloadInvoice()" class="btn-primary text-sm py-2 px-4">
+          <i class="fas fa-file-download"></i> Invoice (TXT)
+        </button>
+        <button onclick="printOrder()" class="btn-outline text-sm py-2 px-4">
+          <i class="fas fa-print"></i> Print
+        </button>
+        <button onclick="closeOrderDetail()" class="btn-outline text-sm py-2 px-4">
+          <i class="fas fa-times"></i> Close
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Auth Modal -->
+  <!-- ===== AUTH MODAL ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -134,11 +464,28 @@
   <div id="toast-container"></div>
 
   <script type="module">
-    import { renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, renderCartSidebar, setLoading, renderPaymentModal } from './components.js';
-    import { auth, db, collection, doc, getDoc, setDoc, addDoc, onSnapshot, query, where, serverTimestamp, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateDoc, signInWithPopup, googleProvider, githubProvider } from './firebase-config.js';
+    // ================================================================
+    // ইমপোর্ট
+    // ================================================================
+    import { 
+      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
+      renderCartSidebar, setLoading, renderPaymentModal
+    } from './components.js';
+    import { 
+      auth, db, collection, doc, getDoc, setDoc, addDoc, onSnapshot, 
+      query, where, serverTimestamp, signOut, onAuthStateChanged,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, updateDoc,
+      signInWithPopup, googleProvider, githubProvider, getDocs
+    } from './firebase-config.js';
 
-    renderNavbar(); renderPaymentModal(); renderFooter(); renderCartSidebar(); updateCartBadge();
+    // ===== রেন্ডার =====
+    renderNavbar();
+    renderPaymentModal();
+    renderFooter();
+    renderCartSidebar();
+    updateCartBadge();
 
+    // ===== টোস্ট =====
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -150,18 +497,44 @@
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // Scroll Animation
+    // ===== SCROLL ANIMATION =====
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('.fade-up').forEach(el => observer.observe(el)); });
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-    // Back to Top
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    });
+
+    // ===== BACK TO TOP =====
     const scrollBtn = document.getElementById('scrollTopBtn');
-    window.addEventListener('scroll', () => { scrollBtn.classList.toggle('show', window.scrollY > 400); });
-    scrollBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        scrollBtn.classList.add('show');
+      } else {
+        scrollBtn.classList.remove('show');
+      }
+    });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
-    // Auth Modal Logic
+    // ===== DEBOUNCE =====
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    // ================================================================
+    // AUTH MODAL (আগের মতো)
+    // ================================================================
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -172,15 +545,18 @@
       document.getElementById('authModal').classList.remove('hidden');
     };
     window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
+
     document.getElementById('authToggleLink').addEventListener('click', (e) => {
       e.preventDefault();
       currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
       window.openAuthModal(currentAuthMode);
     });
+
     window.togglePasswordVisibility = (id) => {
       const input = document.getElementById(id);
       input.type = input.type === 'password' ? 'text' : 'password';
     };
+
     window.socialLogin = async (provider) => {
       try {
         let result;
@@ -190,13 +566,17 @@
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (!userDoc.exists()) {
           await setDoc(doc(db, 'users', user.uid), {
-            email: user.email, displayName: user.displayName || user.email.split('@')[0],
-            role: 'user', createdAt: new Date().toISOString()
+            email: user.email,
+            displayName: user.displayName || user.email.split('@')[0],
+            role: 'user',
+            createdAt: new Date().toISOString()
           });
         }
         showToast('✅ Signed in with ' + provider, 'success');
         closeAuthModal();
-      } catch (err) { showToast('⚠️ ' + err.message, 'error'); }
+      } catch (err) {
+        showToast('⚠️ ' + err.message, 'error');
+      }
     };
 
     const authForm = document.getElementById('authForm');
@@ -226,7 +606,9 @@
         errorDiv.textContent = error.message;
         errorDiv.classList.remove('hidden');
         showToast('⚠️ ' + error.message, 'error');
-      } finally { setLoading(authSubmitBtn, false); }
+      } finally {
+        setLoading(authSubmitBtn, false);
+      }
     });
 
     window.handleLogout = async () => {
@@ -235,175 +617,426 @@
       window.location.href = 'index.html';
     };
 
-    // ===== Orders Logic (FIXED) =====
+    // ================================================================
+    // ✅ অর্ডার লজিক (onSnapshot দিয়ে রিয়েল-টাইম, orderBy বাদ)
+    // ================================================================
+
     const orderList = document.getElementById('orderList');
     const searchInput = document.getElementById('searchOrders');
     const statusFilter = document.getElementById('statusFilter');
-    let allOrders = [], filteredOrders = [], currentUser = null, unsubOrders = null;
 
-    function renderOrders(orders) {
-      if (!orders || orders.length === 0) {
-        orderList.innerHTML = `
-          <div class="text-center py-16 fade-up">
-            <i class="fas fa-inbox empty-state-icon text-gray-300"></i>
-            <p class="text-gray-500 mt-4 text-lg">No orders found</p>
-            <p class="text-gray-400 text-sm">Start shopping to see your orders here.</p>
-            <a href="get-new-website.html" class="btn-primary mt-4 inline-block"><i class="fas fa-shopping-cart"></i> Browse Store</a>
-          </div>`;
-        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-        return;
-      }
+    let allOrders = [];
+    let filteredOrders = [];
+    let currentUser = null;
+    let unsubOrders = null;
+
+    // ===== SKELETON RENDER =====
+    function renderSkeletons(count = 3) {
       let html = '';
-      orders.forEach(o => {
-        const statusClass = o.status || 'pending';
-        const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
-        const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      for (let i = 0; i < count; i++) {
         html += `
-          <div class="glass-card order-card fade-up">
-            <div class="flex flex-wrap justify-between items-start gap-3">
-              <div class="flex-1 min-w-[150px]">
-                <div class="flex items-center gap-3 flex-wrap">
-                  <p class="font-bold text-gray-900 text-lg">#${o.id?.slice(0, 8)?.toUpperCase() || 'N/A'}</p>
-                  <span class="order-status ${statusClass}">${statusClass}</span>
-                </div>
-                <p class="text-sm text-gray-500 mt-1"><i class="far fa-calendar-alt mr-1"></i> ${dateStr} at ${timeStr}</p>
-                <p class="text-sm text-gray-500"><i class="fas fa-box mr-1"></i> ${o.items?.length || 0} items</p>
-              </div>
-              <div class="text-right">
-                <p class="text-2xl font-bold text-blue-600">$${o.total?.toFixed(2) || '0.00'}</p>
-                ${o.transactionId ? `<p class="text-xs text-gray-400">Txn: ${o.transactionId}</p>` : ''}
-                <button onclick="viewOrderDetail('${o.id}')" class="text-blue-600 text-sm mt-1 hover:underline"><i class="fas fa-eye"></i> View Details</button>
-              </div>
-            </div>
-          </div>`;
-      });
+          <div class="skeleton-card fade-up">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line" style="width:50%;"></div>
+          </div>
+        `;
+      }
       orderList.innerHTML = html;
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
 
-    const applyFilters = () => {
+    // ===== UPDATE STATS =====
+    function updateStats(orders) {
+      const total = orders.length;
+      const pending = orders.filter(o => o.status === 'pending').length;
+      const processing = orders.filter(o => o.status === 'processing').length;
+      const completed = orders.filter(o => o.status === 'completed').length;
+
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('pendingCount').textContent = pending;
+      document.getElementById('processingCount').textContent = processing;
+      document.getElementById('completedCount').textContent = completed;
+    }
+
+    // ===== RENDER ORDERS =====
+    function renderOrders(orders) {
+      if (!orders || orders.length === 0) {
+        orderList.innerHTML = `
+          <div class="empty-state fade-up">
+            <i class="fas fa-inbox"></i>
+            <h3>No orders found</h3>
+            <p>Start shopping to see your orders here.</p>
+            <a href="get-new-website.html" class="btn-primary mt-4 inline-block">
+              <i class="fas fa-shopping-cart"></i> Browse Store
+            </a>
+          </div>
+        `;
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+        updateStats([]);
+        return;
+      }
+
+      let html = '';
+      orders.forEach((o, index) => {
+        const status = o.status || 'pending';
+        const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
+        const dateStr = date.toLocaleDateString('en-US', { 
+          year: 'numeric', month: 'short', day: 'numeric' 
+        });
+        const timeStr = date.toLocaleTimeString('en-US', { 
+          hour: '2-digit', minute: '2-digit' 
+        });
+
+        html += `
+          <div class="glass-card order-card fade-up" style="transition-delay: ${(index % 6) * 0.05}s">
+            <div class="flex flex-wrap justify-between items-start gap-3">
+              <div class="flex-1 min-w-[150px]">
+                <div class="flex items-center gap-3 flex-wrap">
+                  <p class="font-bold text-gray-900 text-lg">
+                    #${o.id?.slice(0, 8)?.toUpperCase() || 'N/A'}
+                  </p>
+                  <span class="status-badge ${status}">${status}</span>
+                </div>
+                <p class="text-sm text-gray-500 mt-1">
+                  <i class="far fa-calendar-alt mr-1"></i> ${dateStr} at ${timeStr}
+                </p>
+                <p class="text-sm text-gray-500">
+                  <i class="fas fa-box mr-1"></i> ${o.items?.length || 0} items
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-2xl font-bold text-blue-600">$${o.total?.toFixed(2) || '0.00'}</p>
+                ${o.transactionId ? `<p class="text-xs text-gray-400">Txn: ${o.transactionId}</p>` : '<p class="text-xs text-yellow-500">⚠️ Payment pending</p>'}
+                <button onclick="viewOrderDetail('${o.id}')" class="text-blue-600 text-sm mt-1 hover:underline font-medium">
+                  <i class="fas fa-eye"></i> View Details
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      orderList.innerHTML = html;
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+      updateStats(orders);
+    }
+
+    // ===== APPLY FILTERS =====
+    function applyFilters() {
       const search = searchInput.value.toLowerCase().trim();
       const status = statusFilter.value;
+
       filteredOrders = allOrders.filter(o => {
-        if (search) { const id = o.id?.toLowerCase() || ''; if (!id.includes(search)) return false; }
+        if (search) {
+          const id = o.id?.toLowerCase() || '';
+          if (!id.includes(search)) return false;
+        }
         if (status !== 'all' && o.status !== status) return false;
         return true;
       });
+
       renderOrders(filteredOrders);
+    }
+
+    const debouncedApplyFilters = debounce(applyFilters, 300);
+
+    // ===== RESET FILTERS =====
+    window.resetFilters = () => {
+      searchInput.value = '';
+      statusFilter.value = 'all';
+      applyFilters();
     };
 
-    window.resetFilters = () => { searchInput.value = ''; statusFilter.value = 'all'; applyFilters(); };
-
+    // ===== LOAD ORDERS (onSnapshot) =====
     function loadOrders(userId) {
+      if (!userId) {
+        orderList.innerHTML = `
+          <div class="empty-state fade-up">
+            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+            <h3>Please sign in</h3>
+            <p>Sign in to view your orders.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Show skeletons initially
+      renderSkeletons(3);
+
+      // Unsubscribe previous listener
       if (unsubOrders) unsubOrders();
-      
-      // ✅ FIX: `orderBy` সরিয়ে দেওয়া হয়েছে (কারণ ইনডেক্স না থাকলে error হয়)
-      // ✅ এখন শুধু `where` ব্যবহার করে সব অর্ডার আনা হচ্ছে, তারপর JS দিয়ে সাজানো হচ্ছে
-      const q = query(collection(db, 'orders'), where('userId', '==', userId));
-      
+
+      // ✅ Real-time listener without orderBy (manual sort in JS)
+      const q = query(
+        collection(db, 'orders'),
+        where('userId', '==', userId)
+      );
+
       unsubOrders = onSnapshot(q, (snapshot) => {
         allOrders = [];
         snapshot.forEach(doc => {
           allOrders.push({ id: doc.id, ...doc.data() });
         });
-        // ✅ JS দিয়ে সাজানো (নতুন -> পুরোনো)
+
+        // ✅ Manual sorting (newest first)
         allOrders.sort((a, b) => {
           const ta = a.createdAt?.toDate?.()?.getTime() || 0;
           const tb = b.createdAt?.toDate?.()?.getTime() || 0;
           return tb - ta;
         });
+
         applyFilters();
+
       }, (error) => {
-        console.error('Orders load error:', error);
+        console.error('🔥 Error loading orders:', error);
         orderList.innerHTML = `
-          <div class="text-center py-12 text-red-500">
-            <i class="fas fa-exclamation-circle text-3xl"></i>
-            <p class="mt-2">Error loading orders: ${error.message}</p>
+          <div class="empty-state fade-up">
+            <i class="fas fa-exclamation-circle text-red-500"></i>
+            <h3>Error loading orders</h3>
+            <p class="text-sm text-gray-400">${error.message}</p>
             <button onclick="window.location.reload()" class="btn-primary mt-4 inline-block">
               <i class="fas fa-sync"></i> Retry
             </button>
-          </div>`;
+          </div>
+        `;
         showToast('⚠️ Error loading orders: ' + error.message, 'error');
       });
     }
 
-    searchInput.addEventListener('input', applyFilters);
+    // ===== FILTER EVENT LISTENERS =====
+    searchInput.addEventListener('input', debouncedApplyFilters);
     statusFilter.addEventListener('change', applyFilters);
 
-    // Order Detail
-    let currentOrderId = null, currentOrderData = null;
+    // ================================================================
+    // ✅ অর্ডার ডিটেইল
+    // ================================================================
+
+    let currentOrderId = null;
+    let currentOrderData = null;
+
     window.viewOrderDetail = async (orderId) => {
       currentOrderId = orderId;
       try {
         const docSnap = await getDoc(doc(db, 'orders', orderId));
-        if (!docSnap.exists()) { showToast('Order not found', 'error'); return; }
+        if (!docSnap.exists()) {
+          showToast('Order not found', 'error');
+          return;
+        }
         currentOrderData = { id: docSnap.id, ...docSnap.data() };
         renderOrderDetail(currentOrderData);
-        document.getElementById('orderDetailModal').classList.remove('hidden');
-      } catch (err) { showToast('⚠️ Error loading order: ' + err.message, 'error'); }
+        document.getElementById('orderDetailModal').classList.add('open');
+      } catch (err) {
+        showToast('⚠️ Error loading order: ' + err.message, 'error');
+      }
     };
+
     function renderOrderDetail(o) {
       const content = document.getElementById('orderDetailContent');
       const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
-      const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-      const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      const dateStr = date.toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric' 
+      });
+      const timeStr = date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', minute: '2-digit' 
+      });
+
       let itemsHtml = '';
       if (o.items && o.items.length > 0) {
         o.items.forEach(item => {
           const qty = item.quantity || 1;
-          itemsHtml += `<div class="detail-item"><span class="text-gray-800">${item.name} × ${qty}</span><span class="font-medium text-gray-900">$${(item.price * qty).toFixed(2)}</span></div>`;
+          itemsHtml += `
+            <div class="detail-item">
+              <span class="text-gray-800">${item.name} × ${qty}</span>
+              <span class="font-medium text-gray-900">$${(item.price * qty).toFixed(2)}</span>
+            </div>
+          `;
         });
-      } else itemsHtml = '<p class="text-gray-400">No items found.</p>';
+      } else {
+        itemsHtml = '<p class="text-gray-400">No items found.</p>';
+      }
+
       const statusClass = o.status || 'pending';
       const statusDisplay = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
+
       content.innerHTML = `
-        <div class="flex justify-between items-start mb-4"><div><p class="text-sm text-gray-500">Order ID</p><p class="font-mono font-bold text-gray-900">#${o.id}</p></div><span class="order-status ${statusClass} text-sm px-4 py-1.5">${statusDisplay}</span></div>
-        <div class="grid grid-cols-2 gap-4 mb-4"><div><p class="text-sm text-gray-500">Date</p><p class="text-gray-900">${dateStr}</p><p class="text-sm text-gray-400">${timeStr}</p></div><div><p class="text-sm text-gray-500">Total</p><p class="text-2xl font-bold text-blue-600">$${o.total?.toFixed(2) || '0.00'}</p></div></div>
-        <div class="mb-4"><p class="text-sm text-gray-500">Payment</p><p class="text-gray-900">${o.paymentMethod || 'N/A'}</p>${o.transactionId ? `<p class="text-sm text-gray-400">Transaction: ${o.transactionId}</p>` : '<p class="text-sm text-yellow-500">⚠️ Payment pending</p>'}</div>
-        <div><p class="text-sm text-gray-500 mb-2">Items (${o.items?.length || 0})</p><div class="bg-gray-50 rounded-lg p-3">${itemsHtml}</div></div>
-        ${o.status !== 'completed' ? `<div class="mt-4 p-3 bg-yellow-50 rounded-lg text-sm text-yellow-700"><i class="fas fa-clock"></i> Your order is ${statusDisplay.toLowerCase()}. You'll be notified when it's completed.</div>` : `<div class="mt-4 p-3 bg-green-50 rounded-lg text-sm text-green-700"><i class="fas fa-check-circle"></i> Order completed! Thank you for shopping.</div>`}
+        <div class="flex flex-wrap justify-between items-start gap-3">
+          <div>
+            <p class="text-sm text-gray-500">Order ID</p>
+            <p class="font-mono font-bold text-gray-900 text-lg">#${o.id}</p>
+          </div>
+          <span class="status-badge ${statusClass} text-sm px-4 py-1.5">${statusDisplay}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm text-gray-500">Date</p>
+            <p class="text-gray-900 font-medium">${dateStr}</p>
+            <p class="text-sm text-gray-400">${timeStr}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Total</p>
+            <p class="text-2xl font-bold text-blue-600">$${o.total?.toFixed(2) || '0.00'}</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-sm text-gray-500">Payment</p>
+          <p class="text-gray-900">${o.paymentMethod || 'N/A'}</p>
+          ${o.transactionId ? `<p class="text-sm text-gray-400">Transaction: ${o.transactionId}</p>` : '<p class="text-sm text-yellow-500">⚠️ Payment pending</p>'}
+        </div>
+
+        <div>
+          <p class="text-sm text-gray-500 mb-2">Items (${o.items?.length || 0})</p>
+          <div class="bg-gray-50 rounded-xl p-3 space-y-1">
+            ${itemsHtml}
+          </div>
+        </div>
+
+        ${o.status !== 'completed' && o.status !== 'cancelled' ? `
+          <div class="p-3 bg-yellow-50 rounded-xl text-sm text-yellow-700 flex items-center gap-2">
+            <i class="fas fa-clock"></i> Your order is ${statusDisplay.toLowerCase()}. You'll be notified when it's completed.
+          </div>
+        ` : o.status === 'completed' ? `
+          <div class="p-3 bg-green-50 rounded-xl text-sm text-green-700 flex items-center gap-2">
+            <i class="fas fa-check-circle"></i> Order completed! Thank you for shopping.
+          </div>
+        ` : o.status === 'cancelled' ? `
+          <div class="p-3 bg-red-50 rounded-xl text-sm text-red-700 flex items-center gap-2">
+            <i class="fas fa-times-circle"></i> This order has been cancelled.
+          </div>
+        ` : ''}
       `;
+
       document.getElementById('detailOrderTitle').textContent = `Order #${o.id.slice(0, 8).toUpperCase()}`;
     }
-    window.closeOrderDetail = () => { document.getElementById('orderDetailModal').classList.add('hidden'); currentOrderId = null; currentOrderData = null; };
+
+    window.closeOrderDetail = () => {
+      document.getElementById('orderDetailModal').classList.remove('open');
+      currentOrderId = null;
+      currentOrderData = null;
+    };
+
+    // Close modal on overlay click
+    document.getElementById('orderDetailModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeOrderDetail();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeOrderDetail();
+    });
+
+    // ===== DOWNLOAD INVOICE =====
     window.downloadInvoice = () => {
       const o = currentOrderData;
       if (!o) { showToast('No order selected', 'error'); return; }
+
       const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
-      const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      const dateStr = date.toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric' 
+      });
+
       let itemsText = '';
       if (o.items && o.items.length > 0) {
-        o.items.forEach(item => { const qty = item.quantity || 1; itemsText += `  ${item.name} × ${qty} = $${(item.price * qty).toFixed(2)}\n`; });
+        o.items.forEach(item => {
+          const qty = item.quantity || 1;
+          itemsText += `  ${item.name} × ${qty} = $${(item.price * qty).toFixed(2)}\n`;
+        });
       }
-      const invoiceContent = `========================================\n           SWD STORE - INVOICE\n========================================\n\nOrder ID: #${o.id}\nDate: ${dateStr}\nStatus: ${o.status?.toUpperCase() || 'PENDING'}\n\n----------------------------------------\nITEMS:\n${itemsText}\n----------------------------------------\n\nTotal: $${o.total?.toFixed(2) || '0.00'}\nPayment: ${o.paymentMethod || 'N/A'}\nTransaction: ${o.transactionId || 'Not provided'}\n\n----------------------------------------\nThank you for shopping with SWD Store!\n========================================`;
-      const blob = new Blob([invoiceContent.trim()], { type: 'text/plain;charset=utf-8' });
+
+      const invoiceContent = `
+========================================
+           SWD STORE - INVOICE
+========================================
+
+Order ID: #${o.id}
+Date: ${dateStr}
+Status: ${(o.status || 'PENDING').toUpperCase()}
+
+----------------------------------------
+ITEMS:
+${itemsText}
+----------------------------------------
+
+Total: $${o.total?.toFixed(2) || '0.00'}
+Payment: ${o.paymentMethod || 'N/A'}
+Transaction: ${o.transactionId || 'Not provided'}
+
+----------------------------------------
+Thank you for shopping with SWD Store!
+========================================
+      `.trim();
+
+      const blob = new Blob([invoiceContent], { type: 'text/plain;charset=utf-8' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `invoice-${o.id}-${dateStr.replace(/\s/g, '-')}.txt`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       URL.revokeObjectURL(link.href);
       showToast('✅ Invoice downloaded!', 'success');
     };
+
+    // ===== PRINT ORDER =====
     window.printOrder = () => {
       const content = document.getElementById('orderDetailContent');
       const title = document.getElementById('detailOrderTitle');
       const printWindow = window.open('', '_blank', 'width=800,height=600');
-      printWindow.document.write(`<html><head><title>Order Invoice</title></head><body style="font-family: Arial, sans-serif; padding: 40px;"><h1 style="text-align:center;">SWD Store - Invoice</h1><hr /><div>${title.textContent}</div><div>${content.innerHTML}</div><hr /><p style="text-align:center; color:#999;">Thank you for shopping with SWD Store!</p></body></html>`);
+      if (!printWindow) {
+        showToast('Please allow popups for printing.', 'warning');
+        return;
+      }
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Order Invoice</title>
+            <style>
+              body { font-family: 'Inter', sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+              h1 { text-align: center; color: #1c1c1e; }
+              hr { border: 1px solid #e5e7eb; margin: 20px 0; }
+              .detail-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f3f4f6; }
+            </style>
+          </head>
+          <body>
+            <h1>SWD Store - Invoice</h1>
+            <hr />
+            <div style="font-size:1.2rem; font-weight:600; margin-bottom:10px;">${title.textContent}</div>
+            <div>${content.innerHTML}</div>
+            <hr />
+            <p style="text-align:center; color:#9ca3af; font-size:0.85rem;">Thank you for shopping with SWD Store!</p>
+          </body>
+        </html>
+      `);
       printWindow.document.close();
       printWindow.print();
     };
-    document.getElementById('orderDetailModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeOrderDetail(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOrderDetail(); });
 
+    // ================================================================
+    // AUTH STATE
+    // ================================================================
     onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = 'index.html'; return; }
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
       currentUser = user;
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
       updateNavbarAuth(user, displayName);
+
+      // Load orders
       loadOrders(user.uid);
     });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (unsubOrders) unsubOrders();
+    });
+
     console.log('📦 My Orders page loaded successfully!');
   </script>
 </body>

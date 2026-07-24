@@ -5,23 +5,80 @@ import {
   deleteDoc, getDocs
 } from './firebase-config.js';
 
-// ===== টোস্ট ফাংশন =====
+// ================================================================
+// ✅ TOAST NOTIFICATION (UI ইমপ্রুভ)
+// ================================================================
 window.showToast = function(message, type = 'success') {
   let container = document.getElementById('toast-container');
   if (!container) {
     container = document.createElement('div');
     container.id = 'toast-container';
+    container.style.cssText = `
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 12px;
+      max-width: 420px; width: 100%; pointer-events: none;
+    `;
     document.body.appendChild(container);
   }
+
   const toast = document.createElement('div');
-  const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+  const icons = { 
+    success: 'fa-check-circle', 
+    error: 'fa-exclamation-circle', 
+    warning: 'fa-exclamation-triangle',
+    info: 'fa-info-circle'
+  };
+  const colors = {
+    success: '#34C759',
+    error: '#FF3B30',
+    warning: '#FF9500',
+    info: '#007AFF'
+  };
+
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+  toast.style.cssText = `
+    padding: 16px 20px; border-radius: 16px;
+    background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.8);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.12);
+    font-size: 0.95rem; font-weight: 500; color: #1c1c1e;
+    transform: translateX(calc(100% + 40px));
+    animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    display: flex; align-items: center; gap: 14px;
+    pointer-events: auto; border-left: 4px solid ${colors[type] || '#007AFF'};
+    width: 100%;
+  `;
+  toast.innerHTML = `
+    <i class="fas ${icons[type] || icons.success}" style="font-size:1.3rem; color:${colors[type] || '#007AFF'}; flex-shrink:0;"></i>
+    <span style="flex:1;">${message}</span>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8e8e93;cursor:pointer;font-size:1.1rem;">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
   container.appendChild(toast);
-  setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
+
+  // Auto remove after 4.5s
+  setTimeout(() => {
+    toast.style.animation = 'slideOut 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+    setTimeout(() => toast.remove(), 450);
+  }, 4500);
 };
 
-// ===== কার্ট ব্যাজ =====
+// Inject animations
+const toastStyles = document.createElement('style');
+toastStyles.textContent = `
+  @keyframes slideIn {
+    to { transform: translateX(0); }
+  }
+  @keyframes slideOut {
+    to { transform: translateX(calc(100% + 40px)); opacity: 0; }
+  }
+`;
+document.head.appendChild(toastStyles);
+
+// ================================================================
+// ✅ CART BADGE
+// ================================================================
 export function updateCartBadge() {
   const cartBadge = document.getElementById('cartCount');
   if (!cartBadge) return;
@@ -29,44 +86,66 @@ export function updateCartBadge() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
     cartBadge.textContent = totalQty;
-    cartBadge.style.display = totalQty > 0 ? 'inline' : 'none';
+    cartBadge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
   } catch (e) {
     cartBadge.textContent = '0';
     cartBadge.style.display = 'none';
   }
 }
 
-// ===== মোবাইল মেনু টগল =====
+// ================================================================
+// ✅ MOBILE MENU TOGGLE (UI ইমপ্রুভ)
+// ================================================================
 window.toggleMobileMenu = function() {
   const menu = document.getElementById('mobileMenu');
   const icon = document.getElementById('hamburgerIcon');
   if (menu) {
+    const isOpen = !menu.classList.contains('hidden');
     menu.classList.toggle('hidden');
     if (icon) {
       icon.classList.toggle('fa-bars');
       icon.classList.toggle('fa-times');
     }
+    // Smooth height animation
+    if (!isOpen) {
+      menu.style.maxHeight = '0';
+      menu.style.opacity = '0';
+      setTimeout(() => {
+        menu.style.maxHeight = '500px';
+        menu.style.opacity = '1';
+      }, 10);
+    } else {
+      menu.style.maxHeight = '0';
+      menu.style.opacity = '0';
+    }
   }
 };
 
-// ===== নোটিফিকেশন টগল (ডেমো) =====
+// ================================================================
+// ✅ NOTIFICATION TOGGLE
+// ================================================================
 window.toggleNotifications = function() {
   const dropdown = document.getElementById('notificationDropdown');
   if (dropdown) {
     dropdown.classList.toggle('hidden');
+    if (!dropdown.classList.contains('hidden')) {
+      dropdown.style.animation = 'dropdownFade 0.2s ease';
+    }
   }
 };
 
-// ===== নেভবার =====
+// ================================================================
+// ✅ NAVBAR (UI ইমপ্রুভ)
+// ================================================================
 export function renderNavbar() {
   const navbarHTML = `
-    <nav class="fixed top-0 left-0 w-full glass z-50 h-16 md:h-20 flex items-center px-4 sm:px-6 lg:px-8">
+    <nav class="fixed top-0 left-0 w-full glass z-50 h-16 md:h-20 flex items-center px-4 sm:px-6 lg:px-8 shadow-sm">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
-        <a href="index.html" class="text-xl md:text-2xl font-bold text-gray-900">
+        <a href="index.html" class="text-xl md:text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
           SWD <span class="gradient-text">Store</span>
         </a>
         
-        <!-- ডেস্কটপ মেনু -->
+        <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-6">
           <a href="index.html" class="nav-link">Home</a>
           <a href="get-new-website.html" class="nav-link">Store</a>
@@ -74,67 +153,86 @@ export function renderNavbar() {
         </div>
 
         <div class="flex items-center gap-3 md:gap-4">
+          <!-- Notifications -->
           <div class="relative">
-            <a href="#" onclick="window.toggleNotifications()" class="text-gray-700 hover:text-blue-500 text-xl relative">
+            <button onclick="window.toggleNotifications()" class="text-gray-700 hover:text-blue-500 text-xl relative transition-colors">
               <i class="fas fa-bell"></i>
               <span id="notificationDot" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full hidden"></span>
-            </a>
+            </button>
             <div id="notificationDropdown" class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 hidden max-h-80 overflow-y-auto z-50">
-              <div class="p-3 font-semibold border-b">Notifications</div>
-              <div id="notificationList" class="p-2 text-sm text-gray-600">No notifications</div>
+              <div class="p-3 font-semibold border-b text-gray-900">Notifications</div>
+              <div id="notificationList" class="p-3 text-sm text-gray-500">No notifications</div>
             </div>
           </div>
 
-          <a href="messages.html" class="text-gray-700 hover:text-blue-500 text-xl" title="Messages">
+          <!-- Messages -->
+          <a href="messages.html" class="text-gray-700 hover:text-blue-500 text-xl transition-colors" title="Messages">
             <i class="fas fa-envelope"></i>
           </a>
-          <a href="#" class="cart-toggle text-gray-700 hover:text-blue-500 text-xl relative" title="Cart">
+
+          <!-- Cart -->
+          <button onclick="window.toggleCart()" class="text-gray-700 hover:text-blue-500 text-xl relative transition-colors" title="Cart">
             <i class="fas fa-shopping-cart"></i>
             <span id="cartCount" class="cart-badge" style="display:none;">0</span>
-          </a>
+          </button>
           
+          <!-- Auth Loading -->
           <div id="auth-loading" class="flex items-center gap-3">
             <div class="w-16 h-8 bg-gray-200 rounded-full animate-pulse"></div>
             <div class="w-24 h-10 bg-gray-200 rounded-full animate-pulse hidden md:block"></div>
           </div>
 
+          <!-- Auth Buttons -->
           <div id="auth-buttons" class="hidden flex items-center gap-3">
-            <a href="#" onclick="window.openAuthModal('signin')" class="nav-link text-sm">Sign In</a>
-            <a href="#" onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2 px-4 md:px-5">Get Started</a>
+            <button onclick="window.openAuthModal('signin')" class="nav-link text-sm">Sign In</button>
+            <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2 px-4 md:px-5">Get Started</button>
           </div>
 
+          <!-- Profile -->
           <div id="profile-section" class="relative hidden">
-            <div class="profile-avatar" id="profileAvatar">U</div>
+            <button class="profile-avatar" id="profileAvatar" aria-label="Profile menu">U</button>
             <div class="dropdown-menu" id="dropdownMenu">
               <a href="my-profile.html"><i class="fas fa-user mr-2"></i> My Profile</a>
               <a href="my-orders.html"><i class="fas fa-box mr-2"></i> My Orders</a>
               <a href="my-fix-requests.html"><i class="fas fa-tools mr-2"></i> My Fix Requests</a>
               <a href="settings.html"><i class="fas fa-cog mr-2"></i> Settings</a>
-              <a href="admin-panel.html" id="adminPanelLink" class="hidden" style="display:none !important;"><i class="fas fa-shield-alt mr-2"></i> Admin Panel</a>
-              <a href="#" onclick="window.handleLogout()"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+              <a href="admin-panel.html" id="adminPanelLink" class="hidden"><i class="fas fa-shield-alt mr-2"></i> Admin Panel</a>
+              <hr class="my-1 border-gray-100" />
+              <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
             </div>
           </div>
 
-          <button onclick="window.toggleMobileMenu()" class="md:hidden text-gray-700 text-2xl">
+          <!-- Hamburger -->
+          <button onclick="window.toggleMobileMenu()" class="md:hidden text-gray-700 text-2xl hover:text-blue-500 transition-colors" aria-label="Toggle menu">
             <i class="fas fa-bars" id="hamburgerIcon"></i>
           </button>
         </div>
       </div>
     </nav>
-    <div id="mobileMenu" class="fixed top-16 left-0 w-full bg-white shadow-lg z-40 hidden md:hidden">
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed top-16 left-0 w-full bg-white shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-3">
-        <a href="index.html" class="nav-link py-2">Home</a>
-        <a href="get-new-website.html" class="nav-link py-2">Store</a>
-        <a href="fix-website.html" class="nav-link py-2">Fix</a>
+        <a href="index.html" class="nav-link py-3 px-4 rounded-lg hover:bg-gray-50">Home</a>
+        <a href="get-new-website.html" class="nav-link py-3 px-4 rounded-lg hover:bg-gray-50">Store</a>
+        <a href="fix-website.html" class="nav-link py-3 px-4 rounded-lg hover:bg-gray-50">Fix</a>
       </div>
     </div>
   `;
-  document.getElementById('navbar-placeholder').innerHTML = navbarHTML;
+  
+  const placeholder = document.getElementById('navbar-placeholder');
+  if (placeholder) {
+    placeholder.innerHTML = navbarHTML;
+  }
 
+  // Profile dropdown
   const avatar = document.getElementById('profileAvatar');
   const dropdown = document.getElementById('dropdownMenu');
   if (avatar) {
-    avatar.addEventListener('click', () => dropdown.classList.toggle('show'));
+    avatar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
   }
   document.addEventListener('click', (e) => {
     if (avatar && !avatar.contains(e.target) && !dropdown.contains(e.target)) {
@@ -142,6 +240,7 @@ export function renderNavbar() {
     }
   });
 
+  // Cart toggle
   const cartToggle = document.querySelector('#navbar-placeholder .cart-toggle');
   if (cartToggle) {
     cartToggle.addEventListener('click', (e) => {
@@ -153,7 +252,9 @@ export function renderNavbar() {
   updateCartBadge();
 }
 
-// ===== ✅ নেভবার অথ আপডেট – Admin Link দেখানোর লজিক শক্তিশালী =====
+// ================================================================
+// ✅ NAVBAR AUTH UPDATE (Admin Link Logic)
+// ================================================================
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
   const profileSection = document.getElementById('profile-section');
@@ -168,11 +269,10 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
     
-    // ✅ Admin Link – শুধুমাত্র role === 'admin' হলে দেখাবে
     if (adminLink) {
       if (role === 'admin') {
         adminLink.classList.remove('hidden');
-        adminLink.style.display = ''; // override inline style
+        adminLink.style.display = '';
       } else {
         adminLink.classList.add('hidden');
         adminLink.style.display = 'none !important';
@@ -184,40 +284,52 @@ export function updateNavbarAuth(user, displayName, role = null) {
   }
 }
 
-// ===== ফুটার =====
+// ================================================================
+// ✅ FOOTER (UI ইমপ্রুভ)
+// ================================================================
 export function renderFooter() {
   const footerHTML = `
-    <footer class="glass border-t border-gray-200/30 py-8 px-6 sm:px-8 lg:px-12 mt-auto">
+    <footer class="glass border-t border-gray-200/30 py-10 px-6 sm:px-8 lg:px-12 mt-auto">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-        <div class="font-medium text-gray-700">&copy; 2026 SWD Store all rights reserved </div>
+        <div class="font-medium text-gray-700">&copy; 2026 SWD Store. All rights reserved.</div>
         <div class="flex items-center gap-4">
-          <a href="https://nopqrshov.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium">Portfolio</a>
+          <a href="https://nopqrshov.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium transition-colors">Portfolio</a>
           <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
           <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
         </div>
       </div>
     </footer>
   `;
-  document.getElementById('footer-placeholder').innerHTML = footerHTML;
+  const placeholder = document.getElementById('footer-placeholder');
+  if (placeholder) {
+    placeholder.innerHTML = footerHTML;
+  }
 }
 
-// ===== কার্ট সাইডবার =====
+// ================================================================
+// ✅ CART SIDEBAR (UI ইমপ্রুভ)
+// ================================================================
 export function renderCartSidebar() {
   if (document.getElementById('cartSidebar')) return;
+
   const html = `
     <div class="cart-overlay" id="cartOverlay" onclick="window.toggleCart()"></div>
     <div class="cart-sidebar" id="cartSidebar">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">Your Cart</h2>
-        <button onclick="window.toggleCart()" class="text-gray-500"><i class="fas fa-times"></i></button>
+        <h2 class="text-xl font-bold text-gray-900">Your Cart</h2>
+        <button onclick="window.toggleCart()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors" aria-label="Close cart">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-      <div id="cartItems" class="space-y-4"></div>
+      <div id="cartItems" class="space-y-4 flex-1 overflow-y-auto"></div>
       <div class="mt-6 border-t pt-4">
-        <div class="flex justify-between font-bold">
+        <div class="flex justify-between font-bold text-lg">
           <span>Total:</span>
-          <span id="cartTotal">$0</span>
+          <span id="cartTotal" class="text-blue-600">$0</span>
         </div>
-        <button onclick="window.checkout()" class="btn-primary w-full mt-4 justify-center">Proceed to Checkout</button>
+        <button onclick="window.checkout()" class="btn-primary w-full mt-4 justify-center">
+          <i class="fas fa-lock"></i> Proceed to Checkout
+        </button>
       </div>
     </div>
   `;
@@ -225,20 +337,36 @@ export function renderCartSidebar() {
   updateCartUI();
 }
 
+// ================================================================
+// ✅ CART TOGGLE
+// ================================================================
 export function toggleCart() {
   const sidebar = document.getElementById('cartSidebar');
   const overlay = document.getElementById('cartOverlay');
-  if (sidebar) sidebar.classList.toggle('open');
+  if (sidebar) {
+    sidebar.classList.toggle('open');
+    document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+  }
   if (overlay) overlay.classList.toggle('open');
 }
+window.toggleCart = toggleCart;
 
+// ================================================================
+// ✅ UPDATE CART UI
+// ================================================================
 export function updateCartUI() {
   const container = document.getElementById('cartItems');
   const totalEl = document.getElementById('cartTotal');
   if (!container || !totalEl) return;
+
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   if (cart.length === 0) {
-    container.innerHTML = '<p class="text-gray-500">Your cart is empty.</p>';
+    container.innerHTML = `
+      <div class="text-center py-12 text-gray-400">
+        <i class="fas fa-shopping-bag text-4xl mb-3 opacity-30"></i>
+        <p>Your cart is empty.</p>
+      </div>
+    `;
     totalEl.textContent = '$0';
   } else {
     let total = 0;
@@ -248,18 +376,20 @@ export function updateCartUI() {
       const subtotal = qty * price;
       total += subtotal;
       return `
-        <div class="flex items-center gap-3 border-b pb-3">
-          <img src="${item.imageUrl || 'https://via.placeholder.com/50?text=No+Img'}" alt="${item.name}" class="w-12 h-12 object-cover rounded" />
-          <div class="flex-1">
-            <span class="font-medium block">${item.name}</span>
+        <div class="flex items-center gap-3 border-b border-gray-100 pb-3 animate-fadeIn">
+          <img src="${item.imageUrl || 'https://via.placeholder.com/50?text=No+Img'}" alt="${item.name}" class="w-14 h-14 object-cover rounded-lg" loading="lazy" />
+          <div class="flex-1 min-w-0">
+            <span class="font-medium block text-gray-900 truncate">${item.name}</span>
             <span class="text-sm text-gray-500 block">$${price} × ${qty} = $${subtotal.toFixed(2)}</span>
           </div>
           <div class="flex items-center gap-1">
-            <button onclick="window.updateQuantity(${idx}, -1)" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600">−</button>
+            <button onclick="window.updateQuantity(${idx}, -1)" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">−</button>
             <span class="w-6 text-center font-medium">${qty}</span>
-            <button onclick="window.updateQuantity(${idx}, 1)" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600">+</button>
+            <button onclick="window.updateQuantity(${idx}, 1)" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">+</button>
           </div>
-          <button onclick="window.removeFromCart(${idx})" class="text-red-500 ml-1"><i class="fas fa-trash"></i></button>
+          <button onclick="window.removeFromCart(${idx})" class="text-red-400 hover:text-red-600 transition-colors ml-1" aria-label="Remove item">
+            <i class="fas fa-trash-alt"></i>
+          </button>
         </div>
       `;
     }).join('');
@@ -267,10 +397,11 @@ export function updateCartUI() {
   }
   updateCartBadge();
 }
-
-window.toggleCart = toggleCart;
 window.updateCartUI = updateCartUI;
 
+// ================================================================
+// ✅ CART QUANTITY UPDATE
+// ================================================================
 window.updateQuantity = function(index, delta) {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   if (!cart[index]) return;
@@ -289,7 +420,9 @@ window.removeFromCart = function(index) {
   updateCartUI();
 };
 
-// ===== লোডিং =====
+// ================================================================
+// ✅ LOADING BUTTON
+// ================================================================
 export function setLoading(button, isLoading, originalText = null) {
   if (!button) return;
   if (isLoading) {
@@ -305,16 +438,20 @@ export function setLoading(button, isLoading, originalText = null) {
   }
 }
 
-// ===== পেমেন্ট মডাল =====
+// ================================================================
+// ✅ PAYMENT MODAL (UI ইমপ্রুভ)
+// ================================================================
 export function renderPaymentModal() {
   if (document.getElementById('paymentModal')) return;
 
   const modalHTML = `
-    <div id="paymentModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden">
-      <div class="bg-white rounded-2xl p-8 max-w-lg w-full">
+    <div id="paymentModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
+      <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-2xl font-bold text-gray-900">Complete Payment</h3>
-          <button onclick="window.closePaymentModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+          <button onclick="window.closePaymentModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors" aria-label="Close">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
         <div id="paymentDetails" class="space-y-3 text-sm bg-gray-50 p-4 rounded-xl">
           <p class="font-semibold text-gray-700">Send payment to any of these:</p>
@@ -323,19 +460,31 @@ export function renderPaymentModal() {
         <form id="paymentForm" class="mt-4 space-y-4">
           <input type="hidden" id="paymentOrderId" />
           <div>
-            <label class="block text-sm font-semibold text-gray-700">Transaction ID *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Transaction ID *</label>
             <input type="text" id="transactionId" placeholder="Enter your payment transaction ID" required class="form-input" />
           </div>
           <button type="submit" class="btn-primary w-full justify-center">
             <i class="fas fa-check"></i> Confirm Payment
           </button>
-          <div id="paymentError" class="text-red-500 text-sm hidden"></div>
+          <div id="paymentError" class="text-red-500 text-sm hidden text-center p-3 bg-red-50 rounded-xl border border-red-200"></div>
         </form>
       </div>
     </div>
   `;
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 
+  // Inject animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-scaleIn { animation: scaleIn 0.25s ease forwards; }
+  `;
+  document.head.appendChild(style);
+
+  // Payment form submit
   const paymentForm = document.getElementById('paymentForm');
   if (paymentForm) {
     paymentForm.addEventListener('submit', async (e) => {
@@ -346,29 +495,30 @@ export function renderPaymentModal() {
       errorDiv.classList.add('hidden');
 
       if (!orderId) {
-        errorDiv.textContent = '❌ Order not found. Please try again.';
+        errorDiv.textContent = '❌ Order not found. Please refresh and try again.';
         errorDiv.classList.remove('hidden');
-        window.showToast('Order not found. Please refresh and try again.', 'error');
+        window.showToast('Order not found. Please refresh.', 'error');
         return;
       }
 
       if (!txnId) {
-        errorDiv.textContent = 'Please enter transaction ID.';
+        errorDiv.textContent = '⚠️ Please enter transaction ID.';
         errorDiv.classList.remove('hidden');
+        document.getElementById('transactionId').classList.add('error');
         return;
       }
 
       const user = auth.currentUser;
       if (!user) {
-        errorDiv.textContent = 'You are not logged in.';
+        errorDiv.textContent = '⚠️ You are not logged in.';
         errorDiv.classList.remove('hidden');
         return;
       }
 
       const btn = paymentForm.querySelector('button[type="submit"]');
       setLoading(btn, true, 'Confirm Payment');
+
       try {
-        // ✅ এই `updateDoc` কলটি Rules-এর সাথে সামঞ্জস্যপূর্ণ
         await updateDoc(doc(db, 'orders', orderId), {
           transactionId: txnId,
           paymentMethod: 'Manual'
@@ -379,7 +529,7 @@ export function renderPaymentModal() {
         window.updateCartUI();
         if (typeof window.toggleCart === 'function') window.toggleCart();
       } catch (err) {
-        console.error('Payment update error:', err);
+        console.error('Payment error:', err);
         errorDiv.textContent = '⚠️ ' + err.message;
         errorDiv.classList.remove('hidden');
         window.showToast('⚠️ ' + err.message, 'error');
@@ -390,6 +540,9 @@ export function renderPaymentModal() {
   }
 }
 
+// ================================================================
+// ✅ OPEN PAYMENT MODAL
+// ================================================================
 window.openPaymentModal = function(orderId, settings) {
   const numbersDiv = document.getElementById('paymentNumbers');
   const orderInput = document.getElementById('paymentOrderId');
@@ -401,29 +554,33 @@ window.openPaymentModal = function(orderId, settings) {
   orderInput.value = orderId;
 
   let html = '';
-  if (settings.bkash) html += `<p><i class="fas fa-mobile-alt text-blue-500"></i> BKash: <strong>${settings.bkash}</strong></p>`;
-  if (settings.nagad) html += `<p><i class="fas fa-mobile-alt text-orange-500"></i> Nagad: <strong>${settings.nagad}</strong></p>`;
-  if (settings.usdt) html += `<p><i class="fab fa-bitcoin text-yellow-500"></i> USDT (BEP20): <strong>${settings.usdt}</strong></p>`;
-  if (settings.rocket) html += `<p><i class="fas fa-mobile-alt text-red-500"></i> Rocket: <strong>${settings.rocket}</strong></p>`;
+  if (settings.bkash) html += `<p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-blue-500 text-lg"></i> BKash: <strong>${settings.bkash}</strong></p>`;
+  if (settings.nagad) html += `<p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-orange-500 text-lg"></i> Nagad: <strong>${settings.nagad}</strong></p>`;
+  if (settings.usdt) html += `<p class="flex items-center gap-2"><i class="fab fa-bitcoin text-yellow-500 text-lg"></i> USDT (BEP20): <strong>${settings.usdt}</strong></p>`;
+  if (settings.rocket) html += `<p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-red-500 text-lg"></i> Rocket: <strong>${settings.rocket}</strong></p>`;
   if (!html) html = '<p class="text-gray-500">Payment methods not set. Contact admin.</p>';
   
   numbersDiv.innerHTML = html;
   document.getElementById('paymentModal').classList.remove('hidden');
   document.getElementById('paymentError').classList.add('hidden');
   document.getElementById('transactionId').value = '';
+  document.getElementById('transactionId').classList.remove('error');
 };
 
 window.closePaymentModal = function() {
   document.getElementById('paymentModal').classList.add('hidden');
 };
 
-// ===== চেকআউট =====
+// ================================================================
+// ✅ CHECKOUT
+// ================================================================
 window.checkout = async function() {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   if (cart.length === 0) {
     window.showToast('🛒 Your cart is empty', 'warning');
     return;
   }
+
   const user = auth.currentUser;
   if (!user) {
     window.showToast('⚠️ Please sign in to checkout', 'error');
@@ -462,7 +619,6 @@ window.checkout = async function() {
     const docRef = await addDoc(collection(db, 'orders'), orderData);
     
     window.openPaymentModal(docRef.id, settings);
-
     if (checkoutBtn) setLoading(checkoutBtn, false);
   } catch (err) {
     window.showToast('⚠️ ' + err.message, 'error');

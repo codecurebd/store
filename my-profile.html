@@ -2,109 +2,445 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>My Profile – SWD Store</title>
+  
+  <!-- ✅ Preconnect & Preload for faster font loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  
   <style>
-    .profile-avatar-big { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700; color: white; flex-shrink: 0; object-fit: cover; }
-    .profile-avatar-big img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-    .info-label { font-weight: 600; color: #6b7280; min-width: 100px; display: inline-block; }
+    /* ===== BASE ===== */
+    * { box-sizing: border-box; }
+    body {
+      background: #f2f4f7;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
 
-    /* ===== Fade-up ===== */
-    .fade-up { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    /* ===== FONT DISPLAY SWAP ===== */
+    @font-face {
+      font-family: 'Inter';
+      font-display: swap;
+    }
 
-    /* ===== Back to Top ===== */
+    /* ===== GLASS CARD ===== */
+    .glass-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+      transform: translateY(-3px);
+    }
+
+    /* ===== PROFILE AVATAR ===== */
+    .profile-avatar-big {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      object-fit: cover;
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+      transition: transform 0.3s ease;
+    }
+    .profile-avatar-big:hover {
+      transform: scale(1.03);
+    }
+    .profile-avatar-big img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* ===== INFO LABEL ===== */
+    .info-label {
+      font-weight: 600;
+      color: #6b7280;
+      min-width: 100px;
+      display: inline-block;
+      font-size: 0.9rem;
+    }
+    .info-value {
+      font-weight: 500;
+      color: #1c1c1e;
+      font-size: 1rem;
+    }
+
+    /* ===== FORM INPUTS ===== */
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid rgba(60, 60, 67, 0.08);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.8);
+      transition: all 0.3s ease;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      color: #1c1c1e;
+    }
+    .form-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
+      background: #ffffff;
+    }
+    .form-input::placeholder {
+      color: #8e8e93;
+      opacity: 0.7;
+    }
+    .form-input.error {
+      border-color: #FF3B30;
+      box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.08);
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      text-decoration: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
+    }
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #1c1c1e;
+      padding: 10px 22px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1.5px solid rgba(60,60,67,0.08);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.5);
+      min-height: 48px;
+      text-decoration: none;
+    }
+    .btn-outline:hover {
+      background: rgba(0,122,255,0.04);
+      border-color: #007AFF;
+      color: #007AFF;
+      transform: translateY(-2px);
+    }
+
+    /* ===== ACTION CARD ===== */
+    .action-card {
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: block;
+    }
+    .action-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    }
+    .action-card .action-icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .action-card .action-label {
+      font-weight: 600;
+      color: #1c1c1e;
+      font-size: 0.9rem;
+    }
+
+    /* ===== SKELETON ===== */
+    .skeleton-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      animation: pulse 1.5s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    .skeleton-line {
+      height: 16px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .skeleton-line.short { width: 40%; }
+    .skeleton-line.medium { width: 70%; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* ===== FADE-UP ===== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== BACK TO TOP ===== */
     .scroll-top-btn {
-      position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%;
-      background: linear-gradient(135deg, #007AFF, #5856D6); color: #fff; border: none; font-size: 1.2rem;
-      cursor: pointer; box-shadow: 0 8px 30px rgba(0,122,255,0.35); z-index: 999;
-      opacity: 0; transform: scale(0.8); transition: opacity 0.3s ease, transform 0.3s ease;
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(0,122,255,0.35);
+      z-index: 999;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
       pointer-events: none;
     }
-    .scroll-top-btn.show { opacity: 1; transform: scale(1); pointer-events: auto; }
+    .scroll-top-btn.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
     .scroll-top-btn:hover { transform: scale(1.05); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .glass-card { padding: 1rem; border-radius: 12px; }
+      .profile-avatar-big { width: 80px; height: 80px; font-size: 2rem; }
+      .btn-primary, .btn-outline { font-size: 0.85rem; min-height: 42px; padding: 8px 16px; }
+      .action-card .action-icon { font-size: 1.8rem; }
+    }
+    @media (max-width: 480px) {
+      .profile-avatar-big { width: 70px; height: 70px; font-size: 1.6rem; }
+      .info-label { font-size: 0.8rem; min-width: 70px; }
+      .info-value { font-size: 0.9rem; }
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      border-left: 4px solid #007AFF;
+    }
+    .toast.success { border-left-color: #34C759; }
+    .toast.error { border-left-color: #FF3B30; }
+    .toast.warning { border-left-color: #FF9500; }
   </style>
 </head>
 <body>
   <div class="page-wrapper">
     <div id="navbar-placeholder"></div>
+
     <main class="main-content">
       <section class="pt-28 pb-16 px-6 max-w-2xl mx-auto">
-        <div class="flex items-center gap-3 mb-2 fade-up">
-          <i class="fas fa-user-circle text-3xl text-blue-500"></i>
+        <!-- Header -->
+        <div class="flex items-center gap-3 mb-6 fade-up">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <i class="fas fa-user-circle text-xl text-white"></i>
+          </div>
           <h1 class="text-3xl font-bold text-gray-900">My Profile</h1>
         </div>
-        <p class="text-gray-500 mb-6 fade-up">Manage your personal information</p>
 
+        <!-- ===== PROFILE CARD ===== -->
         <div class="glass-card fade-up">
-          <div class="flex flex-col sm:flex-row items-center gap-6">
-            <div class="profile-avatar-big" id="profileAvatarBig"><span id="avatarLetter">U</span></div>
-            <div class="flex-1 text-center sm:text-left">
-              <h2 id="profileDisplayName" class="text-2xl font-bold text-gray-900">Loading...</h2>
-              <p id="profileEmail" class="text-gray-500">Loading...</p>
-              <span id="profileRole" class="inline-block mt-1 text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">User</span>
+          <!-- Profile Header -->
+          <div class="flex flex-col sm:flex-row items-center gap-6" id="profileHeader">
+            <!-- Avatar Skeleton (will be replaced by JS) -->
+            <div class="skeleton-avatar" id="avatarSkeleton"></div>
+            <div class="profile-avatar-big hidden" id="profileAvatarBig">
+              <span id="avatarLetter">U</span>
             </div>
-            <button onclick="toggleEditForm()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-edit"></i> Edit</button>
-          </div>
-          <hr class="my-6 border-gray-200" />
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><p class="info-label"><i class="fas fa-envelope mr-2"></i>Email</p><p id="profileEmailDisplay" class="text-gray-800">-</p></div>
-            <div><p class="info-label"><i class="fas fa-phone mr-2"></i>Phone</p><p id="profilePhoneDisplay" class="text-gray-800">Not set</p></div>
-            <div><p class="info-label"><i class="fas fa-user-tag mr-2"></i>Role</p><p id="profileRoleDisplay" class="text-gray-800">User</p></div>
-            <div><p class="info-label"><i class="fas fa-calendar-alt mr-2"></i>Joined</p><p id="profileJoinedDisplay" class="text-gray-800">-</p></div>
+            <div class="flex-1 text-center sm:text-left w-full" id="profileInfo">
+              <div class="skeleton-line medium" id="nameSkeleton"></div>
+              <div class="skeleton-line short" id="emailSkeleton"></div>
+              <div class="skeleton-line" style="width:30%;" id="roleSkeleton"></div>
+            </div>
+            <button onclick="toggleEditForm()" class="btn-outline text-sm py-2 px-4 flex-shrink-0" id="editToggleBtn">
+              <i class="fas fa-edit"></i> Edit
+            </button>
           </div>
 
+          <hr class="my-6 border-gray-200" />
+
+          <!-- Info Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="infoGrid">
+            <div>
+              <p class="info-label"><i class="fas fa-envelope mr-2"></i>Email</p>
+              <p class="info-value" id="profileEmailDisplay">-</p>
+            </div>
+            <div>
+              <p class="info-label"><i class="fas fa-phone mr-2"></i>Phone</p>
+              <p class="info-value" id="profilePhoneDisplay">Not set</p>
+            </div>
+            <div>
+              <p class="info-label"><i class="fas fa-user-tag mr-2"></i>Role</p>
+              <p class="info-value" id="profileRoleDisplay">User</p>
+            </div>
+            <div>
+              <p class="info-label"><i class="fas fa-calendar-alt mr-2"></i>Joined</p>
+              <p class="info-value" id="profileJoinedDisplay">-</p>
+            </div>
+          </div>
+
+          <!-- Edit Form (hidden by default) -->
           <div id="editForm" class="hidden mt-6 pt-6 border-t border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Profile</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+              <i class="fas fa-pen text-blue-500 mr-2"></i> Edit Profile
+            </h3>
             <form id="profileEditForm" class="space-y-4">
-              <div><label class="block text-sm font-medium text-gray-700">Display Name</label><input type="text" id="editDisplayName" class="form-input" placeholder="Your name" required /></div>
-              <div><label class="block text-sm font-medium text-gray-700">Phone Number</label><input type="tel" id="editPhone" class="form-input" placeholder="+880 1XXX-XXXXXX" /></div>
-              <div><label class="block text-sm font-medium text-gray-700">Profile Photo URL</label><input type="text" id="editPhotoURL" class="form-input" placeholder="https://example.com/photo.jpg" /><p class="text-xs text-gray-400 mt-1">Paste a direct image URL (e.g., from Imgur, Google Drive)</p></div>
-              <div class="flex gap-3"><button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Changes</button><button type="button" onclick="toggleEditForm()" class="btn-outline">Cancel</button></div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Display Name</label>
+                <input type="text" id="editDisplayName" class="form-input" placeholder="Your name" required />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
+                <input type="tel" id="editPhone" class="form-input" placeholder="+880 1XXX-XXXXXX" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Profile Photo URL</label>
+                <input type="text" id="editPhotoURL" class="form-input" placeholder="https://example.com/photo.jpg" />
+                <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
+                  <i class="fas fa-info-circle"></i> Paste a direct image URL (e.g., from Imgur, Google Drive)
+                </p>
+              </div>
+              <div class="flex flex-wrap gap-3">
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-save"></i> Save Changes
+                </button>
+                <button type="button" onclick="toggleEditForm()" class="btn-outline">
+                  Cancel
+                </button>
+              </div>
               <div id="editFeedback" class="text-sm hidden"></div>
             </form>
           </div>
         </div>
 
+        <!-- ===== QUICK ACTIONS ===== -->
         <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 fade-up">
-          <a href="my-orders.html" class="glass-card text-center hover:shadow-lg transition-all"><i class="fas fa-box text-2xl text-blue-500"></i><p class="text-sm font-medium text-gray-800 mt-1">My Orders</p></a>
-          <a href="my-fix-requests.html" class="glass-card text-center hover:shadow-lg transition-all"><i class="fas fa-tools text-2xl text-orange-500"></i><p class="text-sm font-medium text-gray-800 mt-1">Fix Requests</p></a>
-          <a href="messages.html" class="glass-card text-center hover:shadow-lg transition-all"><i class="fas fa-comments text-2xl text-green-500"></i><p class="text-sm font-medium text-gray-800 mt-1">Support Chat</p></a>
-          <a href="settings.html" class="glass-card text-center hover:shadow-lg transition-all"><i class="fas fa-cog text-2xl text-gray-500"></i><p class="text-sm font-medium text-gray-800 mt-1">Settings</p></a>
+          <a href="my-orders.html" class="glass-card action-card text-center">
+            <span class="action-icon"><i class="fas fa-box text-blue-500"></i></span>
+            <span class="action-label">My Orders</span>
+          </a>
+          <a href="my-fix-requests.html" class="glass-card action-card text-center">
+            <span class="action-icon"><i class="fas fa-tools text-orange-500"></i></span>
+            <span class="action-label">Fix Requests</span>
+          </a>
+          <a href="messages.html" class="glass-card action-card text-center">
+            <span class="action-icon"><i class="fas fa-comments text-green-500"></i></span>
+            <span class="action-label">Support Chat</span>
+          </a>
+          <a href="settings.html" class="glass-card action-card text-center">
+            <span class="action-icon"><i class="fas fa-cog text-gray-500"></i></span>
+            <span class="action-label">Settings</span>
+          </a>
         </div>
       </section>
     </main>
+
     <div id="footer-placeholder"></div>
   </div>
 
-  <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
+  <!-- ===== BACK TO TOP ===== -->
+  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
 
-  <!-- Auth Modal (Forgot Password সরানো) -->
+  <!-- ===== AUTH MODAL ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-      <div class="flex justify-between items-center mb-4"><h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3><button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div>
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3>
+        <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
       <form id="authForm" class="space-y-4">
         <input type="email" id="authEmail" placeholder="Email" required class="form-input" />
-        <div class="relative"><input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" /><button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button></div>
+        <div class="relative">
+          <input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" />
+          <button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button>
+        </div>
         <button type="submit" class="btn-primary w-full justify-center">Continue</button>
       </form>
-      <div class="mt-4 flex flex-col gap-2"><button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button><button onclick="window.socialLogin('github')" class="btn-outline w-full justify-center"><i class="fab fa-github"></i> Sign in with GitHub</button></div>
-      <p class="mt-4 text-sm text-gray-500 text-center"><span id="authToggleText">Don't have an account?</span><a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a></p>
+      <div class="mt-4 flex flex-col gap-2">
+        <button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button>
+        <button onclick="window.socialLogin('github')" class="btn-outline w-full justify-center"><i class="fab fa-github"></i> Sign in with GitHub</button>
+      </div>
+      <p class="mt-4 text-sm text-gray-500 text-center">
+        <span id="authToggleText">Don't have an account?</span>
+        <a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a>
+      </p>
       <div id="authError" class="text-red-500 text-sm mt-2 hidden"></div>
     </div>
   </div>
+
   <div id="toast-container"></div>
 
   <script type="module">
-    import { renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, renderCartSidebar, setLoading, renderPaymentModal } from './components.js';
-    import { auth, db, doc, getDoc, setDoc, updateDoc, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, googleProvider, githubProvider } from './firebase-config.js';
+    // ================================================================
+    // ইমপোর্ট
+    // ================================================================
+    import { 
+      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
+      renderCartSidebar, setLoading, renderPaymentModal
+    } from './components.js';
+    import { 
+      auth, db, doc, getDoc, setDoc, updateDoc, signOut, onAuthStateChanged,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+      signInWithPopup, googleProvider, githubProvider
+    } from './firebase-config.js';
 
-    renderNavbar(); renderPaymentModal(); renderFooter(); renderCartSidebar(); updateCartBadge();
+    // ===== রেন্ডার =====
+    renderNavbar();
+    renderPaymentModal();
+    renderFooter();
+    renderCartSidebar();
+    updateCartBadge();
 
+    // ===== টোস্ট =====
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -116,15 +452,35 @@
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
+    // ===== SCROLL ANIMATION =====
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('.fade-up').forEach(el => observer.observe(el)); });
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    });
+
+    // ===== BACK TO TOP =====
     const scrollBtn = document.getElementById('scrollTopBtn');
-    window.addEventListener('scroll', () => { scrollBtn.classList.toggle('show', window.scrollY > 400); });
-    scrollBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        scrollBtn.classList.add('show');
+      } else {
+        scrollBtn.classList.remove('show');
+      }
+    });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
+    // ================================================================
+    // AUTH MODAL (আগের মতো)
+    // ================================================================
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -135,15 +491,18 @@
       document.getElementById('authModal').classList.remove('hidden');
     };
     window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
+
     document.getElementById('authToggleLink').addEventListener('click', (e) => {
       e.preventDefault();
       currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
       window.openAuthModal(currentAuthMode);
     });
+
     window.togglePasswordVisibility = (id) => {
       const input = document.getElementById(id);
       input.type = input.type === 'password' ? 'text' : 'password';
     };
+
     window.socialLogin = async (provider) => {
       try {
         let result;
@@ -153,15 +512,18 @@
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (!userDoc.exists()) {
           await setDoc(doc(db, 'users', user.uid), {
-            email: user.email, displayName: user.displayName || user.email.split('@')[0],
-            role: 'user', createdAt: new Date().toISOString()
+            email: user.email,
+            displayName: user.displayName || user.email.split('@')[0],
+            role: 'user',
+            createdAt: new Date().toISOString()
           });
         }
         showToast('✅ Signed in with ' + provider, 'success');
         closeAuthModal();
-      } catch (err) { showToast('⚠️ ' + err.message, 'error'); }
+      } catch (err) {
+        showToast('⚠️ ' + err.message, 'error');
+      }
     };
-    // showResetPasswordModal সরানো
 
     const authForm = document.getElementById('authForm');
     const authSubmitBtn = authForm.querySelector('button[type="submit"]');
@@ -190,7 +552,9 @@
         errorDiv.textContent = error.message;
         errorDiv.classList.remove('hidden');
         showToast('⚠️ ' + error.message, 'error');
-      } finally { setLoading(authSubmitBtn, false); }
+      } finally {
+        setLoading(authSubmitBtn, false);
+      }
     });
 
     window.handleLogout = async () => {
@@ -199,7 +563,10 @@
       window.location.href = 'index.html';
     };
 
-    // Profile Logic
+    // ================================================================
+    // ✅ প্রোফাইল লজিক
+    // ================================================================
+
     const profileDisplayName = document.getElementById('profileDisplayName');
     const profileEmail = document.getElementById('profileEmail');
     const profileEmailDisplay = document.getElementById('profileEmailDisplay');
@@ -208,103 +575,205 @@
     const profileJoinedDisplay = document.getElementById('profileJoinedDisplay');
     const profileAvatarBig = document.getElementById('profileAvatarBig');
     const avatarLetter = document.getElementById('avatarLetter');
-    const profileRole = document.getElementById('profileRole');
     const editForm = document.getElementById('editForm');
     const editDisplayName = document.getElementById('editDisplayName');
     const editPhone = document.getElementById('editPhone');
     const editPhotoURL = document.getElementById('editPhotoURL');
     const editFeedback = document.getElementById('editFeedback');
+    const editToggleBtn = document.getElementById('editToggleBtn');
+
+    // Skeleton elements
+    const avatarSkeleton = document.getElementById('avatarSkeleton');
+    const nameSkeleton = document.getElementById('nameSkeleton');
+    const emailSkeleton = document.getElementById('emailSkeleton');
+    const roleSkeleton = document.getElementById('roleSkeleton');
+
+    // Function to show/hide skeletons
+    function setLoadingState(isLoading) {
+      if (isLoading) {
+        avatarSkeleton.classList.remove('hidden');
+        document.getElementById('profileAvatarBig').classList.add('hidden');
+        nameSkeleton.classList.remove('hidden');
+        emailSkeleton.classList.remove('hidden');
+        roleSkeleton.classList.remove('hidden');
+        document.getElementById('profileInfo').querySelectorAll('.info-value, #profileDisplayName, #profileEmail, #profileRole').forEach(el => {
+          if (el.id !== 'nameSkeleton' && el.id !== 'emailSkeleton' && el.id !== 'roleSkeleton') {
+            el.textContent = '';
+          }
+        });
+      } else {
+        avatarSkeleton.classList.add('hidden');
+        document.getElementById('profileAvatarBig').classList.remove('hidden');
+        nameSkeleton.classList.add('hidden');
+        emailSkeleton.classList.add('hidden');
+        roleSkeleton.classList.add('hidden');
+      }
+    }
 
     async function loadProfile(user) {
-      if (!user) { window.location.href = 'index.html'; return; }
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      setLoadingState(true);
+
       try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
           const name = data.displayName || user.email?.split('@')[0] || 'User';
+          
+          // Update display
           profileDisplayName.textContent = name;
           document.title = `${name} – Profile`;
           profileEmail.textContent = data.email || user.email || 'No email';
           profileEmailDisplay.textContent = data.email || user.email || 'No email';
           profilePhoneDisplay.textContent = data.phone || 'Not set';
+          
           const role = data.role || 'user';
           const roleDisplay = role.charAt(0).toUpperCase() + role.slice(1);
           profileRoleDisplay.textContent = roleDisplay;
-          profileRole.textContent = roleDisplay;
+          
           if (data.createdAt) {
             const date = new Date(data.createdAt);
-            profileJoinedDisplay.textContent = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            profileJoinedDisplay.textContent = date.toLocaleDateString('en-US', { 
+              year: 'numeric', month: 'long', day: 'numeric' 
+            });
           }
+          
+          // Avatar
           avatarLetter.textContent = name.charAt(0).toUpperCase();
           if (data.photoURL) {
-            profileAvatarBig.innerHTML = `<img src="${data.photoURL}" alt="${name}" />`;
+            profileAvatarBig.innerHTML = `<img src="${data.photoURL}" alt="${name}" loading="lazy" />`;
           } else {
             profileAvatarBig.innerHTML = `<span id="avatarLetter">${name.charAt(0).toUpperCase()}</span>`;
           }
+          
+          // Edit form
           editDisplayName.value = name;
           editPhone.value = data.phone || '';
           editPhotoURL.value = data.photoURL || '';
-          updateNavbarAuth(user, name);
+          
+          // Update navbar
+          updateNavbarAuth(user, name, role);
         } else {
+          // Create profile if doesn't exist
           await setDoc(doc(db, 'users', user.uid), {
-            email: user.email, displayName: user.email?.split('@')[0] || 'User',
-            role: 'user', createdAt: new Date().toISOString()
+            email: user.email,
+            displayName: user.email?.split('@')[0] || 'User',
+            role: 'user',
+            createdAt: new Date().toISOString()
           });
           loadProfile(user);
         }
       } catch (err) {
         console.error('Profile load error:', err);
         showToast('⚠️ Error loading profile: ' + err.message, 'error');
+      } finally {
+        setLoadingState(false);
       }
     }
 
+    // ===== TOGGLE EDIT FORM =====
     window.toggleEditForm = () => {
       editForm.classList.toggle('hidden');
-      if (!editForm.classList.contains('hidden')) { editFeedback.className = 'hidden'; }
+      if (!editForm.classList.contains('hidden')) {
+        editFeedback.className = 'hidden';
+        editFeedback.textContent = '';
+        // Focus on first field
+        setTimeout(() => editDisplayName.focus(), 100);
+        editToggleBtn.innerHTML = '<i class="fas fa-times"></i> Close';
+      } else {
+        editToggleBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+      }
     };
 
+    // ===== PROFILE EDIT FORM =====
     const profileEditForm = document.getElementById('profileEditForm');
     const profileEditBtn = profileEditForm.querySelector('button[type="submit"]');
+
+    // Remove error state on focus
+    document.querySelectorAll('#editForm .form-input').forEach(el => {
+      el.addEventListener('focus', () => el.classList.remove('error'));
+    });
+
     profileEditForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
       const newName = editDisplayName.value.trim();
       const phone = editPhone.value.trim();
       const photoURL = editPhotoURL.value.trim();
+      
+      // Reset error states
+      document.querySelectorAll('#editForm .form-input').forEach(el => el.classList.remove('error'));
+      editFeedback.className = 'hidden';
+      editFeedback.textContent = '';
+
+      // Validation
       if (!newName) {
-        editFeedback.className = 'text-sm text-red-500 block';
+        editDisplayName.classList.add('error');
+        editFeedback.className = 'block text-sm text-red-500 mt-2';
         editFeedback.textContent = '⚠️ Please enter a display name.';
         showToast('Please enter a display name', 'error');
         return;
       }
+
       const user = auth.currentUser;
-      if (!user) { showToast('You are not logged in', 'error'); return; }
+      if (!user) {
+        showToast('You are not logged in', 'error');
+        return;
+      }
+
       setLoading(profileEditBtn, true, 'Saving...');
-      editFeedback.className = 'hidden';
+
       try {
-        await updateDoc(doc(db, 'users', user.uid), { displayName: newName, phone: phone || '', photoURL: photoURL || '' });
+        await updateDoc(doc(db, 'users', user.uid), {
+          displayName: newName,
+          phone: phone || '',
+          photoURL: photoURL || ''
+        });
+
+        // Update UI
         profileDisplayName.textContent = newName;
         avatarLetter.textContent = newName.charAt(0).toUpperCase();
         if (photoURL) {
-          profileAvatarBig.innerHTML = `<img src="${photoURL}" alt="${newName}" />`;
+          profileAvatarBig.innerHTML = `<img src="${photoURL}" alt="${newName}" loading="lazy" />`;
         } else {
           profileAvatarBig.innerHTML = `<span id="avatarLetter">${newName.charAt(0).toUpperCase()}</span>`;
         }
         profilePhoneDisplay.textContent = phone || 'Not set';
-        updateNavbarAuth(user, newName);
+        
+        // Update navbar
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const role = userDoc.exists() ? userDoc.data().role : 'user';
+        updateNavbarAuth(user, newName, role);
+
         showToast('✅ Profile updated successfully!', 'success');
         editForm.classList.add('hidden');
+        editToggleBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+
       } catch (err) {
         console.error('Update error:', err);
-        editFeedback.className = 'text-sm text-red-500 block';
+        editFeedback.className = 'block text-sm text-red-500 mt-2';
         editFeedback.textContent = '⚠️ ' + err.message;
         showToast('⚠️ Error: ' + err.message, 'error');
-      } finally { setLoading(profileEditBtn, false); }
+      } finally {
+        setLoading(profileEditBtn, false);
+      }
     });
 
+    // ================================================================
+    // AUTH STATE
+    // ================================================================
     onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = 'index.html'; return; }
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
       await loadProfile(user);
     });
+
     console.log('👤 Profile page loaded successfully!');
   </script>
 </body>

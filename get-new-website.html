@@ -2,29 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>Get New Website – SWD Store</title>
+  
+  <!-- ✅ Preconnect for faster font loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  
   <style>
-    .rating-stars { color: #f59e0b; font-size: 1.25rem; }
-    .rating-stars .star { cursor: pointer; transition: 0.2s; }
-    .rating-stars .star:hover { transform: scale(1.2); }
-    .wishlist-btn { transition: 0.3s; }
-    .wishlist-btn.active { color: #ef4444; }
+    /* ===== BASE ===== */
+    * { box-sizing: border-box; }
+    body {
+      background: #f2f4f7;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
 
-    /* ===== Skeleton Loading ===== */
+    /* ===== GLASS CARD ===== */
+    .glass-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+      transform: translateY(-4px);
+    }
+
+    /* ===== PRODUCT CARD ===== */
+    .product-card {
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px 12px 0 0;
+      transition: transform 0.4s ease;
+    }
+    .product-card:hover img {
+      transform: scale(1.03);
+    }
+    .product-card .card-body {
+      padding: 1rem 0.5rem 0.5rem;
+    }
+
+    /* ===== SKELETON ===== */
     .skeleton-card {
       background: #f3f4f6;
       border-radius: 16px;
-      padding: 1.5rem;
+      padding: 1.25rem;
       animation: pulse 1.5s ease-in-out infinite;
     }
     .skeleton-card .skeleton-img {
       width: 100%;
-      height: 180px;
+      height: 200px;
       background: #e5e7eb;
       border-radius: 12px;
       margin-bottom: 1rem;
@@ -35,26 +79,162 @@
       border-radius: 8px;
       margin-bottom: 0.75rem;
     }
-    .skeleton-card .skeleton-line.short { width: 60%; }
-    .skeleton-card .skeleton-line.medium { width: 80%; }
-
+    .skeleton-card .skeleton-line.short { width: 40%; }
+    .skeleton-card .skeleton-line.medium { width: 70%; }
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
 
-    /* ===== Fade-up Animation ===== */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
+    /* ===== FORM INPUTS ===== */
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid rgba(60, 60, 67, 0.08);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.8);
+      transition: all 0.3s ease;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      color: #1c1c1e;
     }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
+    .form-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
+      background: #ffffff;
+    }
+    .form-input::placeholder {
+      color: #8e8e93;
+      opacity: 0.7;
+    }
+    select.form-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238e8e93' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
     }
 
-    /* ===== Back to Top ===== */
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
+    }
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #1c1c1e;
+      padding: 10px 22px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1.5px solid rgba(60,60,67,0.08);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.5);
+      min-height: 48px;
+    }
+    .btn-outline:hover {
+      background: rgba(0,122,255,0.04);
+      border-color: #007AFF;
+      color: #007AFF;
+      transform: translateY(-2px);
+    }
+
+    /* ===== WISHLIST BUTTON ===== */
+    .wishlist-btn {
+      transition: 0.3s;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: #d1d5db;
+      cursor: pointer;
+    }
+    .wishlist-btn.active { color: #ef4444; }
+    .wishlist-btn:hover { transform: scale(1.15); }
+
+    /* ===== RATING STARS ===== */
+    .rating-stars .star {
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #d1d5db;
+    }
+    .rating-stars .star.active { color: #f59e0b; }
+    .rating-stars .star:hover { transform: scale(1.2); }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: white;
+      border-radius: 24px;
+      padding: 1.5rem;
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: scaleIn 0.3s ease forwards;
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-box .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .modal-box .modal-header h3 { font-size: 1.5rem; font-weight: 700; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #8e8e93;
+      transition: 0.2s;
+    }
+    .modal-close:hover { color: #1c1c1e; }
+
+    /* ===== SCROLL TOP ===== */
     .scroll-top-btn {
       position: fixed;
       bottom: 30px;
@@ -80,6 +260,29 @@
       pointer-events: auto;
     }
     .scroll-top-btn:hover { transform: scale(1.05); }
+
+    /* ===== FADE UP ===== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .product-card img { height: 150px; }
+      .modal-box { padding: 1rem; }
+      .btn-primary, .btn-outline { font-size: 0.85rem; min-height: 42px; padding: 8px 16px; }
+      .rating-stars .star { font-size: 1.5rem; }
+    }
+    @media (max-width: 480px) {
+      .product-card img { height: 120px; }
+      .modal-box { border-radius: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -91,10 +294,10 @@
         <div class="max-w-7xl mx-auto">
           <h1 class="text-3xl font-bold text-gray-900 fade-up">Choose Your Website Package</h1>
           
-          <!-- ===== ফিল্টার, সার্চ, সর্ট ===== -->
+          <!-- ===== FILTERS ===== -->
           <div class="flex flex-wrap gap-4 mt-4 items-center fade-up">
             <div class="relative flex-1 min-w-[200px]">
-              <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+              <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
               <input type="text" id="searchInput" placeholder="Search packages..." class="form-input pl-10" />
             </div>
             <select id="categoryFilter" class="form-input max-w-xs">
@@ -114,9 +317,9 @@
             </button>
           </div>
 
-          <!-- ===== প্রোডাক্ট গ্রিড (Skeleton সহ) ===== -->
+          <!-- ===== PRODUCT GRID ===== -->
           <div id="productGrid" class="grid md:grid-cols-3 gap-6 mt-8">
-            <!-- 6টি Skeleton কার্ড দেখানো হবে JS-এর মাধ্যমে -->
+            <!-- Skeleton will be rendered by JS -->
           </div>
         </div>
       </section>
@@ -125,22 +328,22 @@
     <div id="footer-placeholder"></div>
   </div>
 
-  <!-- ===== Back to Top Button ===== -->
+  <!-- ===== BACK TO TOP ===== -->
   <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- ===== প্রোডাক্ট ডিটেইল মডাল ===== -->
-  <div id="productDetailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[300] hidden">
-    <div class="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-4">
+  <!-- ===== PRODUCT DETAIL MODAL ===== -->
+  <div id="productDetailModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
         <h3 id="detailName" class="text-2xl font-bold text-gray-900"></h3>
-        <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        <button onclick="closeDetailModal()" class="modal-close" aria-label="Close">&times;</button>
       </div>
-      <img id="detailImage" src="" alt="" class="w-full h-64 object-cover rounded-lg mb-4" loading="lazy" />
+      <img id="detailImage" src="" alt="" class="w-full h-72 object-cover rounded-xl mb-4" loading="lazy" />
       <p id="detailDesc" class="text-gray-600"></p>
       <p id="detailPrice" class="text-2xl font-bold text-blue-600 mt-2"></p>
-      <div id="detailRating" class="mt-2 text-yellow-500"></div>
+      <div id="detailRating" class="mt-1 text-yellow-500"></div>
       <div id="detailStock" class="text-sm text-green-600 mt-1"></div>
       <div class="mt-4 flex flex-wrap gap-3">
         <button onclick="window.addToCartFromDetail()" class="btn-primary">
@@ -153,7 +356,8 @@
           <i class="fas fa-bolt"></i> Buy Now
         </button>
       </div>
-      <!-- ===== রেটিং ফর্ম ===== -->
+
+      <!-- ===== RATING ===== -->
       <div class="mt-6 border-t border-gray-200 pt-4">
         <h4 class="font-semibold text-gray-900">Rate this product</h4>
         <div class="rating-stars flex gap-2 mt-2" id="ratingStars">
@@ -172,7 +376,7 @@
     </div>
   </div>
 
-  <!-- ===== অথ মডাল (Forgot Password লিংক সরানো হয়েছে) ===== -->
+  <!-- ===== AUTH MODAL ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -191,7 +395,6 @@
         <button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button>
         <button onclick="window.socialLogin('github')" class="btn-outline w-full justify-center"><i class="fab fa-github"></i> Sign in with GitHub</button>
       </div>
-      <!-- Forgot Password লিংক সম্পূর্ণ সরানো হয়েছে -->
       <p class="mt-4 text-sm text-gray-500 text-center">
         <span id="authToggleText">Don't have an account?</span>
         <a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a>
@@ -203,7 +406,9 @@
   <div id="toast-container"></div>
 
   <script type="module">
-    // ===== ইমপোর্ট =====
+    // ================================================================
+    // ইমপোর্ট
+    // ================================================================
     import { 
       auth, db, collection, doc, getDoc, getDocs, onSnapshot, 
       addDoc, updateDoc, deleteDoc, serverTimestamp, 
@@ -236,7 +441,7 @@
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // ===== Scroll Animation (Intersection Observer) =====
+    // ===== SCROLL ANIMATION =====
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -249,7 +454,7 @@
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     });
 
-    // ===== Back to Top Button =====
+    // ===== BACK TO TOP =====
     const scrollBtn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 400) {
@@ -262,16 +467,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ===== Debounce Function =====
-    function debounce(func, wait) {
-      let timeout;
-      return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-      };
-    }
-
-    // ===== অথ মডাল =====
+    // ===== AUTH MODAL =====
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -315,8 +511,6 @@
         showToast('⚠️ ' + err.message, 'error');
       }
     };
-
-    // showResetPasswordModal সম্পূর্ণ সরানো হয়েছে
 
     const authForm = document.getElementById('authForm');
     const authSubmitBtn = authForm.querySelector('button[type="submit"]');
@@ -366,21 +560,19 @@
     };
 
     // ================================================================
-    // ===== প্রোডাক্ট লজিক =====
+    // ✅ প্রোডাক্ট লজিক
     // ================================================================
-
     let allProducts = [];
     let currentProductId = null;
     let currentProductData = null;
     let wishlistItems = [];
-    let isLoading = true;
 
     const grid = document.getElementById('productGrid');
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
     const sortFilter = document.getElementById('sortFilter');
 
-    // ===== Skeleton Render =====
+    // ===== SKELETON =====
     function renderSkeletons(count = 6) {
       let html = '';
       for (let i = 0; i < count; i++) {
@@ -396,8 +588,9 @@
       grid.innerHTML = html;
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
+    renderSkeletons();
 
-    // ===== রেন্ডার প্রোডাক্ট =====
+    // ===== RENDER PRODUCTS =====
     function renderProducts() {
       let filtered = [...allProducts];
       
@@ -418,7 +611,7 @@
       else if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
 
       if (filtered.length === 0) {
-        grid.innerHTML = `<p class="text-gray-500 col-span-3 text-center py-10">No products found.</p>`;
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500"><i class="fas fa-box-open text-5xl opacity-30"></i><p class="mt-3 text-lg">No products found.</p><p class="text-sm">Try adjusting your search or filters.</p></div>`;
         return;
       }
 
@@ -426,39 +619,38 @@
         const inWishlist = wishlistItems.includes(p.id);
         const rating = p.averageRating || 0;
         const stock = p.stock !== undefined ? p.stock : 999;
+        const imageUrl = p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image';
         return `
-          <div class="glass-card hover:shadow-xl transition-all duration-300 fade-up">
-            <img src="${p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" 
-                 alt="${p.name}" 
-                 class="w-full h-48 object-cover rounded-t-lg mb-3"
-                 loading="lazy" />
-            <div class="flex justify-between items-start">
-              <h3 class="font-bold text-xl text-gray-900">${p.name}</h3>
-              <button onclick="window.toggleWishlist('${p.id}')" 
-                      class="wishlist-btn text-xl ${inWishlist ? 'active' : 'text-gray-300'}"
-                      id="wishlist-${p.id}">
-                <i class="fas fa-heart"></i>
-              </button>
-            </div>
-            <p class="text-sm text-gray-500 mt-1">${p.desc || p.description || ''}</p>
-            <p class="text-2xl font-bold text-blue-600 mt-2">$${p.price}</p>
-            <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
-            <div class="text-sm ${stock > 0 ? 'text-green-600' : 'text-red-500'}">
-              ${stock > 0 ? `✅ In Stock (${stock})` : '❌ Out of Stock'}
-            </div>
-            <div class="mt-3 flex flex-wrap gap-2">
-              <button onclick="window.openProductDetail('${p.id}')" class="btn-primary text-sm py-2 px-4 flex-1">
-                <i class="fas fa-eye"></i> Details
-              </button>
-              <button onclick="window.addToCart('${p.id}')" class="btn-outline text-sm py-2 px-4">
-                <i class="fas fa-cart-plus"></i>
-              </button>
+          <div class="glass-card product-card fade-up">
+            <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
+            <div class="card-body">
+              <div class="flex justify-between items-start">
+                <h3 class="font-bold text-xl text-gray-900">${p.name}</h3>
+                <button onclick="window.toggleWishlist('${p.id}')" 
+                        class="wishlist-btn ${inWishlist ? 'active' : ''}"
+                        id="wishlist-${p.id}">
+                  <i class="fas fa-heart"></i>
+                </button>
+              </div>
+              <p class="text-sm text-gray-500 mt-1">${p.desc || p.description || ''}</p>
+              <p class="text-2xl font-bold text-blue-600 mt-2">$${p.price}</p>
+              <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
+              <div class="text-sm ${stock > 0 ? 'text-green-600' : 'text-red-500'}">
+                ${stock > 0 ? `✅ In Stock (${stock})` : '❌ Out of Stock'}
+              </div>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <button onclick="window.openProductDetail('${p.id}')" class="btn-primary text-sm py-2 px-4 flex-1">
+                  <i class="fas fa-eye"></i> Details
+                </button>
+                <button onclick="window.addToCart('${p.id}')" class="btn-outline text-sm py-2 px-4">
+                  <i class="fas fa-cart-plus"></i>
+                </button>
+              </div>
             </div>
           </div>
         `;
       }).join('');
 
-      // নতুন এলিমেন্টগুলো Observer-এ যোগ
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
 
@@ -472,19 +664,23 @@
       return s;
     }
 
-    // ===== প্রোডাক্ট লোড (Skeleton → Real Data) =====
-    renderSkeletons();
-
+    // ===== REAL-TIME PRODUCTS =====
     onSnapshot(collection(db, 'products'), (snapshot) => {
       allProducts = [];
       snapshot.forEach(doc => {
         allProducts.push({ id: doc.id, ...doc.data() });
       });
-      isLoading = false;
       renderProducts();
     });
 
-    // ===== Debounced Search =====
+    // ===== DEBOUNCED SEARCH =====
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
     const debouncedRender = debounce(renderProducts, 300);
     searchInput.addEventListener('input', debouncedRender);
     categoryFilter.addEventListener('change', renderProducts);
@@ -498,9 +694,8 @@
     };
 
     // ================================================================
-    // ===== কার্ট, উইশলিস্ট, ডিটেইল, রেটিং (পূর্বের মতোই) =====
+    // ✅ কার্ট ফাংশন
     // ================================================================
-
     window.addToCart = (productId) => {
       const product = allProducts.find(p => p.id === productId);
       if (!product) { showToast('Product not found', 'error'); return; }
@@ -513,9 +708,9 @@
       if (existing) {
         existing.quantity = (existing.quantity || 1) + 1;
       } else {
-        cart.push({ 
-          id: product.id, 
-          name: product.name, 
+        cart.push({
+          id: product.id,
+          name: product.name,
           price: product.price,
           imageUrl: product.imageUrl || '',
           quantity: 1
@@ -526,12 +721,20 @@
       showToast(`✅ "${product.name}" added to cart`, 'success');
     };
 
-    window.updateCartUI = () => {
-      import('./components.js').then(({ updateCartUI }) => updateCartUI());
-      updateCartBadge();
+    window.addToCartFromDetail = () => {
+      if (currentProductId) window.addToCart(currentProductId);
     };
 
-    // ===== উইশলিস্ট =====
+    window.buyNowFromDetail = () => {
+      if (currentProductId) {
+        window.addToCart(currentProductId);
+        setTimeout(() => window.checkout(), 500);
+      }
+    };
+
+    // ================================================================
+    // ✅ উইশলিস্ট
+    // ================================================================
     async function loadWishlist() {
       const user = auth.currentUser;
       if (!user) { wishlistItems = []; return; }
@@ -593,7 +796,9 @@
       await loadWishlist();
     }
 
-    // ===== প্রোডাক্ট ডিটেইল =====
+    // ================================================================
+    // ✅ প্রোডাক্ট ডিটেইল মডাল
+    // ================================================================
     window.openProductDetail = async (id) => {
       currentProductId = id;
       const docSnap = await getDoc(doc(db, 'products', id));
@@ -613,34 +818,25 @@
       const inWishlist = wishlistItems.includes(id);
       updateDetailWishlistBtn(inWishlist);
       loadReviews(id);
-      document.getElementById('productDetailModal').classList.remove('hidden');
+      document.getElementById('productDetailModal').classList.add('open');
     };
 
     window.closeDetailModal = () => {
-      document.getElementById('productDetailModal').classList.add('hidden');
+      document.getElementById('productDetailModal').classList.remove('open');
       currentProductId = null;
       currentProductData = null;
     };
 
-    window.addToCartFromDetail = () => {
-      if (currentProductId) window.addToCart(currentProductId);
-    };
-
-    window.buyNowFromDetail = () => {
-      if (currentProductId) {
-        window.addToCart(currentProductId);
-        setTimeout(() => window.checkout(), 500);
-      }
-    };
-
-    // ===== রেটিং সিস্টেম =====
+    // ================================================================
+    // ✅ রেটিং সিস্টেম
+    // ================================================================
     let selectedRating = 0;
     document.querySelectorAll('#ratingStars .star').forEach(el => {
       el.addEventListener('click', () => {
         selectedRating = parseInt(el.dataset.val);
-        document.querySelectorAll('#ratingStars .star').forEach(s => s.textContent = '☆');
+        document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('active'));
         for (let i = 0; i < selectedRating; i++) {
-          document.querySelectorAll('#ratingStars .star')[i].textContent = '★';
+          document.querySelectorAll('#ratingStars .star')[i].classList.add('active');
         }
       });
     });
@@ -668,7 +864,7 @@
         await updateDoc(productRef, { averageRating: avg, ratingCount: count });
         showToast('✅ Review submitted!', 'success');
         selectedRating = 0;
-        document.querySelectorAll('#ratingStars .star').forEach(s => s.textContent = '☆');
+        document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('active'));
         document.getElementById('ratingReview').value = '';
         loadReviews(currentProductId);
         renderProducts();
@@ -707,7 +903,7 @@
       }
     }
 
-    console.log('🚀 SWD Store Loaded Successfully!');
+    console.log('🚀 Store page loaded successfully!');
   </script>
 </body>
 </html>

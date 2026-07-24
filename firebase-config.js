@@ -34,6 +34,10 @@ import {
   arrayUnion,
   arrayRemove,
   increment,
+  // ✅ Offline persistence এর জন্য
+  initializeFirestore,
+  persistentLocalCache,
+  persistentSingleTabManager,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -46,11 +50,19 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// ✅ Firestore with Offline Persistence – performance boost
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentSingleTabManager(),
+  }),
+});
+
 const auth = getAuth(app);
-const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
+// ✅ সব export গুলো এক জায়গায়
 export {
   auth, db,
   signInWithEmailAndPassword,
@@ -70,4 +82,5 @@ export {
   githubProvider,
   collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, addDoc,
   query, where, orderBy, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, increment,
+  initializeFirestore, persistentLocalCache, persistentSingleTabManager,
 };
