@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* ===== Scroll Animation ===== */
+    /* (একই CSS – আগের মতো) */
     .fade-up {
       opacity: 0;
       transform: translateY(30px);
@@ -19,8 +19,6 @@
       opacity: 1;
       transform: translateY(0);
     }
-
-    /* ===== Back to Top Button ===== */
     .scroll-top-btn {
       position: fixed;
       bottom: 30px;
@@ -48,13 +46,9 @@
     .scroll-top-btn:hover {
       transform: scale(1.05);
     }
-
-    /* ===== Hero Gradient ===== */
     .hero-gradient {
       background: radial-gradient(ellipse at top, rgba(0,122,255,0.06), transparent 70%);
     }
-
-    /* ===== Service/Feature Cards ===== */
     .service-card {
       transition: all 0.3s ease;
     }
@@ -67,8 +61,6 @@
       color: #007AFF;
       margin-bottom: 1rem;
     }
-
-    /* ===== Stats ===== */
     .stat-number {
       font-size: 2.8rem;
       font-weight: 700;
@@ -78,8 +70,6 @@
       font-size: 1rem;
       color: #8e8e93;
     }
-
-    /* ===== How it works step ===== */
     .step-number {
       width: 50px;
       height: 50px;
@@ -102,8 +92,6 @@
     @media (max-width: 768px) {
       .step-line { display: none; }
     }
-
-    /* ===== Trust Badge ===== */
     .trust-badge {
       background: rgba(255,255,255,0.6);
       backdrop-filter: blur(8px);
@@ -120,8 +108,6 @@
     .trust-badge i {
       font-size: 1.2rem;
     }
-
-    /* ===== Featured Product Card ===== */
     .featured-card {
       transition: all 0.3s ease;
     }
@@ -142,16 +128,14 @@
     <div id="navbar-placeholder"></div>
 
     <main class="main-content">
-      <!-- ===== হিরো (Trust Badges সহ) ===== -->
+      <!-- ===== হিরো ===== -->
       <section class="hero-gradient pt-32 pb-16 px-6 min-h-screen flex items-center">
         <div class="max-w-7xl mx-auto text-center">
-          <!-- Trust Badges -->
           <div class="flex flex-wrap justify-center gap-3 mb-6 fade-up">
             <span class="trust-badge"><i class="fas fa-shield-alt text-blue-500"></i> 100% Secure</span>
             <span class="trust-badge"><i class="fas fa-clock text-green-500"></i> 24/7 Support</span>
             <span class="trust-badge"><i class="fas fa-check-circle text-emerald-500"></i> 150+ Projects</span>
           </div>
-
           <h1 class="text-5xl md:text-7xl font-bold text-gray-900 leading-tight fade-up">
             Build Your <span class="gradient-text">Dream Website</span> Today
           </h1>
@@ -164,9 +148,9 @@
             <a href="#services" class="btn-outline"><i class="fas fa-info-circle"></i> Learn More</a>
           </div>
 
-          <!-- ===== ফিচার্ড প্যাকেজ (সর্বোচ্চ ৬টি, ইমেজ সহ) ===== -->
+          <!-- ফিচার্ড প্যাকেজ -->
           <div id="featuredPackages" class="mt-16 grid md:grid-cols-3 gap-6 text-left">
-            <!-- Skeleton Loading -->
+            <!-- Skeleton -->
             <div class="glass-card fade-up"><div class="h-48 bg-gray-200 rounded-t-lg animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
             <div class="glass-card fade-up"><div class="h-48 bg-gray-200 rounded-t-lg animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
             <div class="glass-card fade-up"><div class="h-48 bg-gray-200 rounded-t-lg animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
@@ -174,7 +158,7 @@
         </div>
       </section>
 
-      <!-- ===== SERVICES / WHAT WE OFFER ===== -->
+      <!-- ===== SERVICES ===== -->
       <section id="services" class="py-20 px-6 bg-gray-50/50">
         <div class="max-w-7xl mx-auto">
           <div class="text-center mb-12">
@@ -283,7 +267,7 @@
         </div>
       </section>
 
-      <!-- ===== STATISTICS ===== -->
+      <!-- ===== STATS ===== -->
       <section id="stats" class="py-16 px-6">
         <div class="max-w-6xl mx-auto">
           <div class="grid md:grid-cols-4 gap-8 text-center">
@@ -312,6 +296,7 @@
         <div class="max-w-6xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">What Our Clients Say</h2>
           <div id="testimonialList" class="mt-8 grid md:grid-cols-3 gap-6">
+            <!-- Skeleton -->
             <div class="glass-card text-center fade-up"><div class="h-16 bg-gray-200 rounded animate-pulse"></div><div class="h-6 w-1/2 bg-gray-200 rounded mx-auto mt-3 animate-pulse"></div></div>
             <div class="glass-card text-center fade-up"><div class="h-16 bg-gray-200 rounded animate-pulse"></div><div class="h-6 w-1/2 bg-gray-200 rounded mx-auto mt-3 animate-pulse"></div></div>
             <div class="glass-card text-center fade-up"><div class="h-16 bg-gray-200 rounded animate-pulse"></div><div class="h-6 w-1/2 bg-gray-200 rounded mx-auto mt-3 animate-pulse"></div></div>
@@ -332,7 +317,7 @@
         </div>
       </section>
 
-      <!-- ===== CTA / CONTACT ===== -->
+      <!-- ===== CTA ===== -->
       <section id="cta" class="py-20 px-6 bg-gradient-to-r from-blue-50 to-indigo-50">
         <div class="max-w-4xl mx-auto text-center">
           <h2 class="text-3xl md:text-4xl font-bold text-gray-900 fade-up">Ready to Get Started?</h2>
@@ -352,12 +337,12 @@
     <div id="footer-placeholder"></div>
   </div>
 
-  <!-- ===== Back to Top Button ===== -->
+  <!-- ===== Back to Top ===== -->
   <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- ===== অথ মডাল ===== -->
+  <!-- ===== Auth Modal ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -388,10 +373,10 @@
 
   <script type="module">
     // ================================================================
-    // ইমপোর্ট – সব ফাংশন সঠিকভাবে ইম্পোর্ট করা হয়েছে
+    // ✅ সঠিক ইম্পোর্ট – limit বাদ দেওয়া হয়েছে (এখন ম্যানুয়ালি সিলেক্ট করব)
     // ================================================================
     import { 
-      auth, db, collection, doc, getDoc, getDocs, onSnapshot, query, where, limit,
+      auth, db, collection, doc, getDoc, getDocs, onSnapshot, query, where,
       signInWithEmailAndPassword, createUserWithEmailAndPassword, 
       onAuthStateChanged, signOut, setDoc, 
       signInWithPopup, googleProvider, githubProvider 
@@ -446,7 +431,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ===== অথ মডাল (আগের মতো) =====
+    // ===== Auth Modal (আগের মতো) =====
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -538,24 +523,27 @@
     };
 
     // ================================================================
-    // ফিচার্ড প্রোডাক্ট – শুধু featured: true (অথবা fallback) – সর্বোচ্চ ৬টি
+    // ফিচার্ড প্রোডাক্ট – limit ব্যবহার না করে ম্যানুয়ালি সিলেক্ট
     // ================================================================
     const packagesContainer = document.getElementById('featuredPackages');
 
     async function loadFeaturedProducts() {
       try {
-        // প্রথমে featured=true থাকা প্রোডাক্টগুলো আনা
-        const qFeatured = query(collection(db, 'products'), where('featured', '==', true), limit(6));
+        // 1. প্রথমে featured=true প্রোডাক্ট আনা (সীমা ছাড়া)
+        const qFeatured = query(collection(db, 'products'), where('featured', '==', true));
         const snapFeatured = await getDocs(qFeatured);
         let products = [];
         snapFeatured.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
 
-        // যদি কোনো featured না থাকে, তাহলে সর্বশেষ ৬টি প্রোডাক্ট আনা (fallback)
+        // 2. যদি কোনো featured না থাকে, তাহলে সব প্রোডাক্ট আনা (সীমা ছাড়া)
         if (products.length === 0) {
-          const qAll = query(collection(db, 'products'), limit(6));
+          const qAll = query(collection(db, 'products'));
           const snapAll = await getDocs(qAll);
           snapAll.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
         }
+
+        // 3. সর্বোচ্চ ৬টি নেওয়া
+        products = products.slice(0, 6);
 
         // রেন্ডার
         if (products.length === 0) {
