@@ -81,6 +81,7 @@
     .badge-pending { background: #FF9500; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
     .badge-processing { background: #007AFF; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
     .badge-completed { background: #34C759; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
+    .featured-badge { background: #8B5CF6; color: white; padding: 2px 10px; border-radius: 60px; font-size: 0.6rem; font-weight: 600; }
     @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } .chart-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
     @media (max-width: 768px) { .sidebar { width: 280px; transform: translateX(-100%); padding: 1rem; box-shadow: 4px 0 30px rgba(0,0,0,0.1); } .sidebar.open { transform: translateX(0); } .main { margin-left: 0; padding: 0 0 4rem 0; } .mobile-header { display: flex; } .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .dashboard-card { padding: 0.75rem; } .dashboard-card .value { font-size: 1.4rem; } .chart-container { height: 180px; } .chart-grid { grid-template-columns: 1fr; } .glass-card { padding: 1rem; border-radius: 12px; } .messenger-wrap { flex-direction: column; height: 75vh; min-height: 400px; border-radius: 16px; } .conv-list { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); } .chat-msg { max-width: 92%; } .chat-input-wrap { padding: 10px 14px; flex-wrap: wrap; } .chat-input-wrap input { padding: 10px 14px; font-size: 0.9rem; } .chat-input-wrap button { width: 42px; height: 42px; font-size: 1rem; } .chat-messages { padding: 12px 14px; } .chat-msg { padding: 8px 14px; font-size: 0.9rem; } .product-grid, .user-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .product-card img { height: 120px; } }
     @media (max-width: 480px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; } .dashboard-card .value { font-size: 1.2rem; } .product-grid, .user-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; } .mobile-header .title { font-size: 1rem; } .conv-item { padding: 10px 12px; } .conv-avatar { width: 36px; height: 36px; font-size: 0.9rem; } .sidebar { width: 260px; } }
@@ -161,7 +162,7 @@
       </div>
     </div>
 
-    <!-- PRODUCTS -->
+    <!-- PRODUCTS (Featured ফিল্ড সহ) -->
     <div id="tab-products" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
@@ -199,7 +200,7 @@
       </div>
     </div>
 
-    <!-- FIX REQUESTS (শুধু রিপ্লাই) -->
+    <!-- FIX REQUESTS -->
     <div id="tab-fixrequests" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <h2 class="text-2xl font-bold">Fix Requests</h2>
@@ -252,7 +253,7 @@
 
   </div>
 
-  <!-- ===== PRODUCT MODAL ===== -->
+  <!-- ===== PRODUCT MODAL (Featured চেকবক্স সহ) ===== -->
   <div class="modal-overlay" id="productModal">
     <div class="modal-box">
       <div class="modal-header"><h3 id="productModalTitle">Add Product</h3><button class="modal-close" onclick="closeProductModal()">&times;</button></div>
@@ -262,6 +263,13 @@
         <input type="number" id="prodPrice" placeholder="Price" required class="form-input" />
         <input type="text" id="prodCategory" placeholder="Category" class="form-input" />
         <input type="text" id="prodImage" placeholder="Image URL" class="form-input" />
+        
+        <!-- ✅ Featured চেকবক্স -->
+        <div class="flex items-center gap-2 mt-2">
+          <input type="checkbox" id="prodFeatured" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+          <label for="prodFeatured" class="text-sm font-medium text-gray-700">Show on Landing Page (Featured)</label>
+        </div>
+
         <input type="hidden" id="prodId" />
         <button type="submit" class="btn-primary w-full">Save</button>
       </form>
@@ -356,7 +364,7 @@
         setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
       };
 
-      // ----- DASHBOARD CHARTS & TOTALS -----
+      // ----- DASHBOARD CHARTS -----
       let dailyOrdersChart, dailyRevenueChart, monthlyRevenueChart, dailySignupsChart, dailyFixRequestsChart;
       let allOrders = [], allUsers = [], allFixRequests = [];
 
@@ -371,53 +379,37 @@
           const d = new Date(today); d.setDate(d.getDate() - i);
           const key = d.toISOString().split('T')[0];
           dailyLabels.push(d.toLocaleDateString('en-US', { month:'short', day:'numeric' }));
-          // Orders
           const dayOrders = ordersData.filter(o => {
             const dt = o.createdAt?.toDate?.() || new Date(o.createdAt);
             return dt.toISOString().split('T')[0] === key;
           });
           dailyOrders.push(dayOrders.length);
           dailyRevenue.push(dayOrders.reduce((sum, o) => sum + (o.total || 0), 0));
-          // Signups
           dailySignups.push(usersData.filter(u => {
             const dt = u.createdAt ? new Date(u.createdAt) : new Date();
             return dt.toISOString().split('T')[0] === key;
           }).length);
-          // Fix
           dailyFix.push(fixData.filter(f => {
             const dt = f.timestamp?.toDate?.() || new Date(f.timestamp);
             return dt.toISOString().split('T')[0] === key;
           }).length);
         }
 
-        // Destroy old charts
         if (dailyOrdersChart) dailyOrdersChart.destroy();
-        if (dailyRevenueChart) dailyRevenueChart.destroy();
-        if (monthlyRevenueChart) monthlyRevenueChart.destroy();
-        if (dailySignupsChart) dailySignupsChart.destroy();
-        if (dailyFixRequestsChart) dailyFixRequestsChart.destroy();
-
-        // Daily Orders (Line)
         dailyOrdersChart = new Chart(document.getElementById('dailyOrdersChart'), {
           type: 'line',
           data: { labels: dailyLabels, datasets: [{ label: 'Orders', data: dailyOrders, borderColor: '#007AFF', backgroundColor: 'rgba(0,122,255,0.1)', fill: true, tension: 0.3 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
         });
-
-        // Daily Revenue (Bar)
+        if (dailyRevenueChart) dailyRevenueChart.destroy();
         dailyRevenueChart = new Chart(document.getElementById('dailyRevenueChart'), {
           type: 'bar',
           data: { labels: dailyLabels, datasets: [{ label: 'Revenue ($)', data: dailyRevenue, backgroundColor: '#34C759' }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
         });
 
-        // Monthly Revenue (Line) – last 6 months
         const monthRevenue = {};
-        for (let i = 5; i >= 0; i--) {
-          const d = new Date(today); d.setMonth(d.getMonth() - i);
-          const key = d.toISOString().slice(0,7);
-          monthRevenue[key] = 0;
-        }
+        for (let i = 5; i >= 0; i--) { const d = new Date(today); d.setMonth(d.getMonth() - i); const key = d.toISOString().slice(0,7); monthRevenue[key] = 0; }
         ordersData.forEach(o => {
           const dt = o.createdAt?.toDate?.() || new Date(o.createdAt);
           const key = dt.toISOString().slice(0,7);
@@ -425,20 +417,19 @@
         });
         const monthLabels = Object.keys(monthRevenue).map(m => new Date(m+'-01').toLocaleDateString('en-US', { month:'short', year:'numeric' }));
         const monthValues = Object.values(monthRevenue);
+        if (monthlyRevenueChart) monthlyRevenueChart.destroy();
         monthlyRevenueChart = new Chart(document.getElementById('monthlyRevenueChart'), {
           type: 'line',
           data: { labels: monthLabels, datasets: [{ label: 'Revenue ($)', data: monthValues, borderColor: '#FF9500', backgroundColor: 'rgba(255,149,0,0.1)', fill: true, tension: 0.3 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
         });
-
-        // Daily Signups (Bar)
+        if (dailySignupsChart) dailySignupsChart.destroy();
         dailySignupsChart = new Chart(document.getElementById('dailySignupsChart'), {
           type: 'bar',
           data: { labels: dailyLabels, datasets: [{ label: 'Signups', data: dailySignups, backgroundColor: '#AF52DE' }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
         });
-
-        // Daily Fix Requests (Bar)
+        if (dailyFixRequestsChart) dailyFixRequestsChart.destroy();
         dailyFixRequestsChart = new Chart(document.getElementById('dailyFixRequestsChart'), {
           type: 'bar',
           data: { labels: dailyLabels, datasets: [{ label: 'Fix Requests', data: dailyFix, backgroundColor: '#FF3B30' }] },
@@ -446,8 +437,7 @@
         });
       }
 
-      // ----- TOTALS UPDATE (Revenue ঠিক করা) -----
-      // Orders
+      // ----- TOTALS -----
       onSnapshot(collection(db, 'orders'), (snapshot) => {
         document.getElementById('totalOrders').innerText = snapshot.size;
         allOrders = [];
@@ -460,36 +450,48 @@
         document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
         renderDashboardCharts(allOrders, allUsers, allFixRequests);
       });
-
-      // Users
       onSnapshot(collection(db, 'users'), (snapshot) => {
         document.getElementById('totalUsers').innerText = snapshot.size;
         allUsers = [];
         snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
         renderDashboardCharts(allOrders, allUsers, allFixRequests);
       });
-
-      // Fix Requests
       onSnapshot(collection(db, 'fixRequests'), (snapshot) => {
         document.getElementById('totalFixRequests').innerText = snapshot.size;
         allFixRequests = [];
         snapshot.forEach(doc => allFixRequests.push({ id: doc.id, ...doc.data() }));
         renderDashboardCharts(allOrders, allUsers, allFixRequests);
       });
-
-      // Products (for total products count)
       onSnapshot(collection(db, 'products'), (snapshot) => {
         document.getElementById('totalProducts').innerText = snapshot.size;
       });
 
-      // ----- PRODUCTS (CRUD) -----
+      // ==============================================================
+      // ✅ PRODUCTS (CRUD + Featured)
+      // ==============================================================
       const productList = document.getElementById('productList');
       onSnapshot(collection(db, 'products'), (snapshot) => {
         if (snapshot.empty) { productList.innerHTML = '<p class="text-gray-500 col-span-full">No products yet.</p>'; return; }
         let html = '';
         snapshot.forEach(doc => {
           const p = doc.data();
-          html += `<div class="glass-card product-card"><img src="${p.imageUrl || 'https://via.placeholder.com/300x140?text=No+Image'}" alt="${p.name}" loading="lazy" /><div class="mt-2"><h3 class="font-bold text-sm">${p.name}</h3><p class="text-sm text-gray-500">$${p.price}</p><div class="flex gap-2 mt-1"><button onclick="editProduct('${doc.id}')" class="text-blue-600 text-sm"><i class="fas fa-edit"></i></button><button onclick="deleteProduct('${doc.id}')" class="text-red-500 text-sm"><i class="fas fa-trash"></i></button></div></div></div>`;
+          const featuredBadge = p.featured ? '<span class="featured-badge ml-1"><i class="fas fa-star"></i> Featured</span>' : '';
+          html += `
+            <div class="glass-card product-card">
+              <img src="${p.imageUrl || 'https://via.placeholder.com/300x140?text=No+Image'}" alt="${p.name}" loading="lazy" />
+              <div class="p-3">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-bold text-sm">${p.name}</h3>
+                  ${featuredBadge}
+                </div>
+                <p class="text-sm text-gray-500">$${p.price}</p>
+                <div class="flex gap-2 mt-1">
+                  <button onclick="editProduct('${doc.id}')" class="text-blue-600 text-sm"><i class="fas fa-edit"></i></button>
+                  <button onclick="deleteProduct('${doc.id}')" class="text-red-500 text-sm"><i class="fas fa-trash"></i></button>
+                </div>
+              </div>
+            </div>
+          `;
         });
         productList.innerHTML = html;
       });
@@ -504,12 +506,24 @@
           document.getElementById('prodPrice').value = data.price;
           document.getElementById('prodCategory').value = data.category || '';
           document.getElementById('prodImage').value = data.imageUrl || '';
+          document.getElementById('prodFeatured').checked = data.featured || false;
           document.getElementById('productModalTitle').innerText = 'Edit Product';
           document.getElementById('productModal').classList.add('open');
         }
       };
-      window.openProductModal = () => { document.getElementById('productModal').classList.add('open'); document.getElementById('productModalTitle').innerText = 'Add Product'; document.getElementById('prodId').value = ''; document.getElementById('productForm').reset(); };
-      window.closeProductModal = () => { document.getElementById('productModal').classList.remove('open'); };
+
+      window.openProductModal = () => {
+        document.getElementById('productModal').classList.add('open');
+        document.getElementById('productModalTitle').innerText = 'Add Product';
+        document.getElementById('prodId').value = '';
+        document.getElementById('productForm').reset();
+        document.getElementById('prodFeatured').checked = false;
+      };
+
+      window.closeProductModal = () => {
+        document.getElementById('productModal').classList.remove('open');
+      };
+
       const productForm = document.getElementById('productForm');
       const productSubmitBtn = productForm.querySelector('button[type="submit"]');
       productForm.addEventListener('submit', async (e) => {
@@ -519,11 +533,13 @@
         const price = parseFloat(document.getElementById('prodPrice').value);
         const category = document.getElementById('prodCategory').value.trim();
         const imageUrl = document.getElementById('prodImage').value.trim();
+        const featured = document.getElementById('prodFeatured').checked;
         const id = document.getElementById('prodId').value;
+
         if (!name || !price) { showToast('Name and price required.', 'error'); return; }
         setLoading(productSubmitBtn, true, 'Save');
         try {
-          const data = { name, desc, price, category, imageUrl };
+          const data = { name, desc, price, category, imageUrl, featured };
           if (id) await updateDoc(doc(db, 'products', id), data);
           else await addDoc(collection(db, 'products'), data);
           closeProductModal();
@@ -531,9 +547,15 @@
         } catch (err) { showToast(err.message, 'error'); }
         finally { setLoading(productSubmitBtn, false); }
       });
-      window.deleteProduct = async (id) => { if (confirm('Delete this product?')) { await deleteDoc(doc(db, 'products', id)); showToast('✅ Deleted', 'success'); } };
 
-      // ----- ORDERS (list) -----
+      window.deleteProduct = async (id) => {
+        if (confirm('Delete this product?')) {
+          await deleteDoc(doc(db, 'products', id));
+          showToast('✅ Deleted', 'success');
+        }
+      };
+
+      // ----- ORDERS -----
       const orderList = document.getElementById('orderList');
       onSnapshot(collection(db, 'orders'), (snapshot) => {
         if (snapshot.empty) { orderList.innerHTML = '<p class="text-gray-500">No orders.</p>'; return; }
@@ -561,7 +583,6 @@
         allUsers = []; snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
         renderUsers();
       });
-
       window.openUserModal = () => { document.getElementById('userModal').classList.add('open'); document.getElementById('userModalTitle').innerText = 'Add User'; document.getElementById('userId').value = ''; document.getElementById('userForm').reset(); document.getElementById('userPassword').disabled = false; document.getElementById('userPassword').required = true; };
       window.closeUserModal = () => { document.getElementById('userModal').classList.remove('open'); };
       window.editUser = async (id) => {
@@ -625,7 +646,7 @@
         messageList.innerHTML = html;
       });
 
-      // ----- FIX REQUESTS (শুধু রিপ্লাই, ডিলিট নেই) -----
+      // ----- FIX REQUESTS -----
       const fixRequestList = document.getElementById('fixRequestList');
       onSnapshot(collection(db, 'fixRequests'), (snapshot) => {
         if (snapshot.empty) { fixRequestList.innerHTML = '<p class="text-gray-500">No fix requests.</p>'; return; }
@@ -653,7 +674,6 @@
         });
         fixRequestList.innerHTML = html;
       });
-
       window.sendReply = async (requestId) => {
         const textarea = document.getElementById(`reply-${requestId}`);
         const replyText = textarea.value.trim();
@@ -683,7 +703,7 @@
         finally { setLoading(settingsBtn, false); }
       });
 
-      // ----- SUPPORT CHAT (সংক্ষেপে) -----
+      // ----- SUPPORT CHAT -----
       const convListEl = document.getElementById('convList');
       const chatMessagesEl = document.getElementById('chatMessages');
       const chatHeaderName = document.getElementById('chatHeaderName');
@@ -881,7 +901,7 @@
         }
       });
 
-      console.log('✅ Admin Panel loaded with fixed revenue and no bin.');
+      console.log('✅ Admin Panel loaded with Featured field.');
     }
   </script>
 </body>

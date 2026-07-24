@@ -120,6 +120,21 @@
     .trust-badge i {
       font-size: 1.2rem;
     }
+
+    /* ===== Featured Product Card ===== */
+    .featured-card {
+      transition: all 0.3s ease;
+    }
+    .featured-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    }
+    .featured-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 12px 12px 0 0;
+    }
   </style>
 </head>
 <body>
@@ -127,7 +142,7 @@
     <div id="navbar-placeholder"></div>
 
     <main class="main-content">
-      <!-- ===== হিরো (আপডেটেড – Trust Badges সহ) ===== -->
+      <!-- ===== হিরো (Trust Badges সহ) ===== -->
       <section class="hero-gradient pt-32 pb-16 px-6 min-h-screen flex items-center">
         <div class="max-w-7xl mx-auto text-center">
           <!-- Trust Badges -->
@@ -149,17 +164,17 @@
             <a href="#services" class="btn-outline"><i class="fas fa-info-circle"></i> Learn More</a>
           </div>
 
-          <!-- ===== ডাইনামিক প্যাকেজ (আগের মতো) ===== -->
+          <!-- ===== ফিচার্ড প্যাকেজ (সর্বোচ্চ ৬টি, ইমেজ সহ) ===== -->
           <div id="featuredPackages" class="mt-16 grid md:grid-cols-3 gap-6 text-left">
             <!-- Skeleton Loading -->
-            <div class="glass-card fade-up"><div class="h-8 w-20 bg-gray-200 rounded animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
-            <div class="glass-card fade-up"><div class="h-8 w-20 bg-gray-200 rounded animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
-            <div class="glass-card fade-up"><div class="h-8 w-20 bg-gray-200 rounded animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
+            <div class="glass-card fade-up"><div class="h-48 bg-gray-200 rounded-t-lg animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
+            <div class="glass-card fade-up"><div class="h-48 bg-gray-200 rounded-t-lg animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
+            <div class="glass-card fade-up"><div class="h-48 bg-gray-200 rounded-t-lg animate-pulse"></div><div class="h-6 w-3/4 bg-gray-200 rounded mt-3 animate-pulse"></div><div class="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div><div class="h-8 w-16 bg-gray-200 rounded mt-3 animate-pulse"></div></div>
           </div>
         </div>
       </section>
 
-      <!-- ===== SERVICES / WHAT WE OFFER (নতুন) ===== -->
+      <!-- ===== SERVICES / WHAT WE OFFER ===== -->
       <section id="services" class="py-20 px-6 bg-gray-50/50">
         <div class="max-w-7xl mx-auto">
           <div class="text-center mb-12">
@@ -201,7 +216,7 @@
         </div>
       </section>
 
-      <!-- ===== HOW IT WORKS (নতুন) ===== -->
+      <!-- ===== HOW IT WORKS ===== -->
       <section id="how-it-works" class="py-20 px-6">
         <div class="max-w-5xl mx-auto">
           <div class="text-center mb-12">
@@ -236,7 +251,7 @@
         </div>
       </section>
 
-      <!-- ===== WHY CHOOSE US (নতুন) ===== -->
+      <!-- ===== WHY CHOOSE US ===== -->
       <section id="why-us" class="py-20 px-6 bg-gray-50/50">
         <div class="max-w-7xl mx-auto">
           <div class="text-center mb-12">
@@ -268,7 +283,7 @@
         </div>
       </section>
 
-      <!-- ===== STATISTICS (নতুন – বাস্তবসম্মত) ===== -->
+      <!-- ===== STATISTICS ===== -->
       <section id="stats" class="py-16 px-6">
         <div class="max-w-6xl mx-auto">
           <div class="grid md:grid-cols-4 gap-8 text-center">
@@ -292,7 +307,7 @@
         </div>
       </section>
 
-      <!-- ===== TESTIMONIALS (আগের মতো) ===== -->
+      <!-- ===== TESTIMONIALS ===== -->
       <section id="testimonials" class="py-16 px-6 bg-gray-50/50">
         <div class="max-w-6xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">What Our Clients Say</h2>
@@ -304,7 +319,7 @@
         </div>
       </section>
 
-      <!-- ===== FAQ (আগের মতো) ===== -->
+      <!-- ===== FAQ ===== -->
       <section id="faq" class="py-16 px-6">
         <div class="max-w-3xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">Frequently Asked Questions</h2>
@@ -317,7 +332,7 @@
         </div>
       </section>
 
-      <!-- ===== CTA / CONTACT (নতুন) ===== -->
+      <!-- ===== CTA / CONTACT ===== -->
       <section id="cta" class="py-20 px-6 bg-gradient-to-r from-blue-50 to-indigo-50">
         <div class="max-w-4xl mx-auto text-center">
           <h2 class="text-3xl md:text-4xl font-bold text-gray-900 fade-up">Ready to Get Started?</h2>
@@ -342,7 +357,7 @@
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- ===== অথ মডাল (ইতিমধ্যে ছিল) ===== -->
+  <!-- ===== অথ মডাল ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -373,10 +388,10 @@
 
   <script type="module">
     // ================================================================
-    // ইমপোর্ট (আগের মতোই)
+    // ইমপোর্ট
     // ================================================================
     import { 
-      auth, db, collection, doc, getDoc, getDocs, onSnapshot, 
+      auth, db, collection, doc, getDoc, getDocs, onSnapshot, query, where, limit,
       signInWithEmailAndPassword, createUserWithEmailAndPassword, 
       onAuthStateChanged, signOut, setDoc, 
       signInWithPopup, googleProvider, githubProvider 
@@ -405,7 +420,7 @@
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // ===== Scroll Animation (Intersection Observer) =====
+    // ===== Scroll Animation =====
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -418,7 +433,7 @@
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     });
 
-    // ===== Back to Top Button =====
+    // ===== Back to Top =====
     const scrollBtn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 400) {
@@ -522,29 +537,57 @@
       showToast('✅ Logged out', 'success');
     };
 
-    // ===== ডাইনামিক প্যাকেজ (আগের মতো) =====
+    // ================================================================
+    // ফিচার্ড প্রোডাক্ট – শুধু featured: true (অথবা ফallback) – সর্বোচ্চ ৬টি
+    // ================================================================
     const packagesContainer = document.getElementById('featuredPackages');
-    onSnapshot(collection(db, 'products'), (snapshot) => {
-      if (snapshot.empty) {
-        packagesContainer.innerHTML = `<p class="text-gray-500 col-span-3 text-center">No packages available.</p>`;
-        return;
+
+    async function loadFeaturedProducts() {
+      try {
+        // প্রথমে featured=true থাকা প্রোডাক্টগুলো আনা
+        const qFeatured = query(collection(db, 'products'), where('featured', '==', true), limit(6));
+        const snapFeatured = await getDocs(qFeatured);
+        let products = [];
+        snapFeatured.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
+
+        // যদি কোনো featured না থাকে, তাহলে সর্বশেষ ৬টি প্রোডাক্ট আনা (fallback)
+        if (products.length === 0) {
+          const qAll = query(collection(db, 'products'), limit(6));
+          const snapAll = await getDocs(qAll);
+          snapAll.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
+        }
+
+        // রেন্ডার
+        if (products.length === 0) {
+          packagesContainer.innerHTML = `<p class="text-gray-500 col-span-3 text-center">No packages available.</p>`;
+          return;
+        }
+
+        let html = '';
+        products.forEach(p => {
+          const imageUrl = p.imageUrl || 'https://via.placeholder.com/300x180?text=No+Image';
+          html += `
+            <div class="glass-card featured-card fade-up">
+              <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
+              <div class="p-4">
+                <h3 class="font-bold mt-2">${p.name}</h3>
+                <p class="text-sm text-gray-500">${p.desc || p.description || ''}</p>
+                <span class="block mt-2 font-bold text-gray-800">$${p.price}</span>
+                <a href="get-new-website.html" class="btn-primary text-sm py-2 px-4 mt-3 inline-block">View</a>
+              </div>
+            </div>
+          `;
+        });
+        packagesContainer.innerHTML = html;
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+      } catch (err) {
+        console.error('Error loading featured products:', err);
+        packagesContainer.innerHTML = `<p class="text-red-500 col-span-3 text-center">Error loading products.</p>`;
       }
-      let html = '';
-      snapshot.forEach(doc => {
-        const p = doc.data();
-        html += `
-          <div class="glass-card fade-up">
-            <i class="fas fa-file-code text-3xl text-blue-500"></i>
-            <h3 class="font-bold mt-2">${p.name}</h3>
-            <p class="text-sm text-gray-500">${p.desc || p.description || ''}</p>
-            <span class="block mt-2 font-bold text-gray-800">$${p.price}</span>
-            <a href="get-new-website.html" class="btn-primary text-sm py-2 px-4 mt-3 inline-block">View</a>
-          </div>
-        `;
-      });
-      packagesContainer.innerHTML = html;
-      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-    });
+    }
+
+    // লোড করুন
+    loadFeaturedProducts();
 
     // ===== টেস্টিমোনিয়াল (আগের মতো) =====
     const testimonialContainer = document.getElementById('testimonialList');
