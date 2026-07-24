@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* (একই CSS – আগের মতো) */
+    /* ===== BASE ===== */
     * { box-sizing: border-box; }
     body { background: #f2f4f7; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
     .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background: white; border-right: 1px solid rgba(0,0,0,0.04); padding: 1.5rem 1rem; overflow-y: auto; z-index: 100; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); display: flex; flex-direction: column; }
@@ -78,13 +78,9 @@
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
     .btn-outline { background: transparent; color: #1c1c1e; padding: 10px 22px; border-radius: 60px; font-weight: 600; font-size: 0.95rem; border: 1.5px solid rgba(60,60,67,0.08); cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.5); }
     .btn-outline:hover { background: rgba(0,122,255,0.04); border-color: #007AFF; color: #007AFF; }
-    .btn-danger-sm { background: #FF3B30; color: #fff; padding: 4px 12px; border-radius: 60px; font-size: 0.75rem; font-weight: 600; border: none; cursor: pointer; transition: 0.2s; }
-    .btn-danger-sm:hover { background: #d63031; transform: scale(1.05); }
     .badge-pending { background: #FF9500; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
     .badge-processing { background: #007AFF; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
     .badge-completed { background: #34C759; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
-    .bin-btn { background: #e5e7eb; color: #374151; padding: 6px 16px; border-radius: 60px; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
-    .bin-btn:hover { background: #d1d5db; }
     @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } .chart-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
     @media (max-width: 768px) { .sidebar { width: 280px; transform: translateX(-100%); padding: 1rem; box-shadow: 4px 0 30px rgba(0,0,0,0.1); } .sidebar.open { transform: translateX(0); } .main { margin-left: 0; padding: 0 0 4rem 0; } .mobile-header { display: flex; } .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .dashboard-card { padding: 0.75rem; } .dashboard-card .value { font-size: 1.4rem; } .chart-container { height: 180px; } .chart-grid { grid-template-columns: 1fr; } .glass-card { padding: 1rem; border-radius: 12px; } .messenger-wrap { flex-direction: column; height: 75vh; min-height: 400px; border-radius: 16px; } .conv-list { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); } .chat-msg { max-width: 92%; } .chat-input-wrap { padding: 10px 14px; flex-wrap: wrap; } .chat-input-wrap input { padding: 10px 14px; font-size: 0.9rem; } .chat-input-wrap button { width: 42px; height: 42px; font-size: 1rem; } .chat-messages { padding: 12px 14px; } .chat-msg { padding: 8px 14px; font-size: 0.9rem; } .product-grid, .user-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .product-card img { height: 120px; } }
     @media (max-width: 480px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; } .dashboard-card .value { font-size: 1.2rem; } .product-grid, .user-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; } .mobile-header .title { font-size: 1rem; } .conv-item { padding: 10px 12px; } .conv-avatar { width: 36px; height: 36px; font-size: 0.9rem; } .sidebar { width: 260px; } }
@@ -203,17 +199,11 @@
       </div>
     </div>
 
-    <!-- FIX REQUESTS -->
+    <!-- FIX REQUESTS (শুধু রিপ্লাই) -->
     <div id="tab-fixrequests" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
-        <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <h2 class="text-2xl font-bold">Fix Requests</h2>
-          <button onclick="toggleFixBin()" class="bin-btn" id="binToggleBtn">
-            <i class="fas fa-trash-alt"></i> Bin (<span id="binCount">0</span>)
-          </button>
-        </div>
-        <div id="fixRequestList" class="space-y-3"></div>
-        <div id="fixBinList" class="space-y-3 mt-4 hidden"></div>
+        <h2 class="text-2xl font-bold">Fix Requests</h2>
+        <div id="fixRequestList" class="space-y-3 mt-4"></div>
       </div>
     </div>
 
@@ -301,14 +291,13 @@
 
   <script type="module">
     // ================================================================
-    // ✅ ইমপোর্ট – serverTimestamp যোগ করা হয়েছে
+    // ইমপোর্ট
     // ================================================================
     import {
       auth, db,
       collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc,
-      onSnapshot, query, where, serverTimestamp,  // ← serverTimestamp এখানে আছে!
-      signOut, onAuthStateChanged,
-      arrayUnion, arrayRemove
+      onSnapshot, query, where, serverTimestamp,
+      signOut, onAuthStateChanged
     } from './firebase-config.js';
     import { setLoading } from './components.js';
 
@@ -367,7 +356,7 @@
         setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
       };
 
-      // ----- DASHBOARD CHARTS (সংক্ষেপে) -----
+      // ----- DASHBOARD CHARTS & TOTALS -----
       let dailyOrdersChart, dailyRevenueChart, monthlyRevenueChart, dailySignupsChart, dailyFixRequestsChart;
       let allOrders = [], allUsers = [], allFixRequests = [];
 
@@ -382,43 +371,115 @@
           const d = new Date(today); d.setDate(d.getDate() - i);
           const key = d.toISOString().split('T')[0];
           dailyLabels.push(d.toLocaleDateString('en-US', { month:'short', day:'numeric' }));
-          dailyOrders.push(ordersData.filter(o => { const dt = o.createdAt?.toDate?.() || new Date(o.createdAt); return dt.toISOString().split('T')[0] === key; }).length);
-          dailyRevenue.push(ordersData.filter(o => { const dt = o.createdAt?.toDate?.() || new Date(o.createdAt); return dt.toISOString().split('T')[0] === key; }).reduce((sum, o) => sum + (o.total || 0), 0));
-          dailySignups.push(usersData.filter(u => { const dt = u.createdAt ? new Date(u.createdAt) : new Date(); return dt.toISOString().split('T')[0] === key; }).length);
-          dailyFix.push(fixData.filter(f => { const dt = f.timestamp?.toDate?.() || new Date(f.timestamp); return dt.toISOString().split('T')[0] === key; }).length);
+          // Orders
+          const dayOrders = ordersData.filter(o => {
+            const dt = o.createdAt?.toDate?.() || new Date(o.createdAt);
+            return dt.toISOString().split('T')[0] === key;
+          });
+          dailyOrders.push(dayOrders.length);
+          dailyRevenue.push(dayOrders.reduce((sum, o) => sum + (o.total || 0), 0));
+          // Signups
+          dailySignups.push(usersData.filter(u => {
+            const dt = u.createdAt ? new Date(u.createdAt) : new Date();
+            return dt.toISOString().split('T')[0] === key;
+          }).length);
+          // Fix
+          dailyFix.push(fixData.filter(f => {
+            const dt = f.timestamp?.toDate?.() || new Date(f.timestamp);
+            return dt.toISOString().split('T')[0] === key;
+          }).length);
         }
+
+        // Destroy old charts
         if (dailyOrdersChart) dailyOrdersChart.destroy();
-        dailyOrdersChart = new Chart(document.getElementById('dailyOrdersChart'), { type:'line', data:{ labels:dailyLabels, datasets:[{ label:'Orders', data:dailyOrders, borderColor:'#007AFF', backgroundColor:'rgba(0,122,255,0.1)', fill:true, tension:0.3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1 } } } } });
         if (dailyRevenueChart) dailyRevenueChart.destroy();
-        dailyRevenueChart = new Chart(document.getElementById('dailyRevenueChart'), { type:'bar', data:{ labels:dailyLabels, datasets:[{ label:'Revenue ($)', data:dailyRevenue, backgroundColor:'#34C759' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } } });
-        // Monthly Revenue (last 6 months)
+        if (monthlyRevenueChart) monthlyRevenueChart.destroy();
+        if (dailySignupsChart) dailySignupsChart.destroy();
+        if (dailyFixRequestsChart) dailyFixRequestsChart.destroy();
+
+        // Daily Orders (Line)
+        dailyOrdersChart = new Chart(document.getElementById('dailyOrdersChart'), {
+          type: 'line',
+          data: { labels: dailyLabels, datasets: [{ label: 'Orders', data: dailyOrders, borderColor: '#007AFF', backgroundColor: 'rgba(0,122,255,0.1)', fill: true, tension: 0.3 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+
+        // Daily Revenue (Bar)
+        dailyRevenueChart = new Chart(document.getElementById('dailyRevenueChart'), {
+          type: 'bar',
+          data: { labels: dailyLabels, datasets: [{ label: 'Revenue ($)', data: dailyRevenue, backgroundColor: '#34C759' }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+
+        // Monthly Revenue (Line) – last 6 months
         const monthRevenue = {};
-        for (let i = 5; i >= 0; i--) { const d = new Date(today); d.setMonth(d.getMonth() - i); const key = d.toISOString().slice(0,7); monthRevenue[key] = 0; }
-        ordersData.forEach(o => { const dt = o.createdAt?.toDate?.() || new Date(o.createdAt); const key = dt.toISOString().slice(0,7); if (monthRevenue[key] !== undefined) monthRevenue[key] += (o.total || 0); });
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(today); d.setMonth(d.getMonth() - i);
+          const key = d.toISOString().slice(0,7);
+          monthRevenue[key] = 0;
+        }
+        ordersData.forEach(o => {
+          const dt = o.createdAt?.toDate?.() || new Date(o.createdAt);
+          const key = dt.toISOString().slice(0,7);
+          if (monthRevenue[key] !== undefined) monthRevenue[key] += (o.total || 0);
+        });
         const monthLabels = Object.keys(monthRevenue).map(m => new Date(m+'-01').toLocaleDateString('en-US', { month:'short', year:'numeric' }));
         const monthValues = Object.values(monthRevenue);
-        if (monthlyRevenueChart) monthlyRevenueChart.destroy();
-        monthlyRevenueChart = new Chart(document.getElementById('monthlyRevenueChart'), { type:'line', data:{ labels:monthLabels, datasets:[{ label:'Revenue ($)', data:monthValues, borderColor:'#FF9500', backgroundColor:'rgba(255,149,0,0.1)', fill:true, tension:0.3 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } } });
-        if (dailySignupsChart) dailySignupsChart.destroy();
-        dailySignupsChart = new Chart(document.getElementById('dailySignupsChart'), { type:'bar', data:{ labels:dailyLabels, datasets:[{ label:'Signups', data:dailySignups, backgroundColor:'#AF52DE' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1 } } } } });
-        if (dailyFixRequestsChart) dailyFixRequestsChart.destroy();
-        dailyFixRequestsChart = new Chart(document.getElementById('dailyFixRequestsChart'), { type:'bar', data:{ labels:dailyLabels, datasets:[{ label:'Fix Requests', data:dailyFix, backgroundColor:'#FF3B30' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1 } } } } });
+        monthlyRevenueChart = new Chart(document.getElementById('monthlyRevenueChart'), {
+          type: 'line',
+          data: { labels: monthLabels, datasets: [{ label: 'Revenue ($)', data: monthValues, borderColor: '#FF9500', backgroundColor: 'rgba(255,149,0,0.1)', fill: true, tension: 0.3 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+
+        // Daily Signups (Bar)
+        dailySignupsChart = new Chart(document.getElementById('dailySignupsChart'), {
+          type: 'bar',
+          data: { labels: dailyLabels, datasets: [{ label: 'Signups', data: dailySignups, backgroundColor: '#AF52DE' }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+
+        // Daily Fix Requests (Bar)
+        dailyFixRequestsChart = new Chart(document.getElementById('dailyFixRequestsChart'), {
+          type: 'bar',
+          data: { labels: dailyLabels, datasets: [{ label: 'Fix Requests', data: dailyFix, backgroundColor: '#FF3B30' }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
       }
 
+      // ----- TOTALS UPDATE (Revenue ঠিক করা) -----
+      // Orders
       onSnapshot(collection(db, 'orders'), (snapshot) => {
         document.getElementById('totalOrders').innerText = snapshot.size;
-        allOrders = []; snapshot.forEach(doc => allOrders.push({ id: doc.id, ...doc.data() }));
+        allOrders = [];
+        let totalRevenue = 0;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          allOrders.push({ id: doc.id, ...data });
+          totalRevenue += (data.total || 0);
+        });
+        document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
         renderDashboardCharts(allOrders, allUsers, allFixRequests);
       });
+
+      // Users
       onSnapshot(collection(db, 'users'), (snapshot) => {
         document.getElementById('totalUsers').innerText = snapshot.size;
-        allUsers = []; snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
+        allUsers = [];
+        snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
         renderDashboardCharts(allOrders, allUsers, allFixRequests);
       });
+
+      // Fix Requests
       onSnapshot(collection(db, 'fixRequests'), (snapshot) => {
         document.getElementById('totalFixRequests').innerText = snapshot.size;
-        allFixRequests = []; snapshot.forEach(doc => allFixRequests.push({ id: doc.id, ...doc.data() }));
+        allFixRequests = [];
+        snapshot.forEach(doc => allFixRequests.push({ id: doc.id, ...doc.data() }));
         renderDashboardCharts(allOrders, allUsers, allFixRequests);
+      });
+
+      // Products (for total products count)
+      onSnapshot(collection(db, 'products'), (snapshot) => {
+        document.getElementById('totalProducts').innerText = snapshot.size;
       });
 
       // ----- PRODUCTS (CRUD) -----
@@ -472,7 +533,7 @@
       });
       window.deleteProduct = async (id) => { if (confirm('Delete this product?')) { await deleteDoc(doc(db, 'products', id)); showToast('✅ Deleted', 'success'); } };
 
-      // ----- ORDERS -----
+      // ----- ORDERS (list) -----
       const orderList = document.getElementById('orderList');
       onSnapshot(collection(db, 'orders'), (snapshot) => {
         if (snapshot.empty) { orderList.innerHTML = '<p class="text-gray-500">No orders.</p>'; return; }
@@ -500,6 +561,7 @@
         allUsers = []; snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
         renderUsers();
       });
+
       window.openUserModal = () => { document.getElementById('userModal').classList.add('open'); document.getElementById('userModalTitle').innerText = 'Add User'; document.getElementById('userId').value = ''; document.getElementById('userForm').reset(); document.getElementById('userPassword').disabled = false; document.getElementById('userPassword').required = true; };
       window.closeUserModal = () => { document.getElementById('userModal').classList.remove('open'); };
       window.editUser = async (id) => {
@@ -563,56 +625,26 @@
         messageList.innerHTML = html;
       });
 
-      // ==============================================================
-      // ✅ FIX REQUESTS – ডিলিট (সঠিকভাবে কাজ করবে)
-      // ==============================================================
+      // ----- FIX REQUESTS (শুধু রিপ্লাই, ডিলিট নেই) -----
       const fixRequestList = document.getElementById('fixRequestList');
-      const fixBinList = document.getElementById('fixBinList');
-      const binToggleBtn = document.getElementById('binToggleBtn');
-      let showBin = false;
-      let binRequests = [];
-
       onSnapshot(collection(db, 'fixRequests'), (snapshot) => {
-        allFixRequests = [];
-        snapshot.forEach(doc => allFixRequests.push({ id: doc.id, ...doc.data() }));
-        renderFixRequests(allFixRequests);
-      });
-
-      onSnapshot(collection(db, 'fixRequestsBin'), (snapshot) => {
-        binRequests = [];
-        snapshot.forEach(doc => binRequests.push({ id: doc.id, ...doc.data() }));
-        document.getElementById('binCount').innerText = binRequests.length;
-        renderBin();
-        // Auto-delete after 30 days
-        const now = Date.now();
-        binRequests.forEach(async (item) => {
-          const delTime = item.deletedAt?.toDate?.()?.getTime() || new Date(item.deletedAt).getTime();
-          if (now - delTime > 30 * 24 * 60 * 60 * 1000) {
-            await deleteDoc(doc(db, 'fixRequestsBin', item.id));
-          }
-        });
-      });
-
-      function renderFixRequests(requests) {
-        if (requests.length === 0) { fixRequestList.innerHTML = '<p class="text-gray-500">No fix requests.</p>'; return; }
+        if (snapshot.empty) { fixRequestList.innerHTML = '<p class="text-gray-500">No fix requests.</p>'; return; }
         let html = '';
-        requests.forEach(r => {
+        snapshot.forEach(doc => {
+          const r = doc.data();
           const reply = r.reply || '';
           html += `
-            <div class="glass-card" id="fix-${r.id}">
-              <div class="flex flex-wrap justify-between items-start gap-2">
-                <div>
-                  <p><strong>${r.name}</strong> (${r.email})</p>
-                  <p class="text-sm">${r.problem}</p>
-                  ${r.imageLink ? `<p class="text-xs text-gray-400">Image: ${r.imageLink}</p>` : ''}
-                </div>
-                <button onclick="deleteFixRequest('${r.id}')" class="btn-danger-sm"><i class="fas fa-trash"></i></button>
+            <div class="glass-card" id="fix-${doc.id}">
+              <div>
+                <p><strong>${r.name}</strong> (${r.email})</p>
+                <p class="text-sm">${r.problem}</p>
+                ${r.imageLink ? `<p class="text-xs text-gray-400">Image: ${r.imageLink}</p>` : ''}
               </div>
               <div class="mt-3 border-t pt-3">
                 <label class="text-sm font-semibold text-gray-700">Admin Reply:</label>
                 <div class="flex flex-wrap gap-2 mt-1">
-                  <textarea id="reply-${r.id}" rows="2" class="form-input flex-1 text-sm" placeholder="Write reply...">${reply}</textarea>
-                  <button onclick="sendReply('${r.id}')" class="btn-primary text-sm py-2 px-4">Send</button>
+                  <textarea id="reply-${doc.id}" rows="2" class="form-input flex-1 text-sm" placeholder="Write reply...">${reply}</textarea>
+                  <button onclick="sendReply('${doc.id}')" class="btn-primary text-sm py-2 px-4">Send</button>
                 </div>
                 ${reply ? `<p class="text-xs text-green-600 mt-1">✔ Reply sent: ${r.replyTimestamp?.toDate?.()?.toLocaleString() || ''}</p>` : ''}
               </div>
@@ -620,81 +652,7 @@
           `;
         });
         fixRequestList.innerHTML = html;
-      }
-
-      function renderBin() {
-        if (binRequests.length === 0) { fixBinList.innerHTML = '<p class="text-gray-500 text-center py-4">Bin is empty.</p>'; return; }
-        let html = '';
-        binRequests.forEach(r => {
-          const delDate = r.deletedAt?.toDate?.() || new Date(r.deletedAt);
-          html += `
-            <div class="glass-card bg-gray-50 border-gray-300">
-              <div class="flex flex-wrap justify-between items-start gap-2">
-                <div>
-                  <p><strong>${r.name}</strong> (${r.email})</p>
-                  <p class="text-sm">${r.problem}</p>
-                  <p class="text-xs text-gray-400">Deleted: ${delDate.toLocaleString()}</p>
-                </div>
-                <button onclick="restoreFixRequest('${r.id}')" class="btn-primary text-sm py-1 px-3"><i class="fas fa-undo"></i> Restore</button>
-              </div>
-            </div>
-          `;
-        });
-        fixBinList.innerHTML = html;
-      }
-
-      // ✅ আপডেটেড deleteFixRequest – কনসোল লগ সহ
-      window.deleteFixRequest = async (id) => {
-        if (!confirm('Move this request to Bin?')) return;
-        try {
-          console.log('🗑️ Attempting to delete fix request:', id);
-          const docSnap = await getDoc(doc(db, 'fixRequests', id));
-          if (!docSnap.exists()) {
-            showToast('Request not found', 'error');
-            console.error('❌ Document not found:', id);
-            return;
-          }
-          const data = docSnap.data();
-          console.log('📄 Data to move:', data);
-
-          // Move to bin
-          await setDoc(doc(db, 'fixRequestsBin', id), {
-            ...data,
-            deletedAt: serverTimestamp(),
-            originalId: id
-          });
-          console.log('✅ Copied to bin');
-
-          // Delete original
-          await deleteDoc(doc(db, 'fixRequests', id));
-          console.log('✅ Original deleted');
-
-          showToast('✅ Moved to Bin', 'success');
-        } catch (err) {
-          console.error('❌ Delete error:', err);
-          showToast('❌ Error: ' + err.message, 'error');
-        }
-      };
-
-      window.restoreFixRequest = async (id) => {
-        try {
-          const docSnap = await getDoc(doc(db, 'fixRequestsBin', id));
-          if (!docSnap.exists()) { showToast('Not found in bin', 'error'); return; }
-          const data = docSnap.data();
-          delete data.deletedAt;
-          delete data.originalId;
-          await setDoc(doc(db, 'fixRequests', id), data);
-          await deleteDoc(doc(db, 'fixRequestsBin', id));
-          showToast('✅ Restored from Bin', 'success');
-        } catch (err) { showToast('Error: ' + err.message, 'error'); }
-      };
-
-      window.toggleFixBin = () => {
-        showBin = !showBin;
-        fixBinList.classList.toggle('hidden', !showBin);
-        fixRequestList.classList.toggle('hidden', showBin);
-        binToggleBtn.innerHTML = `<i class="fas fa-trash-alt"></i> ${showBin ? 'Hide Bin' : 'Bin'} (<span id="binCount">${binRequests.length}</span>)`;
-      };
+      });
 
       window.sendReply = async (requestId) => {
         const textarea = document.getElementById(`reply-${requestId}`);
@@ -923,7 +881,7 @@
         }
       });
 
-      console.log('✅ Admin Panel loaded with fix delete working.');
+      console.log('✅ Admin Panel loaded with fixed revenue and no bin.');
     }
   </script>
 </body>
