@@ -2,14 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>Admin Panel – SWD Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* ===== LAYOUT ===== */
+    /* ===== BASE ===== */
+    * { box-sizing: border-box; }
+    body {
+      background: #f2f4f7;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* ===== SIDEBAR (ডেস্কটপ) ===== */
     .sidebar {
       width: 260px;
       height: 100vh;
@@ -18,13 +28,21 @@
       left: 0;
       background: white;
       border-right: 1px solid rgba(0,0,0,0.04);
-      padding: 1.5rem;
+      padding: 1.5rem 1rem;
       overflow-y: auto;
       z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: flex;
+      flex-direction: column;
     }
-    .main {
-      margin-left: 260px;
-      padding: 2rem;
+    .sidebar.closed {
+      transform: translateX(-100%);
+    }
+    .sidebar .logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      padding-left: 0.5rem;
     }
     .nav-item {
       display: flex;
@@ -35,26 +53,122 @@
       cursor: pointer;
       transition: 0.2s;
       color: #3a3a3c;
+      font-weight: 500;
+      font-size: 0.95rem;
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: left;
     }
-    .nav-item:hover,
-    .nav-item.active {
+    .nav-item:hover, .nav-item.active {
       background: #f0f0f5;
       color: #007AFF;
     }
+    .nav-item i { width: 22px; text-align: center; }
+    .sidebar .logout-btn {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    /* ===== MAIN ===== */
+    .main {
+      margin-left: 260px;
+      padding: 1.5rem 1.5rem 5rem;
+      transition: margin-left 0.3s ease;
+      min-height: 100vh;
+    }
+    .main.expanded {
+      margin-left: 0;
+    }
+
+    /* ===== MOBILE HEADER ===== */
+    .mobile-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: white;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .mobile-header .hamburger {
+      font-size: 1.6rem;
+      background: none;
+      border: none;
+      color: #1c1c1e;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+    }
+    .mobile-header .title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1c1c1e;
+    }
+
+    /* ===== OVERLAY (মোবাইলে সাইডবার খোলার সময়) ===== */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(4px);
+      z-index: 99;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.open {
+      display: block;
+      opacity: 1;
+    }
+
+    /* ===== TAB CONTENT ===== */
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    .chart-container { height: 280px; position: relative; }
-    .dashboard-card { transition: all 0.3s ease; }
+
+    /* ===== DASHBOARD CARDS ===== */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .dashboard-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 16px;
+      padding: 1.25rem 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+    }
     .dashboard-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 40px rgba(0,0,0,0.08);
     }
+    .dashboard-card .label { font-size: 0.8rem; color: #8e8e93; font-weight: 500; }
+    .dashboard-card .value { font-size: 1.8rem; font-weight: 700; color: #1c1c1e; margin-top: 0.25rem; }
 
-    /* ===== MESSENGER ===== */
+    /* ===== CHART ===== */
+    .chart-container { height: 250px; position: relative; }
+
+    /* ===== GLASS CARD ===== */
+    .glass-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+    }
+
+    /* ===== MESSENGER (মোবাইল ফ্রেন্ডলি) ===== */
     .messenger-wrap {
       display: flex;
       height: 70vh;
-      min-height: 480px;
+      min-height: 400px;
       background: #fff;
       border-radius: 20px;
       overflow: hidden;
@@ -68,6 +182,7 @@
       background: #fafafc;
       overflow-y: auto;
       padding: 0.5rem 0;
+      flex-shrink: 0;
     }
     .conv-item {
       display: flex;
@@ -81,39 +196,19 @@
     .conv-item:hover { background: #f0f0f5; }
     .conv-item.active { background: #e8edf5; }
     .conv-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
+      width: 44px; height: 44px; border-radius: 50%;
       background: linear-gradient(135deg, #007AFF, #5856D6);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 1.1rem;
-      flex-shrink: 0;
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 1.1rem; flex-shrink: 0;
     }
     .conv-info { flex: 1; min-width: 0; }
     .conv-name { font-weight: 600; font-size: 0.95rem; color: #1c1c1e; }
-    .conv-last {
-      font-size: 0.8rem;
-      color: #8e8e93;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .conv-last { font-size: 0.8rem; color: #8e8e93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .conv-time { font-size: 0.7rem; color: #8e8e93; flex-shrink: 0; margin-left: 8px; }
     .conv-unread {
-      background: #007AFF;
-      color: #fff;
-      border-radius: 60px;
-      padding: 0 10px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      line-height: 20px;
-      flex-shrink: 0;
-      min-width: 20px;
-      text-align: center;
+      background: #007AFF; color: #fff; border-radius: 60px;
+      padding: 0 10px; font-size: 0.7rem; font-weight: 700; line-height: 20px;
+      flex-shrink: 0; min-width: 20px; text-align: center;
     }
 
     .chat-area {
@@ -131,107 +226,64 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-shrink: 0;
     }
     .chat-header .chat-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       background: linear-gradient(135deg, #007AFF, #5856D6);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 0.9rem;
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 0.9rem;
     }
     .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      flex: 1; overflow-y: auto; padding: 16px 20px;
+      display: flex; flex-direction: column; gap: 6px;
       background: #f8f9fc;
     }
     .chat-msg {
-      max-width: 78%;
-      padding: 10px 16px;
-      border-radius: 18px;
-      font-size: 0.95rem;
-      word-wrap: break-word;
-      position: relative;
+      max-width: 78%; padding: 10px 16px; border-radius: 18px;
+      font-size: 0.95rem; word-wrap: break-word;
       animation: fadeUp 0.2s ease;
     }
     .chat-msg.sent {
-      align-self: flex-end;
-      background: #007AFF;
-      color: #fff;
+      align-self: flex-end; background: #007AFF; color: #fff;
       border-bottom-right-radius: 4px;
     }
     .chat-msg.received {
-      align-self: flex-start;
-      background: #fff;
-      color: #1c1c1e;
-      border-bottom-left-radius: 4px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      align-self: flex-start; background: #fff; color: #1c1c1e;
+      border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
     .chat-msg .msg-time { font-size: 0.6rem; opacity: 0.6; margin-top: 4px; text-align: right; }
     .chat-msg.sent .msg-time { color: rgba(255,255,255,0.7); }
     .chat-msg .msg-status { font-size: 0.6rem; margin-left: 6px; opacity: 0.6; }
 
     .chat-input-wrap {
-      display: flex;
-      gap: 10px;
-      padding: 12px 20px;
-      border-top: 1px solid rgba(0,0,0,0.04);
-      background: #fff;
+      display: flex; gap: 10px; padding: 12px 20px;
+      border-top: 1px solid rgba(0,0,0,0.04); background: #fff;
+      flex-shrink: 0;
     }
     .chat-input-wrap input {
-      flex: 1;
-      padding: 12px 18px;
-      border-radius: 30px;
-      border: 1.5px solid rgba(60,60,67,0.08);
-      font-size: 0.95rem;
-      transition: 0.2s;
-      background: #f5f5f8;
+      flex: 1; padding: 12px 18px; border-radius: 30px;
+      border: 1.5px solid rgba(60,60,67,0.08); font-size: 0.95rem;
+      transition: 0.2s; background: #f5f5f8; outline: none;
     }
     .chat-input-wrap input:focus {
-      outline: none;
-      border-color: #007AFF;
-      background: #fff;
+      border-color: #007AFF; background: #fff;
       box-shadow: 0 0 0 4px rgba(0,122,255,0.06);
     }
     .chat-input-wrap button {
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border-radius: 50%; width: 48px; height: 48px; padding: 0;
+      display: flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, #007AFF, #5856D6);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 1.1rem;
-      flex-shrink: 0;
+      color: #fff; border: none; cursor: pointer; transition: 0.2s;
+      font-size: 1.1rem; flex-shrink: 0;
     }
-    .chat-input-wrap button:hover {
-      transform: scale(1.03);
-      box-shadow: 0 4px 16px rgba(0,122,255,0.3);
-    }
+    .chat-input-wrap button:hover { transform: scale(1.03); box-shadow: 0 4px 16px rgba(0,122,255,0.3); }
     .chat-input-wrap button:disabled { opacity: 0.5; transform: none !important; }
 
     .empty-state {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: #8e8e93;
-      font-size: 0.95rem;
-      flex-direction: column;
-      gap: 8px;
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; color: #8e8e93; font-size: 0.95rem;
+      flex-direction: column; gap: 8px;
     }
     .empty-state i { font-size: 2.4rem; opacity: 0.3; }
 
@@ -240,6 +292,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ===== SCROLLBAR ===== */
     .conv-list::-webkit-scrollbar,
     .chat-messages::-webkit-scrollbar { width: 4px; }
     .conv-list::-webkit-scrollbar-thumb,
@@ -247,217 +300,322 @@
     .conv-list::-webkit-scrollbar-track,
     .chat-messages::-webkit-scrollbar-track { background: transparent; }
 
-    @media (max-width: 768px) {
-      .messenger-wrap { flex-direction: column; height: 80vh; }
-      .conv-list { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); }
-      .main { margin-left: 0; padding: 1rem; }
-      .sidebar { display: none; }
-      .chat-msg { max-width: 92%; }
-    }
+    /* ===== PRODUCT GRID ===== */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .product-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 12px 12px 0 0; }
 
-    /* ===== UX: FADE UP & BACK TO TOP ===== */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
+    /* ===== FORM ===== */
+    .form-input {
+      width: 100%; padding: 12px 16px; border: 1.5px solid rgba(60,60,67,0.08);
+      border-radius: 12px; font-size: 0.95rem; background: rgba(255,255,255,0.8);
+      transition: all 0.3s ease; outline: none;
     }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .scroll-top-btn {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
+    .form-input:focus { border-color: #007AFF; box-shadow: 0 0 0 4px rgba(0,122,255,0.08); background: #fff; }
+
+    .btn-primary {
       background: linear-gradient(135deg, #007AFF, #5856D6);
-      color: #fff;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 8px 30px rgba(0,122,255,0.35);
-      z-index: 999;
-      opacity: 0;
-      transform: scale(0.8);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      pointer-events: none;
+      color: #fff; padding: 10px 22px; border-radius: 60px;
+      font-weight: 600; font-size: 0.95rem; border: none;
+      cursor: pointer; transition: 0.3s; display: inline-flex;
+      align-items: center; justify-content: center; gap: 8px;
     }
-    .scroll-top-btn.show {
-      opacity: 1;
-      transform: scale(1);
-      pointer-events: auto;
-    }
-    .scroll-top-btn:hover { transform: scale(1.05); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,122,255,0.35); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
-    /* ===== ✅ প্রিলোডার ===== */
-    #adminLoader {
-      position: fixed;
-      inset: 0;
-      background: #f2f4f7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      flex-direction: column;
-      gap: 20px;
+    .btn-outline {
+      background: transparent; color: #1c1c1e; padding: 10px 22px;
+      border-radius: 60px; font-weight: 600; font-size: 0.95rem;
+      border: 1.5px solid rgba(60,60,67,0.08); cursor: pointer;
+      transition: 0.3s; display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.5);
     }
-    #adminLoader .spinner-big {
-      width: 60px;
-      height: 60px;
+    .btn-outline:hover { background: rgba(0,122,255,0.04); border-color: #007AFF; color: #007AFF; }
+
+    /* ===== BADGE ===== */
+    .badge-pending { background: #FF9500; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
+    .badge-processing { background: #007AFF; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
+    .badge-completed { background: #34C759; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .dashboard-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 280px;
+        transform: translateX(-100%);
+        padding: 1rem;
+        box-shadow: 4px 0 30px rgba(0,0,0,0.1);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 0 0 4rem 0; }
+      .mobile-header { display: flex; }
+      .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .dashboard-card { padding: 0.75rem; }
+      .dashboard-card .value { font-size: 1.4rem; }
+      .chart-container { height: 200px; }
+      .glass-card { padding: 1rem; border-radius: 12px; }
+
+      /* Messenger Stack */
+      .messenger-wrap {
+        flex-direction: column;
+        height: 75vh;
+        min-height: 400px;
+        border-radius: 16px;
+      }
+      .conv-list {
+        width: 100%;
+        max-height: 200px;
+        border-right: none;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+      }
+      .chat-msg { max-width: 92%; }
+      .chat-input-wrap { padding: 10px 14px; flex-wrap: wrap; }
+      .chat-input-wrap input { padding: 10px 14px; font-size: 0.9rem; }
+      .chat-input-wrap button { width: 42px; height: 42px; font-size: 1rem; }
+      .chat-messages { padding: 12px 14px; }
+      .chat-msg { padding: 8px 14px; font-size: 0.9rem; }
+
+      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .product-card img { height: 120px; }
+    }
+    @media (max-width: 480px) {
+      .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+      .dashboard-card .value { font-size: 1.2rem; }
+      .product-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+      .product-card { padding: 0.75rem; }
+      .mobile-header .title { font-size: 1rem; }
+      .conv-item { padding: 10px 12px; }
+      .conv-avatar { width: 36px; height: 36px; font-size: 0.9rem; }
+      .sidebar { width: 260px; }
+    }
+
+    /* ===== SPINNER ===== */
+    .spinner-big {
+      width: 60px; height: 60px;
       border: 4px solid rgba(0,122,255,0.1);
       border-top-color: #007AFF;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== TOAST ===== */
+    #toast-container {
+      position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px;
+      max-width: 90vw; width: 400px; pointer-events: none;
     }
+    .toast {
+      padding: 14px 18px; border-radius: 14px;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.10);
+      font-size: 0.9rem; font-weight: 500; color: #1c1c1e;
+      transform: translateX(calc(100% + 30px));
+      animation: slideIn 0.45s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+      display: flex; align-items: center; gap: 10px;
+      pointer-events: auto; border-left: 4px solid #007AFF;
+    }
+    .toast.success { border-left-color: #34C759; }
+    .toast.error { border-left-color: #FF3B30; }
+    .toast.warning { border-left-color: #FF9500; }
+    .toast i { font-size: 1.1rem; flex-shrink: 0; }
+    @keyframes slideIn { to { transform: translateX(0); } }
+    .toast.hide { animation: slideOut 0.4s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+    @keyframes slideOut { to { transform: translateX(calc(100% + 30px)); opacity: 0; } }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px); z-index: 200;
+      display: none; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: white; border-radius: 20px; padding: 1.5rem;
+      max-width: 500px; width: 100%; max-height: 90vh;
+      overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-box .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem;
+    }
+    .modal-box .modal-header h3 { font-size: 1.3rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #8e8e93; }
   </style>
 </head>
 <body>
 
-  <!-- ===== ✅ প্রিলোডার (যতক্ষণ অথ চেক চলছে) ===== -->
-  <div id="adminLoader">
+  <!-- ===== প্রিলোডার ===== -->
+  <div id="adminLoader" style="position:fixed;inset:0;background:#f2f4f7;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px;">
     <div class="spinner-big"></div>
     <p class="text-gray-500 font-medium">Verifying access...</p>
   </div>
 
-  <!-- ===== SIDEBAR ===== -->
+  <!-- ===== সাইডবার ওভারলে (মোবাইলে) ===== -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- ===== সাইডবার ===== -->
   <div class="sidebar" id="adminSidebar" style="display:none;">
-    <h2 class="text-xl font-bold text-gray-900 mb-6">SWD Admin</h2>
-    <div class="space-y-1">
-      <div class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</div>
-      <div class="nav-item" data-tab="products"><i class="fas fa-box"></i> Products</div>
-      <div class="nav-item" data-tab="orders"><i class="fas fa-shopping-cart"></i> Orders</div>
-      <div class="nav-item" data-tab="users"><i class="fas fa-users"></i> Users</div>
-      <div class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages</div>
-      <div class="nav-item" data-tab="fixrequests"><i class="fas fa-wrench"></i> Fix Requests</div>
-      <div class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</div>
-      <div class="nav-item" data-tab="supportchat"><i class="fas fa-comments"></i> Support Chat</div>
+    <div class="logo">SWD Admin</div>
+    <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;">
+      <button class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
+      <button class="nav-item" data-tab="products"><i class="fas fa-box"></i> Products</button>
+      <button class="nav-item" data-tab="orders"><i class="fas fa-shopping-cart"></i> Orders</button>
+      <button class="nav-item" data-tab="users"><i class="fas fa-users"></i> Users</button>
+      <button class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages</button>
+      <button class="nav-item" data-tab="fixrequests"><i class="fas fa-wrench"></i> Fix Requests</button>
+      <button class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</button>
+      <button class="nav-item" data-tab="supportchat"><i class="fas fa-comments"></i> Support Chat</button>
     </div>
-    <div class="absolute bottom-6 left-6">
-      <button onclick="logoutAdmin()" class="text-red-500 hover:text-red-700"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <div class="logout-btn">
+      <button onclick="logoutAdmin()" class="nav-item" style="color:#FF3B30;"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
+  </div>
+
+  <!-- ===== মোবাইল হেডার ===== -->
+  <div class="mobile-header" id="mobileHeader" style="display:none;">
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <span class="title">SWD Admin</span>
+    <span style="width:1.6rem;"></span>
   </div>
 
   <!-- ===== MAIN ===== -->
   <div class="main" id="adminMain" style="display:none;">
 
-    <!-- DASHBOARD -->
+    <!-- ===== DASHBOARD ===== -->
     <div id="tab-dashboard" class="tab-content active">
-      <h2 class="text-2xl font-bold fade-up">Dashboard</h2>
-      <div class="grid grid-cols-5 gap-4 mt-6">
-        <div class="glass-card dashboard-card fade-up"><span class="text-gray-500">Total Orders</span><div id="totalOrders" class="text-2xl font-bold">0</div></div>
-        <div class="glass-card dashboard-card fade-up"><span class="text-gray-500">Revenue</span><div id="totalRevenue" class="text-2xl font-bold text-green-600">$0</div></div>
-        <div class="glass-card dashboard-card fade-up"><span class="text-gray-500">Products</span><div id="totalProducts" class="text-2xl font-bold">0</div></div>
-        <div class="glass-card dashboard-card fade-up"><span class="text-gray-500">Messages</span><div id="totalMessages" class="text-2xl font-bold">0</div></div>
-        <div class="glass-card dashboard-card fade-up"><span class="text-gray-500">Fix Requests</span><div id="totalFixRequests" class="text-2xl font-bold">0</div></div>
-      </div>
-      <div class="grid grid-cols-2 gap-6 mt-6">
-        <div class="glass-card fade-up"><h3 class="font-semibold text-gray-700 mb-2">📊 Monthly Orders</h3><div class="chart-container"><canvas id="monthlyOrdersChart"></canvas></div></div>
-        <div class="glass-card fade-up"><h3 class="font-semibold text-gray-700 mb-2">🧩 Order Status</h3><div class="chart-container"><canvas id="statusChart"></canvas></div></div>
+      <div style="padding:0 1rem 1rem 1rem;">
+        <h2 class="text-2xl font-bold">Dashboard</h2>
+        <div class="dashboard-grid">
+          <div class="dashboard-card"><div class="label">Total Orders</div><div class="value" id="totalOrders">0</div></div>
+          <div class="dashboard-card"><div class="label">Revenue</div><div class="value text-green-600" id="totalRevenue">$0</div></div>
+          <div class="dashboard-card"><div class="label">Products</div><div class="value" id="totalProducts">0</div></div>
+          <div class="dashboard-card"><div class="label">Messages</div><div class="value" id="totalMessages">0</div></div>
+          <div class="dashboard-card"><div class="label">Fix Requests</div><div class="value" id="totalFixRequests">0</div></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div class="glass-card"><h3 class="font-semibold text-gray-700 mb-2">📊 Monthly Orders</h3><div class="chart-container"><canvas id="monthlyOrdersChart"></canvas></div></div>
+          <div class="glass-card"><h3 class="font-semibold text-gray-700 mb-2">🧩 Order Status</h3><div class="chart-container"><canvas id="statusChart"></canvas></div></div>
+        </div>
       </div>
     </div>
 
-    <!-- PRODUCTS -->
+    <!-- ===== PRODUCTS ===== -->
     <div id="tab-products" class="tab-content">
-      <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold">Products</h2>
-        <button onclick="openProductModal()" class="btn-primary"><i class="fas fa-plus"></i> Add Product</button>
-      </div>
-      <div id="productList" class="grid grid-cols-3 gap-4 mt-4"></div>
-      <div id="productModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl p-8 max-w-md w-full">
-          <h3 id="productModalTitle" class="text-xl font-bold">Add Product</h3>
-          <form id="productForm" class="mt-4 space-y-3">
-            <input type="text" id="prodName" placeholder="Product Name" required class="form-input" />
-            <input type="text" id="prodDesc" placeholder="Description" class="form-input" />
-            <input type="number" id="prodPrice" placeholder="Price" required class="form-input" />
-            <input type="text" id="prodCategory" placeholder="Category" class="form-input" />
-            <input type="text" id="prodImage" placeholder="Image URL" class="form-input" />
-            <input type="hidden" id="prodId" />
-            <button type="submit" class="btn-primary w-full">Save</button>
-          </form>
-          <button onclick="closeProductModal()" class="mt-2 text-gray-500">Cancel</button>
+      <div style="padding:0 1rem 1rem 1rem;">
+        <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+          <h2 class="text-2xl font-bold">Products</h2>
+          <button onclick="openProductModal()" class="btn-primary text-sm py-2 px-4"><i class="fas fa-plus"></i> Add</button>
         </div>
+        <div id="productList" class="product-grid"></div>
       </div>
     </div>
 
-    <!-- ORDERS -->
+    <!-- ===== ORDERS ===== -->
     <div id="tab-orders" class="tab-content">
-      <h2 class="text-2xl font-bold">Orders</h2>
-      <div id="orderList" class="space-y-4 mt-4"></div>
+      <div style="padding:0 1rem 1rem 1rem;">
+        <h2 class="text-2xl font-bold">Orders</h2>
+        <div id="orderList" class="space-y-3 mt-4"></div>
+      </div>
     </div>
 
-    <!-- USERS -->
+    <!-- ===== USERS ===== -->
     <div id="tab-users" class="tab-content">
-      <h2 class="text-2xl font-bold">Users</h2>
-      <div id="userList" class="grid grid-cols-3 gap-4 mt-4"></div>
+      <div style="padding:0 1rem 1rem 1rem;">
+        <h2 class="text-2xl font-bold">Users</h2>
+        <div id="userList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4"></div>
+      </div>
     </div>
 
-    <!-- CONTACT MESSAGES -->
+    <!-- ===== MESSAGES ===== -->
     <div id="tab-messages" class="tab-content">
-      <h2 class="text-2xl font-bold">Contact Messages</h2>
-      <div id="messageList" class="space-y-3 mt-4"></div>
+      <div style="padding:0 1rem 1rem 1rem;">
+        <h2 class="text-2xl font-bold">Contact Messages</h2>
+        <div id="messageList" class="space-y-3 mt-4"></div>
+      </div>
     </div>
 
-    <!-- FIX REQUESTS -->
+    <!-- ===== FIX REQUESTS ===== -->
     <div id="tab-fixrequests" class="tab-content">
-      <h2 class="text-2xl font-bold">Fix Requests</h2>
-      <div id="fixRequestList" class="space-y-3 mt-4"></div>
+      <div style="padding:0 1rem 1rem 1rem;">
+        <h2 class="text-2xl font-bold">Fix Requests</h2>
+        <div id="fixRequestList" class="space-y-3 mt-4"></div>
+      </div>
     </div>
 
-    <!-- SETTINGS -->
+    <!-- ===== SETTINGS ===== -->
     <div id="tab-settings" class="tab-content">
-      <h2 class="text-2xl font-bold">Settings</h2>
-      <form id="settingsForm" class="mt-4 space-y-3 max-w-md">
-        <label class="block">BKASH Number</label>
-        <input type="text" id="bkashNumber" class="form-input" />
-        <label class="block">NAGAD Number</label>
-        <input type="text" id="nagadNumber" class="form-input" />
-        <label class="block">USDT Address</label>
-        <input type="text" id="usdtAddress" class="form-input" />
-        <button type="submit" class="btn-primary">Save Settings</button>
-      </form>
+      <div style="padding:0 1rem 1rem 1rem;">
+        <h2 class="text-2xl font-bold">Settings</h2>
+        <form id="settingsForm" class="mt-4 space-y-3 max-w-md">
+          <label class="block text-sm font-medium">BKASH Number</label>
+          <input type="text" id="bkashNumber" class="form-input" />
+          <label class="block text-sm font-medium">NAGAD Number</label>
+          <input type="text" id="nagadNumber" class="form-input" />
+          <label class="block text-sm font-medium">USDT Address</label>
+          <input type="text" id="usdtAddress" class="form-input" />
+          <button type="submit" class="btn-primary w-full">Save Settings</button>
+        </form>
+      </div>
     </div>
 
-    <!-- SUPPORT CHAT -->
+    <!-- ===== SUPPORT CHAT ===== -->
     <div id="tab-supportchat" class="tab-content">
-      <h2 class="text-2xl font-bold mb-4 fade-up">Support Chat</h2>
-      <div class="messenger-wrap fade-up">
-        <div class="conv-list" id="convList">
-          <div class="empty-state" style="height:100%;font-size:0.85rem;">
-            <i class="fas fa-comments"></i>
-            <span>No conversations yet</span>
+      <div style="padding:0 1rem 1rem 1rem;">
+        <h2 class="text-2xl font-bold mb-4">Support Chat</h2>
+        <div class="messenger-wrap">
+          <div class="conv-list" id="convList">
+            <div class="empty-state" style="height:100%;font-size:0.85rem;">
+              <i class="fas fa-comments"></i><span>No conversations yet</span>
+            </div>
           </div>
-        </div>
-        <div class="chat-area">
-          <div class="chat-header" id="chatHeader">
-            <div class="chat-avatar" id="chatHeaderAvatar">U</div>
-            <span id="chatHeaderName">Select a conversation</span>
+          <div class="chat-area">
+            <div class="chat-header" id="chatHeader">
+              <div class="chat-avatar" id="chatHeaderAvatar">U</div>
+              <span id="chatHeaderName">Select a conversation</span>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+              <div class="empty-state"><i class="fas fa-inbox"></i><span>No messages</span></div>
+            </div>
+            <form class="chat-input-wrap" id="adminChatForm">
+              <input type="text" id="adminChatInput" placeholder="Type a reply..." required autocomplete="off" />
+              <button type="submit" id="adminChatSendBtn"><i class="fas fa-paper-plane"></i></button>
+            </form>
           </div>
-          <div class="chat-messages" id="chatMessages">
-            <div class="empty-state"><i class="fas fa-inbox"></i><span>No messages</span></div>
-          </div>
-          <form class="chat-input-wrap" id="adminChatForm">
-            <input type="text" id="adminChatInput" placeholder="Type a reply..." required autocomplete="off" />
-            <button type="submit" id="adminChatSendBtn"><i class="fas fa-paper-plane"></i></button>
-          </form>
         </div>
       </div>
     </div>
 
   </div>
 
-  <!-- ===== TOAST & BACK TO TOP ===== -->
+  <!-- ===== PRODUCT MODAL ===== -->
+  <div class="modal-overlay" id="productModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="productModalTitle">Add Product</h3>
+        <button class="modal-close" onclick="closeProductModal()">&times;</button>
+      </div>
+      <form id="productForm" class="space-y-3">
+        <input type="text" id="prodName" placeholder="Product Name" required class="form-input" />
+        <input type="text" id="prodDesc" placeholder="Description" class="form-input" />
+        <input type="number" id="prodPrice" placeholder="Price" required class="form-input" />
+        <input type="text" id="prodCategory" placeholder="Category" class="form-input" />
+        <input type="text" id="prodImage" placeholder="Image URL" class="form-input" />
+        <input type="hidden" id="prodId" />
+        <button type="submit" class="btn-primary w-full">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
   <div id="toast-container"></div>
-  <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
 
   <script type="module">
     // ================================================================
-    // ===== ✅ অথ গার্ড – প্রিলোডারের মাধ্যমে চেক =====
+    // অথ গার্ড + অ্যাডমিন প্যানেল লজিক (মোবাইল রেসপন্সিভ সহ)
     // ================================================================
     import {
       auth, db,
@@ -468,37 +626,47 @@
     } from './firebase-config.js';
     import { setLoading } from './components.js';
 
+    // ===== DOM রেফারেন্স =====
     const loader = document.getElementById('adminLoader');
     const sidebar = document.getElementById('adminSidebar');
     const main = document.getElementById('adminMain');
+    const mobileHeader = document.getElementById('mobileHeader');
+    const overlay = document.getElementById('sidebarOverlay');
 
-    // ✅ অথ চেক – পেজ লোড হওয়ার আগেই
+    // ===== সাইডবার টগল (মোবাইলে) =====
+    window.toggleSidebar = function() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+      document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+    };
+
+    // ===== অথ চেক =====
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // ইউজার নেই → লগইন পেজে পাঠান
         window.location.href = 'admin-login.html';
         return;
       }
-
       try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-          // অ্যাডমিন না → লগআউট করে লগইন পেজে পাঠান
           await signOut(auth);
           window.location.href = 'admin-login.html';
           return;
         }
-
-        // ✅ অ্যাডমিন – প্রিলোডার লুকান ও কন্টেন্ট দেখান
+        // ✅ অ্যাডমিন – UI দেখান
         loader.style.display = 'none';
-        sidebar.style.display = 'block';
+        sidebar.style.display = 'flex';
         main.style.display = 'block';
-
-        // বাকি সব ফাংশন চালু করুন
+        mobileHeader.style.display = 'flex';
+        // মোবাইলে সাইডবার বন্ধ রাখুন
+        if (window.innerWidth <= 768) {
+          sidebar.classList.add('closed');
+          sidebar.classList.remove('open');
+          overlay.classList.remove('open');
+        }
         initAdminPanel();
-
       } catch (err) {
-        console.error('Auth check error:', err);
+        console.error('Auth error:', err);
         loader.innerHTML = `
           <div class="text-red-500 text-center">
             <i class="fas fa-exclamation-circle text-4xl"></i>
@@ -510,17 +678,11 @@
     });
 
     // ================================================================
-    // ===== অ্যাডমিন প্যানেলের বাকি ফাংশন (আগের মতো) =====
+    // অ্যাডমিন প্যানেল ফাংশন (সম্পূর্ণ)
     // ================================================================
     function initAdminPanel() {
-      // আপনার পূর্ববর্তী সব কোড এখানে রাখুন
-      // (ড্যাশবোর্ড, প্রোডাক্ট, অর্ডার, ইউজার, মেসেজ, ফিক্স, সেটিংস, চ্যাট ইত্যাদি)
-      // নিচে শুধু ড্যাশবোর্ড চার্ট ও অন্যান্য ফাংশনের উদাহরণ দেওয়া হলো –
-      // আপনি আপনার পুরানো admin-panel.html এর <script> অংশ থেকে সব কোড কপি করে এখানে বসান।
-
-      // ===== DASHBOARD CHARTS =====
-      let monthlyChart = null;
-      let statusChart = null;
+      // ----- DASHBOARD CHARTS -----
+      let monthlyChart = null, statusChart = null;
       let allOrders = [];
 
       function updateCharts(ordersData) {
@@ -529,7 +691,7 @@
         const statusCount = { pending: 0, processing: 0, completed: 0 };
 
         ordersData.forEach(o => {
-          const date = o.createdAt?.toDate?.() || new Date();
+          const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
           const monthKey = date.toLocaleString('default', { month: 'short', year: 'numeric' });
           monthMap[monthKey] = (monthMap[monthKey] || 0) + 1;
           totalRevenue += o.total || 0;
@@ -538,7 +700,7 @@
 
         document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
 
-        const months = Object.keys(monthMap).sort((a, b) => new Date(a) - new Date(b));
+        const months = Object.keys(monthMap).sort((a,b) => new Date(a) - new Date(b));
         const counts = months.map(m => monthMap[m]);
 
         const ctx1 = document.getElementById('monthlyOrdersChart').getContext('2d');
@@ -586,14 +748,14 @@
         });
       }
 
-      // ORDERS (Real-time)
+      // ----- ORDERS (Real-time) -----
       onSnapshot(collection(db, 'orders'), (snapshot) => {
         document.getElementById('totalOrders').innerText = snapshot.size;
         allOrders = [];
         let html = '';
         snapshot.forEach(doc => {
-          const o = doc.data();
-          allOrders.push({ id: doc.id, ...o });
+          const o = { id: doc.id, ...doc.data() };
+          allOrders.push(o);
           const statusClass = o.status === 'pending' ? 'badge-pending' :
                              o.status === 'processing' ? 'badge-processing' :
                              'badge-completed';
@@ -601,14 +763,13 @@
             <div class="glass-card">
               <div class="flex flex-wrap justify-between items-start gap-2">
                 <div>
-                  <p class="font-bold">User: ${o.userId}</p>
-                  <p class="text-sm">Total: $${o.total}</p>
-                  ${o.transactionId ? `<p class="text-xs text-gray-500">Txn ID: ${o.transactionId}</p>` :
+                  <p class="font-bold">User: ${o.userId?.slice(0,10) || 'N/A'}</p>
+                  <p class="text-sm">Total: $${o.total?.toFixed(2) || '0.00'}</p>
+                  ${o.transactionId ? `<p class="text-xs text-gray-500">Txn: ${o.transactionId}</p>` :
                     '<p class="text-xs text-red-400">Payment pending</p>'}
-                  ${o.paymentMethod ? `<p class="text-xs text-gray-400">Method: ${o.paymentMethod}</p>` : ''}
                 </div>
-                <div class="flex items-center gap-2">
-                  <span class="${statusClass} px-2 py-1 rounded-full text-xs">${o.status}</span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="${statusClass} px-2 py-1 rounded-full text-xs">${o.status || 'pending'}</span>
                   <select onchange="updateOrderStatus('${doc.id}', this.value)" class="border rounded p-1 text-sm">
                     <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
                     <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
@@ -625,26 +786,35 @@
 
       window.updateOrderStatus = async (id, status) => {
         await updateDoc(doc(db, 'orders', id), { status });
+        showToast('✅ Order status updated', 'success');
       };
 
-      // PRODUCTS
+      // ----- PRODUCTS -----
       const productList = document.getElementById('productList');
       onSnapshot(collection(db, 'products'), (snapshot) => {
         document.getElementById('totalProducts').innerText = snapshot.size;
+        if (snapshot.empty) {
+          productList.innerHTML = '<p class="text-gray-500 col-span-full">No products yet.</p>';
+          return;
+        }
         let html = '';
         snapshot.forEach(doc => {
           const p = doc.data();
           html += `
-            <div class="glass-card">
-              <img src="${p.imageUrl || 'https://via.placeholder.com/300x150?text=No+Image'}" alt="${p.name}" class="w-full h-32 object-cover rounded-t-lg mb-2" />
-              <h3 class="font-bold">${p.name}</h3>
-              <p class="text-sm text-gray-500">$${p.price}</p>
-              <button onclick="editProduct('${doc.id}')" class="text-blue-600 text-sm"><i class="fas fa-edit"></i></button>
-              <button onclick="deleteProduct('${doc.id}')" class="text-red-500 text-sm ml-2"><i class="fas fa-trash"></i></button>
+            <div class="glass-card product-card">
+              <img src="${p.imageUrl || 'https://via.placeholder.com/300x140?text=No+Image'}" alt="${p.name}" loading="lazy" />
+              <div class="mt-2">
+                <h3 class="font-bold text-sm">${p.name}</h3>
+                <p class="text-sm text-gray-500">$${p.price}</p>
+                <div class="flex gap-2 mt-1">
+                  <button onclick="editProduct('${doc.id}')" class="text-blue-600 text-sm"><i class="fas fa-edit"></i></button>
+                  <button onclick="deleteProduct('${doc.id}')" class="text-red-500 text-sm"><i class="fas fa-trash"></i></button>
+                </div>
+              </div>
             </div>
           `;
         });
-        productList.innerHTML = html || '<p class="text-gray-500">No products yet.</p>';
+        productList.innerHTML = html;
       });
 
       window.editProduct = async (id) => {
@@ -658,17 +828,17 @@
           document.getElementById('prodCategory').value = data.category || '';
           document.getElementById('prodImage').value = data.imageUrl || '';
           document.getElementById('productModalTitle').innerText = 'Edit Product';
-          document.getElementById('productModal').classList.remove('hidden');
+          document.getElementById('productModal').classList.add('open');
         }
       };
       window.openProductModal = () => {
-        document.getElementById('productModal').classList.remove('hidden');
+        document.getElementById('productModal').classList.add('open');
         document.getElementById('productModalTitle').innerText = 'Add Product';
         document.getElementById('prodId').value = '';
+        document.getElementById('productForm').reset();
       };
       window.closeProductModal = () => {
-        document.getElementById('productModal').classList.add('hidden');
-        document.getElementById('productForm').reset();
+        document.getElementById('productModal').classList.remove('open');
       };
 
       const productForm = document.getElementById('productForm');
@@ -681,24 +851,28 @@
         const category = document.getElementById('prodCategory').value.trim();
         const imageUrl = document.getElementById('prodImage').value.trim();
         const id = document.getElementById('prodId').value;
-
-        if (!name || !price) return alert('Name and price required.');
+        if (!name || !price) { showToast('Name and price required.', 'error'); return; }
         setLoading(productSubmitBtn, true, 'Save');
         try {
-          const productData = { name, desc, price, category, imageUrl };
-          if (id) await updateDoc(doc(db, 'products', id), productData);
-          else await addDoc(collection(db, 'products'), productData);
+          const data = { name, desc, price, category, imageUrl };
+          if (id) await updateDoc(doc(db, 'products', id), data);
+          else await addDoc(collection(db, 'products'), data);
           closeProductModal();
-        } catch (err) { alert(err.message); }
+          showToast('✅ Product saved!', 'success');
+        } catch (err) { showToast(err.message, 'error'); }
         finally { setLoading(productSubmitBtn, false); }
       });
       window.deleteProduct = async (id) => {
-        if (confirm('Delete this product?')) await deleteDoc(doc(db, 'products', id));
+        if (confirm('Delete this product?')) {
+          await deleteDoc(doc(db, 'products', id));
+          showToast('✅ Deleted', 'success');
+        }
       };
 
-      // USERS
+      // ----- USERS -----
       const userList = document.getElementById('userList');
       onSnapshot(collection(db, 'users'), (snapshot) => {
+        if (snapshot.empty) { userList.innerHTML = '<p class="text-gray-500 col-span-full">No users.</p>'; return; }
         let html = '';
         snapshot.forEach(doc => {
           const u = doc.data();
@@ -713,10 +887,11 @@
         userList.innerHTML = html;
       });
 
-      // CONTACT MESSAGES
+      // ----- CONTACT MESSAGES -----
       const messageList = document.getElementById('messageList');
       onSnapshot(collection(db, 'contactMessages'), (snapshot) => {
         document.getElementById('totalMessages').innerText = snapshot.size;
+        if (snapshot.empty) { messageList.innerHTML = '<p class="text-gray-500">No messages.</p>'; return; }
         let html = '';
         snapshot.forEach(doc => {
           const m = doc.data();
@@ -728,13 +903,14 @@
             </div>
           `;
         });
-        messageList.innerHTML = html || '<p class="text-gray-500">No messages.</p>';
+        messageList.innerHTML = html;
       });
 
-      // FIX REQUESTS
+      // ----- FIX REQUESTS -----
       const fixRequestList = document.getElementById('fixRequestList');
       onSnapshot(collection(db, 'fixRequests'), (snapshot) => {
         document.getElementById('totalFixRequests').innerText = snapshot.size;
+        if (snapshot.empty) { fixRequestList.innerHTML = '<p class="text-gray-500">No fix requests.</p>'; return; }
         let html = '';
         snapshot.forEach(doc => {
           const f = doc.data();
@@ -746,7 +922,7 @@
               ${f.imageLink ? `<p class="text-xs text-gray-400">Image: ${f.imageLink}</p>` : ''}
               <div class="mt-3 border-t pt-3">
                 <label class="text-sm font-semibold text-gray-700">Admin Reply:</label>
-                <div class="flex gap-2 mt-1">
+                <div class="flex flex-wrap gap-2 mt-1">
                   <textarea id="reply-${doc.id}" rows="2" class="form-input flex-1 text-sm" placeholder="Write reply...">${reply}</textarea>
                   <button onclick="sendReply('${doc.id}')" class="btn-primary text-sm py-2 px-4">Send</button>
                 </div>
@@ -755,23 +931,23 @@
             </div>
           `;
         });
-        fixRequestList.innerHTML = html || '<p class="text-gray-500">No fix requests.</p>';
+        fixRequestList.innerHTML = html;
       });
 
       window.sendReply = async (requestId) => {
         const textarea = document.getElementById(`reply-${requestId}`);
         const replyText = textarea.value.trim();
-        if (!replyText) { alert('Please write a reply.'); return; }
+        if (!replyText) { showToast('Please write a reply.', 'warning'); return; }
         try {
           await updateDoc(doc(db, 'fixRequests', requestId), {
             reply: replyText,
             replyTimestamp: serverTimestamp()
           });
-          window.showToast('✅ Reply sent!', 'success');
-        } catch (err) { alert('Error: ' + err.message); }
+          showToast('✅ Reply sent!', 'success');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
       };
 
-      // SETTINGS
+      // ----- SETTINGS -----
       const settingsForm = document.getElementById('settingsForm');
       const settingsBtn = settingsForm.querySelector('button[type="submit"]');
       settingsForm.addEventListener('submit', async (e) => {
@@ -782,13 +958,12 @@
         setLoading(settingsBtn, true, 'Save Settings');
         try {
           await setDoc(doc(db, 'settings', 'payment'), { bkash, nagad, usdt });
-          alert('Settings saved!');
-        } catch (err) { alert('Error: ' + err.message); }
+          showToast('✅ Settings saved!', 'success');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
         finally { setLoading(settingsBtn, false); }
       });
 
-      // ===== SUPPORT CHAT =====
-      // (আপনার পূর্ববর্তী চ্যাট কোড এখানে রাখুন – সংক্ষেপে দেখানো হলো)
+      // ----- SUPPORT CHAT (মোবাইল ফ্রেন্ডলি) -----
       const convListEl = document.getElementById('convList');
       const chatMessagesEl = document.getElementById('chatMessages');
       const chatHeaderName = document.getElementById('chatHeaderName');
@@ -802,9 +977,7 @@
       let conversationsMap = {};
       let allMessages = [];
 
-      function getConvId(userId) {
-        return `conv_${userId}_admin`;
-      }
+      function getConvId(userId) { return `conv_${userId}_admin`; }
 
       async function loadAllUsers() {
         try {
@@ -816,32 +989,23 @@
               email: data.email || ''
             };
           });
-        } catch (err) {
-          console.error('Error loading users:', err);
-        }
+        } catch (err) { console.error('Error loading users:', err); }
       }
 
       function renderConvList() {
         const entries = Object.values(conversationsMap);
         if (entries.length === 0) {
-          convListEl.innerHTML = `
-            <div class="empty-state" style="height:100%;font-size:0.85rem;">
-              <i class="fas fa-comments"></i>
-              <span>No conversations yet</span>
-              <span style="font-size:0.7rem;color:#b0b0b5;">Messages will appear here when users contact you.</span>
-            </div>
-          `;
+          convListEl.innerHTML = `<div class="empty-state" style="height:100%;font-size:0.85rem;"><i class="fas fa-comments"></i><span>No conversations yet</span></div>`;
           return;
         }
-        entries.sort((a, b) => (b.lastMsgTime || 0) - (a.lastMsgTime || 0));
-
+        entries.sort((a,b) => (b.lastMsgTime||0) - (a.lastMsgTime||0));
         let html = '';
         entries.forEach(entry => {
           const user = entry.user || {};
           const name = user.displayName || user.email || 'Unknown';
           const avatarLetter = (name || 'U').charAt(0).toUpperCase();
           const lastMsg = entry.lastMsg || '';
-          const time = entry.lastMsgTime ? new Date(entry.lastMsgTime).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' }) : '';
+          const time = entry.lastMsgTime ? new Date(entry.lastMsgTime).toLocaleString('en-US', { hour:'2-digit', minute:'2-digit' }) : '';
           const unread = entry.unread || 0;
           const active = activeConversationUserId === entry.userId ? 'active' : '';
           html += `
@@ -857,11 +1021,14 @@
           `;
         });
         convListEl.innerHTML = html;
-
         convListEl.querySelectorAll('.conv-item').forEach(el => {
           el.addEventListener('click', () => {
             const uid = el.dataset.userid;
             if (uid) selectConversation(uid);
+            // মোবাইলে চ্যাট সিলেক্ট করলে কনভার্সেশন লিস্ট স্ক্রল করে উপরে রাখা
+            if (window.innerWidth <= 768) {
+              document.querySelector('.messenger-wrap').scrollTop = 0;
+            }
           });
         });
       }
@@ -869,7 +1036,6 @@
       async function selectConversation(userId) {
         if (!userId) return;
         activeConversationUserId = userId;
-
         if (conversationsMap[userId]) {
           conversationsMap[userId].unread = 0;
           const convId = getConvId(userId);
@@ -879,15 +1045,13 @@
           });
           renderConvList();
         }
-
         const convId = getConvId(userId);
-        const msgs = allMessages.filter(m => m.conversationId === convId).sort((a, b) => {
+        const msgs = allMessages.filter(m => m.conversationId === convId).sort((a,b) => {
           const ta = a.timestamp?.toDate?.()?.getTime() || 0;
           const tb = b.timestamp?.toDate?.()?.getTime() || 0;
           return ta - tb;
         });
         renderMessages(msgs);
-
         const user = allUsersCache[userId] || { displayName: 'User', email: '' };
         const name = user.displayName || user.email || 'User';
         chatHeaderName.textContent = name;
@@ -903,7 +1067,7 @@
         let html = '';
         msgs.forEach(m => {
           const isSent = m.fromUserId === 'admin';
-          const time = m.timestamp?.toDate?.()?.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' }) || '';
+          const time = m.timestamp?.toDate?.()?.toLocaleString('en-US', { hour:'2-digit', minute:'2-digit' }) || '';
           const status = m.read ? '✓✓' : '✓';
           html += `
             <div class="chat-msg ${isSent ? 'sent' : 'received'}">
@@ -921,7 +1085,7 @@
         const content = adminChatInput.value.trim();
         if (!content) return;
         if (!activeConversationUserId) {
-          window.showToast('Please select a conversation first.', 'warning');
+          showToast('Please select a conversation first.', 'warning');
           return;
         }
         const convId = getConvId(activeConversationUserId);
@@ -937,12 +1101,8 @@
             participants: ['admin', activeConversationUserId]
           });
           adminChatInput.value = '';
-        } catch (err) {
-          window.showToast('Error: ' + err.message, 'error');
-        } finally {
-          setLoading(adminChatSendBtn, false);
-          adminChatInput.focus();
-        }
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+        finally { setLoading(adminChatSendBtn, false); adminChatInput.focus(); }
       });
 
       function buildConversations(messages) {
@@ -954,10 +1114,8 @@
           if (parts.length < 3) return;
           const userId = parts[1];
           if (userId === 'admin') return;
-
           const fromAdmin = m.fromUserId === 'admin';
           const isUnread = !fromAdmin && !m.read;
-
           if (!map[userId]) {
             map[userId] = {
               userId,
@@ -972,12 +1130,8 @@
             map[userId].lastMsg = m.content || '';
             map[userId].lastMsgTime = ts;
           }
-          if (isUnread) {
-            map[userId].unread = (map[userId].unread || 0) + 1;
-          }
-          if (allUsersCache[userId]) {
-            map[userId].user = allUsersCache[userId];
-          }
+          if (isUnread) map[userId].unread = (map[userId].unread || 0) + 1;
+          if (allUsersCache[userId]) map[userId].user = allUsersCache[userId];
         });
         conversationsMap = map;
         renderConvList();
@@ -987,15 +1141,12 @@
         const q = query(collection(db, 'messages'), where('participants', 'array-contains', 'admin'));
         onSnapshot(q, async (snapshot) => {
           allMessages = [];
-          snapshot.forEach(doc => {
-            allMessages.push({ id: doc.id, ...doc.data() });
-          });
+          snapshot.forEach(doc => { allMessages.push({ id: doc.id, ...doc.data() }); });
           await loadAllUsers();
           buildConversations(allMessages);
-
           if (activeConversationUserId) {
             const convId = getConvId(activeConversationUserId);
-            const msgs = allMessages.filter(m => m.conversationId === convId).sort((a, b) => {
+            const msgs = allMessages.filter(m => m.conversationId === convId).sort((a,b) => {
               const ta = a.timestamp?.toDate?.()?.getTime() || 0;
               const tb = b.timestamp?.toDate?.()?.getTime() || 0;
               return ta - tb;
@@ -1014,26 +1165,23 @@
           }
         }, (error) => {
           console.error('❌ Messages listener error:', error);
-          window.showToast('⚠️ Error loading messages. Check console for details.', 'error');
+          showToast('⚠️ Error loading messages.', 'error');
         });
       }
 
       async function initMessenger() {
         await loadAllUsers();
         listenAllMessages();
-
         setTimeout(() => {
           const first = Object.keys(conversationsMap)[0];
-          if (first) {
-            selectConversation(first);
-          } else {
+          if (first) selectConversation(first);
+          else {
             chatHeaderName.textContent = 'No conversations';
             chatHeaderAvatar.textContent = '—';
-            chatMessagesEl.innerHTML = `<div class="empty-state"><i class="fas fa-comment-dots"></i><span>No messages yet. Users will appear here when they contact you.</span></div>`;
+            chatMessagesEl.innerHTML = `<div class="empty-state"><i class="fas fa-comment-dots"></i><span>No messages yet.</span></div>`;
           }
         }, 500);
       }
-
       initMessenger();
 
       // ===== LOGOUT =====
@@ -1047,12 +1195,16 @@
         item.addEventListener('click', () => {
           document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
           item.classList.add('active');
-
           document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
           const tab = item.dataset.tab;
           const target = document.getElementById('tab-' + tab);
           if (target) target.classList.add('active');
-
+          // মোবাইলে সাইডবার বন্ধ করুন
+          if (window.innerWidth <= 768) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+          }
           if (tab === 'dashboard') {
             setTimeout(() => {
               if (monthlyChart) monthlyChart.resize();
@@ -1064,7 +1216,7 @@
               renderConvList();
               if (activeConversationUserId) {
                 const convId = getConvId(activeConversationUserId);
-                const msgs = allMessages.filter(m => m.conversationId === convId).sort((a, b) => {
+                const msgs = allMessages.filter(m => m.conversationId === convId).sort((a,b) => {
                   const ta = a.timestamp?.toDate?.()?.getTime() || 0;
                   const tb = b.timestamp?.toDate?.()?.getTime() || 0;
                   return ta - tb;
@@ -1076,8 +1228,29 @@
         });
       });
 
-      console.log('✅ Admin Panel loaded successfully!');
-    } // end initAdminPanel()
+      // ===== উইন্ডো রিসাইজে সাইডবার স্টেট =====
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+      });
+
+      // ===== টোস্ট ফাংশন =====
+      window.showToast = function(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
+      };
+
+      console.log('✅ Admin Panel loaded (mobile responsive)');
+    }
   </script>
 </body>
 </html>
