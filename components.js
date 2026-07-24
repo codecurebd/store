@@ -110,7 +110,6 @@ export function renderNavbar() {
               <a href="my-orders.html"><i class="fas fa-box mr-2"></i> My Orders</a>
               <a href="my-fix-requests.html"><i class="fas fa-tools mr-2"></i> My Fix Requests</a>
               <a href="settings.html"><i class="fas fa-cog mr-2"></i> Settings</a>
-              <!-- ✅ Admin Panel লিংক – hidden by default -->
               <a href="admin-panel.html" id="adminPanelLink" class="hidden" style="display:none !important;"><i class="fas fa-shield-alt mr-2"></i> Admin Panel</a>
               <a href="#" onclick="window.handleLogout()"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
             </div>
@@ -369,6 +368,7 @@ export function renderPaymentModal() {
       const btn = paymentForm.querySelector('button[type="submit"]');
       setLoading(btn, true, 'Confirm Payment');
       try {
+        // ✅ এই `updateDoc` কলটি Rules-এর সাথে সামঞ্জস্যপূর্ণ
         await updateDoc(doc(db, 'orders', orderId), {
           transactionId: txnId,
           paymentMethod: 'Manual'
