@@ -253,7 +253,7 @@ export function renderNavbar() {
 }
 
 // ================================================================
-// ✅ NAVBAR AUTH UPDATE (Admin Link Logic)
+// ✅ NAVBAR AUTH UPDATE (Admin Link Logic) – FIXED
 // ================================================================
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
@@ -269,6 +269,7 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
     
+    // ✅ Admin Link: only show if role === 'admin'
     if (adminLink) {
       if (role === 'admin') {
         adminLink.classList.remove('hidden');
