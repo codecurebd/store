@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* (styles as before) */
     .glass-card { background: rgba(255,255,255,0.72); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 1.25rem; box-shadow: 0 4px 16px rgba(0,0,0,0.02); transition: all 0.3s ease; }
     .glass-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.06); transform: translateY(-3px); }
     .danger-zone { border: 2px solid #fee2e2; background: #fef2f2; }
@@ -180,7 +179,7 @@
       window.location.href = 'index.html';
     };
 
-    // ===== SETTINGS RENDER =====
+    // ===== SETTINGS RENDER (FIXED) =====
     const container = document.getElementById('settingsContainer');
 
     function renderSkeletons() {
@@ -407,7 +406,7 @@
       if (!user) { window.location.href = 'index.html'; return; }
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
-      const role = userDoc.exists() ? userDoc.data().role : 'user';
+      const role = userDoc.exists() ? userDoc.data().role : 'user'; // default to 'user'
       updateNavbarAuth(user, displayName, role);
       await renderSettings(user);
     });
