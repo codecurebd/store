@@ -42,7 +42,7 @@
     .scroll-top-btn { position:fixed; bottom:30px; right:30px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#007AFF,#5856D6); color:#fff; border:none; font-size:1.2rem; cursor:pointer; box-shadow:0 8px 30px rgba(0,122,255,0.35); z-index:999; opacity:0; transform:scale(0.8); transition:opacity 0.3s, transform 0.3s; pointer-events:none; }
     .scroll-top-btn.show { opacity:1; transform:scale(1); pointer-events:auto; }
     .scroll-top-btn:hover { transform:scale(1.05); }
-    .error-box { background:#fef2f2; border:1px solid #fca5a5; border-radius:12px; padding:1.5rem; color:#991b1b; text-align:center; }
+    .error-box { background:#fef2f2; border:1px solid #fca5a5; border-radius:12px; padding:1.5rem; color:#991b1b; text-align:center; margin-top:1rem; }
     .error-box i { font-size:2rem; margin-bottom:0.5rem; display:block; }
   </style>
 </head>
@@ -59,7 +59,7 @@
         </div>
         <p class="text-gray-500 mb-6 fade-up">Manage your account preferences and security</p>
         <div id="settingsContainer">
-          <!-- Error or content will be rendered here -->
+          <!-- Skeletons will be rendered by JS -->
         </div>
       </section>
     </main>
@@ -86,448 +86,438 @@
 
   <script type="module">
     // ================================================================
-    // GLOBAL ERROR HANDLER – page will show errors
+    // START: Settings page script
     // ================================================================
-    window.addEventListener('error', (event) => {
-      const container = document.getElementById('settingsContainer');
-      if (container) {
-        container.innerHTML = `
-          <div class="error-box">
-            <i class="fas fa-exclamation-triangle"></i>
-            <strong>JavaScript Error:</strong> ${event.message}
-            <br><small style="color:#6b7280;">${event.filename}:${event.lineno}</small>
-            <br><button onclick="window.location.reload()" class="btn-primary mt-3 text-sm">Refresh</button>
-          </div>
-        `;
-      }
-    });
+    console.log('⚙️ Settings page: Script started');
 
-    // ================================================================
-    // Imports
-    // ================================================================
-    import { renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, renderCartSidebar, setLoading, renderPaymentModal } from './components.js';
-    import { 
-      auth, db, collection, doc, getDoc, getDocs, query, where,
-      signOut, onAuthStateChanged, updateDoc, deleteDoc,
-      signInWithPopup, googleProvider, githubProvider,
-      reauthenticateWithCredential, updatePassword, deleteUser,
-      EmailAuthProvider, updateEmail, setDoc,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword
-    } from './firebase-config.js';
+    // Global error container
+    const container = document.getElementById('settingsContainer');
+    if (!container) {
+      console.error('❌ Container not found!');
+      document.body.innerHTML = '<div style="padding:2rem;color:red;">Error: settingsContainer not found in DOM.</div>';
+      throw new Error('settingsContainer missing');
+    }
 
-    // ================================================================
-    // Render common components
-    // ================================================================
-    try {
-      renderNavbar();
-      renderPaymentModal();
-      renderFooter();
-      renderCartSidebar();
-      updateCartBadge();
-    } catch (err) {
-      console.error('Error rendering common components:', err);
-      document.getElementById('settingsContainer').innerHTML = `
+    // Helper to show error on page
+    function showError(message) {
+      container.innerHTML = `
         <div class="error-box">
           <i class="fas fa-exclamation-triangle"></i>
-          <strong>Error loading components:</strong> ${err.message}
+          <strong>${message}</strong>
+          <br><button onclick="window.location.reload()" class="btn-primary mt-3 text-sm">Refresh</button>
         </div>
       `;
     }
 
     // ================================================================
-    // Toast
+    // DYNAMIC IMPORTS – catches any loading error
     // ================================================================
-    window.showToast = (message, type = 'success') => {
-      const container = document.getElementById('toast-container');
-      if (!container) return;
-      const toast = document.createElement('div');
-      const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
-      toast.className = `toast ${type}`;
-      toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
-      container.appendChild(toast);
-      setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
-    };
-
-    // ================================================================
-    // Scroll Animation Observer
-    // ================================================================
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-    });
-
-    // ================================================================
-    // Back to Top
-    // ================================================================
-    const scrollBtn = document.getElementById('scrollTopBtn');
-    window.addEventListener('scroll', () => { scrollBtn.classList.toggle('show', window.scrollY > 400); });
-    scrollBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
-
-    // ================================================================
-    // Auth Modal functions (shared)
-    // ================================================================
-    let currentAuthMode = 'signin';
-    window.openAuthModal = (mode) => {
-      currentAuthMode = mode;
-      document.getElementById('authModalTitle').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
-      document.getElementById('authToggleText').textContent = mode === 'signin' ? "Don't have an account?" : "Already have an account?";
-      document.getElementById('authToggleLink').textContent = mode === 'signin' ? 'Sign Up' : 'Sign In';
-      document.getElementById('authError').classList.add('hidden');
-      document.getElementById('authModal').classList.remove('hidden');
-    };
-    window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
-    document.getElementById('authToggleLink').addEventListener('click', (e) => {
-      e.preventDefault();
-      currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
-      window.openAuthModal(currentAuthMode);
-    });
-    window.togglePasswordVisibility = (id) => {
-      const input = document.getElementById(id);
-      input.type = input.type === 'password' ? 'text' : 'password';
-    };
-    window.socialLogin = async (provider) => {
-      try {
-        let result;
-        if (provider === 'google') result = await signInWithPopup(auth, googleProvider);
-        else if (provider === 'github') result = await signInWithPopup(auth, githubProvider);
-        const user = result.user;
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, 'users', user.uid), {
-            email: user.email, displayName: user.displayName || user.email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
-          });
-        }
-        showToast('✅ Signed in with ' + provider, 'success');
-        closeAuthModal();
-      } catch (err) { showToast('⚠️ ' + err.message, 'error'); }
-    };
-    const authForm = document.getElementById('authForm');
-    const authSubmitBtn = authForm.querySelector('button[type="submit"]');
-    authForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('authEmail').value.trim();
-      const password = document.getElementById('authPassword').value.trim();
-      const errorDiv = document.getElementById('authError');
-      errorDiv.classList.add('hidden');
-      setLoading(authSubmitBtn, true, 'Continue');
-      try {
-        let userCred;
-        if (currentAuthMode === 'signin') {
-          userCred = await signInWithEmailAndPassword(auth, email, password);
-          showToast('✅ Signed in!', 'success');
-        } else {
-          userCred = await createUserWithEmailAndPassword(auth, email, password);
-          await setDoc(doc(db, 'users', userCred.user.uid), {
-            email, displayName: email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
-          });
-          showToast('✅ Account created!', 'success');
-        }
-        closeAuthModal();
-        authForm.reset();
-      } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.remove('hidden');
-        showToast('⚠️ ' + error.message, 'error');
-      } finally { setLoading(authSubmitBtn, false); }
-    });
-    window.handleLogout = async () => {
-      await signOut(auth);
-      showToast('✅ Logged out', 'success');
-      window.location.href = 'index.html';
-    };
-
-    // ================================================================
-    // SETTINGS RENDER (with detailed error catching)
-    // ================================================================
-    const container = document.getElementById('settingsContainer');
-
-    function renderSkeletons() {
-      container.innerHTML = `
-        <div class="skeleton-card fade-up"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div><div class="skeleton-line" style="width:60%;"></div></div>
-        <div class="skeleton-card fade-up" style="margin-top:1rem;"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div></div>
-        <div class="skeleton-card fade-up" style="margin-top:1rem;"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div></div>
-      `;
-      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-    }
-
     try {
-      renderSkeletons();
-    } catch (err) {
-      console.error('Skeleton render error:', err);
-      container.innerHTML = `<div class="error-box"><i class="fas fa-exclamation-triangle"></i>Error rendering skeletons: ${err.message}</div>`;
-    }
+      console.log('⏳ Importing modules...');
+      const [{ renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, renderCartSidebar, setLoading, renderPaymentModal }, firebase] = await Promise.all([
+        import('./components.js'),
+        import('./firebase-config.js')
+      ]);
+      console.log('✅ Modules imported successfully');
 
-    async function renderSettings(user) {
-      try {
-        console.log('🔧 renderSettings called with user:', user?.email);
-        if (!user) {
-          container.innerHTML = `<div class="text-center py-12 text-gray-500"><i class="fas fa-lock text-4xl opacity-30"></i><p class="mt-3">Please sign in to view settings.</p></div>`;
-          return;
-        }
+      // Destructure firebase exports
+      const {
+        auth, db, collection, doc, getDoc, getDocs, query, where,
+        signOut, onAuthStateChanged, updateDoc, deleteDoc,
+        signInWithPopup, googleProvider, githubProvider,
+        reauthenticateWithCredential, updatePassword, deleteUser,
+        EmailAuthProvider, updateEmail, setDoc,
+        signInWithEmailAndPassword, createUserWithEmailAndPassword
+      } = firebase;
 
-        const currentEmail = user.email || '';
-        // Build HTML
-        const html = `
-          <!-- Change Email -->
-          <div class="glass-card fade-up">
-            <div class="section-header"><i class="fas fa-envelope"></i><span>Change Email Address</span></div>
-            <form id="changeEmailForm" class="space-y-3">
-              <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Current Email</label><input type="email" id="currentEmailDisplay" class="form-input" value="${currentEmail}" disabled /></div>
-              <div><label class="block text-sm font-medium text-gray-700 mb-1.5">New Email Address</label><input type="email" id="newEmail" placeholder="Enter new email" required class="form-input" /></div>
-              <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Current Password (to confirm)</label><div class="relative"><input type="password" id="confirmPasswordForEmail" placeholder="Enter your current password" required class="form-input pr-12" /><button type="button" onclick="window.togglePasswordVisibility('confirmPasswordForEmail')" class="password-toggle"><i class="fas fa-eye"></i></button></div></div>
-              <button type="submit" class="btn-primary w-full"><i class="fas fa-save"></i> Update Email</button>
-              <div id="emailChangeFeedback" class="text-sm hidden"></div>
-            </form>
-          </div>
+      // ================================================================
+      // Render common components
+      // ================================================================
+      renderNavbar();
+      renderPaymentModal();
+      renderFooter();
+      renderCartSidebar();
+      updateCartBadge();
 
-          <!-- Change Password -->
-          <div class="glass-card fade-up" style="margin-top:1rem;">
-            <div class="section-header"><i class="fas fa-key"></i><span>Change Password</span></div>
-            <form id="changePasswordForm" class="space-y-3">
-              <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Current Password</label><div class="relative"><input type="password" id="currentPassword" placeholder="Enter current password" required class="form-input pr-12" /><button type="button" onclick="window.togglePasswordVisibility('currentPassword')" class="password-toggle"><i class="fas fa-eye"></i></button></div></div>
-              <div><label class="block text-sm font-medium text-gray-700 mb-1.5">New Password</label><div class="relative"><input type="password" id="newPassword" placeholder="Enter new password" required class="form-input pr-12" /><button type="button" onclick="window.togglePasswordVisibility('newPassword')" class="password-toggle"><i class="fas fa-eye"></i></button></div><p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><i class="fas fa-info-circle"></i> Must be at least 6 characters</p></div>
-              <button type="submit" class="btn-primary w-full"><i class="fas fa-save"></i> Update Password</button>
-              <div id="passwordFeedback" class="text-sm hidden"></div>
-            </form>
-          </div>
+      // ================================================================
+      // Toast
+      // ================================================================
+      window.showToast = (message, type = 'success') => {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
+      };
 
-          <!-- Export Data -->
-          <div class="glass-card fade-up" style="margin-top:1rem;">
-            <div class="section-header"><i class="fas fa-download"></i><span>Export Data</span></div>
-            <p class="text-sm text-gray-500 mt-1">Download all your personal data (profile, orders, fix requests) as JSON.</p>
-            <button onclick="exportUserData()" class="btn-primary mt-3 text-sm py-2 px-4"><i class="fas fa-file-export"></i> Download My Data</button>
-            <div id="exportFeedback" class="mt-2 text-sm hidden"></div>
-          </div>
-
-          <!-- Danger Zone -->
-          <div class="glass-card danger-zone fade-up" style="margin-top:1rem;">
-            <div class="section-header danger"><i class="fas fa-exclamation-triangle"></i><span style="color:#dc2626;">Danger Zone</span></div>
-            <p class="text-sm text-gray-500 mt-1">Once you delete your account, all your data will be permanently removed. This action cannot be undone.</p>
-            <button onclick="deleteAccount()" class="btn-danger mt-3 text-sm py-2 px-4"><i class="fas fa-trash"></i> Delete Account</button>
-            <div id="deleteFeedback" class="mt-2 text-sm hidden"></div>
-          </div>
-
-          <!-- Session -->
-          <div class="glass-card fade-up" style="margin-top:1rem;">
-            <div class="section-header"><i class="fas fa-sign-out-alt"></i><span>Session</span></div>
-            <button onclick="window.handleLogout()" class="btn-outline mt-2 text-sm py-2 px-4"><i class="fas fa-sign-out-alt"></i> Logout</button>
-          </div>
-        `;
-
-        container.innerHTML = html;
+      // ================================================================
+      // Scroll Animation Observer
+      // ================================================================
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+      }, { threshold: 0.1 });
+      document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+      });
 
-        // Initialize form handlers after DOM update
-        initFormHandlers(user);
-        console.log('✅ Settings rendered successfully');
-      } catch (error) {
-        console.error('❌ Error rendering settings:', error);
+      // ================================================================
+      // Back to Top
+      // ================================================================
+      const scrollBtn = document.getElementById('scrollTopBtn');
+      window.addEventListener('scroll', () => { scrollBtn.classList.toggle('show', window.scrollY > 400); });
+      scrollBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+      // ================================================================
+      // Auth Modal functions (shared)
+      // ================================================================
+      let currentAuthMode = 'signin';
+      window.openAuthModal = (mode) => {
+        currentAuthMode = mode;
+        document.getElementById('authModalTitle').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
+        document.getElementById('authToggleText').textContent = mode === 'signin' ? "Don't have an account?" : "Already have an account?";
+        document.getElementById('authToggleLink').textContent = mode === 'signin' ? 'Sign Up' : 'Sign In';
+        document.getElementById('authError').classList.add('hidden');
+        document.getElementById('authModal').classList.remove('hidden');
+      };
+      window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
+      document.getElementById('authToggleLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
+        window.openAuthModal(currentAuthMode);
+      });
+      window.togglePasswordVisibility = (id) => {
+        const input = document.getElementById(id);
+        input.type = input.type === 'password' ? 'text' : 'password';
+      };
+      window.socialLogin = async (provider) => {
+        try {
+          let result;
+          if (provider === 'google') result = await signInWithPopup(auth, googleProvider);
+          else if (provider === 'github') result = await signInWithPopup(auth, githubProvider);
+          const user = result.user;
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (!userDoc.exists()) {
+            await setDoc(doc(db, 'users', user.uid), {
+              email: user.email, displayName: user.displayName || user.email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
+            });
+          }
+          showToast('✅ Signed in with ' + provider, 'success');
+          closeAuthModal();
+        } catch (err) { showToast('⚠️ ' + err.message, 'error'); }
+      };
+      const authForm = document.getElementById('authForm');
+      const authSubmitBtn = authForm.querySelector('button[type="submit"]');
+      authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('authEmail').value.trim();
+        const password = document.getElementById('authPassword').value.trim();
+        const errorDiv = document.getElementById('authError');
+        errorDiv.classList.add('hidden');
+        setLoading(authSubmitBtn, true, 'Continue');
+        try {
+          let userCred;
+          if (currentAuthMode === 'signin') {
+            userCred = await signInWithEmailAndPassword(auth, email, password);
+            showToast('✅ Signed in!', 'success');
+          } else {
+            userCred = await createUserWithEmailAndPassword(auth, email, password);
+            await setDoc(doc(db, 'users', userCred.user.uid), {
+              email, displayName: email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
+            });
+            showToast('✅ Account created!', 'success');
+          }
+          closeAuthModal();
+          authForm.reset();
+        } catch (error) {
+          errorDiv.textContent = error.message;
+          errorDiv.classList.remove('hidden');
+          showToast('⚠️ ' + error.message, 'error');
+        } finally { setLoading(authSubmitBtn, false); }
+      });
+      window.handleLogout = async () => {
+        await signOut(auth);
+        showToast('✅ Logged out', 'success');
+        window.location.href = 'index.html';
+      };
+
+      // ================================================================
+      // SETTINGS RENDER
+      // ================================================================
+      function renderSkeletons() {
         container.innerHTML = `
-          <div class="error-box">
-            <i class="fas fa-exclamation-circle"></i>
-            <strong>Error loading settings:</strong> ${error.message}
-            <br><small style="color:#6b7280;">Please check console for details.</small>
-            <br><button onclick="window.location.reload()" class="btn-primary mt-3 text-sm">Refresh</button>
-          </div>
+          <div class="skeleton-card fade-up"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div><div class="skeleton-line" style="width:60%;"></div></div>
+          <div class="skeleton-card fade-up" style="margin-top:1rem;"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div></div>
+          <div class="skeleton-card fade-up" style="margin-top:1rem;"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div></div>
         `;
-        showToast('⚠️ Error loading settings', 'error');
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
       }
-    }
 
-    function initFormHandlers(user) {
-      try {
-        // ===== CHANGE EMAIL =====
-        const changeEmailForm = document.getElementById('changeEmailForm');
-        if (changeEmailForm) {
-          const emailBtn = changeEmailForm.querySelector('button[type="submit"]');
-          const emailFeedback = document.getElementById('emailChangeFeedback');
-          document.querySelectorAll('#changeEmailForm .form-input').forEach(el => el.addEventListener('focus', () => el.classList.remove('error')));
-          changeEmailForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newEmail = document.getElementById('newEmail').value.trim();
-            const password = document.getElementById('confirmPasswordForEmail').value;
-            emailFeedback.className = 'hidden';
-            document.querySelectorAll('#changeEmailForm .form-input').forEach(el => el.classList.remove('error'));
-            if (!newEmail || !password) {
-              if (!newEmail) document.getElementById('newEmail').classList.add('error');
-              if (!password) document.getElementById('confirmPasswordForEmail').classList.add('error');
-              emailFeedback.className = 'block text-sm text-red-500 mt-2';
-              emailFeedback.textContent = '⚠️ Please fill in all fields.';
-              showToast('Please fill in all fields.', 'error');
-              return;
-            }
-            if (!newEmail.includes('@')) {
-              document.getElementById('newEmail').classList.add('error');
-              emailFeedback.className = 'block text-sm text-red-500 mt-2';
-              emailFeedback.textContent = '⚠️ Please enter a valid email address.';
-              showToast('Please enter a valid email address.', 'error');
-              return;
-            }
-            setLoading(emailBtn, true, 'Updating...');
-            try {
-              const credential = EmailAuthProvider.credential(user.email, password);
-              await reauthenticateWithCredential(user, credential);
-              await updateEmail(user, newEmail);
-              await updateDoc(doc(db, 'users', user.uid), { email: newEmail });
-              document.getElementById('currentEmailDisplay').value = newEmail;
-              emailFeedback.className = 'block text-sm text-green-600 mt-2';
-              emailFeedback.innerHTML = '✅ Email updated successfully!';
-              showToast('✅ Email updated!', 'success');
-              changeEmailForm.reset();
-            } catch (err) {
-              emailFeedback.className = 'block text-sm text-red-500 mt-2';
-              emailFeedback.textContent = '⚠️ ' + err.message;
-              showToast('⚠️ ' + err.message, 'error');
-              if (err.code === 'auth/wrong-password') document.getElementById('confirmPasswordForEmail').classList.add('error');
-            } finally { setLoading(emailBtn, false); }
-          });
+      renderSkeletons();
+
+      async function renderSettings(user) {
+        try {
+          console.log('🔧 renderSettings called for:', user?.email);
+          if (!user) {
+            container.innerHTML = `<div class="text-center py-12 text-gray-500"><i class="fas fa-lock text-4xl opacity-30"></i><p class="mt-3">Please sign in to view settings.</p></div>`;
+            return;
+          }
+
+          const currentEmail = user.email || '';
+          const html = `
+            <!-- Change Email -->
+            <div class="glass-card fade-up">
+              <div class="section-header"><i class="fas fa-envelope"></i><span>Change Email Address</span></div>
+              <form id="changeEmailForm" class="space-y-3">
+                <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Current Email</label><input type="email" id="currentEmailDisplay" class="form-input" value="${currentEmail}" disabled /></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1.5">New Email Address</label><input type="email" id="newEmail" placeholder="Enter new email" required class="form-input" /></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Current Password (to confirm)</label><div class="relative"><input type="password" id="confirmPasswordForEmail" placeholder="Enter your current password" required class="form-input pr-12" /><button type="button" onclick="window.togglePasswordVisibility('confirmPasswordForEmail')" class="password-toggle"><i class="fas fa-eye"></i></button></div></div>
+                <button type="submit" class="btn-primary w-full"><i class="fas fa-save"></i> Update Email</button>
+                <div id="emailChangeFeedback" class="text-sm hidden"></div>
+              </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="glass-card fade-up" style="margin-top:1rem;">
+              <div class="section-header"><i class="fas fa-key"></i><span>Change Password</span></div>
+              <form id="changePasswordForm" class="space-y-3">
+                <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Current Password</label><div class="relative"><input type="password" id="currentPassword" placeholder="Enter current password" required class="form-input pr-12" /><button type="button" onclick="window.togglePasswordVisibility('currentPassword')" class="password-toggle"><i class="fas fa-eye"></i></button></div></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1.5">New Password</label><div class="relative"><input type="password" id="newPassword" placeholder="Enter new password" required class="form-input pr-12" /><button type="button" onclick="window.togglePasswordVisibility('newPassword')" class="password-toggle"><i class="fas fa-eye"></i></button></div><p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><i class="fas fa-info-circle"></i> Must be at least 6 characters</p></div>
+                <button type="submit" class="btn-primary w-full"><i class="fas fa-save"></i> Update Password</button>
+                <div id="passwordFeedback" class="text-sm hidden"></div>
+              </form>
+            </div>
+
+            <!-- Export Data -->
+            <div class="glass-card fade-up" style="margin-top:1rem;">
+              <div class="section-header"><i class="fas fa-download"></i><span>Export Data</span></div>
+              <p class="text-sm text-gray-500 mt-1">Download all your personal data (profile, orders, fix requests) as JSON.</p>
+              <button onclick="exportUserData()" class="btn-primary mt-3 text-sm py-2 px-4"><i class="fas fa-file-export"></i> Download My Data</button>
+              <div id="exportFeedback" class="mt-2 text-sm hidden"></div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="glass-card danger-zone fade-up" style="margin-top:1rem;">
+              <div class="section-header danger"><i class="fas fa-exclamation-triangle"></i><span style="color:#dc2626;">Danger Zone</span></div>
+              <p class="text-sm text-gray-500 mt-1">Once you delete your account, all your data will be permanently removed. This action cannot be undone.</p>
+              <button onclick="deleteAccount()" class="btn-danger mt-3 text-sm py-2 px-4"><i class="fas fa-trash"></i> Delete Account</button>
+              <div id="deleteFeedback" class="mt-2 text-sm hidden"></div>
+            </div>
+
+            <!-- Session -->
+            <div class="glass-card fade-up" style="margin-top:1rem;">
+              <div class="section-header"><i class="fas fa-sign-out-alt"></i><span>Session</span></div>
+              <button onclick="window.handleLogout()" class="btn-outline mt-2 text-sm py-2 px-4"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+          `;
+
+          container.innerHTML = html;
+          document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+          // Initialize form handlers
+          initFormHandlers(user);
+          console.log('✅ Settings rendered successfully');
+        } catch (error) {
+          console.error('❌ Error rendering settings:', error);
+          showError('Error loading settings: ' + error.message);
+          showToast('⚠️ Error loading settings', 'error');
         }
+      }
 
-        // ===== CHANGE PASSWORD =====
-        const changePasswordForm = document.getElementById('changePasswordForm');
-        if (changePasswordForm) {
-          const passBtn = changePasswordForm.querySelector('button[type="submit"]');
-          const passwordFeedback = document.getElementById('passwordFeedback');
-          document.querySelectorAll('#changePasswordForm .form-input').forEach(el => el.addEventListener('focus', () => el.classList.remove('error')));
-          changePasswordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const current = document.getElementById('currentPassword').value;
-            const newPass = document.getElementById('newPassword').value;
-            passwordFeedback.className = 'hidden';
-            document.querySelectorAll('#changePasswordForm .form-input').forEach(el => el.classList.remove('error'));
-            if (!current || !newPass) {
-              if (!current) document.getElementById('currentPassword').classList.add('error');
-              if (!newPass) document.getElementById('newPassword').classList.add('error');
-              passwordFeedback.className = 'block text-sm text-red-500 mt-2';
-              passwordFeedback.textContent = '⚠️ Please fill in all fields.';
-              showToast('Please fill in all fields', 'error');
-              return;
-            }
-            if (newPass.length < 6) {
-              document.getElementById('newPassword').classList.add('error');
-              passwordFeedback.className = 'block text-sm text-red-500 mt-2';
-              passwordFeedback.textContent = '⚠️ New password must be at least 6 characters.';
-              showToast('Password must be at least 6 characters', 'error');
-              return;
-            }
-            setLoading(passBtn, true, 'Updating...');
+      function initFormHandlers(user) {
+        try {
+          // ===== CHANGE EMAIL =====
+          const changeEmailForm = document.getElementById('changeEmailForm');
+          if (changeEmailForm) {
+            const emailBtn = changeEmailForm.querySelector('button[type="submit"]');
+            const emailFeedback = document.getElementById('emailChangeFeedback');
+            document.querySelectorAll('#changeEmailForm .form-input').forEach(el => el.addEventListener('focus', () => el.classList.remove('error')));
+            changeEmailForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const newEmail = document.getElementById('newEmail').value.trim();
+              const password = document.getElementById('confirmPasswordForEmail').value;
+              emailFeedback.className = 'hidden';
+              document.querySelectorAll('#changeEmailForm .form-input').forEach(el => el.classList.remove('error'));
+              if (!newEmail || !password) {
+                if (!newEmail) document.getElementById('newEmail').classList.add('error');
+                if (!password) document.getElementById('confirmPasswordForEmail').classList.add('error');
+                emailFeedback.className = 'block text-sm text-red-500 mt-2';
+                emailFeedback.textContent = '⚠️ Please fill in all fields.';
+                showToast('Please fill in all fields.', 'error');
+                return;
+              }
+              if (!newEmail.includes('@')) {
+                document.getElementById('newEmail').classList.add('error');
+                emailFeedback.className = 'block text-sm text-red-500 mt-2';
+                emailFeedback.textContent = '⚠️ Please enter a valid email address.';
+                showToast('Please enter a valid email address.', 'error');
+                return;
+              }
+              setLoading(emailBtn, true, 'Updating...');
+              try {
+                const credential = EmailAuthProvider.credential(user.email, password);
+                await reauthenticateWithCredential(user, credential);
+                await updateEmail(user, newEmail);
+                await updateDoc(doc(db, 'users', user.uid), { email: newEmail });
+                document.getElementById('currentEmailDisplay').value = newEmail;
+                emailFeedback.className = 'block text-sm text-green-600 mt-2';
+                emailFeedback.innerHTML = '✅ Email updated successfully!';
+                showToast('✅ Email updated!', 'success');
+                changeEmailForm.reset();
+              } catch (err) {
+                emailFeedback.className = 'block text-sm text-red-500 mt-2';
+                emailFeedback.textContent = '⚠️ ' + err.message;
+                showToast('⚠️ ' + err.message, 'error');
+                if (err.code === 'auth/wrong-password') document.getElementById('confirmPasswordForEmail').classList.add('error');
+              } finally { setLoading(emailBtn, false); }
+            });
+          }
+
+          // ===== CHANGE PASSWORD =====
+          const changePasswordForm = document.getElementById('changePasswordForm');
+          if (changePasswordForm) {
+            const passBtn = changePasswordForm.querySelector('button[type="submit"]');
+            const passwordFeedback = document.getElementById('passwordFeedback');
+            document.querySelectorAll('#changePasswordForm .form-input').forEach(el => el.addEventListener('focus', () => el.classList.remove('error')));
+            changePasswordForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const current = document.getElementById('currentPassword').value;
+              const newPass = document.getElementById('newPassword').value;
+              passwordFeedback.className = 'hidden';
+              document.querySelectorAll('#changePasswordForm .form-input').forEach(el => el.classList.remove('error'));
+              if (!current || !newPass) {
+                if (!current) document.getElementById('currentPassword').classList.add('error');
+                if (!newPass) document.getElementById('newPassword').classList.add('error');
+                passwordFeedback.className = 'block text-sm text-red-500 mt-2';
+                passwordFeedback.textContent = '⚠️ Please fill in all fields.';
+                showToast('Please fill in all fields', 'error');
+                return;
+              }
+              if (newPass.length < 6) {
+                document.getElementById('newPassword').classList.add('error');
+                passwordFeedback.className = 'block text-sm text-red-500 mt-2';
+                passwordFeedback.textContent = '⚠️ New password must be at least 6 characters.';
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+              }
+              setLoading(passBtn, true, 'Updating...');
+              try {
+                const credential = EmailAuthProvider.credential(user.email, current);
+                await reauthenticateWithCredential(user, credential);
+                await updatePassword(user, newPass);
+                passwordFeedback.className = 'block text-sm text-green-600 mt-2';
+                passwordFeedback.innerHTML = '✅ Password updated successfully!';
+                showToast('✅ Password updated!', 'success');
+                changePasswordForm.reset();
+              } catch (err) {
+                passwordFeedback.className = 'block text-sm text-red-500 mt-2';
+                passwordFeedback.textContent = '⚠️ ' + err.message;
+                showToast('⚠️ ' + err.message, 'error');
+                if (err.code === 'auth/wrong-password') document.getElementById('currentPassword').classList.add('error');
+              } finally { setLoading(passBtn, false); }
+            });
+          }
+
+          // ===== EXPORT DATA =====
+          window.exportUserData = async () => {
+            const btn = document.querySelector('[onclick="exportUserData()"]');
+            const feedback = document.getElementById('exportFeedback');
+            if (!btn) return;
+            feedback.className = 'hidden';
+            setLoading(btn, true);
             try {
-              const credential = EmailAuthProvider.credential(user.email, current);
-              await reauthenticateWithCredential(user, credential);
-              await updatePassword(user, newPass);
-              passwordFeedback.className = 'block text-sm text-green-600 mt-2';
-              passwordFeedback.innerHTML = '✅ Password updated successfully!';
-              showToast('✅ Password updated!', 'success');
-              changePasswordForm.reset();
+              const userDoc = await getDoc(doc(db, 'users', user.uid));
+              const profile = userDoc.exists() ? userDoc.data() : {};
+              const ordersSnap = await getDocs(query(collection(db, 'orders'), where('userId', '==', user.uid)));
+              const orders = ordersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+              const fixSnap = await getDocs(query(collection(db, 'fixRequests'), where('userId', '==', user.uid)));
+              const fixRequests = fixSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+              const data = {
+                exportedAt: new Date().toISOString(),
+                user: { uid: user.uid, email: user.email, emailVerified: user.emailVerified, ...profile },
+                orders,
+                fixRequests
+              };
+              const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = `my-data-${new Date().toISOString().slice(0,10)}.json`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(link.href);
+              feedback.className = 'block text-sm text-green-600 mt-2';
+              feedback.innerHTML = '✅ Data exported successfully!';
+              showToast('✅ Data exported!', 'success');
             } catch (err) {
-              passwordFeedback.className = 'block text-sm text-red-500 mt-2';
-              passwordFeedback.textContent = '⚠️ ' + err.message;
-              showToast('⚠️ ' + err.message, 'error');
-              if (err.code === 'auth/wrong-password') document.getElementById('currentPassword').classList.add('error');
-            } finally { setLoading(passBtn, false); }
-          });
-        }
-
-        // ===== EXPORT DATA =====
-        window.exportUserData = async () => {
-          const btn = document.querySelector('[onclick="exportUserData()"]');
-          const feedback = document.getElementById('exportFeedback');
-          if (!btn) return;
-          feedback.className = 'hidden';
-          setLoading(btn, true);
-          try {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const profile = userDoc.exists() ? userDoc.data() : {};
-            const ordersSnap = await getDocs(query(collection(db, 'orders'), where('userId', '==', user.uid)));
-            const orders = ordersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-            const fixSnap = await getDocs(query(collection(db, 'fixRequests'), where('userId', '==', user.uid)));
-            const fixRequests = fixSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-            const data = {
-              exportedAt: new Date().toISOString(),
-              user: { uid: user.uid, email: user.email, emailVerified: user.emailVerified, ...profile },
-              orders,
-              fixRequests
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `my-data-${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-            feedback.className = 'block text-sm text-green-600 mt-2';
-            feedback.innerHTML = '✅ Data exported successfully!';
-            showToast('✅ Data exported!', 'success');
-          } catch (err) {
-            feedback.className = 'block text-sm text-red-500 mt-2';
-            feedback.textContent = '⚠️ ' + err.message;
-            showToast('⚠️ ' + err.message, 'error');
-          } finally { setLoading(btn, false); }
-        };
-
-        // ===== DELETE ACCOUNT =====
-        window.deleteAccount = async () => {
-          if (!confirm('⚠️ Are you sure you want to delete your account? This action is IRREVERSIBLE and all your data will be permanently lost.')) return;
-          const confirmText = prompt('Type "DELETE" to permanently delete your account:');
-          if (confirmText !== 'DELETE') { showToast('Account deletion cancelled', 'warning'); return; }
-          const feedback = document.getElementById('deleteFeedback');
-          feedback.className = 'hidden';
-          const btn = document.querySelector('[onclick="deleteAccount()"]');
-          setLoading(btn, true);
-          try {
-            await deleteDoc(doc(db, 'users', user.uid));
-            await deleteUser(user);
-            showToast('✅ Account deleted successfully.', 'success');
-            window.location.href = 'index.html';
-          } catch (err) {
-            if (err.code === 'auth/requires-recent-login') {
-              feedback.className = 'block text-sm text-red-500 mt-2';
-              feedback.innerHTML = '⚠️ For security, please re-authenticate (logout and login again) before deleting your account.';
-              showToast('Please re-authenticate first', 'error');
-            } else {
               feedback.className = 'block text-sm text-red-500 mt-2';
               feedback.textContent = '⚠️ ' + err.message;
               showToast('⚠️ ' + err.message, 'error');
-            }
-          } finally { setLoading(btn, false); }
-        };
-      } catch (err) {
-        console.error('Error in initFormHandlers:', err);
-        container.innerHTML += `<div class="error-box"><i class="fas fa-exclamation-circle"></i><strong>Error initializing forms:</strong> ${err.message}</div>`;
-      }
-    }
+            } finally { setLoading(btn, false); }
+          };
 
-    // ================================================================
-    // AUTH STATE
-    // ================================================================
-    onAuthStateChanged(auth, async (user) => {
-      try {
-        console.log('🔐 Auth state changed:', user?.email);
-        if (!user) {
-          window.location.href = 'index.html';
-          return;
+          // ===== DELETE ACCOUNT =====
+          window.deleteAccount = async () => {
+            if (!confirm('⚠️ Are you sure you want to delete your account? This action is IRREVERSIBLE and all your data will be permanently lost.')) return;
+            const confirmText = prompt('Type "DELETE" to permanently delete your account:');
+            if (confirmText !== 'DELETE') { showToast('Account deletion cancelled', 'warning'); return; }
+            const feedback = document.getElementById('deleteFeedback');
+            feedback.className = 'hidden';
+            const btn = document.querySelector('[onclick="deleteAccount()"]');
+            setLoading(btn, true);
+            try {
+              await deleteDoc(doc(db, 'users', user.uid));
+              await deleteUser(user);
+              showToast('✅ Account deleted successfully.', 'success');
+              window.location.href = 'index.html';
+            } catch (err) {
+              if (err.code === 'auth/requires-recent-login') {
+                feedback.className = 'block text-sm text-red-500 mt-2';
+                feedback.innerHTML = '⚠️ For security, please re-authenticate (logout and login again) before deleting your account.';
+                showToast('Please re-authenticate first', 'error');
+              } else {
+                feedback.className = 'block text-sm text-red-500 mt-2';
+                feedback.textContent = '⚠️ ' + err.message;
+                showToast('⚠️ ' + err.message, 'error');
+              }
+            } finally { setLoading(btn, false); }
+          };
+        } catch (err) {
+          console.error('Error in initFormHandlers:', err);
+          showError('Error initializing forms: ' + err.message);
         }
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
-        const role = userDoc.exists() ? userDoc.data().role : 'user';
-        updateNavbarAuth(user, displayName, role);
-        await renderSettings(user);
-      } catch (error) {
-        console.error('🔥 Auth state error:', error);
-        container.innerHTML = `
-          <div class="error-box">
-            <i class="fas fa-exclamation-circle"></i>
-            <strong>Error loading user data:</strong> ${error.message}
-            <br><button onclick="window.location.reload()" class="btn-primary mt-3 text-sm">Refresh</button>
-          </div>
-        `;
       }
-    });
 
-    console.log('⚙️ Settings page script loaded successfully.');
+      // ================================================================
+      // AUTH STATE
+      // ================================================================
+      onAuthStateChanged(auth, async (user) => {
+        try {
+          console.log('🔐 Auth state changed:', user?.email);
+          if (!user) {
+            window.location.href = 'index.html';
+            return;
+          }
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
+          const role = userDoc.exists() ? userDoc.data().role : 'user';
+          updateNavbarAuth(user, displayName, role);
+          await renderSettings(user);
+        } catch (error) {
+          console.error('🔥 Auth state error:', error);
+          showError('Error loading user data: ' + error.message);
+        }
+      });
+
+      console.log('⚙️ Settings page ready.');
+
+    } catch (importError) {
+      // If import fails, show error on page
+      console.error('❌ Import error:', importError);
+      showError('Failed to load required modules: ' + importError.message + '. Please check your internet connection and file paths.');
+    }
   </script>
 </body>
 </html>
