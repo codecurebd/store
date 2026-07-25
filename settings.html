@@ -4,295 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>Settings – SWD Store</title>
-  
-  <!-- ✅ Preconnect & Preload for faster font loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
-  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
-  
   <style>
-    /* ===== BASE ===== */
-    * { box-sizing: border-box; }
-    body {
-      background: #f2f4f7;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-    }
-
-    /* ===== FONT DISPLAY SWAP ===== */
-    @font-face {
-      font-family: 'Inter';
-      font-display: swap;
-    }
-
-    /* ===== GLASS CARD ===== */
-    .glass-card {
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.7);
-      border-radius: 16px;
-      padding: 1.25rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
-      transition: all 0.3s ease;
-    }
-    .glass-card:hover {
-      box-shadow: 0 12px 40px rgba(0,0,0,0.06);
-      transform: translateY(-3px);
-    }
-
-    /* ===== DANGER ZONE ===== */
-    .danger-zone {
-      border: 2px solid #fee2e2;
-      background: #fef2f2;
-    }
-    .danger-zone:hover {
-      border-color: #fca5a5;
-      box-shadow: 0 12px 40px rgba(255, 59, 48, 0.06);
-    }
-
-    /* ===== SECTION HEADER ===== */
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #1c1c1e;
-      margin-bottom: 1rem;
-    }
-    .section-header i {
-      font-size: 1.3rem;
-      color: #007AFF;
-      width: 28px;
-      text-align: center;
-    }
-    .section-header.danger i {
-      color: #FF3B30;
-    }
-
-    /* ===== FORM INPUTS ===== */
-    .form-input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1.5px solid rgba(60, 60, 67, 0.08);
-      border-radius: 12px;
-      font-size: 0.95rem;
-      background: rgba(255,255,255,0.8);
-      transition: all 0.3s ease;
-      outline: none;
-      font-family: 'Inter', sans-serif;
-      color: #1c1c1e;
-    }
-    .form-input:focus {
-      border-color: #007AFF;
-      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
-      background: #ffffff;
-    }
-    .form-input::placeholder {
-      color: #8e8e93;
-      opacity: 0.7;
-    }
-    .form-input.error {
-      border-color: #FF3B30;
-      box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.08);
-    }
-    .form-input:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    /* ===== PASSWORD TOGGLE ===== */
-    .password-toggle {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: #8e8e93;
-      cursor: pointer;
-      font-size: 1.1rem;
-      padding: 4px;
-      transition: 0.2s;
-      z-index: 2;
-    }
-    .password-toggle:hover {
-      color: #007AFF;
-    }
-
-    /* ===== BUTTONS ===== */
-    .btn-primary {
-      background: linear-gradient(135deg, #007AFF, #5856D6);
-      color: #fff;
-      padding: 10px 22px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 48px;
-      text-decoration: none;
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
-    }
-    .btn-primary:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: #1c1c1e;
-      padding: 10px 22px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      border: 1.5px solid rgba(60,60,67,0.08);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.5);
-      min-height: 48px;
-      text-decoration: none;
-    }
-    .btn-outline:hover {
-      background: rgba(0,122,255,0.04);
-      border-color: #007AFF;
-      color: #007AFF;
-      transform: translateY(-2px);
-    }
-
-    .btn-danger {
-      background: linear-gradient(135deg, #FF3B30, #dc2626);
-      color: #fff;
-      padding: 10px 22px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 48px;
-    }
-    .btn-danger:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(255, 59, 48, 0.35);
-    }
-    .btn-danger:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    /* ===== SKELETON ===== */
-    .skeleton-card {
-      background: #f3f4f6;
-      border-radius: 16px;
-      padding: 1.25rem;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    .skeleton-card .skeleton-line {
-      height: 16px;
-      background: #e5e7eb;
-      border-radius: 8px;
-      margin-bottom: 0.75rem;
-    }
-    .skeleton-card .skeleton-line.short { width: 40%; }
-    .skeleton-card .skeleton-line.medium { width: 70%; }
-    .skeleton-card .skeleton-line.long { width: 90%; }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    /* ===== FADE-UP ===== */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ===== BACK TO TOP ===== */
-    .scroll-top-btn {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #007AFF, #5856D6);
-      color: #fff;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 8px 30px rgba(0,122,255,0.35);
-      z-index: 999;
-      opacity: 0;
-      transform: scale(0.8);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      pointer-events: none;
-    }
-    .scroll-top-btn.show {
-      opacity: 1;
-      transform: scale(1);
-      pointer-events: auto;
-    }
-    .scroll-top-btn:hover { transform: scale(1.05); }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-      .glass-card { padding: 1rem; border-radius: 12px; }
-      .btn-primary, .btn-outline, .btn-danger { font-size: 0.85rem; min-height: 42px; padding: 8px 16px; }
-      .section-header { font-size: 1rem; }
-      .section-header i { font-size: 1.1rem; width: 24px; }
-    }
-    @media (max-width: 480px) {
-      .glass-card { padding: 0.75rem; }
-      .form-input { padding: 10px 14px; font-size: 0.9rem; }
-    }
-
-    /* ===== TOAST ===== */
-    .toast {
-      border-left: 4px solid #007AFF;
-    }
-    .toast.success { border-left-color: #34C759; }
-    .toast.error { border-left-color: #FF3B30; }
-    .toast.warning { border-left-color: #FF9500; }
+    /* (styles as before) */
+    .glass-card { background: rgba(255,255,255,0.72); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 1.25rem; box-shadow: 0 4px 16px rgba(0,0,0,0.02); transition: all 0.3s ease; }
+    .glass-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.06); transform: translateY(-3px); }
+    .danger-zone { border: 2px solid #fee2e2; background: #fef2f2; }
+    .section-header { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 700; color: #1c1c1e; margin-bottom: 1rem; }
+    .section-header i { font-size: 1.3rem; color: #007AFF; width: 28px; text-align: center; }
+    .section-header.danger i { color: #FF3B30; }
+    .form-input { width:100%; padding:12px 16px; border:1.5px solid rgba(60,60,67,0.08); border-radius:12px; font-size:0.95rem; background:rgba(255,255,255,0.8); transition:all 0.3s; outline:none; }
+    .form-input:focus { border-color:#007AFF; box-shadow:0 0 0 4px rgba(0,122,255,0.08); background:#fff; }
+    .form-input.error { border-color:#FF3B30; box-shadow:0 0 0 4px rgba(255,59,48,0.08); }
+    .password-toggle { position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#8e8e93; cursor:pointer; font-size:1.1rem; padding:4px; transition:0.2s; z-index:2; }
+    .password-toggle:hover { color:#007AFF; }
+    .btn-primary { background:linear-gradient(135deg,#007AFF,#5856D6); color:#fff; padding:10px 22px; border-radius:60px; font-weight:600; font-size:0.95rem; border:none; cursor:pointer; transition:all 0.3s; display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:48px; }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,122,255,0.35); }
+    .btn-primary:disabled { opacity:0.7; cursor:not-allowed; transform:none !important; }
+    .btn-outline { background:transparent; color:#1c1c1e; padding:10px 22px; border-radius:60px; font-weight:600; font-size:0.95rem; border:1.5px solid rgba(60,60,67,0.08); cursor:pointer; transition:all 0.3s; display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.5); min-height:48px; }
+    .btn-outline:hover { background:rgba(0,122,255,0.04); border-color:#007AFF; color:#007AFF; transform:translateY(-2px); }
+    .btn-danger { background:linear-gradient(135deg,#FF3B30,#dc2626); color:#fff; padding:10px 22px; border-radius:60px; font-weight:600; font-size:0.95rem; border:none; cursor:pointer; transition:all 0.3s; display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:48px; }
+    .btn-danger:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(255,59,48,0.35); }
+    .btn-danger:disabled { opacity:0.7; cursor:not-allowed; transform:none !important; }
+    .skeleton-card { background:#f3f4f6; border-radius:16px; padding:1.25rem; animation:pulse 1.5s ease-in-out infinite; }
+    .skeleton-card .skeleton-line { height:16px; background:#e5e7eb; border-radius:8px; margin-bottom:0.75rem; }
+    .skeleton-card .skeleton-line.short { width:40%; }
+    .skeleton-card .skeleton-line.medium { width:70%; }
+    .skeleton-card .skeleton-line.long { width:90%; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+    .fade-up { opacity:0; transform:translateY(20px); transition:opacity 0.5s, transform 0.5s; }
+    .fade-up.visible { opacity:1; transform:translateY(0); }
+    .scroll-top-btn { position:fixed; bottom:30px; right:30px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#007AFF,#5856D6); color:#fff; border:none; font-size:1.2rem; cursor:pointer; box-shadow:0 8px 30px rgba(0,122,255,0.35); z-index:999; opacity:0; transform:scale(0.8); transition:opacity 0.3s, transform 0.3s; pointer-events:none; }
+    .scroll-top-btn.show { opacity:1; transform:scale(1); pointer-events:auto; }
+    .scroll-top-btn:hover { transform:scale(1.05); }
   </style>
 </head>
 <body>
   <div class="page-wrapper">
     <div id="navbar-placeholder"></div>
-
     <main class="main-content">
       <section class="pt-28 pb-16 px-6 max-w-2xl mx-auto">
-        <!-- Header -->
         <div class="flex items-center gap-3 mb-6 fade-up">
           <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
             <i class="fas fa-cog text-xl text-white"></i>
@@ -300,76 +56,38 @@
           <h1 class="text-3xl font-bold text-gray-900">Settings</h1>
         </div>
         <p class="text-gray-500 mb-6 fade-up">Manage your account preferences and security</p>
-
-        <!-- ===== SETTINGS CARDS (with Skeletons) ===== -->
         <div id="settingsContainer">
-          <!-- Skeleton will be replaced by JS -->
+          <!-- Skeletons will be rendered by JS -->
         </div>
       </section>
     </main>
-
     <div id="footer-placeholder"></div>
   </div>
 
-  <!-- ===== BACK TO TOP ===== -->
-  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
-    <i class="fas fa-arrow-up"></i>
-  </button>
+  <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
 
-  <!-- ===== AUTH MODAL ===== -->
+  <!-- Auth Modal (same) -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3>
-        <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
-      </div>
+      <div class="flex justify-between items-center mb-4"><h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3><button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div>
       <form id="authForm" class="space-y-4">
         <input type="email" id="authEmail" placeholder="Email" required class="form-input" />
-        <div class="relative">
-          <input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" />
-          <button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button>
-        </div>
+        <div class="relative"><input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" /><button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button></div>
         <button type="submit" class="btn-primary w-full justify-center">Continue</button>
       </form>
-      <div class="mt-4 flex flex-col gap-2">
-        <button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button>
-        <button onclick="window.socialLogin('github')" class="btn-outline w-full justify-center"><i class="fab fa-github"></i> Sign in with GitHub</button>
-      </div>
-      <p class="mt-4 text-sm text-gray-500 text-center">
-        <span id="authToggleText">Don't have an account?</span>
-        <a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a>
-      </p>
+      <div class="mt-4 flex flex-col gap-2"><button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button><button onclick="window.socialLogin('github')" class="btn-outline w-full justify-center"><i class="fab fa-github"></i> Sign in with GitHub</button></div>
+      <p class="mt-4 text-sm text-gray-500 text-center"><span id="authToggleText">Don't have an account?</span><a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a></p>
       <div id="authError" class="text-red-500 text-sm mt-2 hidden"></div>
     </div>
   </div>
-
   <div id="toast-container"></div>
 
   <script type="module">
-    // ================================================================
-    // ইমপোর্ট
-    // ================================================================
-    import { 
-      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
-      renderCartSidebar, setLoading, renderPaymentModal
-    } from './components.js';
-    import { 
-      auth, db, collection, doc, getDoc, getDocs, query, where, 
-      signOut, onAuthStateChanged,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-      updateDoc, deleteDoc, signInWithPopup, googleProvider, githubProvider,
-      sendPasswordResetEmail, reauthenticateWithCredential, updatePassword, 
-      deleteUser, EmailAuthProvider, updateEmail, setDoc
-    } from './firebase-config.js';
+    import { renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, renderCartSidebar, setLoading, renderPaymentModal } from './components.js';
+    import { auth, db, collection, doc, getDoc, getDocs, query, where, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateDoc, deleteDoc, signInWithPopup, googleProvider, githubProvider, sendPasswordResetEmail, reauthenticateWithCredential, updatePassword, deleteUser, EmailAuthProvider, updateEmail, setDoc } from './firebase-config.js';
 
-    // ===== রেন্ডার =====
-    renderNavbar();
-    renderPaymentModal();
-    renderFooter();
-    renderCartSidebar();
-    updateCartBadge();
+    renderNavbar(); renderPaymentModal(); renderFooter(); renderCartSidebar(); updateCartBadge();
 
-    // ===== টোস্ট =====
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -381,35 +99,16 @@
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // ===== SCROLL ANIMATION =====
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('.fade-up').forEach(el => observer.observe(el)); });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-    });
-
-    // ===== BACK TO TOP =====
     const scrollBtn = document.getElementById('scrollTopBtn');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 400) {
-        scrollBtn.classList.add('show');
-      } else {
-        scrollBtn.classList.remove('show');
-      }
-    });
-    scrollBtn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    window.addEventListener('scroll', () => { scrollBtn.classList.toggle('show', window.scrollY > 400); });
+    scrollBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
-    // ================================================================
-    // AUTH MODAL (আগের মতো)
-    // ================================================================
+    // Auth Modal (same as before)
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -420,18 +119,15 @@
       document.getElementById('authModal').classList.remove('hidden');
     };
     window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
-
     document.getElementById('authToggleLink').addEventListener('click', (e) => {
       e.preventDefault();
       currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
       window.openAuthModal(currentAuthMode);
     });
-
     window.togglePasswordVisibility = (id) => {
       const input = document.getElementById(id);
       input.type = input.type === 'password' ? 'text' : 'password';
     };
-
     window.socialLogin = async (provider) => {
       try {
         let result;
@@ -441,19 +137,13 @@
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (!userDoc.exists()) {
           await setDoc(doc(db, 'users', user.uid), {
-            email: user.email,
-            displayName: user.displayName || user.email.split('@')[0],
-            role: 'user',
-            createdAt: new Date().toISOString()
+            email: user.email, displayName: user.displayName || user.email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
           });
         }
         showToast('✅ Signed in with ' + provider, 'success');
         closeAuthModal();
-      } catch (err) {
-        showToast('⚠️ ' + err.message, 'error');
-      }
+      } catch (err) { showToast('⚠️ ' + err.message, 'error'); }
     };
-
     const authForm = document.getElementById('authForm');
     const authSubmitBtn = authForm.querySelector('button[type="submit"]');
     authForm.addEventListener('submit', async (e) => {
@@ -481,9 +171,7 @@
         errorDiv.textContent = error.message;
         errorDiv.classList.remove('hidden');
         showToast('⚠️ ' + error.message, 'error');
-      } finally {
-        setLoading(authSubmitBtn, false);
-      }
+      } finally { setLoading(authSubmitBtn, false); }
     });
 
     window.handleLogout = async () => {
@@ -492,189 +180,93 @@
       window.location.href = 'index.html';
     };
 
-    // ================================================================
-    // ✅ সেটিংস UI রেন্ডার
-    // ================================================================
-
+    // ===== SETTINGS RENDER =====
     const container = document.getElementById('settingsContainer');
 
     function renderSkeletons() {
       container.innerHTML = `
-        <div class="skeleton-card fade-up">
-          <div class="skeleton-line short"></div>
-          <div class="skeleton-line medium"></div>
-          <div class="skeleton-line long"></div>
-          <div class="skeleton-line" style="width:60%;"></div>
-        </div>
-        <div class="skeleton-card fade-up" style="margin-top:1rem;">
-          <div class="skeleton-line short"></div>
-          <div class="skeleton-line medium"></div>
-          <div class="skeleton-line long"></div>
-        </div>
-        <div class="skeleton-card fade-up" style="margin-top:1rem;">
-          <div class="skeleton-line short"></div>
-          <div class="skeleton-line medium"></div>
-        </div>
+        <div class="skeleton-card fade-up"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div><div class="skeleton-line" style="width:60%;"></div></div>
+        <div class="skeleton-card fade-up" style="margin-top:1rem;"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div></div>
+        <div class="skeleton-card fade-up" style="margin-top:1rem;"><div class="skeleton-line short"></div><div class="skeleton-line medium"></div></div>
       `;
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
-
     renderSkeletons();
 
     async function renderSettings(user) {
       if (!user) {
-        container.innerHTML = `
-          <div class="text-center py-12 text-gray-500">
-            <i class="fas fa-lock text-4xl opacity-30"></i>
-            <p class="mt-3">Please sign in to view settings.</p>
-          </div>
-        `;
+        container.innerHTML = `<div class="text-center py-12 text-gray-500"><i class="fas fa-lock text-4xl opacity-30"></i><p class="mt-3">Please sign in to view settings.</p></div>`;
         return;
       }
 
-      // Get current user email
       const currentEmail = user.email || '';
-
+      // Build HTML
       const html = `
-        <!-- 1. CHANGE EMAIL -->
+        <!-- Change Email -->
         <div class="glass-card fade-up">
-          <div class="section-header">
-            <i class="fas fa-envelope"></i>
-            <span>Change Email Address</span>
-          </div>
+          <div class="section-header"><i class="fas fa-envelope"></i><span>Change Email Address</span></div>
           <form id="changeEmailForm" class="space-y-3">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Current Email</label>
-              <input type="email" id="currentEmailDisplay" class="form-input" value="${currentEmail}" disabled />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">New Email Address</label>
-              <input type="email" id="newEmail" placeholder="Enter new email" required class="form-input" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Current Password (to confirm)</label>
-              <div class="relative">
-                <input type="password" id="confirmPasswordForEmail" placeholder="Enter your current password" required class="form-input pr-12" />
-                <button type="button" onclick="window.togglePasswordVisibility('confirmPasswordForEmail')" class="password-toggle">
-                  <i class="fas fa-eye"></i>
-                </button>
-              </div>
-            </div>
-            <button type="submit" class="btn-primary w-full">
-              <i class="fas fa-save"></i> Update Email
-            </button>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Current Email</label><input type="email" id="currentEmailDisplay" class="form-input" value="${currentEmail}" disabled /></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1.5">New Email Address</label><input type="email" id="newEmail" placeholder="Enter new email" required class="form-input" /></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Current Password (to confirm)</label><div class="relative"><input type="password" id="confirmPasswordForEmail" placeholder="Enter your current password" required class="form-input pr-12" /><button type="button" onclick="window.togglePasswordVisibility('confirmPasswordForEmail')" class="password-toggle"><i class="fas fa-eye"></i></button></div></div>
+            <button type="submit" class="btn-primary w-full"><i class="fas fa-save"></i> Update Email</button>
             <div id="emailChangeFeedback" class="text-sm hidden"></div>
           </form>
         </div>
 
-        <!-- 2. CHANGE PASSWORD -->
+        <!-- Change Password -->
         <div class="glass-card fade-up" style="margin-top:1rem;">
-          <div class="section-header">
-            <i class="fas fa-key"></i>
-            <span>Change Password</span>
-          </div>
+          <div class="section-header"><i class="fas fa-key"></i><span>Change Password</span></div>
           <form id="changePasswordForm" class="space-y-3">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Current Password</label>
-              <div class="relative">
-                <input type="password" id="currentPassword" placeholder="Enter current password" required class="form-input pr-12" />
-                <button type="button" onclick="window.togglePasswordVisibility('currentPassword')" class="password-toggle">
-                  <i class="fas fa-eye"></i>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">New Password</label>
-              <div class="relative">
-                <input type="password" id="newPassword" placeholder="Enter new password" required class="form-input pr-12" />
-                <button type="button" onclick="window.togglePasswordVisibility('newPassword')" class="password-toggle">
-                  <i class="fas fa-eye"></i>
-                </button>
-              </div>
-              <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-                <i class="fas fa-info-circle"></i> Must be at least 6 characters
-              </p>
-            </div>
-            <button type="submit" class="btn-primary w-full">
-              <i class="fas fa-save"></i> Update Password
-            </button>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Current Password</label><div class="relative"><input type="password" id="currentPassword" placeholder="Enter current password" required class="form-input pr-12" /><button type="button" onclick="window.togglePasswordVisibility('currentPassword')" class="password-toggle"><i class="fas fa-eye"></i></button></div></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1.5">New Password</label><div class="relative"><input type="password" id="newPassword" placeholder="Enter new password" required class="form-input pr-12" /><button type="button" onclick="window.togglePasswordVisibility('newPassword')" class="password-toggle"><i class="fas fa-eye"></i></button></div><p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><i class="fas fa-info-circle"></i> Must be at least 6 characters</p></div>
+            <button type="submit" class="btn-primary w-full"><i class="fas fa-save"></i> Update Password</button>
             <div id="passwordFeedback" class="text-sm hidden"></div>
           </form>
         </div>
 
-        <!-- 3. EXPORT DATA -->
+        <!-- Export Data -->
         <div class="glass-card fade-up" style="margin-top:1rem;">
-          <div class="section-header">
-            <i class="fas fa-download"></i>
-            <span>Export Data</span>
-          </div>
-          <p class="text-sm text-gray-500 mt-1">
-            Download all your personal data (profile, orders, fix requests) as JSON.
-          </p>
-          <button onclick="exportUserData()" class="btn-primary mt-3 text-sm py-2 px-4">
-            <i class="fas fa-file-export"></i> Download My Data
-          </button>
+          <div class="section-header"><i class="fas fa-download"></i><span>Export Data</span></div>
+          <p class="text-sm text-gray-500 mt-1">Download all your personal data (profile, orders, fix requests) as JSON.</p>
+          <button onclick="exportUserData()" class="btn-primary mt-3 text-sm py-2 px-4"><i class="fas fa-file-export"></i> Download My Data</button>
           <div id="exportFeedback" class="mt-2 text-sm hidden"></div>
         </div>
 
-        <!-- 4. DANGER ZONE -->
+        <!-- Danger Zone -->
         <div class="glass-card danger-zone fade-up" style="margin-top:1rem;">
-          <div class="section-header danger">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span style="color:#dc2626;">Danger Zone</span>
-          </div>
-          <p class="text-sm text-gray-500 mt-1">
-            Once you delete your account, all your data will be permanently removed. This action cannot be undone.
-          </p>
-          <button onclick="deleteAccount()" class="btn-danger mt-3 text-sm py-2 px-4">
-            <i class="fas fa-trash"></i> Delete Account
-          </button>
+          <div class="section-header danger"><i class="fas fa-exclamation-triangle"></i><span style="color:#dc2626;">Danger Zone</span></div>
+          <p class="text-sm text-gray-500 mt-1">Once you delete your account, all your data will be permanently removed. This action cannot be undone.</p>
+          <button onclick="deleteAccount()" class="btn-danger mt-3 text-sm py-2 px-4"><i class="fas fa-trash"></i> Delete Account</button>
           <div id="deleteFeedback" class="mt-2 text-sm hidden"></div>
         </div>
 
-        <!-- 5. SESSION -->
+        <!-- Session -->
         <div class="glass-card fade-up" style="margin-top:1rem;">
-          <div class="section-header">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Session</span>
-          </div>
-          <button onclick="window.handleLogout()" class="btn-outline mt-2 text-sm py-2 px-4">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </button>
+          <div class="section-header"><i class="fas fa-sign-out-alt"></i><span>Session</span></div>
+          <button onclick="window.handleLogout()" class="btn-outline mt-2 text-sm py-2 px-4"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
       `;
 
       container.innerHTML = html;
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-      // Initialize form handlers after rendering
+      // Initialize form handlers
       initFormHandlers(user);
     }
 
-    // ================================================================
-    // ✅ ফর্ম হ্যান্ডলার
-    // ================================================================
-
     function initFormHandlers(user) {
-      // ===== 1. CHANGE EMAIL =====
+      // Email change
       const changeEmailForm = document.getElementById('changeEmailForm');
       const emailBtn = changeEmailForm.querySelector('button[type="submit"]');
       const emailFeedback = document.getElementById('emailChangeFeedback');
-
-      // Remove error state on focus
-      document.querySelectorAll('#changeEmailForm .form-input').forEach(el => {
-        el.addEventListener('focus', () => el.classList.remove('error'));
-      });
-
+      document.querySelectorAll('#changeEmailForm .form-input').forEach(el => el.addEventListener('focus', () => el.classList.remove('error')));
       changeEmailForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const newEmail = document.getElementById('newEmail').value.trim();
         const password = document.getElementById('confirmPasswordForEmail').value;
         emailFeedback.className = 'hidden';
-
-        // Reset errors
         document.querySelectorAll('#changeEmailForm .form-input').forEach(el => el.classList.remove('error'));
-
         if (!newEmail || !password) {
           if (!newEmail) document.getElementById('newEmail').classList.add('error');
           if (!password) document.getElementById('confirmPasswordForEmail').classList.add('error');
@@ -683,7 +275,6 @@
           showToast('Please fill in all fields.', 'error');
           return;
         }
-
         if (!newEmail.includes('@')) {
           document.getElementById('newEmail').classList.add('error');
           emailFeedback.className = 'block text-sm text-red-500 mt-2';
@@ -691,48 +282,36 @@
           showToast('Please enter a valid email address.', 'error');
           return;
         }
-
         setLoading(emailBtn, true, 'Updating...');
         try {
           const credential = EmailAuthProvider.credential(user.email, password);
           await reauthenticateWithCredential(user, credential);
           await updateEmail(user, newEmail);
           await updateDoc(doc(db, 'users', user.uid), { email: newEmail });
-          
           document.getElementById('currentEmailDisplay').value = newEmail;
           emailFeedback.className = 'block text-sm text-green-600 mt-2';
           emailFeedback.innerHTML = '✅ Email updated successfully!';
-          showToast('✅ Email updated successfully!', 'success');
+          showToast('✅ Email updated!', 'success');
           changeEmailForm.reset();
         } catch (err) {
           emailFeedback.className = 'block text-sm text-red-500 mt-2';
           emailFeedback.textContent = '⚠️ ' + err.message;
           showToast('⚠️ ' + err.message, 'error');
-          if (err.code === 'auth/wrong-password') {
-            document.getElementById('confirmPasswordForEmail').classList.add('error');
-          }
-        } finally {
-          setLoading(emailBtn, false);
-        }
+          if (err.code === 'auth/wrong-password') document.getElementById('confirmPasswordForEmail').classList.add('error');
+        } finally { setLoading(emailBtn, false); }
       });
 
-      // ===== 2. CHANGE PASSWORD =====
+      // Password change
       const changePasswordForm = document.getElementById('changePasswordForm');
       const passBtn = changePasswordForm.querySelector('button[type="submit"]');
       const passwordFeedback = document.getElementById('passwordFeedback');
-
-      document.querySelectorAll('#changePasswordForm .form-input').forEach(el => {
-        el.addEventListener('focus', () => el.classList.remove('error'));
-      });
-
+      document.querySelectorAll('#changePasswordForm .form-input').forEach(el => el.addEventListener('focus', () => el.classList.remove('error')));
       changePasswordForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const current = document.getElementById('currentPassword').value;
         const newPass = document.getElementById('newPassword').value;
         passwordFeedback.className = 'hidden';
-
         document.querySelectorAll('#changePasswordForm .form-input').forEach(el => el.classList.remove('error'));
-
         if (!current || !newPass) {
           if (!current) document.getElementById('currentPassword').classList.add('error');
           if (!newPass) document.getElementById('newPassword').classList.add('error');
@@ -741,7 +320,6 @@
           showToast('Please fill in all fields', 'error');
           return;
         }
-
         if (newPass.length < 6) {
           document.getElementById('newPassword').classList.add('error');
           passwordFeedback.className = 'block text-sm text-red-500 mt-2';
@@ -749,7 +327,6 @@
           showToast('Password must be at least 6 characters', 'error');
           return;
         }
-
         setLoading(passBtn, true, 'Updating...');
         try {
           const credential = EmailAuthProvider.credential(user.email, current);
@@ -763,15 +340,11 @@
           passwordFeedback.className = 'block text-sm text-red-500 mt-2';
           passwordFeedback.textContent = '⚠️ ' + err.message;
           showToast('⚠️ ' + err.message, 'error');
-          if (err.code === 'auth/wrong-password') {
-            document.getElementById('currentPassword').classList.add('error');
-          }
-        } finally {
-          setLoading(passBtn, false);
-        }
+          if (err.code === 'auth/wrong-password') document.getElementById('currentPassword').classList.add('error');
+        } finally { setLoading(passBtn, false); }
       });
 
-      // ===== 3. EXPORT DATA =====
+      // Export
       window.exportUserData = async () => {
         const btn = document.querySelector('[onclick="exportUserData()"]');
         const feedback = document.getElementById('exportFeedback');
@@ -784,23 +357,13 @@
           const orders = ordersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
           const fixSnap = await getDocs(query(collection(db, 'fixRequests'), where('userId', '==', user.uid)));
           const fixRequests = fixSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-          
-          const data = {
-            exportedAt: new Date().toISOString(),
-            user: { uid: user.uid, email: user.email, emailVerified: user.emailVerified, ...profile },
-            orders,
-            fixRequests
-          };
-          
+          const data = { exportedAt: new Date().toISOString(), user: { uid: user.uid, email: user.email, emailVerified: user.emailVerified, ...profile }, orders, fixRequests };
           const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
           const link = document.createElement('a');
           link.href = URL.createObjectURL(blob);
           link.download = `my-data-${new Date().toISOString().slice(0,10)}.json`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+          document.body.appendChild(link); link.click(); document.body.removeChild(link);
           URL.revokeObjectURL(link.href);
-          
           feedback.className = 'block text-sm text-green-600 mt-2';
           feedback.innerHTML = '✅ Data exported successfully!';
           showToast('✅ Data exported!', 'success');
@@ -808,19 +371,14 @@
           feedback.className = 'block text-sm text-red-500 mt-2';
           feedback.textContent = '⚠️ ' + err.message;
           showToast('⚠️ ' + err.message, 'error');
-        } finally {
-          setLoading(btn, false);
-        }
+        } finally { setLoading(btn, false); }
       };
 
-      // ===== 4. DELETE ACCOUNT =====
+      // Delete account
       window.deleteAccount = async () => {
         if (!confirm('⚠️ Are you sure you want to delete your account? This action is IRREVERSIBLE and all your data will be permanently lost.')) return;
         const confirmText = prompt('Type "DELETE" to permanently delete your account:');
-        if (confirmText !== 'DELETE') {
-          showToast('Account deletion cancelled', 'warning');
-          return;
-        }
+        if (confirmText !== 'DELETE') { showToast('Account deletion cancelled', 'warning'); return; }
         const feedback = document.getElementById('deleteFeedback');
         feedback.className = 'hidden';
         const btn = document.querySelector('[onclick="deleteAccount()"]');
@@ -840,26 +398,17 @@
             feedback.textContent = '⚠️ ' + err.message;
             showToast('⚠️ ' + err.message, 'error');
           }
-        } finally {
-          setLoading(btn, false);
-        }
+        } finally { setLoading(btn, false); }
       };
     }
 
-    // ================================================================
-    // AUTH STATE
-    // ================================================================
+    // Auth state
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'index.html';
-        return;
-      }
+      if (!user) { window.location.href = 'index.html'; return; }
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
       const role = userDoc.exists() ? userDoc.data().role : 'user';
       updateNavbarAuth(user, displayName, role);
-      
-      // Render settings
       await renderSettings(user);
     });
 
