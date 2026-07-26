@@ -75,37 +75,93 @@
     .empty-state { display: flex; align-items: center; justify-content: center; height: 100%; color: #8e8e93; font-size: 0.95rem; flex-direction: column; gap: 8px; }
     .empty-state i { font-size: 2.4rem; opacity: 0.3; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .product-grid, .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
     .product-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 12px 12px 0 0; }
-    .form-input { width: 100%; padding: 12px 16px; border: 1.5px solid rgba(60,60,67,0.08); border-radius: 12px; font-size: 0.95rem; background: rgba(255,255,255,0.8); transition: all 0.3s; outline: none; }
+    .form-input { width: 100%; padding: 10px 14px; border: 1.5px solid rgba(60,60,67,0.08); border-radius: 12px; font-size: 0.9rem; background: rgba(255,255,255,0.8); transition: all 0.3s; outline: none; }
     .form-input:focus { border-color: #007AFF; box-shadow: 0 0 0 4px rgba(0,122,255,0.08); background: #fff; }
     .form-input.error { border-color: #FF3B30; box-shadow: 0 0 0 4px rgba(255,59,48,0.08); }
+    .form-input-sm { padding: 6px 10px; font-size: 0.8rem; }
     .btn-primary { background: linear-gradient(135deg, #007AFF, #5856D6); color: #fff; padding: 10px 22px; border-radius: 60px; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,122,255,0.35); }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-    .btn-outline { background: transparent; color: #1c1c1e; padding: 10px 22px; border-radius: 60px; font-weight: 600; font-size: 0.95rem; border: 1.5px solid rgba(60,60,67,0.08); cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.5); min-height: 48px; }
+    .btn-outline { background: transparent; color: #1c1c1e; padding: 10px 22px; border-radius: 60px; font-weight: 600; font-size: 0.9rem; border: 1.5px solid rgba(60,60,67,0.08); cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.5); min-height: 48px; }
     .btn-outline:hover { background: rgba(0,122,255,0.04); border-color: #007AFF; color: #007AFF; transform: translateY(-2px); }
+    .btn-sm { padding: 4px 12px; font-size: 0.75rem; min-height: 30px; border-radius: 30px; }
     .badge-pending { background: #FF9500; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
     .badge-processing { background: #007AFF; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
     .badge-completed { background: #34C759; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
     .featured-badge { background: #8B5CF6; color: white; padding: 2px 10px; border-radius: 60px; font-size: 0.6rem; font-weight: 600; }
     .skeleton { background: #e5e7eb; border-radius: 8px; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-    /* ===== NEW TABLE STYLES ===== */
-    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .admin-table th { background: #f8f9fc; color: #1c1c1e; font-weight: 600; padding: 12px 16px; text-align: left; border-bottom: 2px solid #e5e7eb; }
-    .admin-table td { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
-    .admin-table tr:hover { background: #f8fafc; }
-    .admin-table .status-badge { padding: 4px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
+
+    /* ===== NEW: USERS ADVANCED STYLES ===== */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card-modern { background: white; border-radius: 14px; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-align: center; border: 1px solid rgba(0,0,0,0.04); transition: 0.3s; }
+    .stat-card-modern:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+    .stat-card-modern .stat-number { font-size: 1.8rem; font-weight: 700; color: #1c1c1e; }
+    .stat-card-modern .stat-label { font-size: 0.75rem; color: #8e8e93; margin-top: 2px; }
+    .stat-card-modern .stat-icon { font-size: 1.6rem; margin-bottom: 4px; }
+
+    .filter-group-advanced { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: end; padding: 1rem; background: white; border-radius: 14px; border: 1px solid rgba(0,0,0,0.04); margin-bottom: 1.5rem; }
+    .filter-group-advanced .filter-item { display: flex; flex-direction: column; gap: 2px; }
+    .filter-group-advanced .filter-item label { font-size: 0.7rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .filter-group-advanced .form-input { min-width: 130px; }
+
+    .view-toggle { display: flex; gap: 4px; background: #f3f4f6; padding: 4px; border-radius: 10px; }
+    .view-toggle button { background: transparent; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: 0.2s; color: #6b7280; }
+    .view-toggle button.active { background: white; color: #1c1c1e; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+    .user-grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .user-card { background: white; border-radius: 16px; padding: 1rem; border: 1px solid rgba(0,0,0,0.04); transition: 0.3s; position: relative; }
+    .user-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+    .user-card .user-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #007AFF, #5856D6); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; flex-shrink: 0; }
+    .user-card .user-info { flex: 1; min-width: 0; }
+    .user-card .user-name { font-weight: 600; color: #1c1c1e; }
+    .user-card .user-email { font-size: 0.8rem; color: #6b7280; word-break: break-all; }
+    .user-card .user-meta { font-size: 0.7rem; color: #8e8e93; display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .user-card .user-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; border-top: 1px solid #f3f4f6; padding-top: 8px; }
+    .user-card .user-actions button { background: none; border: none; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+    .user-card .user-actions button:hover { background: #f3f4f6; }
+    .user-card .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+    .user-card .status-dot.active { background: #34C759; }
+    .user-card .status-dot.inactive { background: #FF3B30; }
+
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .admin-table th { background: #f8f9fc; color: #1c1c1e; font-weight: 600; padding: 10px 14px; text-align: left; border-bottom: 2px solid #e5e7eb; cursor: pointer; user-select: none; white-space: nowrap; }
+    .admin-table th:hover { background: #f0f0f5; }
+    .admin-table th .sort-icon { margin-left: 4px; font-size: 0.7rem; opacity: 0.5; }
+    .admin-table td { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+    .admin-table tr:hover { background: #fafbfc; }
+    .admin-table .status-badge { padding: 3px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
     .admin-table .status-badge.active { background: #d1fae5; color: #059669; }
     .admin-table .status-badge.inactive { background: #fee2e2; color: #dc2626; }
-    .admin-table .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-    .admin-table .actions button { background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: 0.2s; }
-    .admin-table .actions button:hover { background: #e5e7eb; }
-    .admin-table .actions .note-btn { color: #6b7280; }
-    .admin-table .actions .note-btn:hover { color: #007AFF; }
-    .filter-group { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
-    .filter-group .form-input { max-width: 200px; }
+    .admin-table .actions { display: flex; flex-wrap: wrap; gap: 4px; }
+    .admin-table .actions .action-btn { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; border: none; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 4px; background: #f3f4f6; color: #374151; }
+    .admin-table .actions .action-btn:hover { background: #e5e7eb; }
+    .admin-table .actions .action-btn.edit { background: #dbeafe; color: #1d4ed8; }
+    .admin-table .actions .action-btn.edit:hover { background: #bfdbfe; }
+    .admin-table .actions .action-btn.delete { background: #fee2e2; color: #dc2626; }
+    .admin-table .actions .action-btn.delete:hover { background: #fecaca; }
+    .admin-table .actions .action-btn.toggle-active { background: #d1fae5; color: #059669; }
+    .admin-table .actions .action-btn.toggle-active:hover { background: #a7f3d0; }
+    .admin-table .actions .action-btn.toggle-inactive { background: #fef3c7; color: #d97706; }
+    .admin-table .actions .action-btn.toggle-inactive:hover { background: #fde68a; }
+    .admin-table .actions .action-btn.note { background: #f3e8ff; color: #7c3aed; }
+    .admin-table .actions .action-btn.note:hover { background: #e9d5ff; }
+
+    .pagination { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 1rem; justify-content: space-between; }
+    .pagination .page-info { font-size: 0.85rem; color: #6b7280; }
+    .pagination .page-buttons { display: flex; gap: 4px; }
+    .pagination .page-buttons button { padding: 4px 12px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; cursor: pointer; transition: 0.2s; font-size: 0.8rem; }
+    .pagination .page-buttons button:hover { background: #f3f4f6; }
+    .pagination .page-buttons button.active { background: #007AFF; color: white; border-color: #007AFF; }
+    .pagination .page-buttons button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pagination .per-page select { padding: 4px 8px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; font-size: 0.8rem; }
+
+    .bulk-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; padding: 0.5rem 1rem; background: #f8fafc; border-radius: 12px; margin-bottom: 0.5rem; }
+    .bulk-actions .bulk-info { font-size: 0.85rem; color: #6b7280; }
+    .bulk-actions .bulk-info strong { color: #1c1c1e; }
+
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
     .modal-overlay.open { display: flex; }
     .modal-box { background: white; border-radius: 20px; padding: 1.5rem; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: scaleIn 0.25s ease forwards; }
@@ -118,11 +174,7 @@
     .detail-item .label { font-weight: 500; color: #6b7280; }
     .history-item { padding: 4px 0; font-size: 0.85rem; border-bottom: 1px dashed #e5e7eb; }
     .history-item .time { color: #6b7280; font-size: 0.75rem; }
-    @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } .chart-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
-    @media (max-width: 768px) { .sidebar { width: 280px; transform: translateX(-100%); padding: 1rem; box-shadow: 4px 0 30px rgba(0,0,0,0.1); } .sidebar.open { transform: translateX(0); } .main { margin-left: 0; padding: 0 0 4rem 0; } .mobile-header { display: flex; } .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .dashboard-card { padding: 0.75rem; } .dashboard-card .value { font-size: 1.4rem; } .chart-container { height: 180px; } .chart-grid { grid-template-columns: 1fr; } .glass-card { padding: 1rem; border-radius: 12px; } .messenger-wrap { flex-direction: column; height: 75vh; min-height: 400px; border-radius: 16px; } .conv-list { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); } .chat-msg { max-width: 92%; } .chat-input-wrap { padding: 10px 14px; flex-wrap: wrap; } .chat-input-wrap input { padding: 10px 14px; font-size: 0.9rem; } .chat-input-wrap button { width: 42px; height: 42px; font-size: 1rem; } .chat-messages { padding: 12px 14px; } .chat-msg { padding: 8px 14px; font-size: 0.9rem; } .product-grid, .user-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .product-card img { height: 120px; } .admin-table { font-size: 0.8rem; } .admin-table th, .admin-table td { padding: 8px 10px; } .filter-group .form-input { max-width: 150px; } }
-    @media (max-width: 480px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; } .dashboard-card .value { font-size: 1.2rem; } .product-grid, .user-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; } .mobile-header .title { font-size: 1rem; } .conv-item { padding: 10px 12px; } .conv-avatar { width: 36px; height: 36px; font-size: 0.9rem; } .sidebar { width: 260px; } }
-    .spinner-big { width: 60px; height: 60px; border: 4px solid rgba(0,122,255,0.1); border-top-color: #007AFF; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+
     #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; max-width: 420px; width: 100%; pointer-events: none; }
     .toast { padding: 16px 20px; border-radius: 16px; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 12px 48px rgba(0,0,0,0.12); font-size: 0.95rem; font-weight: 500; color: #1c1c1e; transform: translateX(calc(100% + 40px)); animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; display: flex; align-items: center; gap: 14px; pointer-events: auto; border-left: 4px solid #007AFF; }
     .toast.success { border-left-color: #34C759; }
@@ -137,6 +189,16 @@
     @keyframes slideIn { to { transform: translateX(0); } }
     .toast.hide { animation: slideOut 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     @keyframes slideOut { to { transform: translateX(calc(100% + 40px)); opacity: 0; } }
+
+    @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } .chart-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
+    @media (max-width: 768px) {
+      .sidebar { width: 280px; transform: translateX(-100%); padding: 1rem; box-shadow: 4px 0 30px rgba(0,0,0,0.1); } .sidebar.open { transform: translateX(0); } .main { margin-left: 0; padding: 0 0 4rem 0; } .mobile-header { display: flex; } .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .dashboard-card { padding: 0.75rem; } .dashboard-card .value { font-size: 1.4rem; } .chart-container { height: 180px; } .chart-grid { grid-template-columns: 1fr; } .glass-card { padding: 1rem; border-radius: 12px; } .messenger-wrap { flex-direction: column; height: 75vh; min-height: 400px; border-radius: 16px; } .conv-list { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); } .chat-msg { max-width: 92%; } .chat-input-wrap { padding: 10px 14px; flex-wrap: wrap; } .chat-input-wrap input { padding: 10px 14px; font-size: 0.9rem; } .chat-input-wrap button { width: 42px; height: 42px; font-size: 1rem; } .chat-messages { padding: 12px 14px; } .chat-msg { padding: 8px 14px; font-size: 0.9rem; } .product-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .product-card img { height: 120px; } .admin-table { font-size: 0.75rem; } .admin-table th, .admin-table td { padding: 6px 8px; } .stats-grid { grid-template-columns: repeat(3, 1fr); } .filter-group-advanced .form-input { min-width: 100px; } .filter-group-advanced { padding: 0.75rem; } .user-grid-cards { grid-template-columns: repeat(2, 1fr); } .pagination { flex-direction: column; align-items: stretch; } .pagination .page-buttons { justify-content: center; } }
+    @media (max-width: 480px) {
+      .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; } .dashboard-card .value { font-size: 1.2rem; } .product-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; } .mobile-header .title { font-size: 1rem; } .conv-item { padding: 10px 12px; } .conv-avatar { width: 36px; height: 36px; font-size: 0.9rem; } .sidebar { width: 260px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .user-grid-cards { grid-template-columns: 1fr; } .filter-group-advanced { flex-direction: column; align-items: stretch; } .filter-group-advanced .filter-item { width: 100%; } .filter-group-advanced .form-input { min-width: auto; }
+    }
+
+    .spinner-big { width: 60px; height: 60px; border: 4px solid rgba(0,122,255,0.1); border-top-color: #007AFF; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -210,30 +272,28 @@
       </div>
     </div>
 
-    <!-- ===== ORDERS (আপডেটেড) ===== -->
+    <!-- ===== ORDERS (আগের মতো) ===== -->
     <div id="tab-orders" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 class="text-2xl font-bold">Orders</h2>
           <button onclick="exportOrdersCSV()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-file-csv"></i> Export CSV</button>
         </div>
-        <!-- ফিল্টার -->
-        <div class="filter-group">
-          <input type="date" id="orderDateFrom" class="form-input" placeholder="From" />
-          <input type="date" id="orderDateTo" class="form-input" placeholder="To" />
-          <input type="number" id="orderPriceMin" class="form-input" placeholder="Min $" />
-          <input type="number" id="orderPriceMax" class="form-input" placeholder="Max $" />
-          <select id="orderStatusFilter" class="form-input">
+        <div class="filter-group" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
+          <input type="date" id="orderDateFrom" class="form-input form-input-sm" placeholder="From" />
+          <input type="date" id="orderDateTo" class="form-input form-input-sm" placeholder="To" />
+          <input type="number" id="orderPriceMin" class="form-input form-input-sm" placeholder="Min $" />
+          <input type="number" id="orderPriceMax" class="form-input form-input-sm" placeholder="Max $" />
+          <select id="orderStatusFilter" class="form-input form-input-sm">
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
             <option value="processing">Processing</option>
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
           </select>
-          <button onclick="applyOrderFilters()" class="btn-primary text-sm py-2 px-4">Apply</button>
-          <button onclick="resetOrderFilters()" class="btn-outline text-sm py-2 px-4">Reset</button>
+          <button onclick="applyOrderFilters()" class="btn-primary btn-sm">Apply</button>
+          <button onclick="resetOrderFilters()" class="btn-outline btn-sm">Reset</button>
         </div>
-        <!-- টেবিল -->
         <div class="overflow-x-auto">
           <table class="admin-table" id="orderTable">
             <thead>
@@ -252,51 +312,113 @@
             </tbody>
           </table>
         </div>
-        <div id="orderList" class="space-y-3 mt-4" style="display:none;"></div> <!-- পুরনো কার্ড লুকানো -->
+        <div id="orderList" class="space-y-3 mt-4" style="display:none;"></div>
       </div>
     </div>
 
-    <!-- ===== USERS (আপডেটেড) ===== -->
+    <!-- ===== USERS (অ্যাডভান্সড আপডেটেড) ===== -->
     <div id="tab-users" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 class="text-2xl font-bold">Users</h2>
-          <div class="flex gap-2">
-            <button onclick="exportUsersCSV()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-file-csv"></i> Export CSV</button>
-            <button onclick="openUserModal()" class="btn-primary text-sm py-2 px-4"><i class="fas fa-plus"></i> Add User</button>
+          <div class="flex gap-2 flex-wrap">
+            <div class="view-toggle" id="viewToggle">
+              <button class="active" data-view="table"><i class="fas fa-table"></i> Table</button>
+              <button data-view="cards"><i class="fas fa-th-large"></i> Cards</button>
+            </div>
+            <button onclick="exportUsers('csv')" class="btn-outline btn-sm"><i class="fas fa-file-csv"></i> CSV</button>
+            <button onclick="exportUsers('json')" class="btn-outline btn-sm"><i class="fas fa-file-code"></i> JSON</button>
+            <button onclick="openUserModal()" class="btn-primary btn-sm"><i class="fas fa-plus"></i> Add</button>
           </div>
         </div>
-        <!-- ফিল্টার -->
-        <div class="filter-group">
-          <select id="userRoleFilter" class="form-input">
-            <option value="all">All Roles</option>
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
-          </select>
-          <select id="userStatusFilter" class="form-input">
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <input type="date" id="userJoinedFrom" class="form-input" placeholder="Joined From" />
-          <input type="date" id="userJoinedTo" class="form-input" placeholder="Joined To" />
-          <button onclick="applyUserFilters()" class="btn-primary text-sm py-2 px-4">Apply</button>
-          <button onclick="resetUserFilters()" class="btn-outline text-sm py-2 px-4">Reset</button>
+
+        <!-- ===== STATS CARDS ===== -->
+        <div class="stats-grid" id="userStats">
+          <div class="stat-card-modern"><div class="stat-icon">👥</div><div class="stat-number" id="statTotal">0</div><div class="stat-label">Total Users</div></div>
+          <div class="stat-card-modern"><div class="stat-icon">🟢</div><div class="stat-number text-green-600" id="statActive">0</div><div class="stat-label">Active</div></div>
+          <div class="stat-card-modern"><div class="stat-icon">🔴</div><div class="stat-number text-red-500" id="statInactive">0</div><div class="stat-label">Inactive</div></div>
+          <div class="stat-card-modern"><div class="stat-icon">🛡️</div><div class="stat-number text-purple-600" id="statAdmin">0</div><div class="stat-label">Admins</div></div>
+          <div class="stat-card-modern"><div class="stat-icon">🧑</div><div class="stat-number text-blue-600" id="statUser">0</div><div class="stat-label">Users</div></div>
         </div>
-        <!-- টেবিল -->
-        <div class="overflow-x-auto">
+
+        <!-- ===== FILTERS ===== -->
+        <div class="filter-group-advanced" id="userFilters">
+          <div class="filter-item">
+            <label>Search</label>
+            <input type="text" id="userSearch" class="form-input form-input-sm" placeholder="Name / Email / Phone" />
+          </div>
+          <div class="filter-item">
+            <label>Role</label>
+            <select id="userRoleFilter" class="form-input form-input-sm"><option value="all">All</option><option value="admin">Admin</option><option value="user">User</option></select>
+          </div>
+          <div class="filter-item">
+            <label>Status</label>
+            <select id="userStatusFilter" class="form-input form-input-sm"><option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+          </div>
+          <div class="filter-item">
+            <label>Joined From</label>
+            <input type="date" id="userJoinedFrom" class="form-input form-input-sm" />
+          </div>
+          <div class="filter-item">
+            <label>Joined To</label>
+            <input type="date" id="userJoinedTo" class="form-input form-input-sm" />
+          </div>
+          <div class="filter-item">
+            <label>Last Login From</label>
+            <input type="date" id="userLastLoginFrom" class="form-input form-input-sm" />
+          </div>
+          <div class="filter-item">
+            <label>Last Login To</label>
+            <input type="date" id="userLastLoginTo" class="form-input form-input-sm" />
+          </div>
+          <div class="filter-item">
+            <label>Min Orders</label>
+            <input type="number" id="userMinOrders" class="form-input form-input-sm" placeholder="0" />
+          </div>
+          <div class="filter-item">
+            <label>Max Orders</label>
+            <input type="number" id="userMaxOrders" class="form-input form-input-sm" placeholder="∞" />
+          </div>
+          <div class="filter-item">
+            <label>Min Spent ($)</label>
+            <input type="number" id="userMinSpent" class="form-input form-input-sm" placeholder="0" />
+          </div>
+          <div class="filter-item">
+            <label>Max Spent ($)</label>
+            <input type="number" id="userMaxSpent" class="form-input form-input-sm" placeholder="∞" />
+          </div>
+          <div class="filter-item" style="justify-content:end;">
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+              <button onclick="applyUserFilters()" class="btn-primary btn-sm">Apply</button>
+              <button onclick="resetUserFilters()" class="btn-outline btn-sm">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== BULK ACTIONS ===== -->
+        <div class="bulk-actions" id="bulkActions" style="display:none;">
+          <span class="bulk-info"><strong id="bulkCount">0</strong> user(s) selected</span>
+          <button onclick="bulkStatus('active')" class="btn-primary btn-sm"><i class="fas fa-user-check"></i> Activate</button>
+          <button onclick="bulkStatus('inactive')" class="btn-outline btn-sm"><i class="fas fa-user-slash"></i> Deactivate</button>
+          <button onclick="bulkDelete()" class="btn-danger btn-sm" style="background:linear-gradient(135deg,#FF3B30,#dc2626);color:#fff;padding:4px 12px;border-radius:30px;font-size:0.75rem;border:none;cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>
+          <button onclick="clearBulkSelection()" class="btn-outline btn-sm">Clear</button>
+        </div>
+
+        <!-- ===== TABLE VIEW ===== -->
+        <div id="usersTableView" class="overflow-x-auto">
           <table class="admin-table" id="userTable">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Joined</th>
-                <th>Last Login</th>
-                <th class="text-center">Orders</th>
-                <th class="text-center">Spent</th>
-                <th class="text-center">Fix Req.</th>
-                <th class="text-center">Status</th>
+                <th style="width:30px;"><input type="checkbox" id="selectAllUsers" /></th>
+                <th data-sort="name">Name <span class="sort-icon">↕</span></th>
+                <th data-sort="email">Email <span class="sort-icon">↕</span></th>
+                <th data-sort="phone">Phone</th>
+                <th data-sort="joined">Joined <span class="sort-icon">↕</span></th>
+                <th data-sort="lastLogin">Last Login <span class="sort-icon">↕</span></th>
+                <th data-sort="orders" class="text-center">Orders <span class="sort-icon">↕</span></th>
+                <th data-sort="spent" class="text-center">Spent <span class="sort-icon">↕</span></th>
+                <th data-sort="fix" class="text-center">Fix <span class="sort-icon">↕</span></th>
+                <th data-sort="status" class="text-center">Status <span class="sort-icon">↕</span></th>
                 <th class="text-center">Actions</th>
               </tr>
             </thead>
@@ -305,7 +427,27 @@
             </tbody>
           </table>
         </div>
-        <div id="userList" class="user-grid" style="display:none;"></div> <!-- পুরনো কার্ড লুকানো -->
+
+        <!-- ===== CARDS VIEW ===== -->
+        <div id="usersCardsView" style="display:none;" class="user-grid-cards">
+          <!-- JS রেন্ডার করবে -->
+        </div>
+
+        <!-- ===== PAGINATION ===== -->
+        <div class="pagination" id="userPagination">
+          <div class="page-info" id="pageInfo">Showing 0-0 of 0</div>
+          <div class="page-buttons" id="pageButtons"></div>
+          <div class="per-page">
+            <label>Per page: 
+              <select id="perPageSelect">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -370,7 +512,7 @@
 
   </div>
 
-  <!-- ===== PRODUCT MODAL (অপরিবর্তিত) ===== -->
+  <!-- ===== PRODUCT MODAL ===== -->
   <div class="modal-overlay" id="productModal">
     <div class="modal-box">
       <div class="modal-header"><h3 id="productModalTitle">Add Product</h3><button class="modal-close" onclick="closeProductModal()">&times;</button></div>
@@ -408,20 +550,18 @@
     </div>
   </div>
 
-  <!-- ===== ORDER DETAIL MODAL (নতুন) ===== -->
+  <!-- ===== ORDER DETAIL MODAL (আগের মতো) ===== -->
   <div class="modal-overlay" id="orderDetailModal">
     <div class="modal-box">
       <div class="modal-header">
         <h3 id="orderDetailTitle">Order Details</h3>
         <button class="modal-close" onclick="closeOrderDetailModal()">&times;</button>
       </div>
-      <div id="orderDetailContent" class="space-y-4">
-        <!-- JS রেন্ডার করবে -->
-      </div>
+      <div id="orderDetailContent" class="space-y-4"></div>
       <div class="mt-4 flex flex-wrap gap-3 border-t pt-4">
-        <button onclick="printOrderDetail()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-print"></i> Print</button>
-        <button onclick="downloadInvoiceTxt()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-file-download"></i> Invoice (TXT)</button>
-        <button onclick="closeOrderDetailModal()" class="btn-outline text-sm py-2 px-4">Close</button>
+        <button onclick="printOrderDetail()" class="btn-outline btn-sm"><i class="fas fa-print"></i> Print</button>
+        <button onclick="downloadInvoiceTxt()" class="btn-outline btn-sm"><i class="fas fa-file-download"></i> Invoice (TXT)</button>
+        <button onclick="closeOrderDetailModal()" class="btn-outline btn-sm">Close</button>
       </div>
     </div>
   </div>
@@ -576,7 +716,7 @@
         });
       }
 
-      // ----- TOTALS (আগের মতো) -----
+      // ----- TOTALS & USERS/ORDERS DATA -----
       onSnapshot(collection(db, 'orders'), (snapshot) => {
         document.getElementById('totalOrders').innerText = snapshot.size;
         allOrders = [];
@@ -588,14 +728,16 @@
         });
         document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
         renderDashboardCharts(allOrders, allUsers, allFixRequests);
+        renderOrdersTable(allOrders);
+        renderUsersPage(allUsers);
       });
       onSnapshot(collection(db, 'users'), (snapshot) => {
         document.getElementById('totalUsers').innerText = snapshot.size;
         allUsers = [];
         snapshot.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
         renderDashboardCharts(allOrders, allUsers, allFixRequests);
-        // ইউজার টেবিল আপডেট
-        renderUsersTable(allUsers);
+        renderUsersPage(allUsers);
+        updateUserStats(allUsers);
       });
       onSnapshot(collection(db, 'fixRequests'), (snapshot) => {
         document.getElementById('totalFixRequests').innerText = snapshot.size;
@@ -605,13 +747,14 @@
       });
       onSnapshot(collection(db, 'products'), (snapshot) => {
         document.getElementById('totalProducts').innerText = snapshot.size;
+        renderProducts(snapshot);
       });
 
       // ==============================================================
       // PRODUCTS (আগের মতো)
       // ==============================================================
-      const productList = document.getElementById('productList');
-      onSnapshot(collection(db, 'products'), (snapshot) => {
+      function renderProducts(snapshot) {
+        const productList = document.getElementById('productList');
         if (snapshot.empty) {
           productList.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500"><i class="fas fa-box-open text-4xl opacity-30"></i><p class="mt-2">No products yet. Add your first product!</p></div>`;
           return;
@@ -638,7 +781,7 @@
           `;
         });
         productList.innerHTML = html;
-      });
+      }
 
       window.editProduct = async (id) => {
         const docSnap = await getDoc(doc(db, 'products', id));
@@ -700,133 +843,495 @@
       };
 
       // ==============================================================
-      // ✅ NEW: USERS TABLE with all details
+      // ✅ ADVANCED USERS SECTION
       // ==============================================================
-      let filteredUsers = [];
-      const userTableBody = document.getElementById('userTableBody');
+      let currentUserPage = 1;
+      let perPage = 20;
+      let userSortField = 'name';
+      let userSortAsc = true;
+      let selectedUsers = new Set();
 
-      function renderUsersTable(users) {
-        // Apply filters
-        const roleFilter = document.getElementById('userRoleFilter').value;
-        const statusFilter = document.getElementById('userStatusFilter').value;
-        const fromDate = document.getElementById('userJoinedFrom').value;
-        const toDate = document.getElementById('userJoinedTo').value;
+      // Stats
+      function updateUserStats(users) {
+        const total = users.length;
+        const active = users.filter(u => u.isActive !== false).length;
+        const inactive = total - active;
+        const admin = users.filter(u => u.role === 'admin').length;
+        const user = total - admin;
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statActive').textContent = active;
+        document.getElementById('statInactive').textContent = inactive;
+        document.getElementById('statAdmin').textContent = admin;
+        document.getElementById('statUser').textContent = user;
+      }
 
-        filteredUsers = users.filter(u => {
-          if (roleFilter !== 'all' && u.role !== roleFilter) return false;
-          const isActive = u.isActive !== undefined ? u.isActive : true;
-          const status = isActive ? 'active' : 'inactive';
-          if (statusFilter !== 'all' && status !== statusFilter) return false;
-          if (fromDate) {
+      // Filter, sort, paginate
+      function getFilteredUsers() {
+        const search = document.getElementById('userSearch').value.toLowerCase().trim();
+        const role = document.getElementById('userRoleFilter').value;
+        const status = document.getElementById('userStatusFilter').value;
+        const joinedFrom = document.getElementById('userJoinedFrom').value;
+        const joinedTo = document.getElementById('userJoinedTo').value;
+        const lastFrom = document.getElementById('userLastLoginFrom').value;
+        const lastTo = document.getElementById('userLastLoginTo').value;
+        const minOrders = parseInt(document.getElementById('userMinOrders').value) || 0;
+        const maxOrders = parseInt(document.getElementById('userMaxOrders').value) || Infinity;
+        const minSpent = parseFloat(document.getElementById('userMinSpent').value) || 0;
+        const maxSpent = parseFloat(document.getElementById('userMaxSpent').value) || Infinity;
+
+        let filtered = allUsers.filter(u => {
+          if (search) {
+            const name = (u.displayName || '').toLowerCase();
+            const email = (u.email || '').toLowerCase();
+            const phone = (u.phone || '').toLowerCase();
+            if (!name.includes(search) && !email.includes(search) && !phone.includes(search)) return false;
+          }
+          if (role !== 'all' && u.role !== role) return false;
+          const isActive = u.isActive !== false;
+          const statusVal = isActive ? 'active' : 'inactive';
+          if (status !== 'all' && status !== statusVal) return false;
+          if (joinedFrom) {
             const joined = u.createdAt ? new Date(u.createdAt) : new Date(0);
-            if (joined < new Date(fromDate)) return false;
+            if (joined < new Date(joinedFrom)) return false;
           }
-          if (toDate) {
+          if (joinedTo) {
             const joined = u.createdAt ? new Date(u.createdAt) : new Date(8640000000000000);
-            if (joined > new Date(toDate)) return false;
+            if (joined > new Date(joinedTo)) return false;
           }
+          if (lastFrom) {
+            const last = u.lastLogin ? new Date(u.lastLogin.toDate ? u.lastLogin.toDate() : u.lastLogin) : new Date(0);
+            if (last < new Date(lastFrom)) return false;
+          }
+          if (lastTo) {
+            const last = u.lastLogin ? new Date(u.lastLogin.toDate ? u.lastLogin.toDate() : u.lastLogin) : new Date(8640000000000000);
+            if (last > new Date(lastTo)) return false;
+          }
+          const orderCount = allOrders.filter(o => o.userId === u.id).length;
+          if (orderCount < minOrders || orderCount > maxOrders) return false;
+          const spent = allOrders.filter(o => o.userId === u.id).reduce((sum, o) => sum + (o.total || 0), 0);
+          if (spent < minSpent || spent > maxSpent) return false;
           return true;
         });
 
-        if (filteredUsers.length === 0) {
-          userTableBody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-gray-400">No users found.</td></tr>`;
+        // Sort
+        filtered.sort((a, b) => {
+          let valA, valB;
+          switch (userSortField) {
+            case 'name': valA = (a.displayName || a.email || '').toLowerCase(); valB = (b.displayName || b.email || '').toLowerCase(); break;
+            case 'email': valA = (a.email || '').toLowerCase(); valB = (b.email || '').toLowerCase(); break;
+            case 'phone': valA = (a.phone || ''); valB = (b.phone || ''); break;
+            case 'joined': valA = a.createdAt ? new Date(a.createdAt).getTime() : 0; valB = b.createdAt ? new Date(b.createdAt).getTime() : 0; break;
+            case 'lastLogin': valA = a.lastLogin ? new Date(a.lastLogin.toDate ? a.lastLogin.toDate() : a.lastLogin).getTime() : 0; valB = b.lastLogin ? new Date(b.lastLogin.toDate ? b.lastLogin.toDate() : b.lastLogin).getTime() : 0; break;
+            case 'orders': valA = allOrders.filter(o => o.userId === a.id).length; valB = allOrders.filter(o => o.userId === b.id).length; break;
+            case 'spent': valA = allOrders.filter(o => o.userId === a.id).reduce((s, o) => s + (o.total || 0), 0); valB = allOrders.filter(o => o.userId === b.id).reduce((s, o) => s + (o.total || 0), 0); break;
+            case 'fix': valA = allFixRequests.filter(f => f.userId === a.id).length; valB = allFixRequests.filter(f => f.userId === b.id).length; break;
+            case 'status': valA = (a.isActive !== false) ? 1 : 0; valB = (b.isActive !== false) ? 1 : 0; break;
+            default: valA = (a.displayName || a.email || '').toLowerCase(); valB = (b.displayName || b.email || '').toLowerCase();
+          }
+          if (valA < valB) return userSortAsc ? -1 : 1;
+          if (valA > valB) return userSortAsc ? 1 : -1;
+          return 0;
+        });
+
+        return filtered;
+      }
+
+      function renderUsersPage(users) {
+        const filtered = getFilteredUsers();
+        const total = filtered.length;
+        const totalPages = Math.ceil(total / perPage) || 1;
+        if (currentUserPage > totalPages) currentUserPage = totalPages;
+        const start = (currentUserPage - 1) * perPage;
+        const end = Math.min(start + perPage, total);
+        const pageUsers = filtered.slice(start, end);
+
+        // Update pagination info
+        document.getElementById('pageInfo').textContent = `Showing ${total > 0 ? start+1 : 0}-${end} of ${total}`;
+
+        // Pagination buttons
+        let pageHtml = '';
+        pageHtml += `<button onclick="goToUserPage(1)" ${currentUserPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>`;
+        pageHtml += `<button onclick="goToUserPage(${currentUserPage-1})" ${currentUserPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-left"></i></button>`;
+        for (let i = Math.max(1, currentUserPage-2); i <= Math.min(totalPages, currentUserPage+2); i++) {
+          pageHtml += `<button onclick="goToUserPage(${i})" class="${i === currentUserPage ? 'active' : ''}">${i}</button>`;
+        }
+        pageHtml += `<button onclick="goToUserPage(${currentUserPage+1})" ${currentUserPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-right"></i></button>`;
+        pageHtml += `<button onclick="goToUserPage(${totalPages})" ${currentUserPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>`;
+        document.getElementById('pageButtons').innerHTML = pageHtml;
+
+        // View toggle
+        const view = document.querySelector('#viewToggle .active')?.dataset.view || 'table';
+        if (view === 'table') {
+          document.getElementById('usersTableView').style.display = '';
+          document.getElementById('usersCardsView').style.display = 'none';
+          renderUserTable(pageUsers, total);
+        } else {
+          document.getElementById('usersTableView').style.display = 'none';
+          document.getElementById('usersCardsView').style.display = '';
+          renderUserCards(pageUsers, total);
+        }
+      }
+
+      function renderUserTable(users, total) {
+        const tbody = document.getElementById('userTableBody');
+        if (users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="11" class="text-center py-6 text-gray-400">No users found.</td></tr>`;
           return;
         }
-
         let html = '';
-        filteredUsers.forEach(u => {
+        users.forEach(u => {
           const name = u.displayName || u.email?.split('@')[0] || 'Unknown';
           const phone = u.phone || '—';
           const joined = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '—';
           const lastLogin = u.lastLogin ? new Date(u.lastLogin.toDate ? u.lastLogin.toDate() : u.lastLogin).toLocaleString('en-US', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' }) : 'Never';
           const orderCount = allOrders.filter(o => o.userId === u.id).length;
-          const totalSpent = allOrders.filter(o => o.userId === u.id).reduce((sum, o) => sum + (o.total || 0), 0);
+          const spent = allOrders.filter(o => o.userId === u.id).reduce((s, o) => s + (o.total || 0), 0);
           const fixCount = allFixRequests.filter(f => f.userId === u.id).length;
-          const isActive = u.isActive !== undefined ? u.isActive : true;
+          const isActive = u.isActive !== false;
           const statusClass = isActive ? 'active' : 'inactive';
           const statusLabel = isActive ? 'Active' : 'Inactive';
 
           html += `
             <tr>
+              <td><input type="checkbox" class="user-checkbox" data-id="${u.id}" ${selectedUsers.has(u.id) ? 'checked' : ''} /></td>
               <td><span class="font-medium">${name}</span></td>
               <td>${u.email}</td>
               <td>${phone}</td>
               <td>${joined}</td>
               <td>${lastLogin}</td>
               <td class="text-center">${orderCount}</td>
-              <td class="text-center">$${totalSpent.toFixed(2)}</td>
+              <td class="text-center">$${spent.toFixed(2)}</td>
               <td class="text-center">${fixCount}</td>
               <td class="text-center"><span class="status-badge ${statusClass}">${statusLabel}</span></td>
               <td>
-                <div class="actions justify-center">
-                  <button onclick="editUser('${u.id}')" title="Edit"><i class="fas fa-edit text-blue-600"></i></button>
-                  <button onclick="deleteUser('${u.id}')" title="Delete"><i class="fas fa-trash text-red-500"></i></button>
-                  <button onclick="toggleUserStatus('${u.id}', ${!isActive})" title="${isActive ? 'Deactivate' : 'Activate'}">
-                    <i class="fas ${isActive ? 'fa-user-slash' : 'fa-user-check'} text-${isActive ? 'orange' : 'green'}-500"></i>
+                <div class="actions">
+                  <button onclick="editUser('${u.id}')" class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button onclick="deleteUser('${u.id}')" class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button onclick="toggleUserStatus('${u.id}', ${!isActive})" class="action-btn ${isActive ? 'toggle-inactive' : 'toggle-active'}" title="${isActive ? 'Deactivate' : 'Activate'}">
+                    <i class="fas ${isActive ? 'fa-user-slash' : 'fa-user-check'}"></i>
                   </button>
-                  <button onclick="editAdminNote('${u.id}')" class="note-btn" title="Admin Note"><i class="fas fa-sticky-note"></i></button>
+                  <button onclick="editAdminNote('${u.id}')" class="action-btn note" title="Admin Note"><i class="fas fa-sticky-note"></i></button>
                 </div>
               </td>
             </tr>
           `;
         });
-        userTableBody.innerHTML = html;
+        tbody.innerHTML = html;
+
+        // Bulk select
+        document.getElementById('selectAllUsers').addEventListener('change', function() {
+          const checked = this.checked;
+          document.querySelectorAll('.user-checkbox').forEach(cb => {
+            cb.checked = checked;
+            if (checked) selectedUsers.add(cb.dataset.id);
+            else selectedUsers.delete(cb.dataset.id);
+          });
+          updateBulkActions();
+        });
+
+        document.querySelectorAll('.user-checkbox').forEach(cb => {
+          cb.addEventListener('change', function() {
+            if (this.checked) selectedUsers.add(this.dataset.id);
+            else selectedUsers.delete(this.dataset.id);
+            updateBulkActions();
+            document.getElementById('selectAllUsers').checked = document.querySelectorAll('.user-checkbox:checked').length === document.querySelectorAll('.user-checkbox').length;
+          });
+        });
       }
 
-      // Apply filters
-      window.applyUserFilters = function() { renderUsersTable(allUsers); };
+      function renderUserCards(users, total) {
+        const container = document.getElementById('usersCardsView');
+        if (users.length === 0) {
+          container.innerHTML = `<div class="text-center py-10 text-gray-400 col-span-full">No users found.</div>`;
+          return;
+        }
+        let html = '';
+        users.forEach(u => {
+          const name = u.displayName || u.email?.split('@')[0] || 'Unknown';
+          const phone = u.phone || '—';
+          const joined = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '—';
+          const orderCount = allOrders.filter(o => o.userId === u.id).length;
+          const spent = allOrders.filter(o => o.userId === u.id).reduce((s, o) => s + (o.total || 0), 0);
+          const fixCount = allFixRequests.filter(f => f.userId === u.id).length;
+          const isActive = u.isActive !== false;
+          const statusClass = isActive ? 'active' : 'inactive';
+
+          html += `
+            <div class="user-card">
+              <div class="flex items-center gap-3">
+                <div class="user-avatar">${name.charAt(0).toUpperCase()}</div>
+                <div class="user-info">
+                  <div class="user-name">${name}</div>
+                  <div class="user-email">${u.email}</div>
+                </div>
+              </div>
+              <div class="user-meta">
+                <span><i class="fas fa-phone"></i> ${phone}</span>
+                <span><i class="fas fa-calendar-alt"></i> ${joined}</span>
+                <span><span class="status-dot ${statusClass}"></span> ${isActive ? 'Active' : 'Inactive'}</span>
+              </div>
+              <div class="user-meta">
+                <span><i class="fas fa-box"></i> ${orderCount} orders</span>
+                <span><i class="fas fa-dollar-sign"></i> $${spent.toFixed(2)}</span>
+                <span><i class="fas fa-tools"></i> ${fixCount} fixes</span>
+              </div>
+              <div class="user-actions">
+                <button onclick="editUser('${u.id}')" class="action-btn edit"><i class="fas fa-edit"></i> Edit</button>
+                <button onclick="deleteUser('${u.id}')" class="action-btn delete"><i class="fas fa-trash"></i></button>
+                <button onclick="toggleUserStatus('${u.id}', ${!isActive})" class="action-btn ${isActive ? 'toggle-inactive' : 'toggle-active'}">
+                  <i class="fas ${isActive ? 'fa-user-slash' : 'fa-user-check'}"></i>
+                </button>
+                <button onclick="editAdminNote('${u.id}')" class="action-btn note"><i class="fas fa-sticky-note"></i></button>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      function updateBulkActions() {
+        const count = selectedUsers.size;
+        const el = document.getElementById('bulkActions');
+        if (count > 0) {
+          el.style.display = 'flex';
+          document.getElementById('bulkCount').textContent = count;
+        } else {
+          el.style.display = 'none';
+        }
+      }
+
+      window.goToUserPage = function(page) {
+        const total = getFilteredUsers().length;
+        const totalPages = Math.ceil(total / perPage) || 1;
+        if (page < 1 || page > totalPages) return;
+        currentUserPage = page;
+        renderUsersPage(allUsers);
+      };
+
+      // View toggle
+      document.querySelectorAll('#viewToggle button').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('#viewToggle button').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          renderUsersPage(allUsers);
+        });
+      });
+
+      // Per page change
+      document.getElementById('perPageSelect').addEventListener('change', function() {
+        perPage = parseInt(this.value);
+        currentUserPage = 1;
+        renderUsersPage(allUsers);
+      });
+
+      // Table sort
+      document.querySelectorAll('#userTable th[data-sort]').forEach(th => {
+        th.addEventListener('click', function() {
+          const field = this.dataset.sort;
+          if (userSortField === field) {
+            userSortAsc = !userSortAsc;
+          } else {
+            userSortField = field;
+            userSortAsc = true;
+          }
+          renderUsersPage(allUsers);
+        });
+      });
+
+      // Filters
+      window.applyUserFilters = function() {
+        currentUserPage = 1;
+        renderUsersPage(allUsers);
+      };
       window.resetUserFilters = function() {
+        document.getElementById('userSearch').value = '';
         document.getElementById('userRoleFilter').value = 'all';
         document.getElementById('userStatusFilter').value = 'all';
         document.getElementById('userJoinedFrom').value = '';
         document.getElementById('userJoinedTo').value = '';
-        renderUsersTable(allUsers);
+        document.getElementById('userLastLoginFrom').value = '';
+        document.getElementById('userLastLoginTo').value = '';
+        document.getElementById('userMinOrders').value = '';
+        document.getElementById('userMaxOrders').value = '';
+        document.getElementById('userMinSpent').value = '';
+        document.getElementById('userMaxSpent').value = '';
+        applyUserFilters();
       };
 
-      // Toggle user status
-      window.toggleUserStatus = async (userId, newStatus) => {
+      // Debounce search
+      let searchTimeout;
+      document.getElementById('userSearch').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(applyUserFilters, 300);
+      });
+
+      // Bulk actions
+      window.bulkStatus = async function(status) {
+        if (selectedUsers.size === 0) return;
+        const active = status === 'active';
+        if (!confirm(`Are you sure you want to ${status} ${selectedUsers.size} user(s)?`)) return;
         try {
-          await updateDoc(doc(db, 'users', userId), { isActive: newStatus });
+          const promises = [];
+          selectedUsers.forEach(id => {
+            promises.push(updateDoc(doc(db, 'users', id), { isActive: active }));
+          });
+          await Promise.all(promises);
+          showToast(`✅ ${selectedUsers.size} user(s) ${status}ed`, 'success');
+          clearBulkSelection();
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      };
+
+      window.bulkDelete = async function() {
+        if (selectedUsers.size === 0) return;
+        if (!confirm(`⚠️ Are you sure you want to PERMANENTLY DELETE ${selectedUsers.size} user(s)? This cannot be undone!`)) return;
+        try {
+          const promises = [];
+          selectedUsers.forEach(id => {
+            promises.push(deleteDoc(doc(db, 'users', id)));
+          });
+          await Promise.all(promises);
+          showToast(`✅ ${selectedUsers.size} user(s) deleted`, 'success');
+          clearBulkSelection();
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      };
+
+      window.clearBulkSelection = function() {
+        selectedUsers.clear();
+        document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('selectAllUsers').checked = false;
+        updateBulkActions();
+      };
+
+      // ===== USER CRUD =====
+      window.editUser = async (id) => {
+        const docSnap = await getDoc(doc(db, 'users', id));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById('userId').value = id;
+          document.getElementById('userEmail').value = data.email;
+          document.getElementById('userDisplayName').value = data.displayName || '';
+          document.getElementById('userRole').value = data.role || 'user';
+          document.getElementById('userPassword').value = '';
+          document.getElementById('userPassword').disabled = true;
+          document.getElementById('userPassword').required = false;
+          document.getElementById('userModalTitle').innerText = 'Edit User';
+          document.getElementById('userModal').classList.add('open');
+        }
+      };
+
+      window.deleteUser = async (id) => {
+        if (!confirm('Delete this user permanently?')) return;
+        try {
+          await deleteDoc(doc(db, 'users', id));
+          showToast('✅ User deleted', 'success');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      };
+
+      window.toggleUserStatus = async (id, newStatus) => {
+        try {
+          await updateDoc(doc(db, 'users', id), { isActive: newStatus });
           showToast(`✅ User ${newStatus ? 'activated' : 'deactivated'}`, 'success');
         } catch (err) { showToast('Error: ' + err.message, 'error'); }
       };
 
-      // Admin Note Edit
-      window.editAdminNote = async (userId) => {
-        const user = allUsers.find(u => u.id === userId);
+      window.editAdminNote = async (id) => {
+        const user = allUsers.find(u => u.id === id);
         if (!user) return;
         const currentNote = user.adminNote || '';
         const newNote = prompt('Enter admin note for this user:', currentNote);
-        if (newNote === null) return; // cancelled
+        if (newNote === null) return;
         try {
-          await updateDoc(doc(db, 'users', userId), { adminNote: newNote.trim() });
+          await updateDoc(doc(db, 'users', id), { adminNote: newNote.trim() });
           showToast('✅ Admin note updated', 'success');
         } catch (err) { showToast('Error: ' + err.message, 'error'); }
       };
 
-      // Export Users CSV
-      window.exportUsersCSV = function() {
-        if (filteredUsers.length === 0) { showToast('No users to export.', 'warning'); return; }
-        let csv = 'Name,Email,Phone,Joined,Last Login,Orders,Total Spent,Fix Requests,Status,Role,Admin Note\n';
-        filteredUsers.forEach(u => {
-          const name = u.displayName || u.email?.split('@')[0] || 'Unknown';
-          const phone = u.phone || '';
-          const joined = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '';
-          const lastLogin = u.lastLogin ? new Date(u.lastLogin.toDate ? u.lastLogin.toDate() : u.lastLogin).toLocaleString() : '';
-          const orderCount = allOrders.filter(o => o.userId === u.id).length;
-          const totalSpent = allOrders.filter(o => o.userId === u.id).reduce((sum, o) => sum + (o.total || 0), 0);
-          const fixCount = allFixRequests.filter(f => f.userId === u.id).length;
-          const status = u.isActive !== undefined ? (u.isActive ? 'Active' : 'Inactive') : 'Active';
-          const role = u.role || 'user';
-          const note = (u.adminNote || '').replace(/,/g, ';');
-          csv += `"${name}","${u.email}","${phone}","${joined}","${lastLogin}",${orderCount},${totalSpent.toFixed(2)},${fixCount},"${status}","${role}","${note}"\n`;
-        });
-        downloadCSV(csv, 'users_export.csv');
-        showToast('✅ Users exported', 'success');
+      window.openUserModal = () => {
+        document.getElementById('userModal').classList.add('open');
+        document.getElementById('userModalTitle').innerText = 'Add User';
+        document.getElementById('userId').value = '';
+        document.getElementById('userForm').reset();
+        document.getElementById('userPassword').disabled = false;
+        document.getElementById('userPassword').required = true;
+      };
+      window.closeUserModal = () => {
+        document.getElementById('userModal').classList.remove('open');
       };
 
+      const userForm = document.getElementById('userForm');
+      const userSubmitBtn = userForm.querySelector('button[type="submit"]');
+      userForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('userId').value;
+        const email = document.getElementById('userEmail').value.trim();
+        const displayName = document.getElementById('userDisplayName').value.trim();
+        const password = document.getElementById('userPassword').value;
+        const role = document.getElementById('userRole').value;
+        if (!email) { showToast('Email is required.', 'error'); return; }
+        setLoading(userSubmitBtn, true, 'Saving...');
+        try {
+          if (id) {
+            await updateDoc(doc(db, 'users', id), { displayName, role });
+            showToast('✅ User updated!', 'success');
+          } else {
+            if (!password || password.length < 6) {
+              showToast('Password must be at least 6 characters.', 'error');
+              setLoading(userSubmitBtn, false);
+              return;
+            }
+            const uid = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+            await setDoc(doc(db, 'users', uid), {
+              email, displayName: displayName || email.split('@')[0],
+              role, createdAt: new Date().toISOString()
+            });
+            showToast('✅ User added!', 'success');
+          }
+          closeUserModal();
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+        finally { setLoading(userSubmitBtn, false); }
+      });
+
+      // Export
+      window.exportUsers = function(format) {
+        const filtered = getFilteredUsers();
+        if (filtered.length === 0) { showToast('No users to export.', 'warning'); return; }
+        const data = filtered.map(u => ({
+          name: u.displayName || u.email?.split('@')[0] || 'Unknown',
+          email: u.email,
+          phone: u.phone || '',
+          joined: u.createdAt ? new Date(u.createdAt).toISOString() : '',
+          lastLogin: u.lastLogin ? new Date(u.lastLogin.toDate ? u.lastLogin.toDate() : u.lastLogin).toISOString() : '',
+          orders: allOrders.filter(o => o.userId === u.id).length,
+          spent: allOrders.filter(o => o.userId === u.id).reduce((s, o) => s + (o.total || 0), 0),
+          fixRequests: allFixRequests.filter(f => f.userId === u.id).length,
+          status: u.isActive !== false ? 'active' : 'inactive',
+          role: u.role || 'user',
+          adminNote: u.adminNote || ''
+        }));
+        if (format === 'csv') {
+          const headers = ['Name','Email','Phone','Joined','Last Login','Orders','Spent','Fix Requests','Status','Role','Admin Note'];
+          let csv = headers.join(',') + '\n';
+          data.forEach(d => {
+            csv += Object.values(d).map(v => `"${String(v).replace(/"/g,'""')}"`).join(',') + '\n';
+          });
+          downloadFile(csv, 'users_export.csv', 'text/csv');
+        } else {
+          downloadFile(JSON.stringify(data, null, 2), 'users_export.json', 'application/json');
+        }
+        showToast(`✅ ${data.length} users exported as ${format.toUpperCase()}`, 'success');
+      };
+
+      function downloadFile(content, filename, mime) {
+        const blob = new Blob([content], { type: mime + ';charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+
       // ==============================================================
-      // ✅ NEW: ORDERS TABLE with filters and details
+      // ORDERS (আগের মতো)
       // ==============================================================
       let filteredOrders = [];
       const orderTableBody = document.getElementById('orderTableBody');
@@ -884,7 +1389,6 @@
         orderTableBody.innerHTML = html;
       }
 
-      // Apply order filters
       window.applyOrderFilters = function() { renderOrdersTable(allOrders); };
       window.resetOrderFilters = function() {
         document.getElementById('orderDateFrom').value = '';
@@ -895,7 +1399,6 @@
         renderOrdersTable(allOrders);
       };
 
-      // View Order Detail (with full info, status history, admin note)
       window.viewOrderDetail = async (orderId) => {
         const order = allOrders.find(o => o.id === orderId);
         if (!order) { showToast('Order not found', 'error'); return; }
@@ -929,7 +1432,6 @@
             historyHtml += `<div class="history-item"><span class="font-medium">${h.status}</span> <span class="time">${hStr}</span></div>`;
           });
         } else {
-          // যদি history না থাকে, বর্তমান স্ট্যাটাস যোগ করি
           const initial = { status: order.status || 'pending', changedAt: order.createdAt || new Date() };
           const hDate = initial.changedAt?.toDate?.() || new Date(initial.changedAt);
           const hStr = hDate.toLocaleString('en-US', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' });
@@ -939,37 +1441,19 @@
         const content = document.getElementById('orderDetailContent');
         content.innerHTML = `
           <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-gray-500">Order ID</p>
-              <p class="font-mono font-bold">#${order.id}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Customer</p>
-              <p class="font-medium">${userName}</p>
-              <p class="text-sm text-gray-400">${order.userEmail || ''}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Date & Time</p>
-              <p>${dateStr} at ${timeStr}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Payment</p>
-              <p>${order.paymentMethod || '—'}</p>
-              ${order.transactionId ? `<p class="text-xs text-gray-400">Txn: ${order.transactionId}</p>` : ''}
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Shipping Address</p>
-              <p>${order.shippingAddress || 'Not provided'}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Current Status</p>
+            <div><p class="text-sm text-gray-500">Order ID</p><p class="font-mono font-bold">#${order.id}</p></div>
+            <div><p class="text-sm text-gray-500">Customer</p><p class="font-medium">${userName}</p><p class="text-sm text-gray-400">${order.userEmail || ''}</p></div>
+            <div><p class="text-sm text-gray-500">Date & Time</p><p>${dateStr} at ${timeStr}</p></div>
+            <div><p class="text-sm text-gray-500">Payment</p><p>${order.paymentMethod || '—'}</p>${order.transactionId ? `<p class="text-xs text-gray-400">Txn: ${order.transactionId}</p>` : ''}</div>
+            <div><p class="text-sm text-gray-500">Shipping Address</p><p>${order.shippingAddress || 'Not provided'}</p></div>
+            <div><p class="text-sm text-gray-500">Current Status</p>
               <select id="orderStatusSelect" class="form-input text-sm py-1">
                 <option value="pending" ${order.status==='pending'?'selected':''}>Pending</option>
                 <option value="processing" ${order.status==='processing'?'selected':''}>Processing</option>
                 <option value="completed" ${order.status==='completed'?'selected':''}>Completed</option>
                 <option value="cancelled" ${order.status==='cancelled'?'selected':''}>Cancelled</option>
               </select>
-              <button onclick="updateOrderStatus('${order.id}')" class="btn-primary text-sm py-1 px-3 mt-1">Update</button>
+              <button onclick="updateOrderStatus('${order.id}')" class="btn-primary btn-sm mt-1">Update</button>
             </div>
           </div>
           <div>
@@ -984,7 +1468,7 @@
           <div>
             <p class="text-sm text-gray-500 mb-1">Admin Note</p>
             <textarea id="orderAdminNote" rows="2" class="form-input text-sm">${order.adminNote || ''}</textarea>
-            <button onclick="saveOrderAdminNote('${order.id}')" class="btn-primary text-sm py-1 px-3 mt-1">Save Note</button>
+            <button onclick="saveOrderAdminNote('${order.id}')" class="btn-primary btn-sm mt-1">Save Note</button>
           </div>
         `;
         document.getElementById('orderDetailTitle').textContent = `Order #${order.id.slice(0,8).toUpperCase()}`;
@@ -996,7 +1480,6 @@
         currentOrderDetail = null;
       };
 
-      // Update order status with history
       window.updateOrderStatus = async (orderId) => {
         const select = document.getElementById('orderStatusSelect');
         if (!select) return;
@@ -1004,22 +1487,16 @@
         const order = allOrders.find(o => o.id === orderId);
         if (!order) return;
         if (order.status === newStatus) { showToast('Status unchanged', 'info'); return; }
-
         try {
           const history = order.statusHistory || [];
           history.push({ status: order.status || 'pending', changedAt: serverTimestamp() });
-          await updateDoc(doc(db, 'orders', orderId), {
-            status: newStatus,
-            statusHistory: history
-          });
+          await updateDoc(doc(db, 'orders', orderId), { status: newStatus, statusHistory: history });
           showToast('✅ Order status updated', 'success');
           closeOrderDetailModal();
-          // Re-render orders
           renderOrdersTable(allOrders);
         } catch (err) { showToast('Error: ' + err.message, 'error'); }
       };
 
-      // Save admin note on order
       window.saveOrderAdminNote = async (orderId) => {
         const note = document.getElementById('orderAdminNote').value.trim();
         try {
@@ -1028,7 +1505,6 @@
         } catch (err) { showToast('Error: ' + err.message, 'error'); }
       };
 
-      // Export Orders CSV
       window.exportOrdersCSV = function() {
         if (filteredOrders.length === 0) { showToast('No orders to export.', 'warning'); return; }
         let csv = 'Order ID,User,Date,Total,Payment Method,Status,Items\n';
@@ -1040,21 +1516,10 @@
           const items = o.items ? o.items.map(item => `${item.name}(${item.quantity})`).join('; ') : '';
           csv += `"#${o.id}","${userName}","${dateStr}",${o.total?.toFixed(2) || '0.00'},"${o.paymentMethod || ''}","${o.status || 'pending'}","${items}"\n`;
         });
-        downloadCSV(csv, 'orders_export.csv');
+        downloadFile(csv, 'orders_export.csv', 'text/csv');
         showToast('✅ Orders exported', 'success');
       };
 
-      // Helper: download CSV
-      function downloadCSV(csv, filename) {
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }
-
-      // Print order detail
       window.printOrderDetail = function() {
         const content = document.getElementById('orderDetailContent');
         if (!content) return;
@@ -1079,7 +1544,6 @@
         win.print();
       };
 
-      // Download Invoice as TXT
       window.downloadInvoiceTxt = function() {
         const order = currentOrderDetail;
         if (!order) { showToast('No order selected', 'error'); return; }
@@ -1118,37 +1582,6 @@ Thank you for shopping with SWD Store!
         URL.revokeObjectURL(link.href);
         showToast('✅ Invoice downloaded', 'success');
       };
-
-      // ==============================================================
-      // ORDERS onSnapshot (আগের মতো, কিন্তু renderOrdersTable কল হবে)
-      // ==============================================================
-      const orderListOld = document.getElementById('orderList');
-      onSnapshot(collection(db, 'orders'), (snapshot) => {
-        // আগের কার্ড ভিউ আপডেট না করলেও চলবে, কিন্তু আমরা টেবিলই দেখাবো
-        // allOrders আপডেট হবে উপরে
-        // renderOrdersTable(allOrders) already called from inside allOrders update?
-        // আমরা রেন্ডার করব এখানেও, কিন্তু ডুপ্লিকেট এড়াতে উপরে onSnapshot-এ renderOrdersTable কল করেছি
-        // তবুও যদি আগের কার্ড দরকার হয়, সেটা রেখে দিলাম
-        if (snapshot.empty) {
-          orderListOld.innerHTML = `<div class="text-center py-10 text-gray-500"><i class="fas fa-shopping-bag text-4xl opacity-30"></i><p class="mt-2">No orders yet.</p></div>`;
-        } else {
-          // কার্ড ভিউ না দেখালেও সমস্যা নেই, টেবিল দেখানো হচ্ছে
-        }
-      });
-
-      // ==============================================================
-      // USER & ORDER ফিল্টার ইভেন্ট লিসেনার
-      // ==============================================================
-      document.getElementById('userRoleFilter').addEventListener('change', applyUserFilters);
-      document.getElementById('userStatusFilter').addEventListener('change', applyUserFilters);
-      document.getElementById('userJoinedFrom').addEventListener('change', applyUserFilters);
-      document.getElementById('userJoinedTo').addEventListener('change', applyUserFilters);
-
-      document.getElementById('orderDateFrom').addEventListener('change', applyOrderFilters);
-      document.getElementById('orderDateTo').addEventListener('change', applyOrderFilters);
-      document.getElementById('orderPriceMin').addEventListener('input', applyOrderFilters);
-      document.getElementById('orderPriceMax').addEventListener('input', applyOrderFilters);
-      document.getElementById('orderStatusFilter').addEventListener('change', applyOrderFilters);
 
       // ==============================================================
       // CONTACT MESSAGES (আগের মতো)
@@ -1197,7 +1630,7 @@ Thank you for shopping with SWD Store!
                 <label class="text-sm font-semibold text-gray-700">Admin Reply:</label>
                 <div class="flex flex-wrap gap-2 mt-1">
                   <textarea id="reply-${doc.id}" rows="2" class="form-input flex-1 text-sm" placeholder="Write reply...">${reply}</textarea>
-                  <button onclick="sendReply('${doc.id}')" class="btn-primary text-sm py-2 px-4">Send</button>
+                  <button onclick="sendReply('${doc.id}')" class="btn-primary btn-sm">Send</button>
                 </div>
                 ${reply ? `<p class="text-xs text-green-600 mt-1">✔ Reply sent: ${r.replyTimestamp?.toDate?.()?.toLocaleString() || ''}</p>` : ''}
               </div>
@@ -1238,7 +1671,7 @@ Thank you for shopping with SWD Store!
       });
 
       // ==============================================================
-      // SUPPORT CHAT (আগের মতো - অপরিবর্তিত)
+      // SUPPORT CHAT (আগের মতো)
       // ==============================================================
       const convListEl = document.getElementById('convList');
       const chatMessagesEl = document.getElementById('chatMessages');
@@ -1463,7 +1896,7 @@ Thank you for shopping with SWD Store!
       initMessenger();
 
       // ==============================================================
-      // LOGOUT & TAB (আগের মতো)
+      // LOGOUT & TAB
       // ==============================================================
       window.logoutAdmin = () => {
         signOut(auth);
@@ -1497,8 +1930,7 @@ Thank you for shopping with SWD Store!
               }
             }, 100);
           }
-          // যখন users বা orders ট্যাবে যাবে, ফিল্টার রিফ্রেশ
-          if (tab === 'users') renderUsersTable(allUsers);
+          if (tab === 'users') renderUsersPage(allUsers);
           if (tab === 'orders') renderOrdersTable(allOrders);
         });
       });
@@ -1511,70 +1943,10 @@ Thank you for shopping with SWD Store!
         }
       });
 
-      // ==============================================================
-      // USER & ORDER মডাল ফাংশন (আগের মতো)
-      // ==============================================================
-      const userListOld = document.getElementById('userList');
-      onSnapshot(collection(db, 'users'), (snapshot) => {
-        // আগের কার্ড ভিউ আপডেট না করলেও চলবে, আমরা টেবিল দেখাবো
-        // allUsers আপডেট হবে উপরে, renderUsersTable কল হবে
-        if (snapshot.empty) {
-          userListOld.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500"><i class="fas fa-users text-4xl opacity-30"></i><p class="mt-2">No users yet.</p></div>`;
-        }
-      });
+      // Initial render for users
+      renderUsersPage(allUsers);
 
-      window.openUserModal = () => { document.getElementById('userModal').classList.add('open'); document.getElementById('userModalTitle').innerText = 'Add User'; document.getElementById('userId').value = ''; document.getElementById('userForm').reset(); document.getElementById('userPassword').disabled = false; document.getElementById('userPassword').required = true; };
-      window.closeUserModal = () => { document.getElementById('userModal').classList.remove('open'); };
-      window.editUser = async (id) => {
-        const docSnap = await getDoc(doc(db, 'users', id));
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById('userId').value = id;
-          document.getElementById('userEmail').value = data.email;
-          document.getElementById('userDisplayName').value = data.displayName || '';
-          document.getElementById('userRole').value = data.role || 'user';
-          document.getElementById('userPassword').value = '';
-          document.getElementById('userPassword').disabled = true;
-          document.getElementById('userPassword').required = false;
-          document.getElementById('userModalTitle').innerText = 'Edit User';
-          document.getElementById('userModal').classList.add('open');
-        }
-      };
-      window.deleteUser = async (id) => {
-        if (!confirm('Delete this user and all their data?')) return;
-        try {
-          await deleteDoc(doc(db, 'users', id));
-          showToast('✅ User deleted', 'success');
-        } catch (err) { showToast('Error: ' + err.message, 'error'); }
-      };
-      const userForm = document.getElementById('userForm');
-      const userSubmitBtn = userForm.querySelector('button[type="submit"]');
-      userForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('userId').value;
-        const email = document.getElementById('userEmail').value.trim();
-        const displayName = document.getElementById('userDisplayName').value.trim();
-        const password = document.getElementById('userPassword').value;
-        const role = document.getElementById('userRole').value;
-        if (!email) { showToast('Email is required.', 'error'); return; }
-        setLoading(userSubmitBtn, true, 'Saving...');
-        try {
-          if (id) {
-            const updateData = { displayName, role };
-            await updateDoc(doc(db, 'users', id), updateData);
-            showToast('✅ User updated!', 'success');
-          } else {
-            if (!password || password.length < 6) { showToast('Password must be at least 6 characters for new user.', 'error'); setLoading(userSubmitBtn, false); return; }
-            const randomId = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-            await setDoc(doc(db, 'users', randomId), { email, displayName: displayName || email.split('@')[0], role, createdAt: new Date().toISOString() });
-            showToast('✅ User added!', 'success');
-          }
-          closeUserModal();
-        } catch (err) { showToast('Error: ' + err.message, 'error'); }
-        finally { setLoading(userSubmitBtn, false); }
-      });
-
-      console.log('✅ Admin Panel loaded with advanced Users & Orders features.');
+      console.log('✅ Admin Panel loaded with Advanced Users & Orders.');
     }
   </script>
 </body>
