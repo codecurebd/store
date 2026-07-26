@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="style.css" />
   
   <style>
-    /* (style গুলো আগের মতোই থাকবে – আমি সংক্ষিপ্ত করছি) */
+    /* (style গুলো আগের মতোই – আমি সংক্ষিপ্ত করছি) */
     * { box-sizing: border-box; }
     body { background: #f2f4f7; font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
     .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background: white; border-right: 1px solid rgba(0,0,0,0.04); padding: 1.5rem 1rem; overflow-y: auto; z-index: 100; transition: transform 0.3s; display: flex; flex-direction: column; box-shadow: 2px 0 20px rgba(0,0,0,0.02); }
@@ -242,7 +242,7 @@
       </div>
     </div>
 
-    <!-- SUPPORT CHAT (FIXED) -->
+    <!-- ===== SUPPORT CHAT (Original – uses 'admin' string) ===== -->
     <div id="tab-supportchat" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <h2 class="text-2xl font-bold mb-4">Support Chat</h2>
@@ -338,7 +338,6 @@
     };
 
     // ===== অথ চেক =====
-    let adminUid = null;
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = 'admin-login.html'; return; }
       try {
@@ -348,7 +347,6 @@
           window.location.href = 'admin-login.html';
           return;
         }
-        adminUid = user.uid; // ✅ অ্যাডমিন UID সংরক্ষণ
         loader.style.display = 'none';
         sidebar.style.display = 'flex';
         main.style.display = 'block';
@@ -780,7 +778,7 @@
       });
 
       // ==============================================================
-      // ✅ SUPPORT CHAT (FIXED – অ্যাডমিন UID ব্যবহার)
+      // ✅ SUPPORT CHAT (Original – uses 'admin' string)
       // ==============================================================
       const convListEl = document.getElementById('convList');
       const chatMessagesEl = document.getElementById('chatMessages');
@@ -882,7 +880,7 @@
         }
         let html = '';
         msgs.forEach(m => {
-          const isSent = m.fromUserId === adminUid; // ✅ অ্যাডমিন UID দিয়ে চেক
+          const isSent = m.fromUserId === 'admin'; // ✅ Original: check for 'admin' string
           const time = m.timestamp?.toDate?.()?.toLocaleString('en-US', { hour:'2-digit', minute:'2-digit' }) || '';
           const status = m.read ? '✓✓' : '✓';
           html += `
@@ -896,7 +894,7 @@
         chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
       }
 
-      // ✅ সেন্ড হ্যান্ডলার – অ্যাডমিন UID ব্যবহার
+      // ✅ Original send: fromUserId = 'admin', participants = ['admin', userId]
       adminChatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const content = adminChatInput.value.trim();
@@ -910,12 +908,12 @@
         try {
           await addDoc(collection(db, 'messages'), {
             conversationId: convId,
-            fromUserId: adminUid,
+            fromUserId: 'admin',
             toUserId: activeConversationUserId,
             content,
             timestamp: serverTimestamp(),
             read: false,
-            participants: [adminUid, activeConversationUserId]
+            participants: ['admin', activeConversationUserId]
           });
           adminChatInput.value = '';
         } catch (err) {
@@ -935,7 +933,7 @@
           if (parts.length < 3) return;
           const userId = parts[1];
           if (userId === 'admin') return;
-          const fromAdmin = m.fromUserId === adminUid;
+          const fromAdmin = m.fromUserId === 'admin';
           const isUnread = !fromAdmin && !m.read;
           if (!map[userId]) {
             map[userId] = {
@@ -958,10 +956,9 @@
         renderConvList();
       }
 
-      // ✅ মেসেজ লিসেনার – অ্যাডমিন UID দিয়ে কোয়েরি
+      // ✅ Original listener: query where participants array contains 'admin'
       function listenAllMessages() {
-        if (!adminUid) return;
-        const q = query(collection(db, 'messages'), where('participants', 'array-contains', adminUid));
+        const q = query(collection(db, 'messages'), where('participants', 'array-contains', 'admin'));
         onSnapshot(q, async (snapshot) => {
           allMessages = [];
           snapshot.forEach(doc => { allMessages.push({ id: doc.id, ...doc.data() }); });
@@ -993,7 +990,6 @@
       }
 
       async function initMessenger() {
-        if (!adminUid) return;
         await loadAllUsers();
         listenAllMessages();
         setTimeout(() => {
@@ -1052,7 +1048,7 @@
         }
       });
 
-      console.log('✅ Admin Panel loaded with full features.');
+      console.log('✅ Admin Panel loaded with original chat system.');
     }
   </script>
 </body>
