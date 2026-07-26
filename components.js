@@ -6,7 +6,7 @@ import {
 } from './firebase-config.js';
 
 // ================================================================
-// ✅ TOAST NOTIFICATION (UI ইমপ্রুভ)
+// ✅ TOAST NOTIFICATION
 // ================================================================
 window.showToast = function(message, type = 'success') {
   let container = document.getElementById('toast-container');
@@ -57,14 +57,12 @@ window.showToast = function(message, type = 'success') {
   `;
   container.appendChild(toast);
 
-  // Auto remove after 4.5s
   setTimeout(() => {
     toast.style.animation = 'slideOut 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
     setTimeout(() => toast.remove(), 450);
   }, 4500);
 };
 
-// Inject animations
 const toastStyles = document.createElement('style');
 toastStyles.textContent = `
   @keyframes slideIn {
@@ -94,7 +92,7 @@ export function updateCartBadge() {
 }
 
 // ================================================================
-// ✅ MOBILE MENU TOGGLE (UI ইমপ্রুভ)
+// ✅ MOBILE MENU TOGGLE
 // ================================================================
 window.toggleMobileMenu = function() {
   const menu = document.getElementById('mobileMenu');
@@ -106,7 +104,6 @@ window.toggleMobileMenu = function() {
       icon.classList.toggle('fa-bars');
       icon.classList.toggle('fa-times');
     }
-    // Smooth height animation
     if (!isOpen) {
       menu.style.maxHeight = '0';
       menu.style.opacity = '0';
@@ -135,7 +132,7 @@ window.toggleNotifications = function() {
 };
 
 // ================================================================
-// ✅ NAVBAR (UI ইমপ্রুভ)
+// ✅ NAVBAR – Admin Link সম্পূর্ণ বাদ
 // ================================================================
 export function renderNavbar() {
   const navbarHTML = `
@@ -196,7 +193,7 @@ export function renderNavbar() {
               <a href="my-orders.html"><i class="fas fa-box mr-2"></i> My Orders</a>
               <a href="my-fix-requests.html"><i class="fas fa-tools mr-2"></i> My Fix Requests</a>
               <a href="settings.html"><i class="fas fa-cog mr-2"></i> Settings</a>
-              <a href="admin-panel.html" id="adminPanelLink" class="hidden"><i class="fas fa-shield-alt mr-2"></i> Admin Panel</a>
+              <!-- ❌ Admin Panel Link removed from dropdown -->
               <hr class="my-1 border-gray-100" />
               <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
             </div>
@@ -210,7 +207,7 @@ export function renderNavbar() {
       </div>
     </nav>
 
-    <!-- Mobile Menu -->
+    <!-- Mobile Menu (এখানেও Admin Panel নেই) -->
     <div id="mobileMenu" class="fixed top-16 left-0 w-full bg-white shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-3">
         <a href="index.html" class="nav-link py-3 px-4 rounded-lg hover:bg-gray-50">Home</a>
@@ -240,27 +237,17 @@ export function renderNavbar() {
     }
   });
 
-  // Cart toggle
-  const cartToggle = document.querySelector('#navbar-placeholder .cart-toggle');
-  if (cartToggle) {
-    cartToggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (typeof window.toggleCart === 'function') window.toggleCart();
-    });
-  }
-
   updateCartBadge();
 }
 
 // ================================================================
-// ✅ NAVBAR AUTH UPDATE (Admin Link Logic) – FIXED
+// ✅ NAVBAR AUTH UPDATE – আর admin link নেই
 // ================================================================
-export function updateNavbarAuth(user, displayName, role = null) {
+export function updateNavbarAuth(user, displayName) {
   const authBtns = document.getElementById('auth-buttons');
   const profileSection = document.getElementById('profile-section');
   const loadingEl = document.getElementById('auth-loading');
   const avatar = document.getElementById('profileAvatar');
-  const adminLink = document.getElementById('adminPanelLink');
 
   if (loadingEl) loadingEl.style.display = 'none';
 
@@ -268,17 +255,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (authBtns) authBtns.classList.add('hidden');
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
-    
-    // ✅ Admin Link: only show if role === 'admin'
-    if (adminLink) {
-      if (role === 'admin') {
-        adminLink.classList.remove('hidden');
-        adminLink.style.display = '';
-      } else {
-        adminLink.classList.add('hidden');
-        adminLink.style.display = 'none !important';
-      }
-    }
   } else {
     if (authBtns) authBtns.classList.remove('hidden');
     if (profileSection) profileSection.classList.add('hidden');
@@ -286,7 +262,7 @@ export function updateNavbarAuth(user, displayName, role = null) {
 }
 
 // ================================================================
-// ✅ FOOTER (UI ইমপ্রুভ)
+// ✅ FOOTER
 // ================================================================
 export function renderFooter() {
   const footerHTML = `
@@ -308,7 +284,7 @@ export function renderFooter() {
 }
 
 // ================================================================
-// ✅ CART SIDEBAR (UI ইমপ্রুভ)
+// ✅ CART SIDEBAR (unchanged)
 // ================================================================
 export function renderCartSidebar() {
   if (document.getElementById('cartSidebar')) return;
@@ -440,7 +416,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL (UI ইমপ্রুভ)
+// ✅ PAYMENT MODAL (unchanged)
 // ================================================================
 export function renderPaymentModal() {
   if (document.getElementById('paymentModal')) return;
@@ -474,7 +450,6 @@ export function renderPaymentModal() {
   `;
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-  // Inject animation
   const style = document.createElement('style');
   style.textContent = `
     @keyframes scaleIn {
@@ -485,7 +460,6 @@ export function renderPaymentModal() {
   `;
   document.head.appendChild(style);
 
-  // Payment form submit
   const paymentForm = document.getElementById('paymentForm');
   if (paymentForm) {
     paymentForm.addEventListener('submit', async (e) => {
