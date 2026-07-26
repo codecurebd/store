@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>Get New Website – SWD Store</title>
   
-  <!-- ✅ Preconnect for faster font loading -->
+  <!-- Preconnect for faster font loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   
@@ -15,7 +15,6 @@
   <link rel="stylesheet" href="style.css" />
   
   <style>
-    /* ===== BASE ===== */
     * { box-sizing: border-box; }
     body {
       background: #f2f4f7;
@@ -57,6 +56,17 @@
     }
     .product-card .card-body {
       padding: 1rem 0.5rem 0.5rem;
+    }
+    
+    /* ✅ Description – 1 line only with ellipsis */
+    .product-desc {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.5;
+      max-height: 1.5em;
     }
 
     /* ===== SKELETON ===== */
@@ -166,18 +176,6 @@
       color: #007AFF;
       transform: translateY(-2px);
     }
-
-    /* ===== WISHLIST BUTTON ===== */
-    .wishlist-btn {
-      transition: 0.3s;
-      background: none;
-      border: none;
-      font-size: 1.4rem;
-      color: #d1d5db;
-      cursor: pointer;
-    }
-    .wishlist-btn.active { color: #ef4444; }
-    .wishlist-btn:hover { transform: scale(1.15); }
 
     /* ===== RATING STARS ===== */
     .rating-stars .star {
@@ -349,9 +347,6 @@
         <button onclick="window.addToCartFromDetail()" class="btn-primary">
           <i class="fas fa-cart-plus"></i> Add to Cart
         </button>
-        <button onclick="window.toggleWishlistFromDetail()" class="btn-outline" id="detailWishlistBtn">
-          <i class="fas fa-heart"></i> Wishlist
-        </button>
         <button onclick="window.buyNowFromDetail()" class="btn-primary" style="background:linear-gradient(135deg,#34C759,#28A745);">
           <i class="fas fa-bolt"></i> Buy Now
         </button>
@@ -411,7 +406,7 @@
     // ================================================================
     import { 
       auth, db, collection, doc, getDoc, getDocs, onSnapshot, 
-      addDoc, updateDoc, deleteDoc, serverTimestamp, 
+      addDoc, updateDoc, serverTimestamp, 
       signInWithEmailAndPassword, createUserWithEmailAndPassword, 
       onAuthStateChanged, signOut, setDoc, 
       signInWithPopup, googleProvider, githubProvider,
@@ -549,7 +544,6 @@
       if (user) {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
-        checkWishlistStatus();
       }
       updateNavbarAuth(user, name);
     });
@@ -560,12 +554,11 @@
     };
 
     // ================================================================
-    // ✅ প্রোডাক্ট লজিক
+    // ✅ প্রোডাক্ট লজিক (উইশলিস্ট বাদ)
     // ================================================================
     let allProducts = [];
     let currentProductId = null;
     let currentProductData = null;
-    let wishlistItems = [];
 
     const grid = document.getElementById('productGrid');
     const searchInput = document.getElementById('searchInput');
@@ -616,23 +609,19 @@
       }
 
       grid.innerHTML = filtered.map(p => {
-        const inWishlist = wishlistItems.includes(p.id);
         const rating = p.averageRating || 0;
         const stock = p.stock !== undefined ? p.stock : 999;
         const imageUrl = p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image';
+        const desc = p.desc || p.description || '';
         return `
           <div class="glass-card product-card fade-up">
             <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
             <div class="card-body">
               <div class="flex justify-between items-start">
                 <h3 class="font-bold text-xl text-gray-900">${p.name}</h3>
-                <button onclick="window.toggleWishlist('${p.id}')" 
-                        class="wishlist-btn ${inWishlist ? 'active' : ''}"
-                        id="wishlist-${p.id}">
-                  <i class="fas fa-heart"></i>
-                </button>
               </div>
-              <p class="text-sm text-gray-500 mt-1">${p.desc || p.description || ''}</p>
+              <!-- ✅ Description – 1 line only -->
+              <p class="text-sm text-gray-500 mt-1 product-desc">${desc}</p>
               <p class="text-2xl font-bold text-blue-600 mt-2">$${p.price}</p>
               <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
               <div class="text-sm ${stock > 0 ? 'text-green-600' : 'text-red-500'}">
@@ -733,70 +722,6 @@
     };
 
     // ================================================================
-    // ✅ উইশলিস্ট
-    // ================================================================
-    async function loadWishlist() {
-      const user = auth.currentUser;
-      if (!user) { wishlistItems = []; return; }
-      try {
-        const q = query(collection(db, 'wishlist'), where('userId', '==', user.uid));
-        const snap = await getDocs(q);
-        wishlistItems = snap.docs.map(doc => doc.data().productId);
-        renderProducts();
-      } catch (err) {
-        console.error('Wishlist load error:', err);
-      }
-    }
-
-    window.toggleWishlist = async (productId) => {
-      const user = auth.currentUser;
-      if (!user) { showToast('Please sign in to add to wishlist', 'warning'); return; }
-      const inWishlist = wishlistItems.includes(productId);
-      try {
-        if (inWishlist) {
-          const q = query(collection(db, 'wishlist'), 
-            where('userId', '==', user.uid), 
-            where('productId', '==', productId)
-          );
-          const snap = await getDocs(q);
-          snap.forEach(doc => deleteDoc(doc.ref));
-          wishlistItems = wishlistItems.filter(id => id !== productId);
-          showToast('Removed from wishlist', 'success');
-        } else {
-          await addDoc(collection(db, 'wishlist'), {
-            userId: user.uid,
-            productId: productId,
-            addedAt: serverTimestamp()
-          });
-          wishlistItems.push(productId);
-          showToast('✅ Added to wishlist', 'success');
-        }
-        renderProducts();
-        if (currentProductId === productId) {
-          updateDetailWishlistBtn(wishlistItems.includes(productId));
-        }
-      } catch (err) {
-        showToast('⚠️ ' + err.message, 'error');
-      }
-    };
-
-    window.toggleWishlistFromDetail = () => {
-      if (currentProductId) window.toggleWishlist(currentProductId);
-    };
-
-    function updateDetailWishlistBtn(inWishlist) {
-      const btn = document.getElementById('detailWishlistBtn');
-      if (btn) {
-        btn.innerHTML = `<i class="fas fa-heart"></i> ${inWishlist ? 'Remove from' : 'Add to'} Wishlist`;
-        btn.style.color = inWishlist ? '#ef4444' : '';
-      }
-    }
-
-    async function checkWishlistStatus() {
-      await loadWishlist();
-    }
-
-    // ================================================================
     // ✅ প্রোডাক্ট ডিটেইল মডাল
     // ================================================================
     window.openProductDetail = async (id) => {
@@ -815,8 +740,6 @@
       document.getElementById('detailStock').textContent = p.stock !== undefined ? 
         (p.stock > 0 ? `✅ In Stock (${p.stock})` : '❌ Out of Stock') : '✅ In Stock';
 
-      const inWishlist = wishlistItems.includes(id);
-      updateDetailWishlistBtn(inWishlist);
       loadReviews(id);
       document.getElementById('productDetailModal').classList.add('open');
     };
