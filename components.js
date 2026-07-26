@@ -6,7 +6,7 @@ import {
 } from './firebase-config.js';
 
 // ================================================================
-// ✅ TOAST NOTIFICATION (UI ইমপ্রুভ)
+// ✅ TOAST NOTIFICATION
 // ================================================================
 window.showToast = function(message, type = 'success') {
   let container = document.getElementById('toast-container');
@@ -63,7 +63,6 @@ window.showToast = function(message, type = 'success') {
   }, 4500);
 };
 
-// Inject toast animations
 const toastStyles = document.createElement('style');
 toastStyles.textContent = `
   @keyframes slideIn {
@@ -133,13 +132,13 @@ window.toggleNotifications = function() {
 };
 
 // ================================================================
-// ✅ PROFESSIONAL NAVBAR (iOS-style, clean, with admin link only in profile)
+// ✅ NAVBAR (Professional + Wishlist Icon)
 // ================================================================
 export function renderNavbar() {
   const navbarHTML = `
     <nav class="fixed top-0 left-0 w-full glass z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 shadow-sm border-b border-gray-100/30">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
-        <!-- Logo with icon -->
+        <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
           <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-blue-500/25">
             <i class="fas fa-store text-sm"></i>
@@ -147,7 +146,7 @@ export function renderNavbar() {
           <span class="tracking-tight">SWD <span class="gradient-text">Store</span></span>
         </a>
         
-        <!-- Desktop Menu (center aligned) -->
+        <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-1 lg:gap-2">
           <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
           <a href="get-new-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Store</a>
@@ -171,6 +170,12 @@ export function renderNavbar() {
           <!-- Messages -->
           <a href="messages.html" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Messages">
             <i class="fas fa-envelope"></i>
+          </a>
+
+          <!-- ✅ Wishlist Icon (New) -->
+          <a href="wishlist.html" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-red-500 transition-colors text-lg relative" title="Wishlist">
+            <i class="fas fa-heart"></i>
+            <span id="wishlistCount" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm hidden">0</span>
           </a>
 
           <!-- Cart -->
@@ -200,8 +205,9 @@ export function renderNavbar() {
               <a href="my-profile.html" class="hover:bg-blue-50/50"><i class="fas fa-user mr-3 text-gray-400"></i> My Profile</a>
               <a href="my-orders.html" class="hover:bg-blue-50/50"><i class="fas fa-box mr-3 text-gray-400"></i> My Orders</a>
               <a href="my-fix-requests.html" class="hover:bg-blue-50/50"><i class="fas fa-tools mr-3 text-gray-400"></i> Fix Requests</a>
+              <a href="wishlist.html" class="hover:bg-blue-50/50"><i class="fas fa-heart mr-3 text-red-400"></i> Wishlist</a>
               <a href="settings.html" class="hover:bg-blue-50/50"><i class="fas fa-cog mr-3 text-gray-400"></i> Settings</a>
-              <!-- Admin Panel – only visible to admin users -->
+              <!-- Admin Panel – only visible to admin -->
               <a href="admin-panel.html" id="adminPanelLink" class="hidden hover:bg-blue-50/50"><i class="fas fa-shield-alt mr-3 text-blue-500"></i> Admin Panel</a>
               <hr class="my-1 border-gray-100" />
               <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50/50"><i class="fas fa-sign-out-alt mr-3 text-red-400"></i> Logout</a>
@@ -216,7 +222,7 @@ export function renderNavbar() {
       </div>
     </nav>
 
-    <!-- Mobile Menu with admin link (hidden by default) -->
+    <!-- Mobile Menu -->
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
@@ -225,6 +231,7 @@ export function renderNavbar() {
         <hr class="my-2 border-gray-100" />
         <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
         <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
+        <a href="wishlist.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-heart mr-3 text-red-400"></i> Wishlist</a>
         <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-envelope mr-3"></i> Messages</a>
         <!-- Admin Panel in mobile menu – only visible to admin -->
         <a href="admin-panel.html" id="mobileAdminPanelLink" class="hidden nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-blue-600 transition-colors"><i class="fas fa-shield-alt mr-3"></i> Admin Panel</a>
@@ -254,10 +261,34 @@ export function renderNavbar() {
   });
 
   updateCartBadge();
+  updateWishlistBadge();
 }
 
 // ================================================================
-// ✅ UPDATE NAVBAR AUTH – shows/hides admin link based on role (both desktop & mobile)
+// ✅ UPDATE WISHLIST BADGE
+// ================================================================
+export async function updateWishlistBadge() {
+  const badge = document.getElementById('wishlistCount');
+  if (!badge) return;
+  const user = auth.currentUser;
+  if (!user) {
+    badge.classList.add('hidden');
+    return;
+  }
+  try {
+    const q = query(collection(db, 'wishlist'), where('userId', '==', user.uid));
+    const snap = await getDocs(q);
+    const count = snap.size;
+    badge.textContent = count;
+    badge.classList.toggle('hidden', count === 0);
+  } catch (e) {
+    console.error('Wishlist badge error:', e);
+    badge.classList.add('hidden');
+  }
+}
+
+// ================================================================
+// ✅ NAVBAR AUTH UPDATE – Admin Link + Wishlist
 // ================================================================
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
@@ -274,7 +305,7 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
     
-    // Admin link visibility: only when role === 'admin'
+    // Admin Link visibility
     const isAdmin = (role === 'admin');
     if (adminLink) {
       adminLink.style.display = isAdmin ? '' : 'none';
@@ -284,12 +315,17 @@ export function updateNavbarAuth(user, displayName, role = null) {
       mobileAdminLink.style.display = isAdmin ? '' : 'none';
       mobileAdminLink.classList.toggle('hidden', !isAdmin);
     }
+
+    // Update wishlist badge
+    updateWishlistBadge();
   } else {
     if (authBtns) authBtns.classList.remove('hidden');
     if (profileSection) profileSection.classList.add('hidden');
-    // Hide admin links when logged out
     if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
     if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
+    // Hide wishlist badge
+    const badge = document.getElementById('wishlistCount');
+    if (badge) badge.classList.add('hidden');
   }
 }
 
