@@ -172,7 +172,7 @@ export function renderNavbar() {
             <i class="fas fa-envelope"></i>
           </a>
 
-          <!-- ✅ Wishlist Icon (New) -->
+          <!-- ✅ Wishlist Icon -->
           <a href="wishlist.html" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-red-500 transition-colors text-lg relative" title="Wishlist">
             <i class="fas fa-heart"></i>
             <span id="wishlistCount" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm hidden">0</span>
@@ -243,6 +243,8 @@ export function renderNavbar() {
   const placeholder = document.getElementById('navbar-placeholder');
   if (placeholder) {
     placeholder.innerHTML = navbarHTML;
+  } else {
+    console.error('❌ navbar-placeholder not found!');
   }
 
   // Profile dropdown toggle
@@ -269,7 +271,10 @@ export function renderNavbar() {
 // ================================================================
 export async function updateWishlistBadge() {
   const badge = document.getElementById('wishlistCount');
-  if (!badge) return;
+  if (!badge) {
+    console.warn('⚠️ wishlistCount badge not found');
+    return;
+  }
   const user = auth.currentUser;
   if (!user) {
     badge.classList.add('hidden');
