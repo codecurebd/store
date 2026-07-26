@@ -6,7 +6,7 @@ import {
 } from './firebase-config.js';
 
 // ================================================================
-// ✅ TOAST NOTIFICATION
+// ✅ TOAST NOTIFICATION (UI ইমপ্রুভ)
 // ================================================================
 window.showToast = function(message, type = 'success') {
   let container = document.getElementById('toast-container');
@@ -63,6 +63,7 @@ window.showToast = function(message, type = 'success') {
   }, 4500);
 };
 
+// Inject toast animations
 const toastStyles = document.createElement('style');
 toastStyles.textContent = `
   @keyframes slideIn {
@@ -132,87 +133,102 @@ window.toggleNotifications = function() {
 };
 
 // ================================================================
-// ✅ NAVBAR – Admin Link সম্পূর্ণ বাদ
+// ✅ PROFESSIONAL NAVBAR (iOS-style, clean, with admin link only in profile)
 // ================================================================
 export function renderNavbar() {
   const navbarHTML = `
-    <nav class="fixed top-0 left-0 w-full glass z-50 h-16 md:h-20 flex items-center px-4 sm:px-6 lg:px-8 shadow-sm">
+    <nav class="fixed top-0 left-0 w-full glass z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 shadow-sm border-b border-gray-100/30">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
-        <a href="index.html" class="text-xl md:text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
-          SWD <span class="gradient-text">Store</span>
+        <!-- Logo with icon -->
+        <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
+          <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-blue-500/25">
+            <i class="fas fa-store text-sm"></i>
+          </span>
+          <span class="tracking-tight">SWD <span class="gradient-text">Store</span></span>
         </a>
         
-        <!-- Desktop Menu -->
-        <div class="hidden md:flex items-center gap-6">
-          <a href="index.html" class="nav-link">Home</a>
-          <a href="get-new-website.html" class="nav-link">Store</a>
-          <a href="fix-website.html" class="nav-link">Fix</a>
+        <!-- Desktop Menu (center aligned) -->
+        <div class="hidden md:flex items-center gap-1 lg:gap-2">
+          <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
+          <a href="get-new-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Store</a>
+          <a href="fix-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Fix</a>
         </div>
 
-        <div class="flex items-center gap-3 md:gap-4">
+        <!-- Right Actions -->
+        <div class="flex items-center gap-2 md:gap-3">
           <!-- Notifications -->
           <div class="relative">
-            <button onclick="window.toggleNotifications()" class="text-gray-700 hover:text-blue-500 text-xl relative transition-colors">
+            <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative">
               <i class="fas fa-bell"></i>
-              <span id="notificationDot" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full hidden"></span>
+              <span id="notificationDot" class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></span>
             </button>
-            <div id="notificationDropdown" class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 hidden max-h-80 overflow-y-auto z-50">
-              <div class="p-3 font-semibold border-b text-gray-900">Notifications</div>
-              <div id="notificationList" class="p-3 text-sm text-gray-500">No notifications</div>
+            <div id="notificationDropdown" class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 hidden max-h-80 overflow-y-auto z-50">
+              <div class="p-4 font-semibold border-b text-gray-900">Notifications</div>
+              <div id="notificationList" class="p-4 text-sm text-gray-500">No notifications</div>
             </div>
           </div>
 
           <!-- Messages -->
-          <a href="messages.html" class="text-gray-700 hover:text-blue-500 text-xl transition-colors" title="Messages">
+          <a href="messages.html" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Messages">
             <i class="fas fa-envelope"></i>
           </a>
 
           <!-- Cart -->
-          <button onclick="window.toggleCart()" class="text-gray-700 hover:text-blue-500 text-xl relative transition-colors" title="Cart">
+          <button onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
             <i class="fas fa-shopping-cart"></i>
             <span id="cartCount" class="cart-badge" style="display:none;">0</span>
           </button>
           
           <!-- Auth Loading -->
-          <div id="auth-loading" class="flex items-center gap-3">
+          <div id="auth-loading" class="flex items-center gap-2">
             <div class="w-16 h-8 bg-gray-200 rounded-full animate-pulse"></div>
             <div class="w-24 h-10 bg-gray-200 rounded-full animate-pulse hidden md:block"></div>
           </div>
 
           <!-- Auth Buttons -->
-          <div id="auth-buttons" class="hidden flex items-center gap-3">
-            <button onclick="window.openAuthModal('signin')" class="nav-link text-sm">Sign In</button>
-            <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2 px-4 md:px-5">Get Started</button>
+          <div id="auth-buttons" class="hidden flex items-center gap-2">
+            <button onclick="window.openAuthModal('signin')" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-blue-50/50">Sign In</button>
+            <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30">
+              <i class="fas fa-rocket text-xs"></i> Get Started
+            </button>
           </div>
 
           <!-- Profile -->
           <div id="profile-section" class="relative hidden">
-            <button class="profile-avatar" id="profileAvatar" aria-label="Profile menu">U</button>
+            <button class="profile-avatar w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center hover:scale-105 transition-transform shadow-md shadow-blue-500/20" id="profileAvatar">U</button>
             <div class="dropdown-menu" id="dropdownMenu">
-              <a href="my-profile.html"><i class="fas fa-user mr-2"></i> My Profile</a>
-              <a href="my-orders.html"><i class="fas fa-box mr-2"></i> My Orders</a>
-              <a href="my-fix-requests.html"><i class="fas fa-tools mr-2"></i> My Fix Requests</a>
-              <a href="settings.html"><i class="fas fa-cog mr-2"></i> Settings</a>
-              <!-- ❌ Admin Panel Link removed from dropdown -->
+              <a href="my-profile.html" class="hover:bg-blue-50/50"><i class="fas fa-user mr-3 text-gray-400"></i> My Profile</a>
+              <a href="my-orders.html" class="hover:bg-blue-50/50"><i class="fas fa-box mr-3 text-gray-400"></i> My Orders</a>
+              <a href="my-fix-requests.html" class="hover:bg-blue-50/50"><i class="fas fa-tools mr-3 text-gray-400"></i> Fix Requests</a>
+              <a href="settings.html" class="hover:bg-blue-50/50"><i class="fas fa-cog mr-3 text-gray-400"></i> Settings</a>
+              <!-- Admin Panel – only visible to admin users -->
+              <a href="admin-panel.html" id="adminPanelLink" class="hidden hover:bg-blue-50/50"><i class="fas fa-shield-alt mr-3 text-blue-500"></i> Admin Panel</a>
               <hr class="my-1 border-gray-100" />
-              <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+              <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50/50"><i class="fas fa-sign-out-alt mr-3 text-red-400"></i> Logout</a>
             </div>
           </div>
 
           <!-- Hamburger -->
-          <button onclick="window.toggleMobileMenu()" class="md:hidden text-gray-700 text-2xl hover:text-blue-500 transition-colors" aria-label="Toggle menu">
+          <button onclick="window.toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-700 text-2xl transition-colors" aria-label="Toggle menu">
             <i class="fas fa-bars" id="hamburgerIcon"></i>
           </button>
         </div>
       </div>
     </nav>
 
-    <!-- Mobile Menu (এখানেও Admin Panel নেই) -->
-    <div id="mobileMenu" class="fixed top-16 left-0 w-full bg-white shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300" style="max-height:0; opacity:0;">
-      <div class="flex flex-col p-4 gap-3">
-        <a href="index.html" class="nav-link py-3 px-4 rounded-lg hover:bg-gray-50">Home</a>
-        <a href="get-new-website.html" class="nav-link py-3 px-4 rounded-lg hover:bg-gray-50">Store</a>
-        <a href="fix-website.html" class="nav-link py-3 px-4 rounded-lg hover:bg-gray-50">Fix</a>
+    <!-- Mobile Menu with admin link (hidden by default) -->
+    <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
+      <div class="flex flex-col p-4 gap-1">
+        <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
+        <a href="get-new-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Store</a>
+        <a href="fix-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Fix</a>
+        <hr class="my-2 border-gray-100" />
+        <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
+        <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
+        <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-envelope mr-3"></i> Messages</a>
+        <!-- Admin Panel in mobile menu – only visible to admin -->
+        <a href="admin-panel.html" id="mobileAdminPanelLink" class="hidden nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-blue-600 transition-colors"><i class="fas fa-shield-alt mr-3"></i> Admin Panel</a>
+        <a href="#" onclick="window.handleLogout()" class="nav-link py-3 px-4 rounded-xl hover:bg-red-50/50 font-medium text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
       </div>
     </div>
   `;
@@ -222,7 +238,7 @@ export function renderNavbar() {
     placeholder.innerHTML = navbarHTML;
   }
 
-  // Profile dropdown
+  // Profile dropdown toggle
   const avatar = document.getElementById('profileAvatar');
   const dropdown = document.getElementById('dropdownMenu');
   if (avatar) {
@@ -241,13 +257,15 @@ export function renderNavbar() {
 }
 
 // ================================================================
-// ✅ NAVBAR AUTH UPDATE – আর admin link নেই
+// ✅ UPDATE NAVBAR AUTH – shows/hides admin link based on role (both desktop & mobile)
 // ================================================================
-export function updateNavbarAuth(user, displayName) {
+export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
   const profileSection = document.getElementById('profile-section');
   const loadingEl = document.getElementById('auth-loading');
   const avatar = document.getElementById('profileAvatar');
+  const adminLink = document.getElementById('adminPanelLink');
+  const mobileAdminLink = document.getElementById('mobileAdminPanelLink');
 
   if (loadingEl) loadingEl.style.display = 'none';
 
@@ -255,9 +273,23 @@ export function updateNavbarAuth(user, displayName) {
     if (authBtns) authBtns.classList.add('hidden');
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
+    
+    // Admin link visibility: only when role === 'admin'
+    const isAdmin = (role === 'admin');
+    if (adminLink) {
+      adminLink.style.display = isAdmin ? '' : 'none';
+      adminLink.classList.toggle('hidden', !isAdmin);
+    }
+    if (mobileAdminLink) {
+      mobileAdminLink.style.display = isAdmin ? '' : 'none';
+      mobileAdminLink.classList.toggle('hidden', !isAdmin);
+    }
   } else {
     if (authBtns) authBtns.classList.remove('hidden');
     if (profileSection) profileSection.classList.add('hidden');
+    // Hide admin links when logged out
+    if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
+    if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
   }
 }
 
@@ -284,7 +316,7 @@ export function renderFooter() {
 }
 
 // ================================================================
-// ✅ CART SIDEBAR (unchanged)
+// ✅ CART SIDEBAR
 // ================================================================
 export function renderCartSidebar() {
   if (document.getElementById('cartSidebar')) return;
@@ -416,7 +448,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL (unchanged)
+// ✅ PAYMENT MODAL
 // ================================================================
 export function renderPaymentModal() {
   if (document.getElementById('paymentModal')) return;
