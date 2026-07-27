@@ -70,6 +70,17 @@
       max-height: 1.5em;
     }
 
+    /* ✅ Product title – 1 line with ellipsis */
+    .product-title {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+      max-height: 1.2em;
+    }
+
     /* ===== SKELETON ===== */
     .skeleton-card {
       background: #f3f4f6;
@@ -233,6 +244,90 @@
     }
     .modal-close:hover { color: #1c1c1e; }
 
+    /* ===== IMAGE CONTAINER WITH FULLSCREEN BUTTON ===== */
+    .detail-image-wrapper {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .detail-image-wrapper img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+    }
+    .fullscreen-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+    .fullscreen-btn:hover {
+      background: rgba(0,0,0,0.8);
+      transform: scale(1.05);
+    }
+
+    /* ===== FULLSCREEN IMAGE OVERLAY ===== */
+    .fullscreen-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .fullscreen-overlay.open {
+      display: flex;
+    }
+    .fullscreen-overlay img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .fullscreen-close {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(4px);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .fullscreen-close:hover {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.05);
+    }
+
     /* ===== SCROLL TOP ===== */
     .scroll-top-btn {
       position: fixed;
@@ -277,10 +372,14 @@
       .modal-box { padding: 1rem; }
       .btn-primary, .btn-outline { font-size: 0.85rem; min-height: 42px; padding: 8px 16px; }
       .rating-stars .star { font-size: 1.5rem; }
+      .detail-image-wrapper img { height: 200px; }
+      .fullscreen-overlay { padding: 1rem; }
+      .fullscreen-close { top: 16px; right: 16px; width: 44px; height: 44px; font-size: 1.6rem; }
     }
     @media (max-width: 480px) {
       .product-card img { height: 120px; }
       .modal-box { border-radius: 16px; }
+      .detail-image-wrapper img { height: 160px; }
     }
   </style>
 </head>
@@ -339,11 +438,16 @@
         <h3 id="detailName" class="text-2xl font-bold text-gray-900"></h3>
         <button onclick="closeDetailModal()" class="modal-close" aria-label="Close">&times;</button>
       </div>
-      <img id="detailImage" src="" alt="" class="w-full h-72 object-cover rounded-xl mb-4" loading="lazy" />
+      <!-- Image wrapper with fullscreen button -->
+      <div class="detail-image-wrapper">
+        <img id="detailImage" src="" alt="" loading="lazy" />
+        <button class="fullscreen-btn" onclick="openFullscreenImage()" aria-label="View fullscreen">
+          <i class="fas fa-expand"></i>
+        </button>
+      </div>
       <p id="detailDesc" class="text-gray-600"></p>
       <p id="detailPrice" class="text-2xl font-bold text-blue-600 mt-2"></p>
       <div id="detailRating" class="mt-1 text-yellow-500"></div>
-      <!-- ✅ Stock div সম্পূর্ণ সরানো হয়েছে -->
       <div class="mt-4 flex flex-wrap gap-3">
         <button onclick="window.addToCartFromDetail()" class="btn-primary">
           <i class="fas fa-cart-plus"></i> Add to Cart
@@ -370,6 +474,14 @@
         <div id="reviewsList" class="mt-4 space-y-2"></div>
       </div>
     </div>
+  </div>
+
+  <!-- ===== FULLSCREEN IMAGE OVERLAY ===== -->
+  <div id="fullscreenOverlay" class="fullscreen-overlay">
+    <button class="fullscreen-close" onclick="closeFullscreenImage()" aria-label="Close fullscreen">
+      <i class="fas fa-times"></i>
+    </button>
+    <img id="fullscreenImage" src="" alt="Fullscreen view" />
   </div>
 
   <!-- ===== AUTH MODAL ===== -->
@@ -485,41 +597,41 @@
       input.type = input.type === 'password' ? 'text' : 'password';
     };
 
-        window.socialLogin = async (provider) => {
-          if (provider !== 'google') {
-            showToast('Only Google sign-in is supported', 'warning');
-            return;
-          }
-          try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (!userDoc.exists()) {
-              await setDoc(doc(db, 'users', user.uid), {
-                email: user.email || '',
-                displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
-                photoURL: user.photoURL || '',
-                role: 'user',
-                createdAt: new Date().toISOString(),
-                isActive: true,
-                emailVerified: !!user.emailVerified,
-              });
-            }
-            showToast('✅ Signed in with Google', 'success');
-            if (typeof closeAuthModal === 'function') closeAuthModal();
-            else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
-          } catch (error) {
-            console.error('Google sign-in error:', error);
-            let msg = error.message || 'Sign-in failed';
-            if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-            else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
-            else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
-            else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
-            showToast('⚠️ ' + msg, 'error');
-            const errEl = document.getElementById('authError');
-            if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
-          }
-        };
+    window.socialLogin = async (provider) => {
+      if (provider !== 'google') {
+        showToast('Only Google sign-in is supported', 'warning');
+        return;
+      }
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, 'users', user.uid), {
+            email: user.email || '',
+            displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+            photoURL: user.photoURL || '',
+            role: 'user',
+            createdAt: new Date().toISOString(),
+            isActive: true,
+            emailVerified: !!user.emailVerified,
+          });
+        }
+        showToast('✅ Signed in with Google', 'success');
+        if (typeof closeAuthModal === 'function') closeAuthModal();
+        else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+      } catch (error) {
+        console.error('Google sign-in error:', error);
+        let msg = error.message || 'Sign-in failed';
+        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
+        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
+        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
+        showToast('⚠️ ' + msg, 'error');
+        const errEl = document.getElementById('authError');
+        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+      }
+    };
 
     const authForm = document.getElementById('authForm');
     const authSubmitBtn = authForm.querySelector('button[type="submit"]');
@@ -556,7 +668,6 @@
     onAuthStateChanged(auth, async (user) => {
       let name = null;
       if (user) {
-        // ✅ কার্ট সিঙ্ক (Firestore থেকে)
         await syncCart(user.uid);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
@@ -633,13 +744,11 @@
             <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
             <div class="card-body">
               <div class="flex justify-between items-start">
-                <h3 class="font-bold text-xl text-gray-900">${p.name}</h3>
+                <h3 class="font-bold text-xl text-gray-900 product-title">${p.name}</h3>
               </div>
-              <!-- ✅ Description – 1 line only -->
               <p class="text-sm text-gray-500 mt-1 product-desc">${desc}</p>
               <p class="text-2xl font-bold text-blue-600 mt-2">$${p.price}</p>
               <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
-              <!-- ✅ In Stock / Out of Stock সম্পূর্ণ সরানো হয়েছে -->
               <div class="mt-3 flex flex-wrap gap-2">
                 <button onclick="window.openProductDetail('${p.id}')" class="btn-primary text-sm py-2 px-4 flex-1">
                   <i class="fas fa-eye"></i> Details
@@ -752,7 +861,9 @@
       document.getElementById('detailPrice').textContent = `$${p.price}`;
       const rating = p.averageRating || 0;
       document.getElementById('detailRating').textContent = renderStars(rating) + ` (${p.ratingCount || 0} reviews)`;
-      // ✅ Stock লাইন সম্পূর্ণ সরানো হয়েছে
+
+      // ফুলস্ক্রিন ইমেজের জন্য সোর্স সেট করুন
+      document.getElementById('fullscreenImage').src = p.imageUrl || 'https://via.placeholder.com/1200x800?text=No+Image';
 
       loadReviews(id);
       document.getElementById('productDetailModal').classList.add('open');
@@ -763,6 +874,35 @@
       currentProductId = null;
       currentProductData = null;
     };
+
+    // ===== FULLSCREEN IMAGE TOGGLE =====
+    window.openFullscreenImage = () => {
+      const overlay = document.getElementById('fullscreenOverlay');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeFullscreenImage = () => {
+      const overlay = document.getElementById('fullscreenOverlay');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    };
+
+    // ক্লোজ বাটন ছাড়াও ওভারলে ক্লিক করলে বন্ধ হবে
+    document.getElementById('fullscreenOverlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        closeFullscreenImage();
+      }
+    });
+
+    // ESC কী প্রেস করলেও বন্ধ হবে
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (document.getElementById('fullscreenOverlay').classList.contains('open')) {
+          closeFullscreenImage();
+        }
+      }
+    });
 
     // ================================================================
     // ✅ রেটিং সিস্টেম
