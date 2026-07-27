@@ -536,7 +536,7 @@ export function renderPaymentModal() {
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Sender Number / Wallet *</label>
             <input type="text" id="paymentSenderNumber" placeholder="Number or wallet you paid from" required class="form-input" />
-            <p class="text-xs text-gray-400 mt-1">bKash/Nagad/Rocket number or USDT wallet address</p>
+            <p class="text-xs text-gray-400 mt-1">bKash/Nagad or USDT wallet address</p>
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Transaction ID *</label>
@@ -656,7 +656,6 @@ window.openPaymentModal = function(orderId, settings) {
   if (settings.bkash) html += `<p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-blue-500 text-lg"></i> BKash: <strong>${settings.bkash}</strong></p>`;
   if (settings.nagad) html += `<p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-orange-500 text-lg"></i> Nagad: <strong>${settings.nagad}</strong></p>`;
   if (settings.usdt) html += `<p class="flex items-center gap-2"><i class="fab fa-bitcoin text-yellow-500 text-lg"></i> USDT (BEP20): <strong>${settings.usdt}</strong></p>`;
-  if (settings.rocket) html += `<p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-red-500 text-lg"></i> Rocket: <strong>${settings.rocket}</strong></p>`;
   if (!html) html = '<p class="text-gray-500">Payment methods not set. Contact admin.</p>';
   
   numbersDiv.innerHTML = html;
