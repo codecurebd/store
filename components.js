@@ -6,7 +6,120 @@ import {
 } from './firebase-config.js';
 
 // ================================================================
-// ✅ TOAST NOTIFICATION
+// ✅ নোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা
+// ================================================================
+let unreadAdminMessages = [];
+let adminMessageUnsubscribe = null;
+let notificationBadgeElement = null;
+let notificationListElement = null;
+
+// অ্যাডমিন মেসেজ লিসেনার শুরু করুন
+function startAdminMessageListener(user) {
+  // আগের লিসেনার বন্ধ করুন
+  if (adminMessageUnsubscribe) {
+    adminMessageUnsubscribe();
+    adminMessageUnsubscribe = null;
+  }
+
+  if (!user) {
+    updateNotificationBadge(0);
+    return;
+  }
+
+  // শুধুমাত্র ইউজারের জন্য অ্যাডমিনের পাঠানো আনরিড মেসেজ
+  const q = query(
+    collection(db, 'messages'),
+    where('toUserId', '==', user.uid),
+    where('fromUserId', '==', 'admin'),
+    where('read', '==', false)
+  );
+
+  adminMessageUnsubscribe = onSnapshot(q, (snapshot) => {
+    unreadAdminMessages = [];
+    snapshot.forEach((doc) => {
+      unreadAdminMessages.push({ id: doc.id, ...doc.data() });
+    });
+    updateNotificationBadge(unreadAdminMessages.length);
+    updateNotificationList(unreadAdminMessages);
+  }, (error) => {
+    console.error('Admin messages listener error:', error);
+  });
+}
+
+// ব্যাজ আপডেট করুন
+function updateNotificationBadge(count) {
+  const badge = document.getElementById('notificationBadge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+// নোটিফিকেশন ড্রপডাউন লিস্ট আপডেট করুন
+function updateNotificationList(messages) {
+  const list = document.getElementById('notificationList');
+  if (!list) return;
+
+  if (!messages || messages.length === 0) {
+    list.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center">No new messages from admin.</div>';
+    return;
+  }
+
+  let html = '';
+  messages.slice(0, 10).forEach((msg) => {
+    const preview = msg.content?.length > 40 ? msg.content.slice(0, 40) + '...' : msg.content;
+    const time = msg.timestamp?.toDate?.()?.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) || '';
+    html += `
+      <a href="messages.html" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 transition-colors">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs flex-shrink-0">
+            <i class="fas fa-headset"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-900 text-sm">Admin Support</p>
+            <p class="text-sm text-gray-600 truncate">${preview}</p>
+            <p class="text-xs text-gray-400">${time}</p>
+          </div>
+          <span class="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5"></span>
+        </div>
+      </a>
+    `;
+  });
+
+  if (messages.length > 10) {
+    html += `<a href="messages.html" class="block px-4 py-2 text-center text-sm text-blue-600 hover:bg-gray-50">View all ${messages.length} messages</a>`;
+  }
+
+  list.innerHTML = html;
+}
+
+// সব আনরিড অ্যাডমিন মেসেজ রিড হিসেবে মার্ক করুন
+async function markAllAdminMessagesRead() {
+  const user = auth.currentUser;
+  if (!user || unreadAdminMessages.length === 0) return;
+
+  try {
+    const promises = unreadAdminMessages.map((msg) =>
+      updateDoc(doc(db, 'messages', msg.id), {
+        read: true,
+        readAt: serverTimestamp(),
+      })
+    );
+    await Promise.all(promises);
+    // UI তৎক্ষণাৎ আপডেট (onSnapshot আপডেট করবে, কিন্তু আমরা ম্যানুয়ালি ক্লিয়ার করি)
+    unreadAdminMessages = [];
+    updateNotificationBadge(0);
+    updateNotificationList([]);
+  } catch (err) {
+    console.error('Error marking messages as read:', err);
+  }
+}
+
+// ================================================================
+// ✅ TOAST NOTIFICATION (আপনার পুরোনো কোড)
 // ================================================================
 window.showToast = function(message, type = 'success') {
   let container = document.getElementById('toast-container');
@@ -119,7 +232,7 @@ window.toggleMobileMenu = function() {
 };
 
 // ================================================================
-// ✅ NOTIFICATION TOGGLE
+// ✅ NOTIFICATION TOGGLE (ব্যাজ রিমুভ + রিড মার্ক)
 // ================================================================
 window.toggleNotifications = function() {
   const dropdown = document.getElementById('notificationDropdown');
@@ -127,12 +240,14 @@ window.toggleNotifications = function() {
     dropdown.classList.toggle('hidden');
     if (!dropdown.classList.contains('hidden')) {
       dropdown.style.animation = 'dropdownFade 0.2s ease';
+      // ড্রপডাউন খুললেই সব মেসেজ রিড করে ফেলি
+      markAllAdminMessagesRead();
     }
   }
 };
 
 // ================================================================
-// ✅ NAVBAR (Professional – উইশলিস্ট বাদ)
+// ✅ NAVBAR (Professional – নোটিফিকেশন কাউন্ট সহ)
 // ================================================================
 export function renderNavbar() {
   const navbarHTML = `
@@ -157,13 +272,23 @@ export function renderNavbar() {
         <div class="flex items-center gap-2 md:gap-3">
           <!-- Notifications -->
           <div class="relative">
-            <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative">
+            <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" aria-label="Notifications">
               <i class="fas fa-bell"></i>
-              <span id="notificationDot" class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></span>
+              <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden">
+                0
+              </span>
             </button>
-            <div id="notificationDropdown" class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 hidden max-h-80 overflow-y-auto z-50">
-              <div class="p-4 font-semibold border-b text-gray-900">Notifications</div>
-              <div id="notificationList" class="p-4 text-sm text-gray-500">No notifications</div>
+            <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 hidden max-h-[70vh] overflow-y-auto z-50">
+              <div class="p-4 font-semibold border-b text-gray-900 flex items-center justify-between">
+                <span><i class="fas fa-bell mr-2 text-blue-500"></i>Notifications</span>
+                <span class="text-xs font-normal text-gray-400" id="notifCountLabel">0 new</span>
+              </div>
+              <div id="notificationList" class="divide-y divide-gray-50">
+                <div class="p-4 text-sm text-gray-500 text-center">Loading...</div>
+              </div>
+              <div class="p-2 border-t">
+                <a href="messages.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">View all messages</a>
+              </div>
             </div>
           </div>
 
@@ -215,7 +340,7 @@ export function renderNavbar() {
       </div>
     </nav>
 
-    <!-- Mobile Menu (উইশলিস্ট বাদ) -->
+    <!-- Mobile Menu -->
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
@@ -225,7 +350,6 @@ export function renderNavbar() {
         <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
         <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
         <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-envelope mr-3"></i> Messages</a>
-        <!-- Admin Panel in mobile menu – only visible to admin -->
         <a href="admin-panel.html" id="mobileAdminPanelLink" class="hidden nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-blue-600 transition-colors"><i class="fas fa-shield-alt mr-3"></i> Admin Panel</a>
         <a href="#" onclick="window.handleLogout()" class="nav-link py-3 px-4 rounded-xl hover:bg-red-50/50 font-medium text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
       </div>
@@ -277,7 +401,6 @@ export async function syncCart(userId) {
     if (docSnap.exists()) {
       serverCart = docSnap.data().items || [];
     }
-    // মার্জ: যদি localCart খালি না হয় তাহলে Firestore আপডেট করি, অন্যথায় Firestore থেকে local-এ আনা
     if (localCart.length > 0) {
       await setDoc(cartRef, { items: localCart, updatedAt: new Date().toISOString() });
     } else if (serverCart.length > 0) {
@@ -300,7 +423,7 @@ export async function updateCartInFirestore(userId, cart) {
 }
 
 // ================================================================
-// ✅ NAVBAR AUTH UPDATE – Admin Link only
+// ✅ NAVBAR AUTH UPDATE – Admin Link + Notification Listener
 // ================================================================
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
@@ -327,11 +450,32 @@ export function updateNavbarAuth(user, displayName, role = null) {
       mobileAdminLink.style.display = isAdmin ? '' : 'none';
       mobileAdminLink.classList.toggle('hidden', !isAdmin);
     }
+
+    // ✅ শুরু করুন অ্যাডমিন মেসেজ লিসেনার (শুধু সাধারণ ইউজারের জন্য)
+    if (!isAdmin) {
+      startAdminMessageListener(user);
+    } else {
+      // অ্যাডমিন নিজের মেসেজের নোটিফিকেশন দেখবে না (বা চাইলে আলাদা করা যেতে পারে)
+      if (adminMessageUnsubscribe) {
+        adminMessageUnsubscribe();
+        adminMessageUnsubscribe = null;
+      }
+      updateNotificationBadge(0);
+      updateNotificationList([]);
+    }
+
   } else {
     if (authBtns) authBtns.classList.remove('hidden');
     if (profileSection) profileSection.classList.add('hidden');
     if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
     if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
+    // লিসেনার বন্ধ
+    if (adminMessageUnsubscribe) {
+      adminMessageUnsubscribe();
+      adminMessageUnsubscribe = null;
+    }
+    updateNotificationBadge(0);
+    updateNotificationList([]);
   }
 }
 
@@ -454,7 +598,6 @@ export function updateCartUI() {
   }
   updateCartBadge();
 
-  // Firestore-এ সিঙ্ক (যদি ইউজার লগইন থাকে)
   const user = auth.currentUser;
   if (user) {
     const cartData = JSON.parse(localStorage.getItem('cart')) || [];
@@ -545,7 +688,6 @@ export function renderPaymentModal() {
             </select>
           </div>
 
-          <!-- Shown only after method is selected -->
           <div id="paymentMethodDetails" class="hidden space-y-4">
             <div id="paymentAddressBox" class="text-sm bg-gray-50 p-4 rounded-xl border border-gray-100"></div>
             <div id="paymentHowToBox" class="text-sm bg-amber-50 p-4 rounded-xl border border-amber-100"></div>
@@ -851,18 +993,16 @@ window.checkout = async function() {
 // ================================================================
 // ✅ FreeImage.Host ইমেজ আপলোড (ফ্রি)
 // ================================================================
-const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5'; // 👈 আপনার দেওয়া API Key
+const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 
 export async function uploadImage(file) {
   if (!file) throw new Error('No file selected.');
-  
-  // FreeImage.Host 64MB পর্যন্ত সাপোর্ট করে
   if (file.size > 64 * 1024 * 1024) {
     throw new Error('Image must be less than 64MB.');
   }
 
   const formData = new FormData();
-  formData.append('source', file); // FreeImage.Host 'source' ফিল্ড নাম ব্যবহার করে
+  formData.append('source', file);
 
   try {
     const response = await fetch('https://freeimage.host/api/1/upload?key=' + FREEIMAGE_API_KEY, {
@@ -872,7 +1012,6 @@ export async function uploadImage(file) {
     const data = await response.json();
 
     if (data.status_code === 200) {
-      // FreeImage.Host রেসপন্সে 'image' অবজেক্টে 'display_url' থাকে
       return data.image.display_url;
     } else {
       throw new Error(data.error?.message || 'Upload failed.');
