@@ -1608,7 +1608,7 @@
             <div><p class="text-sm text-gray-500">Order ID</p><p class="font-mono font-bold">#${order.id}</p></div>
             <div><p class="text-sm text-gray-500">Customer</p><p class="font-medium">${userName}</p><p class="text-sm text-gray-400">${order.userEmail || ''}</p></div>
             <div><p class="text-sm text-gray-500">Date & Time</p><p>${dateStr} at ${timeStr}</p></div>
-            <div><p class="text-sm text-gray-500">Payment</p><p>${order.paymentMethod || '—'}</p>${order.transactionId ? `<p class="text-xs text-gray-400">Txn: ${order.transactionId}</p>` : ''}</div>
+            <div><p class="text-sm text-gray-500">Payment</p><p>${order.paymentMethod || '—'}</p>${order.senderNumber ? `<p class="text-xs text-gray-400">From: ${order.senderNumber}</p>` : ''}${order.transactionId ? `<p class="text-xs text-gray-400">Txn: ${order.transactionId}</p>` : ''}</div>
             <div><p class="text-sm text-gray-500">Shipping Address</p><p>${order.shippingAddress || 'Not provided'}</p></div>
             <div><p class="text-sm text-gray-500">Current Status</p>
               <select id="orderStatusSelect" class="form-input text-sm py-1">

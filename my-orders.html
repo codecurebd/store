@@ -832,9 +832,10 @@
                   <button onclick="viewOrderDetail('${o.id}')" class="text-blue-600 text-sm hover:underline font-medium">
                     <i class="fas fa-eye"></i> Details
                   </button>
-                  <button onclick="deleteOrder('${o.id}')" class="btn-delete text-xs">
-                    <i class="fas fa-trash"></i> Delete
-                  </button>
+                  ${status === 'pending' ? `
+                  <button onclick="deleteOrder('${o.id}')" class="btn-delete text-xs" title="Cancel & request 95% refund">
+                    <i class="fas fa-trash"></i> Cancel
+                  </button>` : ''}
                 </div>
               </div>
             </div>
@@ -1044,18 +1045,24 @@
       if (e.key === 'Escape') closeOrderDetail();
     });
 
-    // ===== ORDER DELETE (with custom password modal) =====
+    // ===== ORDER CANCEL (only pending → 95% refund policy) =====
     window.deleteOrder = async (orderId) => {
-      if (!confirm('Delete this order? This action cannot be undone.')) return;
+      const order = allOrders.find(o => o.id === orderId);
+      if (!order) { showToast('Order not found', 'error'); return; }
+      if ((order.status || 'pending') !== 'pending') {
+        showToast('Only pending orders can be cancelled. No refund during processing/development.', 'warning');
+        return;
+      }
 
-      // ✅ কাস্টম মডাল দেখান
+      if (!confirm('Cancel this pending order?\n\nAccording to our policy you may receive a 95% refund after admin verification. This cannot be undone.')) return;
+
       const password = await window.showPasswordModal(
-        'Confirm Deletion',
-        'Enter your password to permanently delete this order.'
+        'Confirm Cancellation',
+        'Enter your password to cancel this pending order (95% refund policy applies).'
       );
 
       if (!password) {
-        showToast('Deletion cancelled', 'warning');
+        showToast('Cancellation cancelled', 'warning');
         return;
       }
 
@@ -1065,10 +1072,10 @@
         const credential = EmailAuthProvider.credential(user.email, password);
         await reauthenticateWithCredential(user, credential);
         await deleteDoc(doc(db, 'orders', orderId));
-        showToast('✅ Order deleted', 'success');
+        showToast('✅ Order cancelled. Admin will process 95% refund if payment was received.', 'success');
       } catch (err) {
         if (err.code === 'auth/wrong-password') {
-          showToast('❌ Incorrect password. Deletion failed.', 'error');
+          showToast('❌ Incorrect password. Cancellation failed.', 'error');
         } else {
           showToast('⚠️ ' + err.message, 'error');
         }
