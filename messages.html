@@ -613,7 +613,7 @@
     };
 
     // ================================================================
-    // ✅ CHAT LOGIC (FIXED ERROR HANDLING)
+    // ✅ CHAT LOGIC (FIXED: query includes participants filter)
     // ================================================================
     const chatMessages = document.getElementById('chatMessages');
     const chatForm = document.getElementById('chatForm');
@@ -672,8 +672,6 @@
 
     // Show error state with retry button (does NOT clear previous messages)
     function showErrorState(errorMessage) {
-      // If there are existing messages, we keep them and show a small error banner at the top.
-      // If no messages, show a full error state.
       const existingMsgs = chatMessages.querySelectorAll('.chat-msg');
       if (existingMsgs.length > 0) {
         // Insert an error banner at the top
@@ -686,7 +684,6 @@
           <button class="retry-btn" style="padding:4px 12px; font-size:0.75rem; background:#dc2626; color:white; border:none; border-radius:30px; cursor:pointer;">Retry</button>
         `;
         banner.querySelector('.retry-btn').addEventListener('click', () => {
-          // Remove this banner and re-init chat
           banner.remove();
           initChat(currentUser);
         });
@@ -716,10 +713,11 @@
       // Show skeletons
       showSkeletons();
 
-      // Listen for messages
+      // ✅ FIX: Filter by both conversationId AND participants
       const q = query(
         collection(db, 'messages'),
-        where('conversationId', '==', conversationId)
+        where('conversationId', '==', conversationId),
+        where('participants', 'array-contains', user.uid)
       );
 
       unsubMessages = onSnapshot(q, (snapshot) => {
@@ -750,11 +748,9 @@
           });
         }
       }, (error) => {
-        // FIX: Instead of wiping messages, show an error state while keeping existing messages
         console.error('🔥 Snapshot error in messages:', error);
         const errorMsg = error.message || 'Unknown error loading messages.';
         showErrorState(errorMsg);
-        // Also show a toast for extra visibility
         showToast('⚠️ ' + errorMsg, 'error');
       });
     }
@@ -799,7 +795,7 @@
       if (unsubMessages) unsubMessages();
     });
 
-    console.log('💬 Messages page loaded successfully (with improved error handling).');
+    console.log('💬 Messages page loaded successfully (fixed permissions).');
   </script>
 </body>
 </html>
