@@ -239,6 +239,7 @@
       <button class="nav-item" data-tab="products"><i class="fas fa-box"></i> Products</button>
       <button class="nav-item" data-tab="orders"><i class="fas fa-shopping-cart"></i> Orders</button>
       <button class="nav-item" data-tab="users"><i class="fas fa-users"></i> Users</button>
+      <button class="nav-item" data-tab="archived"><i class="fas fa-archive"></i> Archived</button>
       <button class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages</button>
       <button class="nav-item" data-tab="fixrequests"><i class="fas fa-wrench"></i> Fix Requests</button>
       <button class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</button>
@@ -460,6 +461,22 @@
               </select>
             </label>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARCHIVED (deleted users + their orders) -->
+    <div id="tab-archived" class="tab-content">
+      <div style="padding:0 1rem 1rem 1rem;">
+        <h2 class="text-2xl font-bold">Archived Users &amp; Orders</h2>
+        <p class="text-sm text-gray-500 mt-1">Users deleted from admin and their orders are kept here for records.</p>
+        <div class="mt-4">
+          <h3 class="text-lg font-semibold mb-2"><i class="fas fa-user-slash"></i> Deleted Users</h3>
+          <div id="deletedUsersList" class="space-y-2"></div>
+        </div>
+        <div class="mt-6">
+          <h3 class="text-lg font-semibold mb-2"><i class="fas fa-box-archive"></i> Archived Orders</h3>
+          <div id="archivedOrdersList" class="space-y-2"></div>
         </div>
       </div>
     </div>
@@ -1318,14 +1335,21 @@
 
       window.bulkDelete = async function() {
         if (selectedUsers.size === 0) return;
-        if (!confirm(`⚠️ Are you sure you want to PERMANENTLY DELETE ${selectedUsers.size} user(s)? This cannot be undone!`)) return;
+        if (!confirm(`⚠️ Delete ${selectedUsers.size} user(s)? Their orders will be archived. Auth delete needs Cloud Function for same-email re-register.`)) return;
+        const password = prompt('Enter your admin password to confirm:');
+        if (!password) return;
+        const adminEmail = auth.currentUser?.email;
+        if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
         try {
-          const promises = [];
-          selectedUsers.forEach(id => {
-            promises.push(deleteDoc(doc(db, 'users', id)));
-          });
-          await Promise.all(promises);
-          showToast(`✅ ${selectedUsers.size} user(s) deleted`, 'success');
+          let ok = 0, fail = 0, authOk = 0;
+          for (const id of selectedUsers) {
+            const result = await adminDeleteUser(id, adminEmail, password);
+            if (result.success) {
+              ok++;
+              if (result.authDeleted) authOk++;
+            } else fail++;
+          }
+          showToast(`✅ ${ok} deleted (Auth removed: ${authOk}). Failed: ${fail}`, fail ? 'warning' : 'success');
           clearBulkSelection();
         } catch (err) { showToast('Error: ' + err.message, 'error'); }
       };
@@ -1355,19 +1379,63 @@
       };
 
       window.deleteUser = async (id) => {
-        if (!confirm('Delete this user permanently? This will remove Firestore data. Auth account will remain.')) return;
-        // পাসওয়ার্ড যাচাই
+        if (!confirm('Delete this user? Orders will move to Archived. For same-email re-registration, Cloud Function must delete Auth (see functions/deleteAuthUser).')) return;
         const password = prompt('Enter your admin password to confirm deletion:');
         if (!password) return;
         const adminEmail = auth.currentUser?.email;
         if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
         const result = await adminDeleteUser(id, adminEmail, password);
         if (result.success) {
-          showToast('✅ User data deleted (Auth account remains)', 'success');
+          if (result.authDeleted) {
+            showToast(`✅ User deleted + Auth removed. ${result.archivedOrders || 0} order(s) archived. Same email can register again.`, 'success');
+          } else {
+            showToast(`✅ User archived (${result.archivedOrders || 0} orders). Auth still exists — deploy Cloud Function deleteAuthUser for same-email re-register. ${result.authDeleteError || ''}`, 'warning');
+          }
         } else {
           showToast('⚠️ ' + result.error, 'error');
         }
       };
+
+      // Archived users + orders listeners
+      onSnapshot(collection(db, 'deletedUsers'), (snapshot) => {
+        const list = document.getElementById('deletedUsersList');
+        if (!list) return;
+        if (snapshot.empty) {
+          list.innerHTML = '<div class="text-gray-400 text-sm">No deleted users.</div>';
+          return;
+        }
+        let html = '';
+        snapshot.forEach(d => {
+          const u = d.data();
+          html += `<div class="glass-card p-3 text-sm">
+            <strong>${u.displayName || '—'}</strong> · ${u.email || '—'}
+            <span class="text-gray-400"> · uid: ${u.originalUid || d.id}</span>
+            <div class="text-xs text-gray-500 mt-1">Deleted: ${u.deletedAt || '—'} · Orders archived: ${u.archivedOrdersCount ?? '—'}</div>
+          </div>`;
+        });
+        list.innerHTML = html;
+      });
+
+      onSnapshot(collection(db, 'archivedOrders'), (snapshot) => {
+        const list = document.getElementById('archivedOrdersList');
+        if (!list) return;
+        if (snapshot.empty) {
+          list.innerHTML = '<div class="text-gray-400 text-sm">No archived orders.</div>';
+          return;
+        }
+        let html = '';
+        snapshot.forEach(d => {
+          const o = d.data();
+          html += `<div class="glass-card p-3 text-sm">
+            <strong>#${(o.originalOrderId || d.id).toString().slice(0, 8).toUpperCase()}</strong>
+            · ${o.deletedUserEmail || o.userEmail || '—'}
+            · $${Number(o.total || 0).toFixed(2)}
+            · <span class="status-badge">${o.status || '—'}</span>
+            <div class="text-xs text-gray-500 mt-1">User: ${o.deletedUserName || '—'} · Archived: ${o.archivedAt || '—'}</div>
+          </div>`;
+        });
+        list.innerHTML = html;
+      });
 
       window.toggleUserStatus = async (id, newStatus) => {
         try {

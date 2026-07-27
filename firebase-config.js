@@ -92,12 +92,80 @@ export async function adminCreateUser(email, password, displayName, role, adminE
   }
 }
 
-// ✅ অ্যাডমিন প্যানেল থেকে ইউজার ডিলিট (শুধু Firestore ডকুমেন্ট ডিলিট, Authentication থাকে)
+// ✅ অ্যাডমিন: ইউজার ডিলিট + অর্ডার আর্কাইভ (Auth ডিলিট = Cloud Function লাগে)
 export async function adminDeleteUser(uid, adminEmail, adminPassword) {
   try {
+    // Verify admin password (re-auth)
     await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
-    await deleteDoc(doc(db, 'users', uid));
-    return { success: true };
+
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return { success: false, error: 'User not found in database' };
+    }
+    const userData = userSnap.data();
+    if (userData.role === 'admin') {
+      return { success: false, error: 'Cannot delete an admin account from panel' };
+    }
+
+    // Archive all orders of this user
+    const ordersQ = query(collection(db, 'orders'), where('userId', '==', uid));
+    const ordersSnap = await getDocs(ordersQ);
+    let archivedCount = 0;
+    const archivePromises = [];
+    ordersSnap.forEach((orderDoc) => {
+      const orderData = orderDoc.data();
+      archivePromises.push(
+        setDoc(doc(db, 'archivedOrders', orderDoc.id), {
+          ...orderData,
+          originalOrderId: orderDoc.id,
+          archivedAt: new Date().toISOString(),
+          archivedReason: 'user_deleted',
+          deletedUserId: uid,
+          deletedUserEmail: userData.email || '',
+          deletedUserName: userData.displayName || '',
+        }).then(() => deleteDoc(doc(db, 'orders', orderDoc.id)))
+      );
+      archivedCount++;
+    });
+    await Promise.all(archivePromises);
+
+    // Archive user profile
+    await setDoc(doc(db, 'deletedUsers', uid), {
+      ...userData,
+      originalUid: uid,
+      deletedAt: new Date().toISOString(),
+      deletedBy: auth.currentUser?.uid || '',
+      deletedByEmail: adminEmail,
+      archivedOrdersCount: archivedCount,
+    });
+
+    // Remove from active users collection
+    await deleteDoc(userRef);
+
+    // Try Cloud Function to delete Firebase Auth user (needed for same-email re-registration)
+    let authDeleted = false;
+    let authDeleteError = null;
+    try {
+      const { getFunctions, httpsCallable } = await import(
+        'https://www.gstatic.com/firebasejs/9.23.0/firebase-functions.js'
+      );
+      const functions = getFunctions(app, 'us-central1');
+      const deleteAuthUser = httpsCallable(functions, 'deleteAuthUser');
+      await deleteAuthUser({ uid });
+      authDeleted = true;
+    } catch (fnErr) {
+      authDeleteError = fnErr.message || String(fnErr);
+      console.warn('Auth delete via Cloud Function failed:', fnErr);
+    }
+
+    return {
+      success: true,
+      archivedOrders: archivedCount,
+      authDeleted,
+      authDeleteError,
+      email: userData.email,
+    };
   } catch (error) {
     return { success: false, error: error.message };
   }
