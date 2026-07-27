@@ -9,12 +9,11 @@ import {
 // ✅ নোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা
 // ================================================================
 let unreadAdminMessages = [];
-let displayMessages = [];      // ড্রপডাউন খোলার সময় মেসেজের কপি
+let displayMessages = [];
 let adminMessageUnsubscribe = null;
 let notificationBadgeElement = null;
 let notificationListElement = null;
 
-// অ্যাডমিন মেসেজ লিসেনার শুরু করুন
 function startAdminMessageListener(user) {
   if (adminMessageUnsubscribe) {
     adminMessageUnsubscribe();
@@ -27,7 +26,6 @@ function startAdminMessageListener(user) {
     return;
   }
 
-  // শুধুমাত্র ইউজারের জন্য অ্যাডমিনের পাঠানো আনরিড মেসেজ
   const q = query(
     collection(db, 'messages'),
     where('toUserId', '==', user.uid),
@@ -41,12 +39,8 @@ function startAdminMessageListener(user) {
       unreadAdminMessages.push({ id: doc.id, ...doc.data() });
     });
     updateNotificationBadge(unreadAdminMessages.length);
-    // ড্রপডাউন খোলা থাকলে displayMessages দেখাবে, নইলে আনরিড লিস্ট দেখাবে
     if (displayMessages.length > 0) {
-      // ড্রপডাউন খোলা থাকলে আমরা displayMessages আপডেট করি না (কারণ সেটা কপি)
-      // কিন্তু নতুন মেসেজ এলে আমরা ড্রপডাউনে দেখাতে চাই? 
-      // ভালো অভিজ্ঞতার জন্য নতুন মেসেজ এলে displayMessages-এ যোগ করা যেতে পারে
-      // কিন্তু এখানে আমরা সহজ রাখছি: ড্রপডাউন খোলা থাকলে নতুন মেসেজ দেখাবে না (পরের বার খোলার সময় দেখাবে)
+      // ড্রপডাউন খোলা থাকলে নতুন মেসেজ যোগ করি না (পরে দেখাবে)
     } else {
       updateNotificationList(unreadAdminMessages);
     }
@@ -55,7 +49,6 @@ function startAdminMessageListener(user) {
   });
 }
 
-// ব্যাজ আপডেট করুন
 function updateNotificationBadge(count) {
   const badge = document.getElementById('notificationBadge');
   if (!badge) return;
@@ -67,7 +60,6 @@ function updateNotificationBadge(count) {
   }
 }
 
-// নোটিফিকেশন ড্রপডাউন লিস্ট আপডেট করুন (messages অ্যারে দেখান)
 function updateNotificationList(messages) {
   const list = document.getElementById('notificationList');
   if (!list) return;
@@ -105,7 +97,6 @@ function updateNotificationList(messages) {
   list.innerHTML = html;
 }
 
-// সব আনরিড অ্যাডমিন মেসেজ রিড হিসেবে মার্ক করুন (ব্যাজ রিমুভের জন্য)
 async function markAllAdminMessagesRead() {
   const user = auth.currentUser;
   if (!user || unreadAdminMessages.length === 0) return;
@@ -118,14 +109,13 @@ async function markAllAdminMessagesRead() {
       })
     );
     await Promise.all(promises);
-    // onSnapshot আপডেট করবে, কিন্তু আমরা displayMessages ধরে রাখি
   } catch (err) {
     console.error('Error marking messages as read:', err);
   }
 }
 
 // ================================================================
-// ✅ NOTIFICATION TOGGLE (ড্রপডাউন খোলা/বন্ধ + মেসেজ কপি রাখা)
+// ✅ NOTIFICATION TOGGLE
 // ================================================================
 window.toggleNotifications = function() {
   const dropdown = document.getElementById('notificationDropdown');
@@ -134,25 +124,19 @@ window.toggleNotifications = function() {
   const isOpening = dropdown.classList.contains('hidden');
 
   if (isOpening) {
-    // ড্রপডাউন খুলছি – displayMessages-এ কপি রাখি
     displayMessages = [...unreadAdminMessages];
     updateNotificationList(displayMessages);
     dropdown.classList.remove('hidden');
     dropdown.style.animation = 'dropdownFade 0.2s ease';
-
-    // ব্যাজ রিমুভ করতে মেসেজগুলো রিড করে দিই
     markAllAdminMessagesRead();
   } else {
-    // ড্রপডাউন বন্ধ করছি – displayMessages ক্লিয়ার
     displayMessages = [];
     dropdown.classList.add('hidden');
-    // ড্রপডাউন বন্ধ হলে আনরিড লিস্ট দেখাতে হবে না, কিন্তু নতুন মেসেজ এলে পরে দেখাবে
-    // updateNotificationList(unreadAdminMessages); // চাইলে করতে পারেন
   }
 };
 
 // ================================================================
-// ✅ TOAST NOTIFICATION (আপনার পুরোনো কোড)
+// ✅ TOAST NOTIFICATION
 // ================================================================
 window.showToast = function(message, type = 'success') {
   let container = document.getElementById('toast-container');
@@ -265,7 +249,7 @@ window.toggleMobileMenu = function() {
 };
 
 // ================================================================
-// ✅ NAVBAR (Professional – নোটিফিকেশন কাউন্ট সহ)
+// ✅ NAVBAR (আপডেটেড – মেসেজ আইকন সরানো, সাপোর্ট চ্যাট যোগ)
 // ================================================================
 export function renderNavbar() {
   const navbarHTML = `
@@ -279,14 +263,16 @@ export function renderNavbar() {
           <span class="tracking-tight">SWD <span class="gradient-text">Store</span></span>
         </a>
         
-        <!-- Desktop Menu -->
+        <!-- Desktop Menu (Support যোগ করা হয়েছে) -->
         <div class="hidden md:flex items-center gap-1 lg:gap-2">
           <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
           <a href="get-new-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Store</a>
           <a href="fix-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Fix</a>
+          <!-- ✅ নতুন: Support লিংক -->
+          <a href="messages.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Support</a>
         </div>
 
-        <!-- Right Actions -->
+        <!-- Right Actions (মেসেজ আইকন সরানো হয়েছে) -->
         <div class="flex items-center gap-2 md:gap-3">
           <!-- Notifications -->
           <div class="relative">
@@ -309,11 +295,6 @@ export function renderNavbar() {
               </div>
             </div>
           </div>
-
-          <!-- Messages -->
-          <a href="messages.html" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Messages">
-            <i class="fas fa-envelope"></i>
-          </a>
 
           <!-- Cart -->
           <button onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
@@ -342,8 +323,10 @@ export function renderNavbar() {
               <a href="my-profile.html" class="hover:bg-blue-50/50"><i class="fas fa-user mr-3 text-gray-400"></i> My Profile</a>
               <a href="my-orders.html" class="hover:bg-blue-50/50"><i class="fas fa-box mr-3 text-gray-400"></i> My Orders</a>
               <a href="my-fix-requests.html" class="hover:bg-blue-50/50"><i class="fas fa-tools mr-3 text-gray-400"></i> Fix Requests</a>
+              <!-- ✅ নতুন: Support Chat (প্রোফাইল ড্রপডাউনে) -->
+              <a href="messages.html" class="hover:bg-blue-50/50"><i class="fas fa-comment-dots mr-3 text-gray-400"></i> Support Chat</a>
               <a href="settings.html" class="hover:bg-blue-50/50"><i class="fas fa-cog mr-3 text-gray-400"></i> Settings</a>
-              <!-- Admin Panel – only visible to admin -->
+              <!-- Admin Panel -->
               <a href="admin-panel.html" id="adminPanelLink" class="hidden hover:bg-blue-50/50"><i class="fas fa-shield-alt mr-3 text-blue-500"></i> Admin Panel</a>
               <hr class="my-1 border-gray-100" />
               <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50/50"><i class="fas fa-sign-out-alt mr-3 text-red-400"></i> Logout</a>
@@ -358,16 +341,17 @@ export function renderNavbar() {
       </div>
     </nav>
 
-    <!-- Mobile Menu -->
+    <!-- Mobile Menu (Support Chat যোগ করা হয়েছে) -->
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
         <a href="get-new-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Store</a>
         <a href="fix-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Fix</a>
+        <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-comment-dots mr-3"></i> Support Chat</a>
         <hr class="my-2 border-gray-100" />
         <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
         <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
-        <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-envelope mr-3"></i> Messages</a>
+        <a href="my-fix-requests.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-tools mr-3"></i> Fix Requests</a>
         <a href="admin-panel.html" id="mobileAdminPanelLink" class="hidden nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-blue-600 transition-colors"><i class="fas fa-shield-alt mr-3"></i> Admin Panel</a>
         <a href="#" onclick="window.handleLogout()" class="nav-link py-3 px-4 rounded-xl hover:bg-red-50/50 font-medium text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
       </div>
@@ -398,7 +382,7 @@ export function renderNavbar() {
 
   updateCartBadge();
 
-  // ===== কার্ট সিঙ্ক: Auth state listener =====
+  // Cart sync
   onAuthStateChanged(auth, (user) => {
     if (user) {
       syncCart(user.uid);
@@ -407,7 +391,7 @@ export function renderNavbar() {
 }
 
 // ================================================================
-// ✅ কার্ট সিঙ্ক ফাংশন
+// ✅ কার্ট সিঙ্ক
 // ================================================================
 export async function syncCart(userId) {
   if (!userId) return;
@@ -441,7 +425,7 @@ export async function updateCartInFirestore(userId, cart) {
 }
 
 // ================================================================
-// ✅ NAVBAR AUTH UPDATE – Admin Link + Notification Listener
+// ✅ NAVBAR AUTH UPDATE
 // ================================================================
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
@@ -468,7 +452,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
       mobileAdminLink.classList.toggle('hidden', !isAdmin);
     }
 
-    // ✅ অ্যাডমিন ছাড়া সব ইউজারের জন্য নোটিফিকেশন লিসেনার
     if (!isAdmin) {
       startAdminMessageListener(user);
     } else {
@@ -568,7 +551,7 @@ export function toggleCart() {
 window.toggleCart = toggleCart;
 
 // ================================================================
-// ✅ UPDATE CART UI (Firestore-এ সিঙ্ক সহ)
+// ✅ UPDATE CART UI
 // ================================================================
 export function updateCartUI() {
   const container = document.getElementById('cartItems');
@@ -661,7 +644,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL (method-first + BDT calculator)
+// ✅ PAYMENT MODAL
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
@@ -915,9 +898,6 @@ window.updatePaymentMethodUI = function() {
   }
 };
 
-// ================================================================
-// ✅ OPEN PAYMENT MODAL
-// ================================================================
 window.openPaymentModal = function(orderId, settings, orderTotalUSD) {
   if (!document.getElementById('paymentModal')) {
     window.showToast('Payment system not ready. Please refresh.', 'error');
@@ -1006,7 +986,7 @@ window.checkout = async function() {
 };
 
 // ================================================================
-// ✅ FreeImage.Host ইমেজ আপলোড (ফ্রি)
+// ✅ FreeImage.Host ইমেজ আপলোড
 // ================================================================
 const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 
