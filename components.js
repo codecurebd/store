@@ -24,7 +24,6 @@ function startAdminMessageListener(user) {
     return;
   }
 
-  // ✅ Realtime listener using onSnapshot
   const q = query(
     collection(db, 'messages'),
     where('toUserId', '==', user.uid),
@@ -248,7 +247,7 @@ window.toggleMobileMenu = function() {
 };
 
 // ================================================================
-// ✅ NAVBAR (Support সরানো হয়েছে)
+// ✅ NAVBAR
 // ================================================================
 export function renderNavbar() {
   const navbarHTML = `
@@ -262,7 +261,7 @@ export function renderNavbar() {
           <span class="tracking-tight">SWD <span class="gradient-text">Store</span></span>
         </a>
         
-        <!-- Desktop Menu (Support বাদ) -->
+        <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-1 lg:gap-2">
           <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
           <a href="get-new-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Store</a>
@@ -336,7 +335,7 @@ export function renderNavbar() {
       </div>
     </nav>
 
-    <!-- Mobile Menu (Support বাদ) -->
+    <!-- Mobile Menu -->
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
@@ -369,11 +368,27 @@ export function renderNavbar() {
       dropdown.classList.toggle('show');
     });
   }
+
+  // ✅ Profile dropdown close on outside click
   document.addEventListener('click', (e) => {
     if (avatar && !avatar.contains(e.target) && !dropdown.contains(e.target)) {
       dropdown.classList.remove('show');
     }
   });
+
+  // ✅ NEW: Notification dropdown close on outside click
+  const notifBtn = document.querySelector('[onclick="window.toggleNotifications()"]');
+  const notifDropdown = document.getElementById('notificationDropdown');
+  if (notifBtn && notifDropdown) {
+    document.addEventListener('click', (e) => {
+      if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+        if (!notifDropdown.classList.contains('hidden')) {
+          notifDropdown.classList.add('hidden');
+          displayMessages = [];
+        }
+      }
+    });
+  }
 
   updateCartBadge();
 
@@ -386,7 +401,7 @@ export function renderNavbar() {
 }
 
 // ================================================================
-// ✅ FOOTER (Support Chat যোগ করা হয়েছে)
+// ✅ FOOTER
 // ================================================================
 export function renderFooter() {
   const footerHTML = `
@@ -397,7 +412,6 @@ export function renderFooter() {
           <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
             <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
             <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
-            <!-- ✅ নতুন: Support Chat লিংক -->
             <a href="messages.html" class="hover:text-blue-600 transition-colors"><i class="fas fa-comment-dots mr-1"></i> Support Chat</a>
           </div>
         </div>
@@ -632,7 +646,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL (পুরানো কোড – অপরিবর্তিত)
+// ✅ PAYMENT MODAL
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
