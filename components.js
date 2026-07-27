@@ -255,9 +255,7 @@ export function renderNavbar() {
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
         <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
-          <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-blue-500/25">
-          </span>
-          <span class="tracking-tight">CodeCureBD <span class="gradient-text">Store</span></span>
+          <span class="tracking-tight">CodeCure<span class="gradient-text">BD</span></span>
         </a>
         
         <!-- Desktop Menu -->
