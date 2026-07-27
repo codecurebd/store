@@ -568,7 +568,7 @@
       query, where, serverTimestamp, signOut, onAuthStateChanged,
       signInWithEmailAndPassword, createUserWithEmailAndPassword, 
       updateDoc, deleteDoc, signInWithPopup, googleProvider,
-      EmailAuthProvider, reauthenticateWithCredential
+      EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup
     } from './firebase-config.js';
 
     // ===== রেন্ডার =====
@@ -1165,27 +1165,18 @@
 
       const user = auth.currentUser;
       if (!user) { showToast('Not logged in', 'error'); return; }
-      if (!user.email) { showToast('Account email missing. Cannot verify.', 'error'); return; }
 
-      // Google-only accounts have no password
-      const hasPassword = (user.providerData || []).some(p => p.providerId === 'password');
-      if (!hasPassword) {
-        await window.showConfirmModal(
-          'Cannot verify with password',
-          `<p>This account was signed in with <strong>Google</strong> and has no password.</p>
-           <p class="mt-2">Contact support to cancel, or set a password from <strong>Settings</strong> first.</p>`,
-          'OK',
-          'Close'
-        );
-        return;
-      }
+      const providers = (user.providerData || []).map(p => p.providerId);
+      const hasPassword = providers.includes('password');
+      const hasGoogle = providers.includes('google.com');
 
-      // 1) Custom confirm box (not browser default)
+      // 1) Custom confirm box
       const confirmed = await window.showConfirmModal(
         'Cancel this order?',
         `<p>You are about to cancel order <strong>#${(orderId || '').slice(0, 8).toUpperCase()}</strong>.</p>
          <p class="mt-2">If payment was received, you may get a <strong>95% refund</strong> after admin verification (usually 3–7 business days).</p>
-         <p class="mt-2 text-red-600"><strong>This cannot be undone.</strong></p>`,
+         <p class="mt-2 text-red-600"><strong>This cannot be undone.</strong></p>
+         <p class="mt-2 text-sm text-gray-500">${hasPassword ? 'Next step: enter your password.' : hasGoogle ? 'Next step: confirm with your Google account.' : 'Next step: verify your identity.'}</p>`,
         'Yes, Cancel Order',
         'Keep Order'
       );
@@ -1194,7 +1185,32 @@
         return;
       }
 
-      // 2) Custom password box — retry until success or user cancels
+      // 2a) Google account → re-auth with Google popup
+      if (hasGoogle && !hasPassword) {
+        try {
+          showToast('Confirm with Google…', 'warning');
+          await reauthenticateWithPopup(user, googleProvider);
+          await deleteDoc(doc(db, 'orders', orderId));
+          showToast('✅ Order cancelled. Admin will process 95% refund if payment was received.', 'success');
+        } catch (err) {
+          console.error('Google reauth cancel error:', err);
+          if (err.code === 'auth/popup-closed-by-user') {
+            showToast('Cancellation cancelled', 'warning');
+          } else if (err.code === 'auth/popup-blocked') {
+            showToast('⚠️ Popup blocked. Allow popups and try again.', 'error');
+          } else {
+            showToast('⚠️ ' + (err.message || 'Cancellation failed'), 'error');
+          }
+        }
+        return;
+      }
+
+      // 2b) Email/password account → custom password modal with retry
+      if (!user.email) {
+        showToast('Account email missing. Cannot verify.', 'error');
+        return;
+      }
+
       let done = false;
       let showErrorOnOpen = false;
 
@@ -1225,7 +1241,6 @@
           return;
         }
 
-        // Client-side validation already ran in confirmPassword; double-check
         if (password.length < 6) {
           showErrorOnOpen = true;
           continue;
@@ -1251,7 +1266,6 @@
             code === 'auth/invalid-login-credentials'
           ) {
             showErrorOnOpen = true;
-            // loop again → password modal with error
           } else if (code === 'auth/too-many-requests') {
             showToast('⚠️ Too many attempts. Please wait and try again later.', 'error');
             done = true;
