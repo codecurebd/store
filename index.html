@@ -269,6 +269,36 @@
       .stat-number { font-size: 1.6rem; }
       .featured-card img { height: 120px; }
     }
+
+    /* ===== FAQ Show More Button ===== */
+    .faq-show-more-btn {
+      background: transparent;
+      border: 1.5px solid rgba(60,60,67,0.08);
+      padding: 10px 24px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1c1c1e;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.5);
+      margin-top: 1rem;
+    }
+    .faq-show-more-btn:hover {
+      background: rgba(0,122,255,0.04);
+      border-color: #007AFF;
+      color: #007AFF;
+      transform: translateY(-2px);
+    }
+    .faq-show-more-btn i {
+      transition: transform 0.3s ease;
+    }
+    .faq-show-more-btn.rotated i {
+      transform: rotate(180deg);
+    }
   </style>
 </head>
 <body>
@@ -413,20 +443,20 @@
         </div>
       </section>
 
-      <!-- ===== STATISTICS ===== -->
+      <!-- ===== STATISTICS (UPDATED) ===== -->
       <section id="stats" class="py-16 px-6">
         <div class="max-w-6xl mx-auto">
           <div class="grid md:grid-cols-4 gap-8 text-center">
             <div class="fade-up">
-              <div class="stat-number">150+</div>
+              <div class="stat-number">100+</div>
               <div class="stat-label">Projects Delivered</div>
             </div>
             <div class="fade-up" style="transition-delay:0.1s;">
-              <div class="stat-number">90+</div>
+              <div class="stat-number">100+</div>
               <div class="stat-label">Happy Clients</div>
             </div>
             <div class="fade-up" style="transition-delay:0.2s;">
-              <div class="stat-number">3+</div>
+              <div class="stat-number">6+</div>
               <div class="stat-label">Years of Experience</div>
             </div>
             <div class="fade-up" style="transition-delay:0.3s;">
@@ -447,12 +477,18 @@
         </div>
       </section>
 
-      <!-- ===== FAQ ===== -->
+      <!-- ===== FAQ (with Show More – first 5 shown) ===== -->
       <section id="faq" class="py-16 px-6">
         <div class="max-w-3xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">Frequently Asked Questions</h2>
           <div id="faqList" class="mt-8 space-y-4">
-            <!-- Skeleton will be rendered by JS -->
+            <!-- FAQ items injected by JS -->
+          </div>
+          <div class="text-center">
+            <button id="faqToggleBtn" class="faq-show-more-btn" style="display:none;">
+              <span id="faqToggleText">Show More</span>
+              <i class="fas fa-chevron-down" id="faqToggleIcon"></i>
+            </button>
           </div>
         </div>
       </section>
@@ -514,7 +550,7 @@
 
   <script type="module">
     // ================================================================
-    // ইমপোর্ট – limit ছাড়া (কারণ আমরা ম্যানুয়ালি slice করব)
+    // ইমপোর্ট
     // ================================================================
     import { 
       auth, db, collection, doc, getDoc, getDocs, onSnapshot, query, where,
@@ -785,49 +821,97 @@
     loadTestimonials();
 
     // ================================================================
-    // ✅ FAQ (রিয়েল-টাইম না, getDocs ব্যবহার করেছি)
+    // ✅ FAQ (First 5 visible, Show More for rest)
     // ================================================================
     const faqContainer = document.getElementById('faqList');
+    const toggleBtn = document.getElementById('faqToggleBtn');
+    const toggleText = document.getElementById('faqToggleText');
+    const toggleIcon = document.getElementById('faqToggleIcon');
+    let allFaqs = [];
+    let showAll = false;
+    const initialLimit = 5;
 
     async function loadFaqs() {
       try {
         const snap = await getDocs(collection(db, 'faqs'));
         if (snap.empty) {
           faqContainer.innerHTML = `<p class="text-gray-500 text-center">No FAQs yet.</p>`;
+          toggleBtn.style.display = 'none';
           return;
         }
-        let html = '';
-        let index = 0;
+        allFaqs = [];
         snap.forEach(doc => {
           const f = doc.data();
-          const idx = index++;
-          html += `
-            <div class="glass-card cursor-pointer fade-up" onclick="toggleFaq(${idx})">
-              <div class="flex justify-between items-center">
-                <h3 class="font-semibold">${f.question}</h3>
-                <i class="fas fa-chevron-down text-gray-400 transition-transform" id="faqIcon${idx}"></i>
-              </div>
-              <div id="faqAnswer${idx}" class="mt-2 text-gray-600 hidden">${f.answer}</div>
-            </div>
-          `;
+          allFaqs.push({ id: doc.id, ...f });
         });
-        faqContainer.innerHTML = html;
-        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-        // Make toggleFaq globally accessible
-        window.toggleFaq = (index) => {
-          const ans = document.getElementById(`faqAnswer${index}`);
-          const icon = document.getElementById(`faqIcon${index}`);
-          if (ans) {
-            ans.classList.toggle('hidden');
-            if (icon) icon.classList.toggle('rotate-180');
-          }
-        };
+        renderFaqs(showAll);
+        toggleBtn.style.display = 'inline-flex';
       } catch (err) {
         console.error('Error loading FAQs:', err);
         faqContainer.innerHTML = `<p class="text-red-500 text-center">Error loading FAQs.</p>`;
+        toggleBtn.style.display = 'none';
       }
     }
+
+    function renderFaqs(showAll) {
+      const total = allFaqs.length;
+      const itemsToShow = showAll ? allFaqs : allFaqs.slice(0, initialLimit);
+
+      if (itemsToShow.length === 0) {
+        faqContainer.innerHTML = `<p class="text-gray-500 text-center">No FAQs to display.</p>`;
+        toggleBtn.style.display = 'none';
+        return;
+      }
+
+      let html = '';
+      itemsToShow.forEach((faq, idx) => {
+        const globalIdx = allFaqs.indexOf(faq);
+        html += `
+          <div class="glass-card cursor-pointer fade-up" onclick="toggleFaq(${globalIdx})">
+            <div class="flex justify-between items-center">
+              <h3 class="font-semibold">${faq.question}</h3>
+              <i class="fas fa-chevron-down text-gray-400 transition-transform" id="faqIcon${globalIdx}"></i>
+            </div>
+            <div id="faqAnswer${globalIdx}" class="mt-2 text-gray-600 hidden">${faq.answer}</div>
+          </div>
+        `;
+      });
+
+      faqContainer.innerHTML = html;
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+      // Toggle button state
+      if (total > initialLimit) {
+        toggleBtn.style.display = 'inline-flex';
+        if (showAll) {
+          toggleText.textContent = 'Show Less';
+          toggleIcon.className = 'fas fa-chevron-up';
+        } else {
+          toggleText.textContent = 'Show More';
+          toggleIcon.className = 'fas fa-chevron-down';
+        }
+      } else {
+        toggleBtn.style.display = 'none';
+      }
+
+      // Define toggleFaq globally
+      window.toggleFaq = function(index) {
+        const answer = document.getElementById(`faqAnswer${index}`);
+        const icon = document.getElementById(`faqIcon${index}`);
+        if (answer) {
+          answer.classList.toggle('hidden');
+          if (icon) icon.classList.toggle('rotate-180');
+        }
+      };
+    }
+
+    // Toggle show/hide
+    toggleBtn.addEventListener('click', () => {
+      showAll = !showAll;
+      renderFaqs(showAll);
+    });
+
     loadFaqs();
 
     console.log('🏠 Landing page loaded successfully!');
