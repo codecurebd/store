@@ -257,49 +257,6 @@
       50% { opacity: 0.5; }
     }
 
-    /* ===== FAQ GRID & SHOW MORE ===== */
-    .faq-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-    .faq-item {
-      transition: all 0.3s ease;
-      background: rgba(255,255,255,0.8); /* ensure visibility */
-      border: 1px solid rgba(0,0,0,0.04);
-    }
-    .faq-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-    }
-    .faq-show-more-btn {
-      background: transparent;
-      border: 1.5px solid rgba(60,60,67,0.08);
-      padding: 10px 24px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: #1c1c1e;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(255,255,255,0.5);
-    }
-    .faq-show-more-btn:hover {
-      background: rgba(0,122,255,0.04);
-      border-color: #007AFF;
-      color: #007AFF;
-      transform: translateY(-2px);
-    }
-    .faq-show-more-btn i {
-      transition: transform 0.3s ease;
-    }
-    .faq-show-more-btn.rotated i {
-      transform: rotate(180deg);
-    }
-
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .glass-card { padding: 1rem; border-radius: 12px; }
@@ -307,10 +264,6 @@
       .btn-primary, .btn-outline { font-size: 0.85rem; min-height: 44px; padding: 10px 20px; }
       .trust-badge { font-size: 0.75rem; padding: 0.3rem 1rem; }
       .featured-card img { height: 140px; }
-      .faq-grid {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-      }
     }
     @media (max-width: 480px) {
       .stat-number { font-size: 1.6rem; }
@@ -460,24 +413,24 @@
         </div>
       </section>
 
-      <!-- ===== STATISTICS (UPDATED) ===== -->
+      <!-- ===== STATISTICS ===== -->
       <section id="stats" class="py-16 px-6">
         <div class="max-w-6xl mx-auto">
           <div class="grid md:grid-cols-4 gap-8 text-center">
             <div class="fade-up">
-              <div class="stat-number">100+</div>
+              <div class="stat-number">150+</div>
               <div class="stat-label">Projects Delivered</div>
             </div>
             <div class="fade-up" style="transition-delay:0.1s;">
-              <div class="stat-number">100+</div>
+              <div class="stat-number">90+</div>
               <div class="stat-label">Happy Clients</div>
             </div>
             <div class="fade-up" style="transition-delay:0.2s;">
-              <div class="stat-number">6+</div>
+              <div class="stat-number">3+</div>
               <div class="stat-label">Years of Experience</div>
             </div>
             <div class="fade-up" style="transition-delay:0.3s;">
-              <div class="stat-number">99%</div>
+              <div class="stat-number">98%</div>
               <div class="stat-label">Client Satisfaction</div>
             </div>
           </div>
@@ -494,22 +447,12 @@
         </div>
       </section>
 
-      <!-- ===== FAQ (RESTORED + DEBUG + DEFAULTS) ===== -->
+      <!-- ===== FAQ ===== -->
       <section id="faq" class="py-16 px-6">
-        <div class="max-w-5xl mx-auto">
+        <div class="max-w-3xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">Frequently Asked Questions</h2>
-          <div id="faqContainer" class="mt-8">
-            <!-- FAQ List with Grid -->
-            <div id="faqList" class="faq-grid">
-              <!-- FAQ items will be injected here -->
-            </div>
-            <!-- Show More / Show Less Button -->
-            <div class="text-center mt-6">
-              <button id="faqToggleBtn" class="faq-show-more-btn" style="display:none;">
-                <span id="faqToggleText">Show More</span>
-                <i class="fas fa-chevron-down" id="faqToggleIcon"></i>
-              </button>
-            </div>
+          <div id="faqList" class="mt-8 space-y-4">
+            <!-- Skeleton will be rendered by JS -->
           </div>
         </div>
       </section>
@@ -571,7 +514,7 @@
 
   <script type="module">
     // ================================================================
-    // ইমপোর্ট
+    // ইমপোর্ট – limit ছাড়া (কারণ আমরা ম্যানুয়ালি slice করব)
     // ================================================================
     import { 
       auth, db, collection, doc, getDoc, getDocs, onSnapshot, query, where,
@@ -684,45 +627,46 @@
       }
     });
 
-    window.socialLogin = async (provider) => {
-      if (provider !== 'google') {
-        showToast('Only Google sign-in is supported', 'warning');
-        return;
-      }
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, 'users', user.uid), {
-            email: user.email || '',
-            displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
-            photoURL: user.photoURL || '',
-            role: 'user',
-            createdAt: new Date().toISOString(),
-            isActive: true,
-            emailVerified: !!user.emailVerified,
-          });
-        }
-        showToast('✅ Signed in with Google', 'success');
-        if (typeof closeAuthModal === 'function') closeAuthModal();
-        else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
-      } catch (error) {
-        console.error('Google sign-in error:', error);
-        let msg = error.message || 'Sign-in failed';
-        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
-        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
-        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
-        showToast('⚠️ ' + msg, 'error');
-        const errEl = document.getElementById('authError');
-        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
-      }
-    };
+        window.socialLogin = async (provider) => {
+          if (provider !== 'google') {
+            showToast('Only Google sign-in is supported', 'warning');
+            return;
+          }
+          try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (!userDoc.exists()) {
+              await setDoc(doc(db, 'users', user.uid), {
+                email: user.email || '',
+                displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+                photoURL: user.photoURL || '',
+                role: 'user',
+                createdAt: new Date().toISOString(),
+                isActive: true,
+                emailVerified: !!user.emailVerified,
+              });
+            }
+            showToast('✅ Signed in with Google', 'success');
+            if (typeof closeAuthModal === 'function') closeAuthModal();
+            else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+          } catch (error) {
+            console.error('Google sign-in error:', error);
+            let msg = error.message || 'Sign-in failed';
+            if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+            else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
+            else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
+            else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
+            showToast('⚠️ ' + msg, 'error');
+            const errEl = document.getElementById('authError');
+            if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+          }
+        };
 
     onAuthStateChanged(auth, async (user) => {
       let name = null;
       if (user) {
+        // ✅ কার্ট সিঙ্ক (Firestore থেকে)
         await syncCart(user.uid);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
@@ -736,10 +680,11 @@
     };
 
     // ================================================================
-    // ✅ ফিচার্ড প্রোডাক্ট
+    // ✅ ফিচার্ড প্রোডাক্ট – সর্বোচ্চ ৬টি (স্কেলটন সহ)
     // ================================================================
     const packagesContainer = document.getElementById('featuredPackages');
 
+    // Show skeleton initially
     function renderSkeletons(count = 6) {
       let html = '';
       for (let i = 0; i < count; i++) {
@@ -761,17 +706,20 @@
 
     async function loadFeaturedProducts() {
       try {
+        // 1. featured=true থাকা প্রোডাক্ট আনা
         const qFeatured = query(collection(db, 'products'), where('featured', '==', true));
         const snapFeatured = await getDocs(qFeatured);
         let products = [];
         snapFeatured.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
 
+        // 2. যদি কোনো featured না থাকে, সব প্রোডাক্ট আনা
         if (products.length === 0) {
           const qAll = query(collection(db, 'products'));
           const snapAll = await getDocs(qAll);
           snapAll.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
         }
 
+        // 3. সর্বোচ্চ ৬টি
         products = products.slice(0, 6);
 
         if (products.length === 0) {
@@ -801,10 +749,11 @@
         packagesContainer.innerHTML = `<p class="text-red-500 col-span-3 text-center">Error loading products.</p>`;
       }
     }
+
     loadFeaturedProducts();
 
     // ================================================================
-    // ✅ টেস্টিমোনিয়াল
+    // ✅ টেস্টিমোনিয়াল (রিয়েল-টাইম না, getDocs ব্যবহার করেছি)
     // ================================================================
     const testimonialContainer = document.getElementById('testimonialList');
 
@@ -836,119 +785,49 @@
     loadTestimonials();
 
     // ================================================================
-    // ✅ FAQ (RESTORED + DEBUG + DEFAULTS)
+    // ✅ FAQ (রিয়েল-টাইম না, getDocs ব্যবহার করেছি)
     // ================================================================
-    const faqList = document.getElementById('faqList');
-    const faqToggleBtn = document.getElementById('faqToggleBtn');
-    const faqToggleText = document.getElementById('faqToggleText');
-    const faqToggleIcon = document.getElementById('faqToggleIcon');
-    let allFaqs = [];
-    let showAll = false;
-
-    // Default FAQs (if Firestore empty)
-    const defaultFaqs = [
-      { question: 'What services do you offer?', answer: 'We offer custom website development, website fix & repair, responsive design, hosting & maintenance, e-commerce solutions, and 24/7 support.' },
-      { question: 'How long does it take to build a website?', answer: 'Most websites are delivered within 24–48 hours, depending on complexity. We\'ll provide a timeline after you place an order.' },
-      { question: 'What payment methods do you accept?', answer: 'We accept bKash, Nagad, and USDT (BEP20). Payment details are provided during checkout.' },
-      { question: 'Do you offer refunds?', answer: 'Yes, we have a refund policy. Pending orders can be cancelled for a 95% refund. Once work starts (Processing), no refund is available.' },
-      { question: 'How do I request a fix for my website?', answer: 'Go to the "Fix My Website" page, fill out the form with details, and submit. You\'ll receive a ticket number and a reply within 24 hours.' },
-      { question: 'Is my data secure?', answer: 'Absolutely. We use SSL encryption and follow best practices to keep your data safe. Payments are processed securely.' }
-    ];
+    const faqContainer = document.getElementById('faqList');
 
     async function loadFaqs() {
       try {
-        const snapshot = await getDocs(collection(db, 'faqs'));
-        if (snapshot.empty) {
-          console.log('📭 No FAQs in Firestore. Using default FAQs.');
-          // Use default FAQs
-          allFaqs = defaultFaqs.map((f, index) => ({ id: `default-${index}`, ...f }));
-        } else {
-          allFaqs = [];
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.question && data.answer) {
-              allFaqs.push({ id: doc.id, ...data });
-            }
-          });
-          // If no valid FAQs found, use defaults
-          if (allFaqs.length === 0) {
-            console.warn('⚠️ FAQs found but missing question/answer. Using defaults.');
-            allFaqs = defaultFaqs.map((f, index) => ({ id: `default-${index}`, ...f }));
-          }
+        const snap = await getDocs(collection(db, 'faqs'));
+        if (snap.empty) {
+          faqContainer.innerHTML = `<p class="text-gray-500 text-center">No FAQs yet.</p>`;
+          return;
         }
-
-        console.log(`✅ Total FAQs loaded: ${allFaqs.length}`);
-        renderFaqs(showAll);
-        faqToggleBtn.style.display = 'inline-flex';
-      } catch (error) {
-        console.error('🔥 Error loading FAQs:', error);
-        // Fallback: use default FAQs
-        allFaqs = defaultFaqs.map((f, index) => ({ id: `default-${index}`, ...f }));
-        renderFaqs(showAll);
-        faqToggleBtn.style.display = 'inline-flex';
-      }
-    }
-
-    function renderFaqs(showAll) {
-      const total = allFaqs.length;
-      const limit = 6;
-      const itemsToShow = showAll ? allFaqs : allFaqs.slice(0, limit);
-
-      if (itemsToShow.length === 0) {
-        faqList.innerHTML = `<div class="col-span-2 text-center py-8 text-gray-500">No FAQs to display.</div>`;
-        faqToggleBtn.style.display = 'none';
-        return;
-      }
-
-      let html = '';
-      itemsToShow.forEach((faq, index) => {
-        const globalIdx = allFaqs.indexOf(faq);
-        html += `
-          <div class="glass-card cursor-pointer faq-item fade-up" onclick="toggleFaq(${globalIdx})">
-            <div class="flex justify-between items-center">
-              <h3 class="font-semibold text-gray-900 text-sm md:text-base">${faq.question}</h3>
-              <i class="fas fa-chevron-down text-gray-400 transition-transform" id="faqIcon${globalIdx}"></i>
+        let html = '';
+        let index = 0;
+        snap.forEach(doc => {
+          const f = doc.data();
+          const idx = index++;
+          html += `
+            <div class="glass-card cursor-pointer fade-up" onclick="toggleFaq(${idx})">
+              <div class="flex justify-between items-center">
+                <h3 class="font-semibold">${f.question}</h3>
+                <i class="fas fa-chevron-down text-gray-400 transition-transform" id="faqIcon${idx}"></i>
+              </div>
+              <div id="faqAnswer${idx}" class="mt-2 text-gray-600 hidden">${f.answer}</div>
             </div>
-            <div id="faqAnswer${globalIdx}" class="mt-2 text-gray-600 text-sm hidden">${faq.answer}</div>
-          </div>
-        `;
-      });
+          `;
+        });
+        faqContainer.innerHTML = html;
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-      faqList.innerHTML = html;
-      document.querySelectorAll('.faq-item .fade-up').forEach(el => observer.observe(el));
-
-      // Toggle button state
-      if (total > limit) {
-        faqToggleBtn.style.display = 'inline-flex';
-        if (showAll) {
-          faqToggleText.textContent = 'Show Less';
-          faqToggleIcon.className = 'fas fa-chevron-up';
-        } else {
-          faqToggleText.textContent = 'Show More';
-          faqToggleIcon.className = 'fas fa-chevron-down';
-        }
-      } else {
-        faqToggleBtn.style.display = 'none';
+        // Make toggleFaq globally accessible
+        window.toggleFaq = (index) => {
+          const ans = document.getElementById(`faqAnswer${index}`);
+          const icon = document.getElementById(`faqIcon${index}`);
+          if (ans) {
+            ans.classList.toggle('hidden');
+            if (icon) icon.classList.toggle('rotate-180');
+          }
+        };
+      } catch (err) {
+        console.error('Error loading FAQs:', err);
+        faqContainer.innerHTML = `<p class="text-red-500 text-center">Error loading FAQs.</p>`;
       }
-
-      // Define toggleFaq globally
-      window.toggleFaq = function(index) {
-        const answer = document.getElementById(`faqAnswer${index}`);
-        const icon = document.getElementById(`faqIcon${index}`);
-        if (answer) {
-          answer.classList.toggle('hidden');
-          if (icon) icon.classList.toggle('rotate-180');
-        }
-      };
     }
-
-    // Toggle show/hide
-    faqToggleBtn.addEventListener('click', () => {
-      showAll = !showAll;
-      renderFaqs(showAll);
-    });
-
-    // Load FAQs
     loadFaqs();
 
     console.log('🏠 Landing page loaded successfully!');
