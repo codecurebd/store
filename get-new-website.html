@@ -862,7 +862,6 @@
       const rating = p.averageRating || 0;
       document.getElementById('detailRating').textContent = renderStars(rating) + ` (${p.ratingCount || 0} reviews)`;
 
-      // ফুলস্ক্রিন ইমেজের জন্য সোর্স সেট করুন
       document.getElementById('fullscreenImage').src = p.imageUrl || 'https://via.placeholder.com/1200x800?text=No+Image';
 
       loadReviews(id);
@@ -874,6 +873,13 @@
       currentProductId = null;
       currentProductData = null;
     };
+
+    // ===== 🔥 নতুন: মডালের বাইরে ক্লিক করলে বন্ধ হবে =====
+    document.getElementById('productDetailModal').addEventListener('click', function(e) {
+      if (e.target === this) { // শুধু ওভারলে (ব্যাকগ্রাউন্ড) ক্লিক করলে
+        closeDetailModal();
+      }
+    });
 
     // ===== FULLSCREEN IMAGE TOGGLE =====
     window.openFullscreenImage = () => {
@@ -888,14 +894,12 @@
       document.body.style.overflow = '';
     };
 
-    // ক্লোজ বাটন ছাড়াও ওভারলে ক্লিক করলে বন্ধ হবে
     document.getElementById('fullscreenOverlay').addEventListener('click', (e) => {
       if (e.target === e.currentTarget) {
         closeFullscreenImage();
       }
     });
 
-    // ESC কী প্রেস করলেও বন্ধ হবে
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (document.getElementById('fullscreenOverlay').classList.contains('open')) {
