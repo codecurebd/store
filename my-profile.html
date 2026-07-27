@@ -86,7 +86,11 @@
                   <button onclick="verifyEmail()" id="verifyEmailBtn" class="btn-primary text-sm py-1.5 px-4 email-verify-btn">
                     <i class="fas fa-envelope"></i> Verify Email
                   </button>
+                  <button onclick="checkEmailVerified()" id="checkVerifiedBtn" class="btn-outline text-sm py-1.5 px-4">
+                    <i class="fas fa-sync-alt"></i> I've verified
+                  </button>
                 </div>
+                <p id="verifyEmailHint" class="text-xs text-gray-400 mt-1 hidden">Check Inbox and Spam/Junk. Mark “Not spam” if found there.</p>
               </div>
             </div>
             <button onclick="toggleEditForm()" class="btn-outline text-sm py-2 px-4 flex-shrink-0" id="editToggleBtn">
@@ -324,18 +328,87 @@
       }
     }
 
-    // ===== NEW: Email Verification =====
+    // ===== Email Verification =====
     window.verifyEmail = async () => {
       const user = auth.currentUser;
       if (!user) { showToast('Not logged in', 'error'); return; }
-      if (user.emailVerified) {
-        showToast('✅ Email already verified', 'success');
+
+      // Google accounts are usually already verified
+      if (user.providerData?.some(p => p.providerId === 'google.com') && user.emailVerified) {
+        showToast('✅ Google email is already verified', 'success');
         updateEmailVerificationUI(true);
         return;
       }
+
+      await user.reload();
+      if (user.emailVerified) {
+        showToast('✅ Email already verified', 'success');
+        updateEmailVerificationUI(true);
+        try {
+          await updateDoc(doc(db, 'users', user.uid), { emailVerified: true });
+        } catch (_) {}
+        return;
+      }
+
+      if (!user.email) {
+        showToast('⚠️ No email on this account', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('verifyEmailBtn');
+      const hint = document.getElementById('verifyEmailHint');
       try {
-        await sendEmailVerification(user);
-        showToast('📧 Verification email sent! Check your inbox.', 'success');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; }
+        const actionCodeSettings = {
+          url: window.location.origin + window.location.pathname.replace(/[^/]*$/, 'my-profile.html'),
+          handleCodeInApp: false,
+        };
+        await sendEmailVerification(user, actionCodeSettings);
+        showToast('📧 Verification email sent! Check Inbox and Spam/Junk.', 'success');
+        if (hint) hint.classList.remove('hidden');
+        // Cooldown 60s to avoid too-many-requests
+        let left = 60;
+        if (btn) {
+          const t = setInterval(() => {
+            left--;
+            btn.innerHTML = `<i class="fas fa-envelope"></i> Resend (${left}s)`;
+            if (left <= 0) {
+              clearInterval(t);
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fas fa-envelope"></i> Verify Email';
+            }
+          }, 1000);
+        }
+      } catch (err) {
+        console.error('verifyEmail error:', err);
+        let msg = err.message || 'Failed to send email';
+        if (err.code === 'auth/too-many-requests') {
+          msg = 'Too many requests. Wait a few minutes, then try again.';
+        }
+        showToast('⚠️ ' + msg, 'error');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-envelope"></i> Verify Email';
+        }
+      }
+    };
+
+    window.checkEmailVerified = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      try {
+        await user.reload();
+        if (user.emailVerified) {
+          updateEmailVerificationUI(true);
+          try {
+            await updateDoc(doc(db, 'users', user.uid), { emailVerified: true });
+          } catch (_) {}
+          showToast('✅ Email verified!', 'success');
+          const hint = document.getElementById('verifyEmailHint');
+          if (hint) hint.classList.add('hidden');
+        } else {
+          showToast('Still not verified. Open the link in the email (check Spam).', 'warning');
+        }
       } catch (err) {
         showToast('⚠️ ' + err.message, 'error');
       }
@@ -344,16 +417,21 @@
     function updateEmailVerificationUI(isVerified) {
       const status = document.getElementById('emailVerifiedStatus');
       const btn = document.getElementById('verifyEmailBtn');
+      const checkBtn = document.getElementById('checkVerifiedBtn');
+      const hint = document.getElementById('verifyEmailHint');
       if (isVerified) {
         status.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle"></i> Verified</span>';
         btn.innerHTML = '<i class="fas fa-check"></i> Verified';
         btn.className = 'btn-primary text-sm py-1.5 px-4 email-verify-btn verified';
         btn.disabled = true;
+        if (checkBtn) checkBtn.classList.add('hidden');
+        if (hint) hint.classList.add('hidden');
       } else {
         status.innerHTML = '<span class="text-yellow-600"><i class="fas fa-exclamation-circle"></i> Not verified</span>';
         btn.innerHTML = '<i class="fas fa-envelope"></i> Verify Email';
         btn.className = 'btn-primary text-sm py-1.5 px-4 email-verify-btn';
         btn.disabled = false;
+        if (checkBtn) checkBtn.classList.remove('hidden');
       }
     }
 
@@ -361,6 +439,7 @@
       if (!user) { window.location.href = 'index.html'; return; }
       setLoadingState(true);
       try {
+        try { await user.reload(); } catch (_) {}
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
