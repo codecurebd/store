@@ -508,7 +508,6 @@
       </form>
       <div class="mt-4 flex flex-col gap-2">
         <button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button>
-        <button onclick="window.socialLogin('github')" class="btn-outline w-full justify-center"><i class="fab fa-github"></i> Sign in with GitHub</button>
       </div>
       <p class="mt-4 text-sm text-gray-500 text-center">
         <span id="authToggleText">Don't have an account?</span>
@@ -532,7 +531,7 @@
       auth, db, collection, doc, getDoc, setDoc, addDoc, onSnapshot, 
       query, where, serverTimestamp, signOut, onAuthStateChanged,
       signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-      updateDoc, deleteDoc, signInWithPopup, googleProvider, githubProvider,
+      updateDoc, deleteDoc, signInWithPopup, googleProvider,
       EmailAuthProvider, reauthenticateWithCredential
     } from './firebase-config.js';
 
@@ -676,27 +675,41 @@
       input.type = input.type === 'password' ? 'text' : 'password';
     };
 
-    window.socialLogin = async (provider) => {
-      try {
-        let result;
-        if (provider === 'google') result = await signInWithPopup(auth, googleProvider);
-        else if (provider === 'github') result = await signInWithPopup(auth, githubProvider);
-        const user = result.user;
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, 'users', user.uid), {
-            email: user.email,
-            displayName: user.displayName || user.email.split('@')[0],
-            role: 'user',
-            createdAt: new Date().toISOString()
-          });
-        }
-        showToast('✅ Signed in with ' + provider, 'success');
-        closeAuthModal();
-      } catch (err) {
-        showToast('⚠️ ' + err.message, 'error');
-      }
-    };
+        window.socialLogin = async (provider) => {
+          if (provider !== 'google') {
+            showToast('Only Google sign-in is supported', 'warning');
+            return;
+          }
+          try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (!userDoc.exists()) {
+              await setDoc(doc(db, 'users', user.uid), {
+                email: user.email || '',
+                displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+                photoURL: user.photoURL || '',
+                role: 'user',
+                createdAt: new Date().toISOString(),
+                isActive: true,
+                emailVerified: !!user.emailVerified,
+              });
+            }
+            showToast('✅ Signed in with Google', 'success');
+            if (typeof closeAuthModal === 'function') closeAuthModal();
+            else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+          } catch (error) {
+            console.error('Google sign-in error:', error);
+            let msg = error.message || 'Sign-in failed';
+            if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+            else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
+            else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
+            else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
+            showToast('⚠️ ' + msg, 'error');
+            const errEl = document.getElementById('authError');
+            if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+          }
+        };
 
     const authForm = document.getElementById('authForm');
     const authSubmitBtn = authForm.querySelector('button[type="submit"]');

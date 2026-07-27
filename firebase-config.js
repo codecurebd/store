@@ -59,7 +59,10 @@ const db = initializeFirestore(app, {
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
-const githubProvider = new GithubAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+googleProvider.addScope('profile');
+googleProvider.addScope('email');
+const githubProvider = new GithubAuthProvider(); // kept for compatibility; UI no longer uses GitHub
 
 // ========== নতুন ফাংশন (অ্যাডমিন প্যানেলের জন্য) ==========
 
@@ -97,6 +100,26 @@ export async function adminDeleteUser(uid, adminEmail, adminPassword) {
   } catch (error) {
     return { success: false, error: error.message };
   }
+}
+
+// ✅ Google Sign-In helper (creates Firestore user doc if new)
+export async function loginWithGoogle() {
+  const result = await signInWithPopup(auth, googleProvider);
+  const user = result.user;
+  const userRef = doc(db, 'users', user.uid);
+  const userDoc = await getDoc(userRef);
+  if (!userDoc.exists()) {
+    await setDoc(userRef, {
+      email: user.email || '',
+      displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+      photoURL: user.photoURL || '',
+      role: 'user',
+      createdAt: new Date().toISOString(),
+      isActive: true,
+      emailVerified: !!user.emailVerified,
+    });
+  }
+  return user;
 }
 
 // ========== সব export ==========
