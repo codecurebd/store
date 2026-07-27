@@ -87,6 +87,8 @@
     .btn-outline { background: transparent; color: #1c1c1e; padding: 10px 22px; border-radius: 60px; font-weight: 600; font-size: 0.9rem; border: 1.5px solid rgba(60,60,67,0.08); cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.5); min-height: 48px; }
     .btn-outline:hover { background: rgba(0,122,255,0.04); border-color: #007AFF; color: #007AFF; transform: translateY(-2px); }
     .btn-sm { padding: 4px 12px; font-size: 0.75rem; min-height: 30px; border-radius: 30px; }
+    .btn-delete { background: #fee2e2; color: #dc2626; border: none; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; cursor: pointer; transition: 0.3s; }
+    .btn-delete:hover { background: #fecaca; }
     .badge-pending { background: #FF9500; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
     .badge-processing { background: #007AFF; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
     .badge-completed { background: #34C759; color: white; padding: 2px 12px; border-radius: 60px; font-size: 0.7rem; font-weight: 600; }
@@ -190,6 +192,23 @@
     .toast.hide { animation: slideOut 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     @keyframes slideOut { to { transform: translateX(calc(100% + 40px)); opacity: 0; } }
 
+    /* ===== TESTIMONIAL & FAQ CARDS (new) ===== */
+    .testimonial-card, .faq-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.3s;
+    }
+    .testimonial-card:hover, .faq-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+    }
+
     @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } .chart-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
     @media (max-width: 768px) {
       .sidebar { width: 280px; transform: translateX(-100%); padding: 1rem; box-shadow: 4px 0 30px rgba(0,0,0,0.1); } .sidebar.open { transform: translateX(0); } .main { margin-left: 0; padding: 0 0 4rem 0; } .mobile-header { display: flex; } .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .dashboard-card { padding: 0.75rem; } .dashboard-card .value { font-size: 1.4rem; } .chart-container { height: 180px; } .chart-grid { grid-template-columns: 1fr; } .glass-card { padding: 1rem; border-radius: 12px; } .messenger-wrap { flex-direction: column; height: 75vh; min-height: 400px; border-radius: 16px; } .conv-list { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); } .chat-msg { max-width: 92%; } .chat-input-wrap { padding: 10px 14px; flex-wrap: wrap; } .chat-input-wrap input { padding: 10px 14px; font-size: 0.9rem; } .chat-input-wrap button { width: 42px; height: 42px; font-size: 1rem; } .chat-messages { padding: 12px 14px; } .chat-msg { padding: 8px 14px; font-size: 0.9rem; } .product-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } .product-card img { height: 120px; } .admin-table { font-size: 0.75rem; } .admin-table th, .admin-table td { padding: 6px 8px; } .stats-grid { grid-template-columns: repeat(3, 1fr); } .filter-group-advanced .form-input { min-width: 100px; } .filter-group-advanced { padding: 0.75rem; } .user-grid-cards { grid-template-columns: repeat(2, 1fr); } .pagination { flex-direction: column; align-items: stretch; } .pagination .page-buttons { justify-content: center; } }
@@ -261,7 +280,7 @@
       </div>
     </div>
 
-    <!-- PRODUCTS (অপরিবর্তিত) -->
+    <!-- PRODUCTS -->
     <div id="tab-products" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
@@ -272,7 +291,7 @@
       </div>
     </div>
 
-    <!-- ===== ORDERS (আগের মতো) ===== -->
+    <!-- ===== ORDERS (with Delete) ===== -->
     <div id="tab-orders" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
@@ -316,7 +335,7 @@
       </div>
     </div>
 
-    <!-- ===== USERS (অ্যাডভান্সড আপডেটেড) ===== -->
+    <!-- ===== USERS (Advanced) ===== -->
     <div id="tab-users" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
@@ -332,7 +351,7 @@
           </div>
         </div>
 
-        <!-- ===== STATS CARDS ===== -->
+        <!-- STATS CARDS -->
         <div class="stats-grid" id="userStats">
           <div class="stat-card-modern"><div class="stat-icon">👥</div><div class="stat-number" id="statTotal">0</div><div class="stat-label">Total Users</div></div>
           <div class="stat-card-modern"><div class="stat-icon">🟢</div><div class="stat-number text-green-600" id="statActive">0</div><div class="stat-label">Active</div></div>
@@ -341,7 +360,7 @@
           <div class="stat-card-modern"><div class="stat-icon">🧑</div><div class="stat-number text-blue-600" id="statUser">0</div><div class="stat-label">Users</div></div>
         </div>
 
-        <!-- ===== FILTERS ===== -->
+        <!-- FILTERS -->
         <div class="filter-group-advanced" id="userFilters">
           <div class="filter-item">
             <label>Search</label>
@@ -395,16 +414,16 @@
           </div>
         </div>
 
-        <!-- ===== BULK ACTIONS ===== -->
+        <!-- BULK ACTIONS -->
         <div class="bulk-actions" id="bulkActions" style="display:none;">
           <span class="bulk-info"><strong id="bulkCount">0</strong> user(s) selected</span>
           <button onclick="bulkStatus('active')" class="btn-primary btn-sm"><i class="fas fa-user-check"></i> Activate</button>
           <button onclick="bulkStatus('inactive')" class="btn-outline btn-sm"><i class="fas fa-user-slash"></i> Deactivate</button>
-          <button onclick="bulkDelete()" class="btn-danger btn-sm" style="background:linear-gradient(135deg,#FF3B30,#dc2626);color:#fff;padding:4px 12px;border-radius:30px;font-size:0.75rem;border:none;cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>
+          <button onclick="bulkDelete()" class="btn-delete"><i class="fas fa-trash"></i> Delete</button>
           <button onclick="clearBulkSelection()" class="btn-outline btn-sm">Clear</button>
         </div>
 
-        <!-- ===== TABLE VIEW ===== -->
+        <!-- TABLE VIEW -->
         <div id="usersTableView" class="overflow-x-auto">
           <table class="admin-table" id="userTable">
             <thead>
@@ -428,12 +447,12 @@
           </table>
         </div>
 
-        <!-- ===== CARDS VIEW ===== -->
+        <!-- CARDS VIEW -->
         <div id="usersCardsView" style="display:none;" class="user-grid-cards">
           <!-- JS রেন্ডার করবে -->
         </div>
 
-        <!-- ===== PAGINATION ===== -->
+        <!-- PAGINATION -->
         <div class="pagination" id="userPagination">
           <div class="page-info" id="pageInfo">Showing 0-0 of 0</div>
           <div class="page-buttons" id="pageButtons"></div>
@@ -451,7 +470,7 @@
       </div>
     </div>
 
-    <!-- MESSAGES (অপরিবর্তিত) -->
+    <!-- MESSAGES -->
     <div id="tab-messages" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <h2 class="text-2xl font-bold">Contact Messages</h2>
@@ -459,7 +478,7 @@
       </div>
     </div>
 
-    <!-- FIX REQUESTS (অপরিবর্তিত) -->
+    <!-- FIX REQUESTS -->
     <div id="tab-fixrequests" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <h2 class="text-2xl font-bold">Fix Requests</h2>
@@ -467,10 +486,12 @@
       </div>
     </div>
 
-    <!-- SETTINGS (অপরিবর্তিত) -->
+    <!-- ===== SETTINGS (with Testimonials & FAQs) ===== -->
     <div id="tab-settings" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <h2 class="text-2xl font-bold">Settings</h2>
+        
+        <!-- Payment Settings -->
         <form id="settingsForm" class="mt-4 space-y-3 max-w-md">
           <label class="block text-sm font-medium">BKASH Number</label>
           <input type="text" id="bkashNumber" class="form-input" />
@@ -480,10 +501,35 @@
           <input type="text" id="usdtAddress" class="form-input" />
           <button type="submit" class="btn-primary w-full">Save Settings</button>
         </form>
+
+        <!-- ====== নতুন: Testimonials ====== -->
+        <div class="mt-8">
+          <h3 class="text-xl font-bold">Testimonials</h3>
+          <form id="testimonialForm" class="space-y-3 max-w-md mt-4">
+            <input type="text" id="testimonialName" placeholder="Client Name" class="form-input" required />
+            <input type="text" id="testimonialRole" placeholder="Role (e.g. CEO, Company)" class="form-input" />
+            <textarea id="testimonialText" rows="3" placeholder="Testimonial text" class="form-input" required></textarea>
+            <input type="hidden" id="testimonialId" />
+            <button type="submit" class="btn-primary w-full">Add Testimonial</button>
+          </form>
+          <div id="testimonialList" class="mt-4 space-y-2"></div>
+        </div>
+
+        <!-- ====== নতুন: FAQs ====== -->
+        <div class="mt-8">
+          <h3 class="text-xl font-bold">FAQs</h3>
+          <form id="faqForm" class="space-y-3 max-w-md mt-4">
+            <input type="text" id="faqQuestion" placeholder="Question" class="form-input" required />
+            <textarea id="faqAnswer" rows="3" placeholder="Answer" class="form-input" required></textarea>
+            <input type="hidden" id="faqId" />
+            <button type="submit" class="btn-primary w-full">Add FAQ</button>
+          </form>
+          <div id="faqList" class="mt-4 space-y-2"></div>
+        </div>
       </div>
     </div>
 
-    <!-- SUPPORT CHAT (অপরিবর্তিত) -->
+    <!-- SUPPORT CHAT -->
     <div id="tab-supportchat" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <h2 class="text-2xl font-bold mb-4">Support Chat</h2>
@@ -532,7 +578,7 @@
     </div>
   </div>
 
-  <!-- ===== USER MODAL (অপরিবর্তিত) ===== -->
+  <!-- ===== USER MODAL ===== -->
   <div class="modal-overlay" id="userModal">
     <div class="modal-box">
       <div class="modal-header"><h3 id="userModalTitle">Add User</h3><button class="modal-close" onclick="closeUserModal()">&times;</button></div>
@@ -550,7 +596,7 @@
     </div>
   </div>
 
-  <!-- ===== ORDER DETAIL MODAL (আগের মতো) ===== -->
+  <!-- ===== ORDER DETAIL MODAL ===== -->
   <div class="modal-overlay" id="orderDetailModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -577,7 +623,9 @@
       auth, db,
       collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc,
       onSnapshot, query, where, serverTimestamp,
-      signOut, onAuthStateChanged
+      signOut, onAuthStateChanged,
+      EmailAuthProvider, reauthenticateWithCredential,
+      adminCreateUser, adminDeleteUser  // নতুন ফাংশন
     } from './firebase-config.js';
     import { setLoading } from './components.js';
 
@@ -645,7 +693,7 @@
         }, 4500);
       };
 
-      // ----- DASHBOARD CHARTS (আগের মতো) -----
+      // ----- DASHBOARD CHARTS -----
       let dailyOrdersChart, dailyRevenueChart, monthlyRevenueChart, dailySignupsChart, dailyFixRequestsChart;
       let allOrders = [], allUsers = [], allFixRequests = [];
 
@@ -751,7 +799,7 @@
       });
 
       // ==============================================================
-      // PRODUCTS (আগের মতো)
+      // PRODUCTS
       // ==============================================================
       function renderProducts(snapshot) {
         const productList = document.getElementById('productList');
@@ -851,7 +899,6 @@
       let userSortAsc = true;
       let selectedUsers = new Set();
 
-      // Stats
       function updateUserStats(users) {
         const total = users.length;
         const active = users.filter(u => u.isActive !== false).length;
@@ -865,7 +912,6 @@
         document.getElementById('statUser').textContent = user;
       }
 
-      // Filter, sort, paginate
       function getFilteredUsers() {
         const search = document.getElementById('userSearch').value.toLowerCase().trim();
         const role = document.getElementById('userRoleFilter').value;
@@ -913,7 +959,6 @@
           return true;
         });
 
-        // Sort
         filtered.sort((a, b) => {
           let valA, valB;
           switch (userSortField) {
@@ -945,10 +990,8 @@
         const end = Math.min(start + perPage, total);
         const pageUsers = filtered.slice(start, end);
 
-        // Update pagination info
         document.getElementById('pageInfo').textContent = `Showing ${total > 0 ? start+1 : 0}-${end} of ${total}`;
 
-        // Pagination buttons
         let pageHtml = '';
         pageHtml += `<button onclick="goToUserPage(1)" ${currentUserPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>`;
         pageHtml += `<button onclick="goToUserPage(${currentUserPage-1})" ${currentUserPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-left"></i></button>`;
@@ -959,7 +1002,6 @@
         pageHtml += `<button onclick="goToUserPage(${totalPages})" ${currentUserPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>`;
         document.getElementById('pageButtons').innerHTML = pageHtml;
 
-        // View toggle
         const view = document.querySelector('#viewToggle .active')?.dataset.view || 'table';
         if (view === 'table') {
           document.getElementById('usersTableView').style.display = '';
@@ -1018,7 +1060,6 @@
         });
         tbody.innerHTML = html;
 
-        // Bulk select
         document.getElementById('selectAllUsers').addEventListener('change', function() {
           const checked = this.checked;
           document.querySelectorAll('.user-checkbox').forEach(cb => {
@@ -1108,7 +1149,6 @@
         renderUsersPage(allUsers);
       };
 
-      // View toggle
       document.querySelectorAll('#viewToggle button').forEach(btn => {
         btn.addEventListener('click', function() {
           document.querySelectorAll('#viewToggle button').forEach(b => b.classList.remove('active'));
@@ -1117,14 +1157,12 @@
         });
       });
 
-      // Per page change
       document.getElementById('perPageSelect').addEventListener('change', function() {
         perPage = parseInt(this.value);
         currentUserPage = 1;
         renderUsersPage(allUsers);
       });
 
-      // Table sort
       document.querySelectorAll('#userTable th[data-sort]').forEach(th => {
         th.addEventListener('click', function() {
           const field = this.dataset.sort;
@@ -1138,7 +1176,6 @@
         });
       });
 
-      // Filters
       window.applyUserFilters = function() {
         currentUserPage = 1;
         renderUsersPage(allUsers);
@@ -1158,14 +1195,12 @@
         applyUserFilters();
       };
 
-      // Debounce search
       let searchTimeout;
       document.getElementById('userSearch').addEventListener('input', function() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(applyUserFilters, 300);
       });
 
-      // Bulk actions
       window.bulkStatus = async function(status) {
         if (selectedUsers.size === 0) return;
         const active = status === 'active';
@@ -1202,7 +1237,7 @@
         updateBulkActions();
       };
 
-      // ===== USER CRUD =====
+      // ===== USER CRUD (with Admin Functions) =====
       window.editUser = async (id) => {
         const docSnap = await getDoc(doc(db, 'users', id));
         if (docSnap.exists()) {
@@ -1220,11 +1255,18 @@
       };
 
       window.deleteUser = async (id) => {
-        if (!confirm('Delete this user permanently?')) return;
-        try {
-          await deleteDoc(doc(db, 'users', id));
-          showToast('✅ User deleted', 'success');
-        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+        if (!confirm('Delete this user permanently? This will remove Firestore data. Auth account will remain.')) return;
+        // পাসওয়ার্ড যাচাই
+        const password = prompt('Enter your admin password to confirm deletion:');
+        if (!password) return;
+        const adminEmail = auth.currentUser?.email;
+        if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
+        const result = await adminDeleteUser(id, adminEmail, password);
+        if (result.success) {
+          showToast('✅ User data deleted (Auth account remains)', 'success');
+        } else {
+          showToast('⚠️ ' + result.error, 'error');
+        }
       };
 
       window.toggleUserStatus = async (id, newStatus) => {
@@ -1267,31 +1309,43 @@
         const displayName = document.getElementById('userDisplayName').value.trim();
         const password = document.getElementById('userPassword').value;
         const role = document.getElementById('userRole').value;
-        if (!email) { showToast('Email is required.', 'error'); return; }
-        setLoading(userSubmitBtn, true, 'Saving...');
-        try {
-          if (id) {
+
+        if (id) {
+          // Edit user
+          if (!email) { showToast('Email is required.', 'error'); return; }
+          setLoading(userSubmitBtn, true, 'Saving...');
+          try {
             await updateDoc(doc(db, 'users', id), { displayName, role });
             showToast('✅ User updated!', 'success');
-          } else {
-            if (!password || password.length < 6) {
-              showToast('Password must be at least 6 characters.', 'error');
-              setLoading(userSubmitBtn, false);
-              return;
-            }
-            const uid = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-            await setDoc(doc(db, 'users', uid), {
-              email, displayName: displayName || email.split('@')[0],
-              role, createdAt: new Date().toISOString()
-            });
-            showToast('✅ User added!', 'success');
+            closeUserModal();
+          } catch (err) { showToast('Error: ' + err.message, 'error'); }
+          finally { setLoading(userSubmitBtn, false); }
+        } else {
+          // Create new user with Authentication
+          if (!email || !password || password.length < 6) {
+            showToast('Password must be at least 6 characters.', 'error');
+            return;
           }
-          closeUserModal();
-        } catch (err) { showToast('Error: ' + err.message, 'error'); }
-        finally { setLoading(userSubmitBtn, false); }
+          const adminEmail = auth.currentUser?.email;
+          if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
+          // অ্যাডমিন পাসওয়ার্ড প্রম্পট
+          const adminPassword = prompt('Enter your admin password to create user:');
+          if (!adminPassword) return;
+          setLoading(userSubmitBtn, true, 'Creating...');
+          try {
+            const result = await adminCreateUser(email, password, displayName, role, adminEmail, adminPassword);
+            if (result.success) {
+              showToast(`✅ User created! UID: ${result.uid}`, 'success');
+              closeUserModal();
+            } else {
+              showToast('⚠️ ' + result.error, 'error');
+            }
+          } catch (err) { showToast('Error: ' + err.message, 'error'); }
+          finally { setLoading(userSubmitBtn, false); }
+        }
       });
 
-      // Export
+      // ===== EXPORT USERS =====
       window.exportUsers = function(format) {
         const filtered = getFilteredUsers();
         if (filtered.length === 0) { showToast('No users to export.', 'warning'); return; }
@@ -1331,7 +1385,7 @@
       }
 
       // ==============================================================
-      // ORDERS (আগের মতো)
+      // ORDERS (with Delete)
       // ==============================================================
       let filteredOrders = [];
       const orderTableBody = document.getElementById('orderTableBody');
@@ -1382,6 +1436,9 @@
                 <button onclick="viewOrderDetail('${o.id}')" class="text-blue-600 hover:underline text-sm">
                   <i class="fas fa-eye"></i> Details
                 </button>
+                <button onclick="deleteOrder('${o.id}')" class="btn-delete text-xs ml-2">
+                  <i class="fas fa-trash"></i> Delete
+                </button>
               </td>
             </tr>
           `;
@@ -1397,6 +1454,25 @@
         document.getElementById('orderPriceMax').value = '';
         document.getElementById('orderStatusFilter').value = 'all';
         renderOrdersTable(allOrders);
+      };
+
+      // ===== ORDER DELETE =====
+      window.deleteOrder = async (orderId) => {
+        if (!confirm('Delete this order permanently?')) return;
+        const password = prompt('Enter your admin password to confirm deletion:');
+        if (!password) return;
+        try {
+          const adminEmail = auth.currentUser?.email;
+          if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
+          const credential = EmailAuthProvider.credential(adminEmail, password);
+          await reauthenticateWithCredential(auth.currentUser, credential);
+          await deleteDoc(doc(db, 'orders', orderId));
+          showToast('✅ Order deleted', 'success');
+          // Refetch orders
+          // onSnapshot already handles update
+        } catch (err) {
+          showToast('⚠️ ' + err.message, 'error');
+        }
       };
 
       window.viewOrderDetail = async (orderId) => {
@@ -1584,7 +1660,7 @@ Thank you for shopping with SWD Store!
       };
 
       // ==============================================================
-      // CONTACT MESSAGES (আগের মতো)
+      // CONTACT MESSAGES
       // ==============================================================
       const messageList = document.getElementById('messageList');
       onSnapshot(collection(db, 'contactMessages'), (snapshot) => {
@@ -1607,7 +1683,7 @@ Thank you for shopping with SWD Store!
       });
 
       // ==============================================================
-      // FIX REQUESTS (আগের মতো)
+      // FIX REQUESTS (with reply timestamp fix)
       // ==============================================================
       const fixRequestList = document.getElementById('fixRequestList');
       onSnapshot(collection(db, 'fixRequests'), (snapshot) => {
@@ -1619,6 +1695,12 @@ Thank you for shopping with SWD Store!
         snapshot.forEach(doc => {
           const r = doc.data();
           const reply = r.reply || '';
+          // ✅ ফিক্স: reply timestamp সঠিকভাবে দেখানো
+          let replyTimeStr = '';
+          if (r.replyTimestamp) {
+            const replyDate = r.replyTimestamp.toDate ? r.replyTimestamp.toDate() : new Date(r.replyTimestamp);
+            replyTimeStr = replyDate.toLocaleString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+          }
           html += `
             <div class="glass-card" id="fix-${doc.id}">
               <div>
@@ -1632,7 +1714,7 @@ Thank you for shopping with SWD Store!
                   <textarea id="reply-${doc.id}" rows="2" class="form-input flex-1 text-sm" placeholder="Write reply...">${reply}</textarea>
                   <button onclick="sendReply('${doc.id}')" class="btn-primary btn-sm">Send</button>
                 </div>
-                ${reply ? `<p class="text-xs text-green-600 mt-1">✔ Reply sent: ${r.replyTimestamp?.toDate?.()?.toLocaleString() || ''}</p>` : ''}
+                ${reply ? `<p class="text-xs text-green-600 mt-1">✔ Reply sent: ${replyTimeStr}</p>` : ''}
               </div>
             </div>
           `;
@@ -1653,8 +1735,9 @@ Thank you for shopping with SWD Store!
       };
 
       // ==============================================================
-      // SETTINGS (আগের মতো)
+      // SETTINGS (Payment + Testimonials + FAQs)
       // ==============================================================
+      // Payment Settings
       const settingsForm = document.getElementById('settingsForm');
       const settingsBtn = settingsForm.querySelector('button[type="submit"]');
       settingsForm.addEventListener('submit', async (e) => {
@@ -1670,8 +1753,128 @@ Thank you for shopping with SWD Store!
         finally { setLoading(settingsBtn, false); }
       });
 
+      // ===== Testimonials CRUD =====
+      const testimonialForm = document.getElementById('testimonialForm');
+      const testimonialList = document.getElementById('testimonialList');
+
+      onSnapshot(collection(db, 'testimonials'), (snapshot) => {
+        if (snapshot.empty) {
+          testimonialList.innerHTML = '<div class="text-gray-400 text-sm">No testimonials yet.</div>';
+          return;
+        }
+        let html = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          html += `
+            <div class="testimonial-card">
+              <div><strong>${data.name}</strong> ${data.role ? `(${data.role})` : ''}<br><span class="text-sm text-gray-600">${data.text}</span></div>
+              <div>
+                <button onclick="editTestimonial('${doc.id}')" class="text-blue-600 text-sm mr-2"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteTestimonial('${doc.id}')" class="text-red-500 text-sm"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+          `;
+        });
+        testimonialList.innerHTML = html;
+      });
+
+      testimonialForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('testimonialId').value;
+        const data = {
+          name: document.getElementById('testimonialName').value.trim(),
+          role: document.getElementById('testimonialRole').value.trim(),
+          text: document.getElementById('testimonialText').value.trim(),
+        };
+        if (!data.name || !data.text) { showToast('Name and text required.', 'error'); return; }
+        try {
+          if (id) await updateDoc(doc(db, 'testimonials', id), data);
+          else await addDoc(collection(db, 'testimonials'), data);
+          testimonialForm.reset();
+          document.getElementById('testimonialId').value = '';
+          showToast('✅ Testimonial saved!', 'success');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      });
+
+      window.editTestimonial = async (id) => {
+        const snap = await getDoc(doc(db, 'testimonials', id));
+        if (snap.exists()) {
+          const data = snap.data();
+          document.getElementById('testimonialName').value = data.name || '';
+          document.getElementById('testimonialRole').value = data.role || '';
+          document.getElementById('testimonialText').value = data.text || '';
+          document.getElementById('testimonialId').value = id;
+        }
+      };
+
+      window.deleteTestimonial = async (id) => {
+        if (confirm('Delete this testimonial?')) {
+          await deleteDoc(doc(db, 'testimonials', id));
+          showToast('✅ Deleted', 'success');
+        }
+      };
+
+      // ===== FAQs CRUD =====
+      const faqForm = document.getElementById('faqForm');
+      const faqList = document.getElementById('faqList');
+
+      onSnapshot(collection(db, 'faqs'), (snapshot) => {
+        if (snapshot.empty) {
+          faqList.innerHTML = '<div class="text-gray-400 text-sm">No FAQs yet.</div>';
+          return;
+        }
+        let html = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          html += `
+            <div class="faq-card">
+              <div><strong>${data.question}</strong><br><span class="text-sm text-gray-600">${data.answer}</span></div>
+              <div>
+                <button onclick="editFaq('${doc.id}')" class="text-blue-600 text-sm mr-2"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteFaq('${doc.id}')" class="text-red-500 text-sm"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+          `;
+        });
+        faqList.innerHTML = html;
+      });
+
+      faqForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('faqId').value;
+        const data = {
+          question: document.getElementById('faqQuestion').value.trim(),
+          answer: document.getElementById('faqAnswer').value.trim(),
+        };
+        if (!data.question || !data.answer) { showToast('Question and answer required.', 'error'); return; }
+        try {
+          if (id) await updateDoc(doc(db, 'faqs', id), data);
+          else await addDoc(collection(db, 'faqs'), data);
+          faqForm.reset();
+          document.getElementById('faqId').value = '';
+          showToast('✅ FAQ saved!', 'success');
+        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      });
+
+      window.editFaq = async (id) => {
+        const snap = await getDoc(doc(db, 'faqs', id));
+        if (snap.exists()) {
+          const data = snap.data();
+          document.getElementById('faqQuestion').value = data.question || '';
+          document.getElementById('faqAnswer').value = data.answer || '';
+          document.getElementById('faqId').value = id;
+        }
+      };
+
+      window.deleteFaq = async (id) => {
+        if (confirm('Delete this FAQ?')) {
+          await deleteDoc(doc(db, 'faqs', id));
+          showToast('✅ Deleted', 'success');
+        }
+      };
+
       // ==============================================================
-      // SUPPORT CHAT (আগের মতো)
+      // SUPPORT CHAT
       // ==============================================================
       const convListEl = document.getElementById('convList');
       const chatMessagesEl = document.getElementById('chatMessages');

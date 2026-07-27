@@ -194,6 +194,21 @@ img {
   transform: none !important;
 }
 
+/* ===== NEW: Delete Button ===== */
+.btn-delete {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-delete:hover {
+  background: #fecaca;
+}
+
 /* ===== NAVBAR ===== */
 .nav-link {
   position: relative;
@@ -887,6 +902,25 @@ select.form-input {
 }
 .modal-close:hover { color: #1c1c1e; }
 
+/* ===== TESTIMONIAL & FAQ CARDS (NEW) ===== */
+.testimonial-card,
+.faq-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.3s;
+}
+.testimonial-card:hover,
+.faq-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
 /* ===== FADE-UP ANIMATION ===== */
 .fade-up {
   opacity: 0;
@@ -967,6 +1001,12 @@ select.form-input {
   .modal-box {
     padding: 1rem;
     border-radius: 16px;
+  }
+  .testimonial-card,
+  .faq-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
   }
 }
 

@@ -523,7 +523,7 @@
     } from './firebase-config.js';
     import { 
       renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
-      renderCartSidebar, setLoading, renderPaymentModal
+      renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore
     } from './components.js';
 
     // ===== রেন্ডার =====
@@ -651,6 +651,8 @@
     onAuthStateChanged(auth, async (user) => {
       let name = null;
       if (user) {
+        // ✅ কার্ট সিঙ্ক (Firestore থেকে)
+        await syncCart(user.uid);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
       }

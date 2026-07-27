@@ -255,10 +255,52 @@ export function renderNavbar() {
   });
 
   updateCartBadge();
+
+  // ===== কার্ট সিঙ্ক: Auth state listener =====
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      syncCart(user.uid);
+    }
+  });
 }
 
 // ================================================================
-// ✅ NAVBAR AUTH UPDATE – Admin Link only (উইশলিস্ট বাদ)
+// ✅ কার্ট সিঙ্ক ফাংশন
+// ================================================================
+export async function syncCart(userId) {
+  if (!userId) return;
+  const cartRef = doc(db, 'carts', userId);
+  try {
+    const localCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const docSnap = await getDoc(cartRef);
+    let serverCart = [];
+    if (docSnap.exists()) {
+      serverCart = docSnap.data().items || [];
+    }
+    // মার্জ: যদি localCart খালি না হয় তাহলে Firestore আপডেট করি, অন্যথায় Firestore থেকে local-এ আনা
+    if (localCart.length > 0) {
+      await setDoc(cartRef, { items: localCart, updatedAt: new Date().toISOString() });
+    } else if (serverCart.length > 0) {
+      localStorage.setItem('cart', JSON.stringify(serverCart));
+      updateCartBadge();
+    }
+  } catch (err) {
+    console.error('Cart sync error:', err);
+  }
+}
+
+export async function updateCartInFirestore(userId, cart) {
+  if (!userId) return;
+  const cartRef = doc(db, 'carts', userId);
+  try {
+    await setDoc(cartRef, { items: cart, updatedAt: new Date().toISOString() });
+  } catch (err) {
+    console.error('Firestore cart update error:', err);
+  }
+}
+
+// ================================================================
+// ✅ NAVBAR AUTH UPDATE – Admin Link only
 // ================================================================
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
@@ -361,7 +403,7 @@ export function toggleCart() {
 window.toggleCart = toggleCart;
 
 // ================================================================
-// ✅ UPDATE CART UI
+// ✅ UPDATE CART UI (Firestore-এ সিঙ্ক সহ)
 // ================================================================
 export function updateCartUI() {
   const container = document.getElementById('cartItems');
@@ -405,6 +447,13 @@ export function updateCartUI() {
     totalEl.textContent = `$${total.toFixed(2)}`;
   }
   updateCartBadge();
+
+  // Firestore-এ সিঙ্ক (যদি ইউজার লগইন থাকে)
+  const user = auth.currentUser;
+  if (user) {
+    const cartData = JSON.parse(localStorage.getItem('cart')) || [];
+    updateCartInFirestore(user.uid, cartData);
+  }
 }
 window.updateCartUI = updateCartUI;
 

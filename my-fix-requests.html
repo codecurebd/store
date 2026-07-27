@@ -682,21 +682,22 @@
           hour: '2-digit', minute: '2-digit' 
         });
 
-        // Reply section
+        // ✅ ফিক্স: reply timestamp সঠিকভাবে দেখানো
         let replyHtml = '';
         if (r.reply && r.reply.trim()) {
-          const replyDate = r.replyTimestamp?.toDate?.() || new Date(r.replyTimestamp);
-          const replyDateStr = replyDate.toLocaleDateString('en-US', { 
-            year: 'numeric', month: 'short', day: 'numeric' 
-          });
-          const replyTimeStr = replyDate.toLocaleTimeString('en-US', { 
-            hour: '2-digit', minute: '2-digit' 
-          });
+          let replyTimeStr = '';
+          if (r.replyTimestamp) {
+            const replyDate = r.replyTimestamp.toDate ? r.replyTimestamp.toDate() : new Date(r.replyTimestamp);
+            replyTimeStr = replyDate.toLocaleString('en-US', { 
+              year: 'numeric', month: 'short', day: 'numeric', 
+              hour: '2-digit', minute: '2-digit' 
+            });
+          }
           replyHtml = `
             <div class="reply-box">
               <div class="reply-label"><i class="fas fa-reply"></i> Admin Reply</div>
               <div class="reply-text">${r.reply}</div>
-              <div class="reply-time">${replyDateStr} at ${replyTimeStr}</div>
+              <div class="reply-time">${replyTimeStr}</div>
             </div>
           `;
         } else if (status === 'pending') {

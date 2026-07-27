@@ -176,6 +176,18 @@
       transform: translateY(-2px);
     }
 
+    .btn-delete {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-delete:hover { background: #fecaca; }
+
     /* ===== SKELETON ===== */
     .skeleton-card {
       background: #f3f4f6;
@@ -474,8 +486,9 @@
     import { 
       auth, db, collection, doc, getDoc, setDoc, addDoc, onSnapshot, 
       query, where, serverTimestamp, signOut, onAuthStateChanged,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword, updateDoc,
-      signInWithPopup, googleProvider, githubProvider, getDocs
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+      updateDoc, deleteDoc, signInWithPopup, googleProvider, githubProvider,
+      EmailAuthProvider, reauthenticateWithCredential
     } from './firebase-config.js';
 
     // ===== রেন্ডার =====
@@ -533,7 +546,7 @@
     }
 
     // ================================================================
-    // AUTH MODAL (আগের মতো)
+    // AUTH MODAL
     // ================================================================
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
@@ -618,7 +631,7 @@
     };
 
     // ================================================================
-    // ✅ অর্ডার লজিক (onSnapshot দিয়ে রিয়েল-টাইম, orderBy বাদ)
+    // ✅ অর্ডার লজিক (onSnapshot দিয়ে রিয়েল-টাইম, orderBy বাদ)
     // ================================================================
 
     const orderList = document.getElementById('orderList');
@@ -709,9 +722,14 @@
               <div class="text-right">
                 <p class="text-2xl font-bold text-blue-600">$${o.total?.toFixed(2) || '0.00'}</p>
                 ${o.transactionId ? `<p class="text-xs text-gray-400">Txn: ${o.transactionId}</p>` : '<p class="text-xs text-yellow-500">⚠️ Payment pending</p>'}
-                <button onclick="viewOrderDetail('${o.id}')" class="text-blue-600 text-sm mt-1 hover:underline font-medium">
-                  <i class="fas fa-eye"></i> View Details
-                </button>
+                <div class="flex flex-wrap justify-end gap-1 mt-1">
+                  <button onclick="viewOrderDetail('${o.id}')" class="text-blue-600 text-sm hover:underline font-medium">
+                    <i class="fas fa-eye"></i> Details
+                  </button>
+                  <button onclick="deleteOrder('${o.id}')" class="btn-delete text-xs">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -810,7 +828,7 @@
     statusFilter.addEventListener('change', applyFilters);
 
     // ================================================================
-    // ✅ অর্ডার ডিটেইল
+    // ✅ অর্ডার ডিটেইল ও ডিলিট
     // ================================================================
 
     let currentOrderId = null;
@@ -927,6 +945,24 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeOrderDetail();
     });
+
+    // ===== ORDER DELETE (with password) =====
+    window.deleteOrder = async (orderId) => {
+      if (!confirm('Delete this order? This action cannot be undone.')) return;
+      const password = prompt('Enter your password to confirm deletion:');
+      if (!password) return;
+      try {
+        const user = auth.currentUser;
+        if (!user) { showToast('Not logged in', 'error'); return; }
+        const credential = EmailAuthProvider.credential(user.email, password);
+        await reauthenticateWithCredential(user, credential);
+        await deleteDoc(doc(db, 'orders', orderId));
+        showToast('✅ Order deleted', 'success');
+        // list auto updates via onSnapshot
+      } catch (err) {
+        showToast('⚠️ ' + err.message, 'error');
+      }
+    };
 
     // ===== DOWNLOAD INVOICE =====
     window.downloadInvoice = () => {

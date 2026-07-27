@@ -414,7 +414,7 @@
     } from './firebase-config.js';
     import { 
       renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
-      renderCartSidebar, setLoading, renderPaymentModal
+      renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore
     } from './components.js';
 
     // ===== রেন্ডার =====
@@ -542,6 +542,8 @@
     onAuthStateChanged(auth, async (user) => {
       let name = null;
       if (user) {
+        // ✅ কার্ট সিঙ্ক (Firestore থেকে)
+        await syncCart(user.uid);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
       }
@@ -683,9 +685,9 @@
     };
 
     // ================================================================
-    // ✅ কার্ট ফাংশন
+    // ✅ কার্ট ফাংশন (Firestore সিঙ্ক সহ)
     // ================================================================
-    window.addToCart = (productId) => {
+    window.addToCart = async (productId) => {
       const product = allProducts.find(p => p.id === productId);
       if (!product) { showToast('Product not found', 'error'); return; }
       if (product.stock !== undefined && product.stock <= 0) {
@@ -706,6 +708,13 @@
         });
       }
       localStorage.setItem('cart', JSON.stringify(cart));
+      
+      // ✅ Firestore-এ কার্ট সিঙ্ক
+      const user = auth.currentUser;
+      if (user) {
+        await updateCartInFirestore(user.uid, cart);
+      }
+      
       window.updateCartUI?.();
       showToast(`✅ "${product.name}" added to cart`, 'success');
     };

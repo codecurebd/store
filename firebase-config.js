@@ -15,6 +15,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   GithubAuthProvider,
+  updateEmail,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
   getFirestore,
@@ -34,7 +35,6 @@ import {
   arrayUnion,
   arrayRemove,
   increment,
-  // ✅ Offline persistence এর জন্য
   initializeFirestore,
   persistentLocalCache,
   persistentSingleTabManager,
@@ -51,7 +51,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// ✅ Firestore with Offline Persistence – performance boost
 const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentSingleTabManager(),
@@ -62,7 +61,45 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
-// ✅ সব export গুলো এক জায়গায়
+// ========== নতুন ফাংশন (অ্যাডমিন প্যানেলের জন্য) ==========
+
+// ✅ অ্যাডমিন প্যানেল থেকে ইউজার তৈরি (Authentication + Firestore)
+export async function adminCreateUser(email, password, displayName, role, adminEmail, adminPassword) {
+  try {
+    // অ্যাডমিনকে সাইন ইন করি (বর্তমান ইউজার যাই হোক)
+    await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+    // ইউজার তৈরি
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCred.user;
+    await setDoc(doc(db, 'users', user.uid), {
+      email,
+      displayName: displayName || email.split('@')[0],
+      role: role || 'user',
+      createdAt: new Date().toISOString(),
+      isActive: true,
+      emailVerified: false,
+    });
+    await sendEmailVerification(user);
+    // আবার অ্যাডমিনকে সাইন ইন করি
+    await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+    return { success: true, uid: user.uid };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// ✅ অ্যাডমিন প্যানেল থেকে ইউজার ডিলিট (শুধু Firestore ডকুমেন্ট ডিলিট, Authentication থাকে)
+export async function adminDeleteUser(uid, adminEmail, adminPassword) {
+  try {
+    await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+    await deleteDoc(doc(db, 'users', uid));
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// ========== সব export ==========
 export {
   auth, db,
   signInWithEmailAndPassword,
@@ -80,6 +117,7 @@ export {
   GithubAuthProvider,
   googleProvider,
   githubProvider,
+  updateEmail,
   collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, addDoc,
   query, where, orderBy, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, increment,
   initializeFirestore, persistentLocalCache, persistentSingleTabManager,
