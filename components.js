@@ -6,13 +6,11 @@ import {
 } from './firebase-config.js';
 
 // ================================================================
-// ✅ নোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা
+// ✅ নোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা (Realtime)
 // ================================================================
 let unreadAdminMessages = [];
 let displayMessages = [];
 let adminMessageUnsubscribe = null;
-let notificationBadgeElement = null;
-let notificationListElement = null;
 
 function startAdminMessageListener(user) {
   if (adminMessageUnsubscribe) {
@@ -26,6 +24,7 @@ function startAdminMessageListener(user) {
     return;
   }
 
+  // ✅ Realtime listener using onSnapshot
   const q = query(
     collection(db, 'messages'),
     where('toUserId', '==', user.uid),
@@ -249,7 +248,7 @@ window.toggleMobileMenu = function() {
 };
 
 // ================================================================
-// ✅ NAVBAR (আপডেটেড – মেসেজ আইকন সরানো, সাপোর্ট চ্যাট যোগ)
+// ✅ NAVBAR (Support সরানো হয়েছে)
 // ================================================================
 export function renderNavbar() {
   const navbarHTML = `
@@ -263,16 +262,14 @@ export function renderNavbar() {
           <span class="tracking-tight">SWD <span class="gradient-text">Store</span></span>
         </a>
         
-        <!-- Desktop Menu (Support যোগ করা হয়েছে) -->
+        <!-- Desktop Menu (Support বাদ) -->
         <div class="hidden md:flex items-center gap-1 lg:gap-2">
           <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
           <a href="get-new-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Store</a>
           <a href="fix-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Fix</a>
-          <!-- ✅ নতুন: Support লিংক -->
-          <a href="messages.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Support</a>
         </div>
 
-        <!-- Right Actions (মেসেজ আইকন সরানো হয়েছে) -->
+        <!-- Right Actions -->
         <div class="flex items-center gap-2 md:gap-3">
           <!-- Notifications -->
           <div class="relative">
@@ -323,10 +320,8 @@ export function renderNavbar() {
               <a href="my-profile.html" class="hover:bg-blue-50/50"><i class="fas fa-user mr-3 text-gray-400"></i> My Profile</a>
               <a href="my-orders.html" class="hover:bg-blue-50/50"><i class="fas fa-box mr-3 text-gray-400"></i> My Orders</a>
               <a href="my-fix-requests.html" class="hover:bg-blue-50/50"><i class="fas fa-tools mr-3 text-gray-400"></i> Fix Requests</a>
-              <!-- ✅ নতুন: Support Chat (প্রোফাইল ড্রপডাউনে) -->
               <a href="messages.html" class="hover:bg-blue-50/50"><i class="fas fa-comment-dots mr-3 text-gray-400"></i> Support Chat</a>
               <a href="settings.html" class="hover:bg-blue-50/50"><i class="fas fa-cog mr-3 text-gray-400"></i> Settings</a>
-              <!-- Admin Panel -->
               <a href="admin-panel.html" id="adminPanelLink" class="hidden hover:bg-blue-50/50"><i class="fas fa-shield-alt mr-3 text-blue-500"></i> Admin Panel</a>
               <hr class="my-1 border-gray-100" />
               <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50/50"><i class="fas fa-sign-out-alt mr-3 text-red-400"></i> Logout</a>
@@ -341,17 +336,17 @@ export function renderNavbar() {
       </div>
     </nav>
 
-    <!-- Mobile Menu (Support Chat যোগ করা হয়েছে) -->
+    <!-- Mobile Menu (Support বাদ) -->
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
         <a href="get-new-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Store</a>
         <a href="fix-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Fix</a>
-        <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-comment-dots mr-3"></i> Support Chat</a>
         <hr class="my-2 border-gray-100" />
         <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
         <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
         <a href="my-fix-requests.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-tools mr-3"></i> Fix Requests</a>
+        <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-comment-dots mr-3"></i> Support Chat</a>
         <a href="admin-panel.html" id="mobileAdminPanelLink" class="hidden nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-blue-600 transition-colors"><i class="fas fa-shield-alt mr-3"></i> Admin Panel</a>
         <a href="#" onclick="window.handleLogout()" class="nav-link py-3 px-4 rounded-xl hover:bg-red-50/50 font-medium text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
       </div>
@@ -388,6 +383,36 @@ export function renderNavbar() {
       syncCart(user.uid);
     }
   });
+}
+
+// ================================================================
+// ✅ FOOTER (Support Chat যোগ করা হয়েছে)
+// ================================================================
+export function renderFooter() {
+  const footerHTML = `
+    <footer class="glass border-t border-gray-200/30 py-10 px-6 sm:px-8 lg:px-12 mt-auto">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+        <div class="space-y-1 text-center sm:text-left">
+          <div class="font-medium text-gray-700">&copy; 2026 SWD Store. All rights reserved.</div>
+          <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
+            <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
+            <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
+            <!-- ✅ নতুন: Support Chat লিংক -->
+            <a href="messages.html" class="hover:text-blue-600 transition-colors"><i class="fas fa-comment-dots mr-1"></i> Support Chat</a>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="https://nopqrshov.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium transition-colors">Portfolio</a>
+          <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </footer>
+  `;
+  const placeholder = document.getElementById('footer-placeholder');
+  if (placeholder) {
+    placeholder.innerHTML = footerHTML;
+  }
 }
 
 // ================================================================
@@ -478,35 +503,7 @@ export function updateNavbarAuth(user, displayName, role = null) {
 }
 
 // ================================================================
-// ✅ FOOTER
-// ================================================================
-export function renderFooter() {
-  const footerHTML = `
-    <footer class="glass border-t border-gray-200/30 py-10 px-6 sm:px-8 lg:px-12 mt-auto">
-      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-        <div class="space-y-1 text-center sm:text-left">
-          <div class="font-medium text-gray-700">&copy; 2026 SWD Store. All rights reserved.</div>
-          <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
-            <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
-            <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <a href="https://nopqrshov.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium transition-colors">Portfolio</a>
-          <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
-          <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        </div>
-      </div>
-    </footer>
-  `;
-  const placeholder = document.getElementById('footer-placeholder');
-  if (placeholder) {
-    placeholder.innerHTML = footerHTML;
-  }
-}
-
-// ================================================================
-// ✅ CART SIDEBAR
+// ✅ CART SIDEBAR, TOGGLE, UI
 // ================================================================
 export function renderCartSidebar() {
   if (document.getElementById('cartSidebar')) return;
@@ -536,9 +533,6 @@ export function renderCartSidebar() {
   updateCartUI();
 }
 
-// ================================================================
-// ✅ CART TOGGLE
-// ================================================================
 export function toggleCart() {
   const sidebar = document.getElementById('cartSidebar');
   const overlay = document.getElementById('cartOverlay');
@@ -550,9 +544,6 @@ export function toggleCart() {
 }
 window.toggleCart = toggleCart;
 
-// ================================================================
-// ✅ UPDATE CART UI
-// ================================================================
 export function updateCartUI() {
   const container = document.getElementById('cartItems');
   const totalEl = document.getElementById('cartTotal');
@@ -604,9 +595,6 @@ export function updateCartUI() {
 }
 window.updateCartUI = updateCartUI;
 
-// ================================================================
-// ✅ CART QUANTITY UPDATE
-// ================================================================
 window.updateQuantity = function(index, delta) {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   if (!cart[index]) return;
@@ -644,7 +632,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL
+// ✅ PAYMENT MODAL (পুরানো কোড – অপরিবর্তিত)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
