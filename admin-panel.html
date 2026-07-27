@@ -487,13 +487,16 @@
         
         <!-- Payment Settings -->
         <form id="settingsForm" class="mt-4 space-y-3 max-w-md">
-          <p class="text-sm text-gray-500">These numbers are shown to customers on the payment screen. Only bKash, Nagad &amp; USDT.</p>
+          <p class="text-sm text-gray-500">Customer payment screen uses these numbers. USDT shows as “Coming soon” for now.</p>
           <label class="block text-sm font-medium">bKash Number</label>
           <input type="text" id="bkashNumber" class="form-input" placeholder="e.g. 01XXXXXXXXX" />
           <label class="block text-sm font-medium">Nagad Number</label>
           <input type="text" id="nagadNumber" class="form-input" placeholder="e.g. 01XXXXXXXXX" />
-          <label class="block text-sm font-medium">USDT Address (BEP20)</label>
+          <label class="block text-sm font-medium">USDT Address (BEP20) — optional / coming soon</label>
           <input type="text" id="usdtAddress" class="form-input" placeholder="Your BEP20 wallet address" />
+          <label class="block text-sm font-medium">USD → BDT Rate (৳ per $1)</label>
+          <input type="number" id="usdRate" class="form-input" min="1" step="0.01" placeholder="125" value="125" />
+          <p class="text-xs text-gray-400">Default 125. Used to show bKash/Nagad amount in Taka.</p>
           <button type="submit" class="btn-primary w-full">Save Settings</button>
         </form>
 
@@ -1837,14 +1840,30 @@ Thank you for shopping with SWD Store!
       // Payment Settings
       const settingsForm = document.getElementById('settingsForm');
       const settingsBtn = settingsForm.querySelector('button[type="submit"]');
+      // Load existing payment settings
+      (async () => {
+        try {
+          const snap = await getDoc(doc(db, 'settings', 'payment'));
+          if (snap.exists()) {
+            const d = snap.data();
+            if (d.bkash) document.getElementById('bkashNumber').value = d.bkash;
+            if (d.nagad) document.getElementById('nagadNumber').value = d.nagad;
+            if (d.usdt) document.getElementById('usdtAddress').value = d.usdt;
+            document.getElementById('usdRate').value = d.usdRate > 0 ? d.usdRate : 125;
+          }
+        } catch (e) { console.warn('Could not load payment settings', e); }
+      })();
+
       settingsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const bkash = document.getElementById('bkashNumber').value.trim();
         const nagad = document.getElementById('nagadNumber').value.trim();
         const usdt = document.getElementById('usdtAddress').value.trim();
+        let usdRate = parseFloat(document.getElementById('usdRate').value);
+        if (!usdRate || usdRate <= 0) usdRate = 125;
         setLoading(settingsBtn, true, 'Save Settings');
         try {
-          await setDoc(doc(db, 'settings', 'payment'), { bkash, nagad, usdt });
+          await setDoc(doc(db, 'settings', 'payment'), { bkash, nagad, usdt, usdRate }, { merge: true });
           showToast('✅ Settings saved!', 'success');
         } catch (err) { showToast('Error: ' + err.message, 'error'); }
         finally { setLoading(settingsBtn, false); }

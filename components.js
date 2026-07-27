@@ -503,32 +503,37 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL
+// ✅ PAYMENT MODAL (method-first + BDT calculator)
 // ================================================================
+let _paymentSettings = {};
+let _paymentOrderTotalUSD = 0;
+
 export function renderPaymentModal() {
-  // Remove old modal if it exists without the new fields (method + sender)
   const existing = document.getElementById('paymentModal');
   if (existing) {
-    if (document.getElementById('paymentMethodSelect') && document.getElementById('paymentSenderNumber')) {
-      return; // already has new fields
-    }
+    if (existing.dataset.version === 'v2') return;
     existing.remove();
+    const oldForm = document.getElementById('paymentForm');
+    if (oldForm) oldForm.dataset.bound = '';
   }
 
   const modalHTML = `
-    <div id="paymentModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
+    <div id="paymentModal" data-version="v2" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
       <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-2xl font-bold text-gray-900">Complete Payment</h3>
-          <button onclick="window.closePaymentModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors" aria-label="Close">
+          <button type="button" onclick="window.closePaymentModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors" aria-label="Close">
             <i class="fas fa-times"></i>
           </button>
         </div>
-        <div id="paymentDetails" class="space-y-3 text-sm bg-gray-50 p-4 rounded-xl">
-          <p class="font-semibold text-gray-700">Send payment to any of these:</p>
-          <div id="paymentNumbers" class="space-y-2"></div>
+
+        <div id="paymentOrderSummary" class="mb-4 p-3 bg-blue-50 rounded-xl text-sm text-gray-700">
+          <div class="flex justify-between"><span>Order total</span><strong id="paymentTotalUSD">$0.00</strong></div>
+          <div id="paymentTotalBDTRow" class="flex justify-between mt-1 hidden"><span>Pay in BDT</span><strong id="paymentTotalBDT" class="text-green-700">৳0</strong></div>
+          <p id="paymentRateNote" class="text-xs text-gray-400 mt-1 hidden"></p>
         </div>
-        <form id="paymentForm" class="mt-4 space-y-4">
+
+        <form id="paymentForm" class="space-y-4">
           <input type="hidden" id="paymentOrderId" />
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Method *</label>
@@ -539,18 +544,28 @@ export function renderPaymentModal() {
               <option value="USDT">USDT (BEP20)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Sender Number / Wallet *</label>
-            <input type="text" id="paymentSenderNumber" placeholder="Number or wallet you paid from" required class="form-input" />
-            <p class="text-xs text-gray-400 mt-1">bKash/Nagad number or USDT wallet address</p>
+
+          <!-- Shown only after method is selected -->
+          <div id="paymentMethodDetails" class="hidden space-y-4">
+            <div id="paymentAddressBox" class="text-sm bg-gray-50 p-4 rounded-xl border border-gray-100"></div>
+            <div id="paymentHowToBox" class="text-sm bg-amber-50 p-4 rounded-xl border border-amber-100"></div>
+
+            <div id="paymentFieldsBox" class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5" id="paymentSenderLabel">Sender Number *</label>
+                <input type="text" id="paymentSenderNumber" placeholder="Number you paid from" class="form-input" />
+                <p class="text-xs text-gray-400 mt-1" id="paymentSenderHint">Your bKash/Nagad personal number</p>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Transaction ID *</label>
+                <input type="text" id="transactionId" placeholder="Enter transaction ID from the app" class="form-input" />
+              </div>
+              <button type="submit" id="paymentSubmitBtn" class="btn-primary w-full justify-center">
+                <i class="fas fa-check"></i> Confirm Payment
+              </button>
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Transaction ID *</label>
-            <input type="text" id="transactionId" placeholder="Enter your payment transaction ID" required class="form-input" />
-          </div>
-          <button type="submit" class="btn-primary w-full justify-center">
-            <i class="fas fa-check"></i> Confirm Payment
-          </button>
+
           <div id="paymentError" class="text-red-500 text-sm hidden text-center p-3 bg-red-50 rounded-xl border border-red-200"></div>
         </form>
       </div>
@@ -571,14 +586,20 @@ export function renderPaymentModal() {
     document.head.appendChild(style);
   }
 
+  const methodSelect = document.getElementById('paymentMethodSelect');
+  if (methodSelect && !methodSelect.dataset.bound) {
+    methodSelect.dataset.bound = '1';
+    methodSelect.addEventListener('change', () => window.updatePaymentMethodUI());
+  }
+
   const paymentForm = document.getElementById('paymentForm');
   if (paymentForm && !paymentForm.dataset.bound) {
     paymentForm.dataset.bound = '1';
     paymentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const orderId = document.getElementById('paymentOrderId').value;
-      const txnId = document.getElementById('transactionId').value.trim();
       const method = document.getElementById('paymentMethodSelect').value;
+      const txnId = document.getElementById('transactionId').value.trim();
       const senderNumber = document.getElementById('paymentSenderNumber').value.trim();
       const errorDiv = document.getElementById('paymentError');
       errorDiv.classList.add('hidden');
@@ -587,46 +608,51 @@ export function renderPaymentModal() {
       if (!orderId) {
         errorDiv.textContent = '❌ Order not found. Please refresh and try again.';
         errorDiv.classList.remove('hidden');
-        window.showToast('Order not found. Please refresh.', 'error');
         return;
       }
-
       if (!method) {
         errorDiv.textContent = '⚠️ Please select a payment method.';
         errorDiv.classList.remove('hidden');
-        document.getElementById('paymentMethodSelect').classList.add('error');
+        methodSelect.classList.add('error');
         return;
       }
-
+      if (method === 'USDT') {
+        errorDiv.textContent = '⚠️ USDT payment is coming soon. Please use bKash or Nagad.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
       if (!senderNumber) {
-        errorDiv.textContent = '⚠️ Please enter the number/wallet you paid from.';
+        errorDiv.textContent = '⚠️ Please enter the number you paid from.';
         errorDiv.classList.remove('hidden');
         document.getElementById('paymentSenderNumber').classList.add('error');
         return;
       }
-
       if (!txnId) {
         errorDiv.textContent = '⚠️ Please enter transaction ID.';
         errorDiv.classList.remove('hidden');
         document.getElementById('transactionId').classList.add('error');
         return;
       }
-
-      const user = auth.currentUser;
-      if (!user) {
+      if (!auth.currentUser) {
         errorDiv.textContent = '⚠️ You are not logged in.';
         errorDiv.classList.remove('hidden');
         return;
       }
 
-      const btn = paymentForm.querySelector('button[type="submit"]');
-      setLoading(btn, true, 'Confirm Payment');
+      const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
+      const totalUSD = Number(_paymentOrderTotalUSD) || 0;
+      const totalBDT = Math.round(totalUSD * rate);
 
+      const btn = document.getElementById('paymentSubmitBtn');
+      setLoading(btn, true, 'Confirm Payment');
       try {
         await updateDoc(doc(db, 'orders', orderId), {
           transactionId: txnId,
           paymentMethod: method,
-          senderNumber: senderNumber
+          senderNumber: senderNumber,
+          amountUSD: totalUSD,
+          amountBDT: totalBDT,
+          usdRate: rate
         });
         window.showToast('✅ Payment confirmed! Admin will verify soon.', 'success');
         window.closePaymentModal();
@@ -645,38 +671,107 @@ export function renderPaymentModal() {
   }
 }
 
+window.updatePaymentMethodUI = function() {
+  const method = document.getElementById('paymentMethodSelect')?.value || '';
+  const details = document.getElementById('paymentMethodDetails');
+  const addressBox = document.getElementById('paymentAddressBox');
+  const howToBox = document.getElementById('paymentHowToBox');
+  const fieldsBox = document.getElementById('paymentFieldsBox');
+  const bdtRow = document.getElementById('paymentTotalBDTRow');
+  const rateNote = document.getElementById('paymentRateNote');
+  const errorDiv = document.getElementById('paymentError');
+  if (errorDiv) errorDiv.classList.add('hidden');
+
+  if (!method) {
+    details.classList.add('hidden');
+    bdtRow.classList.add('hidden');
+    rateNote.classList.add('hidden');
+    return;
+  }
+
+  details.classList.remove('hidden');
+  const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
+  const totalUSD = Number(_paymentOrderTotalUSD) || 0;
+  const totalBDT = Math.round(totalUSD * rate);
+
+  if (method === 'bKash' || method === 'Nagad') {
+    bdtRow.classList.remove('hidden');
+    document.getElementById('paymentTotalBDT').textContent = '৳' + totalBDT.toLocaleString('en-BD');
+    rateNote.classList.remove('hidden');
+    rateNote.textContent = `Rate: 1 USD = ৳${rate} · Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
+
+    const number = method === 'bKash' ? (_paymentSettings.bkash || '') : (_paymentSettings.nagad || '');
+    const color = method === 'bKash' ? 'text-pink-600' : 'text-orange-600';
+    addressBox.innerHTML = number
+      ? `<p class="font-semibold text-gray-800 mb-1">Send money to this ${method} number:</p>
+         <p class="text-xl font-bold ${color} tracking-wide select-all">${number}</p>
+         <p class="text-xs text-gray-400 mt-1">Amount: <strong>৳${totalBDT.toLocaleString('en-BD')}</strong></p>`
+      : `<p class="text-red-500">${method} number not set. Contact admin.</p>`;
+
+    const appName = method === 'bKash' ? 'bKash' : 'Nagad';
+    howToBox.innerHTML = `
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-mobile-alt mr-1"></i> How to pay (${appName} App)</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm">
+        <li>Open the <strong>${appName}</strong> app and log in</li>
+        <li>Go to <strong>Send Money</strong></li>
+        <li>Enter number: <strong class="select-all">${number || '—'}</strong></li>
+        <li>Enter amount: <strong>৳${totalBDT.toLocaleString('en-BD')}</strong></li>
+        <li>Reference (optional) — you may leave blank</li>
+        <li>Enter your PIN and <strong>Confirm</strong></li>
+        <li>Copy the <strong>Transaction ID</strong> and paste it below</li>
+      </ol>`;
+
+    fieldsBox.classList.remove('hidden');
+    document.getElementById('paymentSenderLabel').textContent = `Your ${method} Number *`;
+    document.getElementById('paymentSenderNumber').placeholder = `Number you sent money from`;
+    document.getElementById('paymentSenderHint').textContent = `Your personal ${method} number (sender)`;
+    document.getElementById('paymentSubmitBtn').disabled = !number;
+  } else if (method === 'USDT') {
+    bdtRow.classList.add('hidden');
+    rateNote.classList.remove('hidden');
+    rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (same as USDT amount when available)`;
+    addressBox.innerHTML = `
+      <p class="font-semibold text-gray-800 mb-1"><i class="fab fa-bitcoin text-yellow-500 mr-1"></i> USDT (BEP20)</p>
+      <p class="text-lg font-bold text-amber-600">Coming soon</p>
+      <p class="text-sm text-gray-500 mt-2">USDT payments are not available yet. Please pay with <strong>bKash</strong> or <strong>Nagad</strong>.</p>`;
+    howToBox.innerHTML = `
+      <p class="font-semibold text-gray-800 mb-1">How to pay</p>
+      <p class="text-sm text-gray-500">USDT instructions will appear here once this method is enabled.</p>`;
+    fieldsBox.classList.add('hidden');
+  }
+};
+
 // ================================================================
 // ✅ OPEN PAYMENT MODAL
 // ================================================================
-window.openPaymentModal = function(orderId, settings) {
-  const numbersDiv = document.getElementById('paymentNumbers');
-  const orderInput = document.getElementById('paymentOrderId');
-  if (!numbersDiv || !orderInput) {
-    console.error('Payment modal not found.');
+window.openPaymentModal = function(orderId, settings, orderTotalUSD) {
+  if (!document.getElementById('paymentModal')) {
     window.showToast('Payment system not ready. Please refresh.', 'error');
     return;
   }
-  orderInput.value = orderId;
+  _paymentSettings = settings || {};
+  _paymentOrderTotalUSD = Number(orderTotalUSD) || 0;
+  if (!(_paymentSettings.usdRate > 0)) _paymentSettings.usdRate = 125;
 
-  let html = '';
-  if (settings.bkash) html += `<p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-blue-500 text-lg"></i> BKash: <strong>${settings.bkash}</strong></p>`;
-  if (settings.nagad) html += `<p class="flex items-center gap-2"><i class="fas fa-mobile-alt text-orange-500 text-lg"></i> Nagad: <strong>${settings.nagad}</strong></p>`;
-  if (settings.usdt) html += `<p class="flex items-center gap-2"><i class="fab fa-bitcoin text-yellow-500 text-lg"></i> USDT (BEP20): <strong>${settings.usdt}</strong></p>`;
-  if (!html) html = '<p class="text-gray-500">Payment methods not set. Contact admin.</p>';
-  
-  numbersDiv.innerHTML = html;
-  document.getElementById('paymentModal').classList.remove('hidden');
+  document.getElementById('paymentOrderId').value = orderId;
+  document.getElementById('paymentTotalUSD').textContent = '$' + _paymentOrderTotalUSD.toFixed(2);
+  document.getElementById('paymentTotalBDTRow').classList.add('hidden');
+  document.getElementById('paymentRateNote').classList.add('hidden');
+  document.getElementById('paymentMethodDetails').classList.add('hidden');
   document.getElementById('paymentError').classList.add('hidden');
-  document.getElementById('transactionId').value = '';
-  document.getElementById('transactionId').classList.remove('error');
+
   const methodSelect = document.getElementById('paymentMethodSelect');
-  const senderInput = document.getElementById('paymentSenderNumber');
-  if (methodSelect) { methodSelect.value = ''; methodSelect.classList.remove('error'); }
-  if (senderInput) { senderInput.value = ''; senderInput.classList.remove('error'); }
+  methodSelect.value = '';
+  methodSelect.classList.remove('error');
+  document.getElementById('paymentSenderNumber').value = '';
+  document.getElementById('transactionId').value = '';
+
+  document.getElementById('paymentModal').classList.remove('hidden');
 };
 
 window.closePaymentModal = function() {
-  document.getElementById('paymentModal').classList.add('hidden');
+  const el = document.getElementById('paymentModal');
+  if (el) el.classList.add('hidden');
 };
 
 // ================================================================
@@ -702,12 +797,14 @@ window.checkout = async function() {
   try {
     const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
     const settings = settingsSnap.exists() ? settingsSnap.data() : {};
-    if (!settings.bkash && !settings.nagad && !settings.usdt) {
+    if (!settings.usdRate || Number(settings.usdRate) <= 0) settings.usdRate = 125;
+    if (!settings.bkash && !settings.nagad) {
       window.showToast('⚠️ Payment methods not set. Contact admin.', 'error');
       if (checkoutBtn) setLoading(checkoutBtn, false);
       return;
     }
 
+    const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
     const orderData = {
       userId: user.uid,
       userEmail: user.email,
@@ -718,15 +815,15 @@ window.checkout = async function() {
         quantity: item.quantity || 1,
         imageUrl: item.imageUrl || ''
       })),
-      total: cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0),
+      total,
       status: 'pending',
       paymentMethod: '',
       transactionId: '',
       createdAt: serverTimestamp()
     };
     const docRef = await addDoc(collection(db, 'orders'), orderData);
-    
-    window.openPaymentModal(docRef.id, settings);
+
+    window.openPaymentModal(docRef.id, settings, total);
     if (checkoutBtn) setLoading(checkoutBtn, false);
   } catch (err) {
     window.showToast('⚠️ ' + err.message, 'error');
