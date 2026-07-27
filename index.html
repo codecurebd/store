@@ -257,6 +257,46 @@
       50% { opacity: 0.5; }
     }
 
+    /* ===== FAQ GRID & SHOW MORE ===== */
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .faq-item {
+      transition: all 0.3s ease;
+    }
+    .faq-item.hidden-faq {
+      display: none;
+    }
+    .faq-show-more-btn {
+      background: transparent;
+      border: 1.5px solid rgba(60,60,67,0.08);
+      padding: 10px 24px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1c1c1e;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.5);
+    }
+    .faq-show-more-btn:hover {
+      background: rgba(0,122,255,0.04);
+      border-color: #007AFF;
+      color: #007AFF;
+      transform: translateY(-2px);
+    }
+    .faq-show-more-btn i {
+      transition: transform 0.3s ease;
+    }
+    .faq-show-more-btn.rotated i {
+      transform: rotate(180deg);
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .glass-card { padding: 1rem; border-radius: 12px; }
@@ -264,6 +304,10 @@
       .btn-primary, .btn-outline { font-size: 0.85rem; min-height: 44px; padding: 10px 20px; }
       .trust-badge { font-size: 0.75rem; padding: 0.3rem 1rem; }
       .featured-card img { height: 140px; }
+      .faq-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
     }
     @media (max-width: 480px) {
       .stat-number { font-size: 1.6rem; }
@@ -447,12 +491,22 @@
         </div>
       </section>
 
-      <!-- ===== FAQ ===== -->
+      <!-- ===== FAQ (NEW: Grid + Show More) ===== -->
       <section id="faq" class="py-16 px-6">
-        <div class="max-w-3xl mx-auto">
+        <div class="max-w-5xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">Frequently Asked Questions</h2>
-          <div id="faqList" class="mt-8 space-y-4">
-            <!-- Skeleton will be rendered by JS -->
+          <div id="faqContainer" class="mt-8">
+            <!-- Grid will be rendered by JS -->
+            <div id="faqGrid" class="faq-grid">
+              <!-- FAQ items injected here -->
+            </div>
+            <!-- Show More / Show Less Button -->
+            <div class="text-center mt-6">
+              <button id="faqToggleBtn" class="faq-show-more-btn">
+                <span id="faqToggleText">Show More</span>
+                <i class="fas fa-chevron-down" id="faqToggleIcon"></i>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -785,49 +839,100 @@
     loadTestimonials();
 
     // ================================================================
-    // ✅ FAQ (রিয়েল-টাইম না, getDocs ব্যবহার করেছি)
+    // ✅ FAQ (NEW: Grid + Show More)
     // ================================================================
-    const faqContainer = document.getElementById('faqList');
+    const faqGrid = document.getElementById('faqGrid');
+    const faqToggleBtn = document.getElementById('faqToggleBtn');
+    const faqToggleText = document.getElementById('faqToggleText');
+    const faqToggleIcon = document.getElementById('faqToggleIcon');
+    let allFaqs = [];
+    let showAll = false;
 
     async function loadFaqs() {
       try {
         const snap = await getDocs(collection(db, 'faqs'));
         if (snap.empty) {
-          faqContainer.innerHTML = `<p class="text-gray-500 text-center">No FAQs yet.</p>`;
+          faqGrid.innerHTML = `<p class="text-gray-500 text-center col-span-2">No FAQs yet.</p>`;
+          faqToggleBtn.style.display = 'none';
           return;
         }
-        let html = '';
-        let index = 0;
+
+        allFaqs = [];
         snap.forEach(doc => {
           const f = doc.data();
-          const idx = index++;
-          html += `
-            <div class="glass-card cursor-pointer fade-up" onclick="toggleFaq(${idx})">
-              <div class="flex justify-between items-center">
-                <h3 class="font-semibold">${f.question}</h3>
-                <i class="fas fa-chevron-down text-gray-400 transition-transform" id="faqIcon${idx}"></i>
-              </div>
-              <div id="faqAnswer${idx}" class="mt-2 text-gray-600 hidden">${f.answer}</div>
-            </div>
-          `;
+          allFaqs.push({ id: doc.id, ...f });
         });
-        faqContainer.innerHTML = html;
-        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-        // Make toggleFaq globally accessible
-        window.toggleFaq = (index) => {
-          const ans = document.getElementById(`faqAnswer${index}`);
-          const icon = document.getElementById(`faqIcon${index}`);
-          if (ans) {
-            ans.classList.toggle('hidden');
-            if (icon) icon.classList.toggle('rotate-180');
-          }
-        };
+        renderFaqs(showAll);
+        faqToggleBtn.style.display = 'inline-flex';
       } catch (err) {
         console.error('Error loading FAQs:', err);
-        faqContainer.innerHTML = `<p class="text-red-500 text-center">Error loading FAQs.</p>`;
+        faqGrid.innerHTML = `<p class="text-red-500 text-center col-span-2">Error loading FAQs.</p>`;
+        faqToggleBtn.style.display = 'none';
       }
     }
+
+    function renderFaqs(showAll) {
+      const total = allFaqs.length;
+      const limit = 6;
+      const displayItems = showAll ? allFaqs : allFaqs.slice(0, limit);
+
+      let html = '';
+      displayItems.forEach((f, index) => {
+        const globalIdx = allFaqs.indexOf(f); // original index for toggle function
+        html += `
+          <div class="glass-card cursor-pointer faq-item fade-up" onclick="toggleFaq(${globalIdx})">
+            <div class="flex justify-between items-center">
+              <h3 class="font-semibold text-gray-900 text-sm md:text-base">${f.question}</h3>
+              <i class="fas fa-chevron-down text-gray-400 transition-transform" id="faqIcon${globalIdx}"></i>
+            </div>
+            <div id="faqAnswer${globalIdx}" class="mt-2 text-gray-600 text-sm hidden">${f.answer}</div>
+          </div>
+        `;
+      });
+
+      // If showAll is false and total > limit, hide the extra items (they are not rendered)
+      // But we need to show placeholder for hidden items? No, we just render limited.
+      // But we want to keep the grid layout consistent. We can render all but hide extras with CSS.
+      // To avoid complexity, we'll just render the visible ones and the grid will auto-arrange.
+      // However, if total > limit and showAll is false, we need to indicate there are more.
+      // The button handles that.
+
+      faqGrid.innerHTML = html;
+      document.querySelectorAll('.faq-item .fade-up').forEach(el => observer.observe(el));
+
+      // Update button text and icon
+      if (total > limit) {
+        faqToggleBtn.style.display = 'inline-flex';
+        if (showAll) {
+          faqToggleText.textContent = 'Show Less';
+          faqToggleIcon.className = 'fas fa-chevron-up';
+        } else {
+          faqToggleText.textContent = 'Show More';
+          faqToggleIcon.className = 'fas fa-chevron-down';
+        }
+      } else {
+        faqToggleBtn.style.display = 'none';
+      }
+
+      // Make toggleFaq globally accessible
+      window.toggleFaq = (index) => {
+        const ans = document.getElementById(`faqAnswer${index}`);
+        const icon = document.getElementById(`faqIcon${index}`);
+        if (ans) {
+          ans.classList.toggle('hidden');
+          if (icon) icon.classList.toggle('rotate-180');
+        }
+      };
+    }
+
+    // Toggle show/hide
+    faqToggleBtn.addEventListener('click', () => {
+      showAll = !showAll;
+      renderFaqs(showAll);
+    });
+
+    // Load FAQs
     loadFaqs();
 
     console.log('🏠 Landing page loaded successfully!');
