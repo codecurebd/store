@@ -502,7 +502,7 @@
             </div>
             <!-- Show More / Show Less Button -->
             <div class="text-center mt-6">
-              <button id="faqToggleBtn" class="faq-show-more-btn">
+              <button id="faqToggleBtn" class="faq-show-more-btn" style="display:none;">
                 <span id="faqToggleText">Show More</span>
                 <i class="fas fa-chevron-down" id="faqToggleIcon"></i>
               </button>
@@ -839,7 +839,7 @@
     loadTestimonials();
 
     // ================================================================
-    // ✅ FAQ (NEW: Grid + Show More)
+    // ✅ FAQ (FIXED: Grid + Show More)
     // ================================================================
     const faqGrid = document.getElementById('faqGrid');
     const faqToggleBtn = document.getElementById('faqToggleBtn');
@@ -849,10 +849,12 @@
     let showAll = false;
 
     async function loadFaqs() {
+      console.log('🔄 Loading FAQs...');
       try {
         const snap = await getDocs(collection(db, 'faqs'));
+        console.log('✅ FAQs loaded, count:', snap.size);
         if (snap.empty) {
-          faqGrid.innerHTML = `<p class="text-gray-500 text-center col-span-2">No FAQs yet.</p>`;
+          faqGrid.innerHTML = `<p class="text-gray-500 text-center col-span-2">No FAQs yet. Add some from admin panel.</p>`;
           faqToggleBtn.style.display = 'none';
           return;
         }
@@ -866,8 +868,8 @@
         renderFaqs(showAll);
         faqToggleBtn.style.display = 'inline-flex';
       } catch (err) {
-        console.error('Error loading FAQs:', err);
-        faqGrid.innerHTML = `<p class="text-red-500 text-center col-span-2">Error loading FAQs.</p>`;
+        console.error('🔥 Error loading FAQs:', err);
+        faqGrid.innerHTML = `<p class="text-red-500 text-center col-span-2">Error loading FAQs: ${err.message}</p>`;
         faqToggleBtn.style.display = 'none';
       }
     }
@@ -877,9 +879,14 @@
       const limit = 6;
       const displayItems = showAll ? allFaqs : allFaqs.slice(0, limit);
 
+      if (displayItems.length === 0) {
+        faqGrid.innerHTML = `<p class="text-gray-500 text-center col-span-2">No FAQs to display.</p>`;
+        return;
+      }
+
       let html = '';
-      displayItems.forEach((f, index) => {
-        const globalIdx = allFaqs.indexOf(f); // original index for toggle function
+      displayItems.forEach((f, idx) => {
+        const globalIdx = allFaqs.indexOf(f);
         html += `
           <div class="glass-card cursor-pointer faq-item fade-up" onclick="toggleFaq(${globalIdx})">
             <div class="flex justify-between items-center">
@@ -891,17 +898,10 @@
         `;
       });
 
-      // If showAll is false and total > limit, hide the extra items (they are not rendered)
-      // But we need to show placeholder for hidden items? No, we just render limited.
-      // But we want to keep the grid layout consistent. We can render all but hide extras with CSS.
-      // To avoid complexity, we'll just render the visible ones and the grid will auto-arrange.
-      // However, if total > limit and showAll is false, we need to indicate there are more.
-      // The button handles that.
-
       faqGrid.innerHTML = html;
       document.querySelectorAll('.faq-item .fade-up').forEach(el => observer.observe(el));
 
-      // Update button text and icon
+      // Toggle button state
       if (total > limit) {
         faqToggleBtn.style.display = 'inline-flex';
         if (showAll) {
@@ -927,10 +927,14 @@
     }
 
     // Toggle show/hide
-    faqToggleBtn.addEventListener('click', () => {
-      showAll = !showAll;
-      renderFaqs(showAll);
-    });
+    if (faqToggleBtn) {
+      faqToggleBtn.addEventListener('click', () => {
+        showAll = !showAll;
+        renderFaqs(showAll);
+      });
+    } else {
+      console.warn('faqToggleBtn not found');
+    }
 
     // Load FAQs
     loadFaqs();
