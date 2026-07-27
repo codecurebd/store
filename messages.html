@@ -217,7 +217,7 @@
       box-shadow: none !important;
     }
 
-    /* ===== EMPTY STATE ===== */
+    /* ===== EMPTY / ERROR STATE ===== */
     .empty-state {
       display: flex;
       align-items: center;
@@ -231,6 +231,20 @@
     .empty-state i {
       font-size: 2.8rem;
       opacity: 0.3;
+    }
+    .empty-state .retry-btn {
+      margin-top: 8px;
+      background: #007AFF;
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .empty-state .retry-btn:hover {
+      background: #0055b3;
     }
 
     /* ===== SKELETON ===== */
@@ -489,7 +503,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ===== AUTH MODAL LOGIC (আগের মতো) =====
+    // ===== AUTH MODAL LOGIC =====
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -510,6 +524,42 @@
     window.togglePasswordVisibility = (id) => {
       const input = document.getElementById(id);
       input.type = input.type === 'password' ? 'text' : 'password';
+    };
+
+    window.socialLogin = async (provider) => {
+      if (provider !== 'google') {
+        showToast('Only Google sign-in is supported', 'warning');
+        return;
+      }
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, 'users', user.uid), {
+            email: user.email || '',
+            displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+            photoURL: user.photoURL || '',
+            role: 'user',
+            createdAt: new Date().toISOString(),
+            isActive: true,
+            emailVerified: !!user.emailVerified,
+          });
+        }
+        showToast('✅ Signed in with Google', 'success');
+        if (typeof closeAuthModal === 'function') closeAuthModal();
+        else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+      } catch (error) {
+        console.error('Google sign-in error:', error);
+        let msg = error.message || 'Sign-in failed';
+        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
+        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
+        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
+        showToast('⚠️ ' + msg, 'error');
+        const errEl = document.getElementById('authError');
+        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+      }
     };
 
     const authForm = document.getElementById('authForm');
@@ -544,42 +594,6 @@
       }
     });
 
-        window.socialLogin = async (provider) => {
-          if (provider !== 'google') {
-            showToast('Only Google sign-in is supported', 'warning');
-            return;
-          }
-          try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (!userDoc.exists()) {
-              await setDoc(doc(db, 'users', user.uid), {
-                email: user.email || '',
-                displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
-                photoURL: user.photoURL || '',
-                role: 'user',
-                createdAt: new Date().toISOString(),
-                isActive: true,
-                emailVerified: !!user.emailVerified,
-              });
-            }
-            showToast('✅ Signed in with Google', 'success');
-            if (typeof closeAuthModal === 'function') closeAuthModal();
-            else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
-          } catch (error) {
-            console.error('Google sign-in error:', error);
-            let msg = error.message || 'Sign-in failed';
-            if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-            else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
-            else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
-            else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
-            showToast('⚠️ ' + msg, 'error');
-            const errEl = document.getElementById('authError');
-            if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
-          }
-        };
-
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = 'index.html';
@@ -599,7 +613,7 @@
     };
 
     // ================================================================
-    // ✅ চ্যাট লজিক (UI ইমপ্রুভ সহ)
+    // ✅ CHAT LOGIC (FIXED ERROR HANDLING)
     // ================================================================
     const chatMessages = document.getElementById('chatMessages');
     const chatForm = document.getElementById('chatForm');
@@ -656,13 +670,48 @@
       `;
     }
 
+    // Show error state with retry button (does NOT clear previous messages)
+    function showErrorState(errorMessage) {
+      // If there are existing messages, we keep them and show a small error banner at the top.
+      // If no messages, show a full error state.
+      const existingMsgs = chatMessages.querySelectorAll('.chat-msg');
+      if (existingMsgs.length > 0) {
+        // Insert an error banner at the top
+        const banner = document.createElement('div');
+        banner.className = 'empty-state';
+        banner.style.cssText = 'padding: 8px 12px; background: #fee2e2; border-radius: 8px; margin-bottom: 8px; color: #991b1b; font-size: 0.85rem; flex-direction: row; gap: 8px;';
+        banner.innerHTML = `
+          <i class="fas fa-exclamation-triangle" style="font-size:1.2rem; opacity:0.6;"></i>
+          <span>${errorMessage || 'Error loading messages. Please retry.'}</span>
+          <button class="retry-btn" style="padding:4px 12px; font-size:0.75rem; background:#dc2626; color:white; border:none; border-radius:30px; cursor:pointer;">Retry</button>
+        `;
+        banner.querySelector('.retry-btn').addEventListener('click', () => {
+          // Remove this banner and re-init chat
+          banner.remove();
+          initChat(currentUser);
+        });
+        chatMessages.prepend(banner);
+      } else {
+        chatMessages.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle text-red-500"></i>
+            <span>${errorMessage || 'Error loading messages. Please retry.'}</span>
+            <button class="retry-btn" onclick="window.location.reload()">Retry</button>
+          </div>
+        `;
+      }
+    }
+
     async function initChat(user) {
       if (!user) return;
       currentUser = user;
       conversationId = `conv_${user.uid}_admin`;
 
       // Unsubscribe previous listener if any
-      if (unsubMessages) unsubMessages();
+      if (unsubMessages) {
+        unsubMessages();
+        unsubMessages = null;
+      }
 
       // Show skeletons
       showSkeletons();
@@ -690,21 +739,23 @@
         const unreadAdminMsgs = msgs.filter(m => m.fromUserId === 'admin' && !m.read);
         if (unreadAdminMsgs.length > 0) {
           unreadAdminMsgs.forEach(async (m) => {
-            await updateDoc(doc(db, 'messages', m.id), { 
-              read: true, 
-              readAt: serverTimestamp() 
-            });
+            try {
+              await updateDoc(doc(db, 'messages', m.id), { 
+                read: true, 
+                readAt: serverTimestamp() 
+              });
+            } catch (err) {
+              console.warn('Failed to mark message as read:', err);
+            }
           });
         }
       }, (error) => {
-        console.error('Snapshot error:', error);
-        showToast('Error loading messages: ' + error.message, 'error');
-        chatMessages.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-exclamation-triangle text-red-500"></i>
-            <span>Error loading messages. Please refresh.</span>
-          </div>
-        `;
+        // FIX: Instead of wiping messages, show an error state while keeping existing messages
+        console.error('🔥 Snapshot error in messages:', error);
+        const errorMsg = error.message || 'Unknown error loading messages.';
+        showErrorState(errorMsg);
+        // Also show a toast for extra visibility
+        showToast('⚠️ ' + errorMsg, 'error');
       });
     }
 
@@ -734,7 +785,6 @@
           participants: [currentUser.uid, 'admin']
         });
         chatInput.value = '';
-        // Focus after send
         chatInput.focus();
       } catch (err) {
         console.error('Send error:', err);
@@ -749,7 +799,7 @@
       if (unsubMessages) unsubMessages();
     });
 
-    console.log('💬 Messages page loaded successfully!');
+    console.log('💬 Messages page loaded successfully (with improved error handling).');
   </script>
 </body>
 </html>
