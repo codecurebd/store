@@ -265,6 +265,12 @@
     }
     .faq-item {
       transition: all 0.3s ease;
+      background: rgba(255,255,255,0.8); /* ensure visibility */
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+    .faq-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
     }
     .faq-show-more-btn {
       background: transparent;
@@ -488,7 +494,7 @@
         </div>
       </section>
 
-      <!-- ===== FAQ (RESTORED + GRID + SHOW MORE) ===== -->
+      <!-- ===== FAQ (RESTORED + DEBUG + DEFAULTS) ===== -->
       <section id="faq" class="py-16 px-6">
         <div class="max-w-5xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">Frequently Asked Questions</h2>
@@ -830,7 +836,7 @@
     loadTestimonials();
 
     // ================================================================
-    // ✅ FAQ (RESTORED ORIGINAL LOGIC + GRID + SHOW MORE)
+    // ✅ FAQ (RESTORED + DEBUG + DEFAULTS)
     // ================================================================
     const faqList = document.getElementById('faqList');
     const faqToggleBtn = document.getElementById('faqToggleBtn');
@@ -839,35 +845,47 @@
     let allFaqs = [];
     let showAll = false;
 
+    // Default FAQs (if Firestore empty)
+    const defaultFaqs = [
+      { question: 'What services do you offer?', answer: 'We offer custom website development, website fix & repair, responsive design, hosting & maintenance, e-commerce solutions, and 24/7 support.' },
+      { question: 'How long does it take to build a website?', answer: 'Most websites are delivered within 24–48 hours, depending on complexity. We\'ll provide a timeline after you place an order.' },
+      { question: 'What payment methods do you accept?', answer: 'We accept bKash, Nagad, and USDT (BEP20). Payment details are provided during checkout.' },
+      { question: 'Do you offer refunds?', answer: 'Yes, we have a refund policy. Pending orders can be cancelled for a 95% refund. Once work starts (Processing), no refund is available.' },
+      { question: 'How do I request a fix for my website?', answer: 'Go to the "Fix My Website" page, fill out the form with details, and submit. You\'ll receive a ticket number and a reply within 24 hours.' },
+      { question: 'Is my data secure?', answer: 'Absolutely. We use SSL encryption and follow best practices to keep your data safe. Payments are processed securely.' }
+    ];
+
     async function loadFaqs() {
       try {
         const snapshot = await getDocs(collection(db, 'faqs'));
         if (snapshot.empty) {
-          faqList.innerHTML = `<div class="col-span-2 text-center py-8 text-gray-500">No FAQs yet.</div>`;
-          faqToggleBtn.style.display = 'none';
-          return;
-        }
-
-        allFaqs = [];
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          if (data.question && data.answer) {
-            allFaqs.push({ id: doc.id, ...data });
+          console.log('📭 No FAQs in Firestore. Using default FAQs.');
+          // Use default FAQs
+          allFaqs = defaultFaqs.map((f, index) => ({ id: `default-${index}`, ...f }));
+        } else {
+          allFaqs = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.question && data.answer) {
+              allFaqs.push({ id: doc.id, ...data });
+            }
+          });
+          // If no valid FAQs found, use defaults
+          if (allFaqs.length === 0) {
+            console.warn('⚠️ FAQs found but missing question/answer. Using defaults.');
+            allFaqs = defaultFaqs.map((f, index) => ({ id: `default-${index}`, ...f }));
           }
-        });
-
-        if (allFaqs.length === 0) {
-          faqList.innerHTML = `<div class="col-span-2 text-center py-8 text-gray-500">No valid FAQs found.</div>`;
-          faqToggleBtn.style.display = 'none';
-          return;
         }
 
+        console.log(`✅ Total FAQs loaded: ${allFaqs.length}`);
         renderFaqs(showAll);
         faqToggleBtn.style.display = 'inline-flex';
       } catch (error) {
-        console.error('Error loading FAQs:', error);
-        faqList.innerHTML = `<div class="col-span-2 text-center py-8 text-red-500">Error loading FAQs. Please try again later.</div>`;
-        faqToggleBtn.style.display = 'none';
+        console.error('🔥 Error loading FAQs:', error);
+        // Fallback: use default FAQs
+        allFaqs = defaultFaqs.map((f, index) => ({ id: `default-${index}`, ...f }));
+        renderFaqs(showAll);
+        faqToggleBtn.style.display = 'inline-flex';
       }
     }
 
@@ -884,7 +902,6 @@
 
       let html = '';
       itemsToShow.forEach((faq, index) => {
-        // Use the original index for toggle function (global index)
         const globalIdx = allFaqs.indexOf(faq);
         html += `
           <div class="glass-card cursor-pointer faq-item fade-up" onclick="toggleFaq(${globalIdx})">
@@ -914,7 +931,7 @@
         faqToggleBtn.style.display = 'none';
       }
 
-      // Define toggleFaq globally (original function)
+      // Define toggleFaq globally
       window.toggleFaq = function(index) {
         const answer = document.getElementById(`faqAnswer${index}`);
         const icon = document.getElementById(`faqIcon${index}`);
