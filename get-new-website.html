@@ -342,6 +342,7 @@
       <p id="detailDesc" class="text-gray-600"></p>
       <p id="detailPrice" class="text-2xl font-bold text-blue-600 mt-2"></p>
       <div id="detailRating" class="mt-1 text-yellow-500"></div>
+      <!-- ✅ Stock div সম্পূর্ণ সরানো হয়েছে -->
       <div class="mt-4 flex flex-wrap gap-3">
         <button onclick="window.addToCartFromDetail()" class="btn-primary">
           <i class="fas fa-cart-plus"></i> Add to Cart
@@ -597,7 +598,7 @@
     }
     renderSkeletons();
 
-    // ===== RENDER PRODUCTS =====
+    // ===== RENDER PRODUCTS (Stock সম্পূর্ণ সরানো হয়েছে) =====
     function renderProducts() {
       let filtered = [...allProducts];
       
@@ -637,6 +638,7 @@
               <p class="text-sm text-gray-500 mt-1 product-desc">${desc}</p>
               <p class="text-2xl font-bold text-blue-600 mt-2">$${p.price}</p>
               <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
+              <!-- ✅ In Stock / Out of Stock সম্পূর্ণ সরানো হয়েছে -->
               <div class="mt-3 flex flex-wrap gap-2">
                 <button onclick="window.openProductDetail('${p.id}')" class="btn-primary text-sm py-2 px-4 flex-1">
                   <i class="fas fa-eye"></i> Details
@@ -698,8 +700,6 @@
     window.addToCart = async (productId) => {
       const product = allProducts.find(p => p.id === productId);
       if (!product) { showToast('Product not found', 'error'); return; }
-        return;
-      }
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
       const existing = cart.find(item => item.id === productId);
       if (existing) {
@@ -715,7 +715,6 @@
       }
       localStorage.setItem('cart', JSON.stringify(cart));
       
-      // ✅ Firestore-এ কার্ট সিঙ্ক
       const user = auth.currentUser;
       if (user) {
         await updateCartInFirestore(user.uid, cart);
@@ -737,7 +736,7 @@
     };
 
     // ================================================================
-    // ✅ প্রোডাক্ট ডিটেইল মডাল
+    // ✅ প্রোডাক্ট ডিটেইল মডাল (Stock সম্পূর্ণ সরানো হয়েছে)
     // ================================================================
     window.openProductDetail = async (id) => {
       currentProductId = id;
@@ -752,6 +751,8 @@
       document.getElementById('detailPrice').textContent = `$${p.price}`;
       const rating = p.averageRating || 0;
       document.getElementById('detailRating').textContent = renderStars(rating) + ` (${p.ratingCount || 0} reviews)`;
+      // ✅ Stock লাইন সম্পূর্ণ সরানো হয়েছে
+
       loadReviews(id);
       document.getElementById('productDetailModal').classList.add('open');
     };
