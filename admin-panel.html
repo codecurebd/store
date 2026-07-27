@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>Admin Panel – SWD Store</title>
+  <title>Admin Panel – CodeCureBD</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -233,7 +233,7 @@
 
   <!-- ===== সাইডবার ===== -->
   <div class="sidebar" id="adminSidebar" style="display:none;">
-    <div class="logo">SWD <span class="gradient-text">Admin</span></div>
+    <div class="logo">CodeCureBD <span class="gradient-text">Admin</span></div>
     <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;">
       <button class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
       <button class="nav-item" data-tab="products"><i class="fas fa-box"></i> Products</button>
@@ -253,7 +253,7 @@
   <!-- ===== মোবাইল হেডার ===== -->
   <div class="mobile-header" id="mobileHeader" style="display:none;">
     <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-    <span class="title">SWD Admin</span>
+    <span class="title">CodeCureBD Admin</span>
     <span style="width:1.6rem;"></span>
   </div>
 
@@ -1868,11 +1868,11 @@
           .header{text-align:center;margin-bottom:20px;}
           hr{margin:20px 0;}</style>
           </head><body>
-          <div class="header"><h1>SWD Store - Invoice</h1></div>
+          <div class="header"><h1>CodeCureBD - Invoice</h1></div>
           <hr/>
           ${content.innerHTML}
           <hr/>
-          <p style="text-align:center;color:#9ca3af;">Thank you for shopping with SWD Store!</p>
+          <p style="text-align:center;color:#9ca3af;">Thank you for shopping with CodeCureBD!</p>
           </body></html>
         `);
         win.document.close();
@@ -1893,7 +1893,7 @@
         }
         const invoice = `
 ========================================
-           SWD STORE - INVOICE
+           CodeCureBD - INVOICE
 ========================================
 Order ID: #${order.id}
 Date: ${dateStr}
@@ -1906,7 +1906,7 @@ Total: $${order.total?.toFixed(2) || '0.00'}
 Payment: ${order.paymentMethod || 'N/A'}
 Transaction: ${order.transactionId || 'Not provided'}
 ----------------------------------------
-Thank you for shopping with SWD Store!
+Thank you for shopping with CodeCureBD!
 ========================================
         `.trim();
         const blob = new Blob([invoice], { type: 'text/plain;charset=utf-8' });

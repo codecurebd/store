@@ -256,9 +256,8 @@ export function renderNavbar() {
         <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
           <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-blue-500/25">
-            <i class="fas fa-store text-sm"></i>
           </span>
-          <span class="tracking-tight">SWD <span class="gradient-text">Store</span></span>
+          <span class="tracking-tight">CodeCureBD <span class="gradient-text">Store</span></span>
         </a>
         
         <!-- Desktop Menu -->
@@ -408,7 +407,7 @@ export function renderFooter() {
     <footer class="glass border-t border-gray-200/30 py-10 px-6 sm:px-8 lg:px-12 mt-auto">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
         <div class="space-y-1 text-center sm:text-left">
-          <div class="font-medium text-gray-700">&copy; 2026 SWD Store. All rights reserved.</div>
+          <div class="font-medium text-gray-700">&copy; 2026 CodeCureBD. All rights reserved.</div>
           <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
             <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
             <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
