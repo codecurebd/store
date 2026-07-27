@@ -487,14 +487,23 @@
         
         <!-- Payment Settings -->
         <form id="settingsForm" class="mt-4 space-y-3 max-w-md">
-          <label class="block text-sm font-medium">BKASH Number</label>
-          <input type="text" id="bkashNumber" class="form-input" />
-          <label class="block text-sm font-medium">NAGAD Number</label>
-          <input type="text" id="nagadNumber" class="form-input" />
-          <label class="block text-sm font-medium">USDT Address</label>
-          <input type="text" id="usdtAddress" class="form-input" />
+          <p class="text-sm text-gray-500">These numbers are shown to customers on the payment screen. Only bKash, Nagad &amp; USDT.</p>
+          <label class="block text-sm font-medium">bKash Number</label>
+          <input type="text" id="bkashNumber" class="form-input" placeholder="e.g. 01XXXXXXXXX" />
+          <label class="block text-sm font-medium">Nagad Number</label>
+          <input type="text" id="nagadNumber" class="form-input" placeholder="e.g. 01XXXXXXXXX" />
+          <label class="block text-sm font-medium">USDT Address (BEP20)</label>
+          <input type="text" id="usdtAddress" class="form-input" placeholder="Your BEP20 wallet address" />
           <button type="submit" class="btn-primary w-full">Save Settings</button>
         </form>
+
+        <!-- Site Contact (display only reminder) -->
+        <div class="mt-6 max-w-md p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-gray-700">
+          <p class="font-semibold text-gray-900 mb-1"><i class="fas fa-address-card mr-1"></i> Site Contact Info</p>
+          <p>Email: <a href="mailto:nopqrshov337@gmail.com" class="text-blue-600">nopqrshov337@gmail.com</a></p>
+          <p>Phone: <a href="tel:+8801350141762" class="text-blue-600">+880 1350-141762</a></p>
+          <p class="text-xs text-gray-400 mt-1">Shown in footer &amp; homepage. To change, update code files.</p>
+        </div>
 
         <!-- ====== নতুন: Testimonials ====== -->
         <div class="mt-8">

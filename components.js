@@ -342,7 +342,13 @@ export function renderFooter() {
   const footerHTML = `
     <footer class="glass border-t border-gray-200/30 py-10 px-6 sm:px-8 lg:px-12 mt-auto">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-        <div class="font-medium text-gray-700">&copy; 2026 SWD Store. All rights reserved.</div>
+        <div class="space-y-1 text-center sm:text-left">
+          <div class="font-medium text-gray-700">&copy; 2026 SWD Store. All rights reserved.</div>
+          <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
+            <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
+            <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
+          </div>
+        </div>
         <div class="flex items-center gap-4">
           <a href="https://nopqrshov.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium transition-colors">Portfolio</a>
           <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
