@@ -1814,6 +1814,7 @@
         currentOrderDetail = null;
       };
 
+      // ✅ FIXED: serverTimestamp() removed from array, using ISO string instead
       window.updateOrderStatus = async (orderId) => {
         const select = document.getElementById('orderStatusSelect');
         if (!select) return;
@@ -1823,7 +1824,7 @@
         if (order.status === newStatus) { showToast('Status unchanged', 'info'); return; }
         try {
           const history = order.statusHistory || [];
-          history.push({ status: order.status || 'pending', changedAt: serverTimestamp() });
+          history.push({ status: order.status || 'pending', changedAt: new Date().toISOString() });
           await updateDoc(doc(db, 'orders', orderId), { status: newStatus, statusHistory: history });
           showToast('✅ Order status updated', 'success');
           closeOrderDetailModal();
