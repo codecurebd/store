@@ -500,7 +500,14 @@ export function setLoading(button, isLoading, originalText = null) {
 // ✅ PAYMENT MODAL
 // ================================================================
 export function renderPaymentModal() {
-  if (document.getElementById('paymentModal')) return;
+  // Remove old modal if it exists without the new fields (method + sender)
+  const existing = document.getElementById('paymentModal');
+  if (existing) {
+    if (document.getElementById('paymentMethodSelect') && document.getElementById('paymentSenderNumber')) {
+      return; // already has new fields
+    }
+    existing.remove();
+  }
 
   const modalHTML = `
     <div id="paymentModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
@@ -518,6 +525,21 @@ export function renderPaymentModal() {
         <form id="paymentForm" class="mt-4 space-y-4">
           <input type="hidden" id="paymentOrderId" />
           <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Method *</label>
+            <select id="paymentMethodSelect" required class="form-input">
+              <option value="">Select method</option>
+              <option value="bKash">bKash</option>
+              <option value="Nagad">Nagad</option>
+              <option value="USDT">USDT (BEP20)</option>
+              <option value="Rocket">Rocket</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Sender Number / Wallet *</label>
+            <input type="text" id="paymentSenderNumber" placeholder="Number or wallet you paid from" required class="form-input" />
+            <p class="text-xs text-gray-400 mt-1">bKash/Nagad/Rocket number or USDT wallet address</p>
+          </div>
+          <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Transaction ID *</label>
             <input type="text" id="transactionId" placeholder="Enter your payment transaction ID" required class="form-input" />
           </div>
@@ -531,29 +553,50 @@ export function renderPaymentModal() {
   `;
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    .animate-scaleIn { animation: scaleIn 0.25s ease forwards; }
-  `;
-  document.head.appendChild(style);
+  if (!document.getElementById('paymentModalStyle')) {
+    const style = document.createElement('style');
+    style.id = 'paymentModalStyle';
+    style.textContent = `
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .animate-scaleIn { animation: scaleIn 0.25s ease forwards; }
+    `;
+    document.head.appendChild(style);
+  }
 
   const paymentForm = document.getElementById('paymentForm');
-  if (paymentForm) {
+  if (paymentForm && !paymentForm.dataset.bound) {
+    paymentForm.dataset.bound = '1';
     paymentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const orderId = document.getElementById('paymentOrderId').value;
       const txnId = document.getElementById('transactionId').value.trim();
+      const method = document.getElementById('paymentMethodSelect').value;
+      const senderNumber = document.getElementById('paymentSenderNumber').value.trim();
       const errorDiv = document.getElementById('paymentError');
       errorDiv.classList.add('hidden');
+      document.querySelectorAll('#paymentForm .form-input').forEach(el => el.classList.remove('error'));
 
       if (!orderId) {
         errorDiv.textContent = '❌ Order not found. Please refresh and try again.';
         errorDiv.classList.remove('hidden');
         window.showToast('Order not found. Please refresh.', 'error');
+        return;
+      }
+
+      if (!method) {
+        errorDiv.textContent = '⚠️ Please select a payment method.';
+        errorDiv.classList.remove('hidden');
+        document.getElementById('paymentMethodSelect').classList.add('error');
+        return;
+      }
+
+      if (!senderNumber) {
+        errorDiv.textContent = '⚠️ Please enter the number/wallet you paid from.';
+        errorDiv.classList.remove('hidden');
+        document.getElementById('paymentSenderNumber').classList.add('error');
         return;
       }
 
@@ -577,7 +620,8 @@ export function renderPaymentModal() {
       try {
         await updateDoc(doc(db, 'orders', orderId), {
           transactionId: txnId,
-          paymentMethod: 'Manual'
+          paymentMethod: method,
+          senderNumber: senderNumber
         });
         window.showToast('✅ Payment confirmed! Admin will verify soon.', 'success');
         window.closePaymentModal();
@@ -621,6 +665,10 @@ window.openPaymentModal = function(orderId, settings) {
   document.getElementById('paymentError').classList.add('hidden');
   document.getElementById('transactionId').value = '';
   document.getElementById('transactionId').classList.remove('error');
+  const methodSelect = document.getElementById('paymentMethodSelect');
+  const senderInput = document.getElementById('paymentSenderNumber');
+  if (methodSelect) { methodSelect.value = ''; methodSelect.classList.remove('error'); }
+  if (senderInput) { senderInput.value = ''; senderInput.classList.remove('error'); }
 };
 
 window.closePaymentModal = function() {
