@@ -255,8 +255,9 @@ export function renderNavbar() {
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
         <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
-          <span class="tracking-tight">CodeCure<span class="gradient-text">BD</span></span>
-        </a>
+  <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785175932/ddkoloxxhjjhwhzmqjnm.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
+  <span class="logo-text tracking-tight">CodeCure<span class="gradient-text">BD</span></span>
+</a>
         
         <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-1 lg:gap-2">

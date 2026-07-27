@@ -208,7 +208,23 @@ img {
 .btn-delete:hover {
   background: #fecaca;
 }
+/* ===== LOGO - Desktop & Mobile Responsive ===== */
+.logo-img {
+  display: inline-block;
+  height: 32px;
+  width: auto;
+  flex-shrink: 0;
+}
 
+/* মোবাইল স্ক্রিনে (৭৬৮px এর নিচে) টেক্সট লুকাও, শুধু লোগো দেখাও */
+@media (max-width: 768px) {
+  .logo-text {
+    display: none;
+  }
+  .logo-img {
+    height: 36px; /* মোবাইলে একটু বড় */
+  }
+}
 /* ===== NAVBAR ===== */
 .nav-link {
   position: relative;
