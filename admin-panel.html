@@ -292,7 +292,7 @@
       </div>
     </div>
 
-    <!-- ===== ORDERS (with Delete) ===== -->
+    <!-- ===== ORDERS (with Bulk Delete) ===== -->
     <div id="tab-orders" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
@@ -314,10 +314,19 @@
           <button onclick="applyOrderFilters()" class="btn-primary btn-sm">Apply</button>
           <button onclick="resetOrderFilters()" class="btn-outline btn-sm">Reset</button>
         </div>
+
+        <!-- Bulk Actions for Orders -->
+        <div id="orderBulkActions" style="display:none;" class="bulk-actions">
+          <span class="bulk-info"><strong id="orderBulkCount">0</strong> order(s) selected</span>
+          <button onclick="bulkDeleteOrders()" class="btn-delete"><i class="fas fa-trash"></i> Delete Selected</button>
+          <button onclick="clearOrderSelection()" class="btn-outline btn-sm">Clear</button>
+        </div>
+
         <div class="overflow-x-auto">
           <table class="admin-table" id="orderTable">
             <thead>
               <tr>
+                <th style="width:40px;"><input type="checkbox" id="selectAllOrders" /></th>
                 <th>Order ID</th>
                 <th>User</th>
                 <th>Date & Time</th>
@@ -424,7 +433,7 @@
           <button onclick="clearBulkSelection()" class="btn-outline btn-sm">Clear</button>
         </div>
 
-        <!-- TABLE VIEW (simplified: Name, Email, Status, Details — no horizontal scroll) -->
+        <!-- TABLE VIEW -->
         <div id="usersTableView">
           <table class="admin-table" id="userTable">
             <thead>
@@ -1553,11 +1562,79 @@
       }
 
       // ==============================================================
-      // ORDERS (with Delete)
+      // ORDERS (with Bulk Delete)
       // ==============================================================
       let filteredOrders = [];
       const orderTableBody = document.getElementById('orderTableBody');
       let currentOrderDetail = null;
+
+      // Selection for orders
+      let selectedOrderIds = new Set();
+
+      function updateOrderBulkUI() {
+        const count = selectedOrderIds.size;
+        const bulk = document.getElementById('orderBulkActions');
+        if (count > 0) {
+          bulk.style.display = 'flex';
+          document.getElementById('orderBulkCount').textContent = count;
+        } else {
+          bulk.style.display = 'none';
+        }
+        const selectAll = document.getElementById('selectAllOrders');
+        if (selectAll) {
+          const checkboxes = document.querySelectorAll('.order-checkbox');
+          selectAll.checked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+        }
+      }
+
+      function clearOrderSelection() {
+        selectedOrderIds.clear();
+        document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('selectAllOrders').checked = false;
+        updateOrderBulkUI();
+      }
+
+      function updateOrderSelection() {
+        const checkboxes = document.querySelectorAll('.order-checkbox:checked');
+        selectedOrderIds = new Set(Array.from(checkboxes).map(cb => cb.dataset.id));
+        updateOrderBulkUI();
+      }
+
+      window.bulkDeleteOrders = async function() {
+        if (selectedOrderIds.size === 0) {
+          showToast('No orders selected.', 'warning');
+          return;
+        }
+        if (!confirm(`⚠️ Are you sure you want to permanently delete ${selectedOrderIds.size} order(s)? This cannot be undone.`)) return;
+
+        const password = prompt('Enter your admin password to confirm deletion:');
+        if (!password) return;
+
+        const adminEmail = auth.currentUser?.email;
+        if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
+
+        let successCount = 0, failCount = 0;
+        let stop = false;
+        for (const orderId of selectedOrderIds) {
+          try {
+            const credential = EmailAuthProvider.credential(adminEmail, password);
+            await reauthenticateWithCredential(auth.currentUser, credential);
+            await deleteDoc(doc(db, 'orders', orderId));
+            successCount++;
+          } catch (err) {
+            console.error(`Failed to delete ${orderId}:`, err);
+            failCount++;
+            if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+              showToast('⚠️ Incorrect password. Operation stopped.', 'error');
+              stop = true;
+              break;
+            }
+          }
+        }
+        showToast(`✅ ${successCount} order(s) deleted. Failed: ${failCount}`, failCount && !stop ? 'warning' : 'success');
+        clearOrderSelection();
+        // onSnapshot will refresh the table
+      };
 
       function renderOrdersTable(orders) {
         const fromDate = document.getElementById('orderDateFrom').value;
@@ -1577,7 +1654,8 @@
         });
 
         if (filteredOrders.length === 0) {
-          orderTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400">No orders found.</td></tr>`;
+          orderTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-gray-400">No orders found.</td></tr>`;
+          clearOrderSelection();
           return;
         }
 
@@ -1594,6 +1672,7 @@
 
           html += `
             <tr>
+              <td><input type="checkbox" class="order-checkbox" data-id="${o.id}" /></td>
               <td><span class="font-mono text-xs">#${o.id.slice(0,8).toUpperCase()}</span></td>
               <td>${userName}</td>
               <td>${dateStr} <span class="text-gray-400 text-xs">${timeStr}</span></td>
@@ -1612,6 +1691,19 @@
           `;
         });
         orderTableBody.innerHTML = html;
+
+        // Attach checkbox events
+        document.querySelectorAll('.order-checkbox').forEach(cb => {
+          cb.addEventListener('change', updateOrderSelection);
+        });
+        const selectAll = document.getElementById('selectAllOrders');
+        if (selectAll) {
+          selectAll.addEventListener('change', function() {
+            document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = this.checked);
+            updateOrderSelection();
+          });
+        }
+        updateOrderBulkUI();
       }
 
       window.applyOrderFilters = function() { renderOrdersTable(allOrders); };
@@ -1624,7 +1716,7 @@
         renderOrdersTable(allOrders);
       };
 
-      // ===== ORDER DELETE =====
+      // ===== ORDER DELETE (single) =====
       window.deleteOrder = async (orderId) => {
         if (!confirm('Delete this order permanently?')) return;
         const password = prompt('Enter your admin password to confirm deletion:');
@@ -1636,8 +1728,6 @@
           await reauthenticateWithCredential(auth.currentUser, credential);
           await deleteDoc(doc(db, 'orders', orderId));
           showToast('✅ Order deleted', 'success');
-          // Refetch orders
-          // onSnapshot already handles update
         } catch (err) {
           showToast('⚠️ ' + err.message, 'error');
         }
@@ -2333,7 +2423,7 @@ Thank you for shopping with SWD Store!
       // Initial render for users
       renderUsersPage(allUsers);
 
-      console.log('✅ Admin Panel loaded with Advanced Users & Orders.');
+      console.log('✅ Admin Panel loaded with Advanced Users & Orders (Bulk Delete).');
     }
   </script>
 </body>
