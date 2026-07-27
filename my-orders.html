@@ -286,6 +286,31 @@
     }
     .detail-item:last-child { border-bottom: none; }
 
+    /* ===== CUSTOM PASSWORD MODAL ===== */
+    .password-modal .modal-box {
+      max-width: 420px;
+    }
+    .password-modal .modal-box .password-input-wrap {
+      position: relative;
+    }
+    .password-modal .modal-box .password-input-wrap i {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8e8e93;
+      cursor: pointer;
+    }
+    .password-modal .modal-box .password-input-wrap i:hover {
+      color: #007AFF;
+    }
+    .password-modal .modal-box .error-text {
+      color: #dc2626;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
     /* ===== ANIMATIONS ===== */
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(12px); }
@@ -446,6 +471,26 @@
     </div>
   </div>
 
+  <!-- ===== CUSTOM PASSWORD MODAL (NEW) ===== -->
+  <div id="passwordModal" class="modal-overlay password-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="passwordModalTitle" class="text-xl font-bold text-gray-900">Enter Password</h3>
+        <button onclick="closePasswordModal()" class="modal-close">&times;</button>
+      </div>
+      <p id="passwordModalDesc" class="text-sm text-gray-500 mb-4">Please enter your password to confirm this action.</p>
+      <div class="password-input-wrap">
+        <input type="password" id="passwordInput" placeholder="Your password" class="form-input pr-12" />
+        <i class="fas fa-eye" id="togglePasswordVisibility" onclick="togglePasswordVisibility()"></i>
+      </div>
+      <div id="passwordError" class="error-text">Incorrect password. Please try again.</div>
+      <div class="mt-4 flex gap-3">
+        <button onclick="confirmPassword()" id="passwordConfirmBtn" class="btn-primary flex-1">Confirm</button>
+        <button onclick="closePasswordModal()" class="btn-outline flex-1">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== AUTH MODAL ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
@@ -546,6 +591,67 @@
     }
 
     // ================================================================
+    // CUSTOM PASSWORD MODAL (NEW)
+    // ================================================================
+    let passwordModalCallback = null;
+    let passwordModalResolve = null;
+
+    window.showPasswordModal = function(title, description) {
+      return new Promise((resolve) => {
+        document.getElementById('passwordModalTitle').textContent = title || 'Enter Password';
+        document.getElementById('passwordModalDesc').textContent = description || 'Please enter your password to confirm this action.';
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordError').style.display = 'none';
+        document.getElementById('passwordModal').classList.add('open');
+        passwordModalResolve = resolve;
+        document.getElementById('passwordInput').focus();
+      });
+    };
+
+    window.closePasswordModal = function() {
+      document.getElementById('passwordModal').classList.remove('open');
+      if (passwordModalResolve) {
+        passwordModalResolve(null);
+        passwordModalResolve = null;
+      }
+    };
+
+    window.confirmPassword = function() {
+      const password = document.getElementById('passwordInput').value;
+      if (!password) {
+        document.getElementById('passwordError').textContent = 'Please enter your password.';
+        document.getElementById('passwordError').style.display = 'block';
+        return;
+      }
+      document.getElementById('passwordError').style.display = 'none';
+      if (passwordModalResolve) {
+        passwordModalResolve(password);
+        passwordModalResolve = null;
+      }
+      document.getElementById('passwordModal').classList.remove('open');
+    };
+
+    window.togglePasswordVisibility = function() {
+      const input = document.getElementById('passwordInput');
+      const icon = document.getElementById('togglePasswordVisibility');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+      }
+    };
+
+    // Enter key support in password modal
+    document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        window.confirmPassword();
+      }
+    });
+
+    // ================================================================
     // AUTH MODAL
     // ================================================================
     let currentAuthMode = 'signin';
@@ -631,7 +737,7 @@
     };
 
     // ================================================================
-    // ✅ অর্ডার লজিক (onSnapshot দিয়ে রিয়েল-টাইম, orderBy বাদ)
+    // ✅ অর্ডার লজিক (onSnapshot)
     // ================================================================
 
     const orderList = document.getElementById('orderList');
@@ -780,13 +886,10 @@
         return;
       }
 
-      // Show skeletons initially
       renderSkeletons(3);
 
-      // Unsubscribe previous listener
       if (unsubOrders) unsubOrders();
 
-      // ✅ Real-time listener without orderBy (manual sort in JS)
       const q = query(
         collection(db, 'orders'),
         where('userId', '==', userId)
@@ -798,7 +901,6 @@
           allOrders.push({ id: doc.id, ...doc.data() });
         });
 
-        // ✅ Manual sorting (newest first)
         allOrders.sort((a, b) => {
           const ta = a.createdAt?.toDate?.()?.getTime() || 0;
           const tb = b.createdAt?.toDate?.()?.getTime() || 0;
@@ -823,12 +925,11 @@
       });
     }
 
-    // ===== FILTER EVENT LISTENERS =====
     searchInput.addEventListener('input', debouncedApplyFilters);
     statusFilter.addEventListener('change', applyFilters);
 
     // ================================================================
-    // ✅ অর্ডার ডিটেইল ও ডিলিট
+    // ✅ অর্ডার ডিটেইল ও ডিলিট (কাস্টম মডাল ব্যবহার)
     // ================================================================
 
     let currentOrderId = null;
@@ -936,21 +1037,28 @@
       currentOrderData = null;
     };
 
-    // Close modal on overlay click
     document.getElementById('orderDetailModal').addEventListener('click', (e) => {
       if (e.target === e.currentTarget) closeOrderDetail();
     });
-
-    // Close modal on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeOrderDetail();
     });
 
-    // ===== ORDER DELETE (with password) =====
+    // ===== ORDER DELETE (with custom password modal) =====
     window.deleteOrder = async (orderId) => {
       if (!confirm('Delete this order? This action cannot be undone.')) return;
-      const password = prompt('Enter your password to confirm deletion:');
-      if (!password) return;
+
+      // ✅ কাস্টম মডাল দেখান
+      const password = await window.showPasswordModal(
+        'Confirm Deletion',
+        'Enter your password to permanently delete this order.'
+      );
+
+      if (!password) {
+        showToast('Deletion cancelled', 'warning');
+        return;
+      }
+
       try {
         const user = auth.currentUser;
         if (!user) { showToast('Not logged in', 'error'); return; }
@@ -958,9 +1066,12 @@
         await reauthenticateWithCredential(user, credential);
         await deleteDoc(doc(db, 'orders', orderId));
         showToast('✅ Order deleted', 'success');
-        // list auto updates via onSnapshot
       } catch (err) {
-        showToast('⚠️ ' + err.message, 'error');
+        if (err.code === 'auth/wrong-password') {
+          showToast('❌ Incorrect password. Deletion failed.', 'error');
+        } else {
+          showToast('⚠️ ' + err.message, 'error');
+        }
       }
     };
 
@@ -1064,11 +1175,9 @@ Thank you for shopping with SWD Store!
       const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
       updateNavbarAuth(user, displayName);
 
-      // Load orders
       loadOrders(user.uid);
     });
 
-    // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
       if (unsubOrders) unsubOrders();
     });
