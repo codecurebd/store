@@ -457,24 +457,24 @@
         </div>
       </section>
 
-      <!-- ===== STATISTICS ===== -->
+      <!-- ===== STATISTICS (UPDATED) ===== -->
       <section id="stats" class="py-16 px-6">
         <div class="max-w-6xl mx-auto">
           <div class="grid md:grid-cols-4 gap-8 text-center">
             <div class="fade-up">
-              <div class="stat-number">150+</div>
+              <div class="stat-number">100+</div>
               <div class="stat-label">Projects Delivered</div>
             </div>
             <div class="fade-up" style="transition-delay:0.1s;">
-              <div class="stat-number">90+</div>
+              <div class="stat-number">100+</div>
               <div class="stat-label">Happy Clients</div>
             </div>
             <div class="fade-up" style="transition-delay:0.2s;">
-              <div class="stat-number">3+</div>
+              <div class="stat-number">6+</div>
               <div class="stat-label">Years of Experience</div>
             </div>
             <div class="fade-up" style="transition-delay:0.3s;">
-              <div class="stat-number">98%</div>
+              <div class="stat-number">99%</div>
               <div class="stat-label">Client Satisfaction</div>
             </div>
           </div>
@@ -491,16 +491,14 @@
         </div>
       </section>
 
-      <!-- ===== FAQ (NEW: Grid + Show More) ===== -->
+      <!-- ===== FAQ (FIXED) ===== -->
       <section id="faq" class="py-16 px-6">
         <div class="max-w-5xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">Frequently Asked Questions</h2>
           <div id="faqContainer" class="mt-8">
-            <!-- Grid will be rendered by JS -->
             <div id="faqGrid" class="faq-grid">
               <!-- FAQ items injected here -->
             </div>
-            <!-- Show More / Show Less Button -->
             <div class="text-center mt-6">
               <button id="faqToggleBtn" class="faq-show-more-btn" style="display:none;">
                 <span id="faqToggleText">Show More</span>
@@ -568,7 +566,7 @@
 
   <script type="module">
     // ================================================================
-    // ইমপোর্ট – limit ছাড়া (কারণ আমরা ম্যানুয়ালি slice করব)
+    // ইমপোর্ট
     // ================================================================
     import { 
       auth, db, collection, doc, getDoc, getDocs, onSnapshot, query, where,
@@ -681,46 +679,45 @@
       }
     });
 
-        window.socialLogin = async (provider) => {
-          if (provider !== 'google') {
-            showToast('Only Google sign-in is supported', 'warning');
-            return;
-          }
-          try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (!userDoc.exists()) {
-              await setDoc(doc(db, 'users', user.uid), {
-                email: user.email || '',
-                displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
-                photoURL: user.photoURL || '',
-                role: 'user',
-                createdAt: new Date().toISOString(),
-                isActive: true,
-                emailVerified: !!user.emailVerified,
-              });
-            }
-            showToast('✅ Signed in with Google', 'success');
-            if (typeof closeAuthModal === 'function') closeAuthModal();
-            else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
-          } catch (error) {
-            console.error('Google sign-in error:', error);
-            let msg = error.message || 'Sign-in failed';
-            if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-            else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
-            else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
-            else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
-            showToast('⚠️ ' + msg, 'error');
-            const errEl = document.getElementById('authError');
-            if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
-          }
-        };
+    window.socialLogin = async (provider) => {
+      if (provider !== 'google') {
+        showToast('Only Google sign-in is supported', 'warning');
+        return;
+      }
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, 'users', user.uid), {
+            email: user.email || '',
+            displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+            photoURL: user.photoURL || '',
+            role: 'user',
+            createdAt: new Date().toISOString(),
+            isActive: true,
+            emailVerified: !!user.emailVerified,
+          });
+        }
+        showToast('✅ Signed in with Google', 'success');
+        if (typeof closeAuthModal === 'function') closeAuthModal();
+        else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+      } catch (error) {
+        console.error('Google sign-in error:', error);
+        let msg = error.message || 'Sign-in failed';
+        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
+        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
+        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
+        showToast('⚠️ ' + msg, 'error');
+        const errEl = document.getElementById('authError');
+        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+      }
+    };
 
     onAuthStateChanged(auth, async (user) => {
       let name = null;
       if (user) {
-        // ✅ কার্ট সিঙ্ক (Firestore থেকে)
         await syncCart(user.uid);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
@@ -734,11 +731,10 @@
     };
 
     // ================================================================
-    // ✅ ফিচার্ড প্রোডাক্ট – সর্বোচ্চ ৬টি (স্কেলটন সহ)
+    // ✅ ফিচার্ড প্রোডাক্ট
     // ================================================================
     const packagesContainer = document.getElementById('featuredPackages');
 
-    // Show skeleton initially
     function renderSkeletons(count = 6) {
       let html = '';
       for (let i = 0; i < count; i++) {
@@ -760,20 +756,17 @@
 
     async function loadFeaturedProducts() {
       try {
-        // 1. featured=true থাকা প্রোডাক্ট আনা
         const qFeatured = query(collection(db, 'products'), where('featured', '==', true));
         const snapFeatured = await getDocs(qFeatured);
         let products = [];
         snapFeatured.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
 
-        // 2. যদি কোনো featured না থাকে, সব প্রোডাক্ট আনা
         if (products.length === 0) {
           const qAll = query(collection(db, 'products'));
           const snapAll = await getDocs(qAll);
           snapAll.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
         }
 
-        // 3. সর্বোচ্চ ৬টি
         products = products.slice(0, 6);
 
         if (products.length === 0) {
@@ -803,11 +796,10 @@
         packagesContainer.innerHTML = `<p class="text-red-500 col-span-3 text-center">Error loading products.</p>`;
       }
     }
-
     loadFeaturedProducts();
 
     // ================================================================
-    // ✅ টেস্টিমোনিয়াল (রিয়েল-টাইম না, getDocs ব্যবহার করেছি)
+    // ✅ টেস্টিমোনিয়াল
     // ================================================================
     const testimonialContainer = document.getElementById('testimonialList');
 
@@ -839,7 +831,7 @@
     loadTestimonials();
 
     // ================================================================
-    // ✅ FAQ (FIXED: Grid + Show More)
+    // ✅ FAQ (FIXED)
     // ================================================================
     const faqGrid = document.getElementById('faqGrid');
     const faqToggleBtn = document.getElementById('faqToggleBtn');
@@ -881,6 +873,7 @@
 
       if (displayItems.length === 0) {
         faqGrid.innerHTML = `<p class="text-gray-500 text-center col-span-2">No FAQs to display.</p>`;
+        faqToggleBtn.style.display = 'none';
         return;
       }
 
