@@ -709,15 +709,32 @@ window.updatePaymentMethodUI = function() {
       : `<p class="text-red-500">${method} number not set. Contact admin.</p>`;
 
     const appName = method === 'bKash' ? 'bKash' : 'Nagad';
+    const dialCode = method === 'bKash' ? '*247#' : '*167#';
+    const dialSendOption = method === 'bKash' ? '1' : '2';
+    const user = auth.currentUser;
+    const username = (user?.displayName || (user?.email ? user.email.split('@')[0] : '') || 'your username');
+    const numDisplay = number || '—';
+    const amountDisplay = '৳' + totalBDT.toLocaleString('en-BD');
+
     howToBox.innerHTML = `
-      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-mobile-alt mr-1"></i> How to pay (${appName} App)</p>
-      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm">
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-mobile-alt mr-1"></i> How to pay — ${appName} App</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm mb-4">
         <li>Open the <strong>${appName}</strong> app and log in</li>
         <li>Go to <strong>Send Money</strong></li>
-        <li>Enter number: <strong class="select-all">${number || '—'}</strong></li>
-        <li>Enter amount: <strong>৳${totalBDT.toLocaleString('en-BD')}</strong></li>
-        <li>Reference (optional) — you may leave blank</li>
+        <li>Enter number: <strong class="select-all">${numDisplay}</strong></li>
+        <li>Enter amount: <strong>${amountDisplay}</strong></li>
+        <li>In <strong>Reference</strong>, enter your username: <strong class="select-all">${username}</strong></li>
         <li>Enter your PIN and <strong>Confirm</strong></li>
+        <li>Copy the <strong>Transaction ID</strong> and paste it below</li>
+      </ol>
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-phone-alt mr-1"></i> How to pay — Dial (USSD)</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm">
+        <li>Dial <strong class="select-all">${dialCode}</strong></li>
+        <li>Select option <strong>${dialSendOption}. Send Money</strong></li>
+        <li>Enter number: <strong class="select-all">${numDisplay}</strong></li>
+        <li>Enter amount: <strong>${amountDisplay}</strong></li>
+        <li>Enter username in reference: <strong class="select-all">${username}</strong></li>
+        <li>Enter PIN and confirm</li>
         <li>Copy the <strong>Transaction ID</strong> and paste it below</li>
       </ol>`;
 
