@@ -9,13 +9,13 @@ import {
 // ✅ নোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা
 // ================================================================
 let unreadAdminMessages = [];
+let displayMessages = [];      // ড্রপডাউন খোলার সময় মেসেজের কপি
 let adminMessageUnsubscribe = null;
 let notificationBadgeElement = null;
 let notificationListElement = null;
 
 // অ্যাডমিন মেসেজ লিসেনার শুরু করুন
 function startAdminMessageListener(user) {
-  // আগের লিসেনার বন্ধ করুন
   if (adminMessageUnsubscribe) {
     adminMessageUnsubscribe();
     adminMessageUnsubscribe = null;
@@ -23,6 +23,7 @@ function startAdminMessageListener(user) {
 
   if (!user) {
     updateNotificationBadge(0);
+    updateNotificationList([]);
     return;
   }
 
@@ -40,7 +41,15 @@ function startAdminMessageListener(user) {
       unreadAdminMessages.push({ id: doc.id, ...doc.data() });
     });
     updateNotificationBadge(unreadAdminMessages.length);
-    updateNotificationList(unreadAdminMessages);
+    // ড্রপডাউন খোলা থাকলে displayMessages দেখাবে, নইলে আনরিড লিস্ট দেখাবে
+    if (displayMessages.length > 0) {
+      // ড্রপডাউন খোলা থাকলে আমরা displayMessages আপডেট করি না (কারণ সেটা কপি)
+      // কিন্তু নতুন মেসেজ এলে আমরা ড্রপডাউনে দেখাতে চাই? 
+      // ভালো অভিজ্ঞতার জন্য নতুন মেসেজ এলে displayMessages-এ যোগ করা যেতে পারে
+      // কিন্তু এখানে আমরা সহজ রাখছি: ড্রপডাউন খোলা থাকলে নতুন মেসেজ দেখাবে না (পরের বার খোলার সময় দেখাবে)
+    } else {
+      updateNotificationList(unreadAdminMessages);
+    }
   }, (error) => {
     console.error('Admin messages listener error:', error);
   });
@@ -58,7 +67,7 @@ function updateNotificationBadge(count) {
   }
 }
 
-// নোটিফিকেশন ড্রপডাউন লিস্ট আপডেট করুন
+// নোটিফিকেশন ড্রপডাউন লিস্ট আপডেট করুন (messages অ্যারে দেখান)
 function updateNotificationList(messages) {
   const list = document.getElementById('notificationList');
   if (!list) return;
@@ -96,7 +105,7 @@ function updateNotificationList(messages) {
   list.innerHTML = html;
 }
 
-// সব আনরিড অ্যাডমিন মেসেজ রিড হিসেবে মার্ক করুন
+// সব আনরিড অ্যাডমিন মেসেজ রিড হিসেবে মার্ক করুন (ব্যাজ রিমুভের জন্য)
 async function markAllAdminMessagesRead() {
   const user = auth.currentUser;
   if (!user || unreadAdminMessages.length === 0) return;
@@ -109,14 +118,38 @@ async function markAllAdminMessagesRead() {
       })
     );
     await Promise.all(promises);
-    // UI তৎক্ষণাৎ আপডেট (onSnapshot আপডেট করবে, কিন্তু আমরা ম্যানুয়ালি ক্লিয়ার করি)
-    unreadAdminMessages = [];
-    updateNotificationBadge(0);
-    updateNotificationList([]);
+    // onSnapshot আপডেট করবে, কিন্তু আমরা displayMessages ধরে রাখি
   } catch (err) {
     console.error('Error marking messages as read:', err);
   }
 }
+
+// ================================================================
+// ✅ NOTIFICATION TOGGLE (ড্রপডাউন খোলা/বন্ধ + মেসেজ কপি রাখা)
+// ================================================================
+window.toggleNotifications = function() {
+  const dropdown = document.getElementById('notificationDropdown');
+  if (!dropdown) return;
+
+  const isOpening = dropdown.classList.contains('hidden');
+
+  if (isOpening) {
+    // ড্রপডাউন খুলছি – displayMessages-এ কপি রাখি
+    displayMessages = [...unreadAdminMessages];
+    updateNotificationList(displayMessages);
+    dropdown.classList.remove('hidden');
+    dropdown.style.animation = 'dropdownFade 0.2s ease';
+
+    // ব্যাজ রিমুভ করতে মেসেজগুলো রিড করে দিই
+    markAllAdminMessagesRead();
+  } else {
+    // ড্রপডাউন বন্ধ করছি – displayMessages ক্লিয়ার
+    displayMessages = [];
+    dropdown.classList.add('hidden');
+    // ড্রপডাউন বন্ধ হলে আনরিড লিস্ট দেখাতে হবে না, কিন্তু নতুন মেসেজ এলে পরে দেখাবে
+    // updateNotificationList(unreadAdminMessages); // চাইলে করতে পারেন
+  }
+};
 
 // ================================================================
 // ✅ TOAST NOTIFICATION (আপনার পুরোনো কোড)
@@ -227,21 +260,6 @@ window.toggleMobileMenu = function() {
     } else {
       menu.style.maxHeight = '0';
       menu.style.opacity = '0';
-    }
-  }
-};
-
-// ================================================================
-// ✅ NOTIFICATION TOGGLE (ব্যাজ রিমুভ + রিড মার্ক)
-// ================================================================
-window.toggleNotifications = function() {
-  const dropdown = document.getElementById('notificationDropdown');
-  if (dropdown) {
-    dropdown.classList.toggle('hidden');
-    if (!dropdown.classList.contains('hidden')) {
-      dropdown.style.animation = 'dropdownFade 0.2s ease';
-      // ড্রপডাউন খুললেই সব মেসেজ রিড করে ফেলি
-      markAllAdminMessagesRead();
     }
   }
 };
@@ -440,7 +458,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
     
-    // Admin Link visibility
     const isAdmin = (role === 'admin');
     if (adminLink) {
       adminLink.style.display = isAdmin ? '' : 'none';
@@ -451,11 +468,10 @@ export function updateNavbarAuth(user, displayName, role = null) {
       mobileAdminLink.classList.toggle('hidden', !isAdmin);
     }
 
-    // ✅ শুরু করুন অ্যাডমিন মেসেজ লিসেনার (শুধু সাধারণ ইউজারের জন্য)
+    // ✅ অ্যাডমিন ছাড়া সব ইউজারের জন্য নোটিফিকেশন লিসেনার
     if (!isAdmin) {
       startAdminMessageListener(user);
     } else {
-      // অ্যাডমিন নিজের মেসেজের নোটিফিকেশন দেখবে না (বা চাইলে আলাদা করা যেতে পারে)
       if (adminMessageUnsubscribe) {
         adminMessageUnsubscribe();
         adminMessageUnsubscribe = null;
@@ -469,7 +485,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (profileSection) profileSection.classList.add('hidden');
     if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
     if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
-    // লিসেনার বন্ধ
     if (adminMessageUnsubscribe) {
       adminMessageUnsubscribe();
       adminMessageUnsubscribe = null;
