@@ -536,7 +536,7 @@ export function renderPaymentModal() {
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Sender Number / Wallet *</label>
             <input type="text" id="paymentSenderNumber" placeholder="Number or wallet you paid from" required class="form-input" />
-            <p class="text-xs text-gray-400 mt-1">bKash/Nagad or USDT wallet address</p>
+            <p class="text-xs text-gray-400 mt-1">bKash/Nagad number or USDT wallet address</p>
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Transaction ID *</label>
