@@ -286,8 +286,9 @@
     }
     .detail-item:last-child { border-bottom: none; }
 
-    /* ===== CUSTOM PASSWORD MODAL ===== */
-    .password-modal .modal-box {
+    /* ===== CUSTOM PASSWORD / CONFIRM MODAL ===== */
+    .password-modal .modal-box,
+    .confirm-modal .modal-box {
       max-width: 420px;
     }
     .password-modal .modal-box .password-input-wrap {
@@ -310,6 +311,26 @@
       margin-top: 0.5rem;
       display: none;
     }
+    .confirm-modal .confirm-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #fef2f2;
+      color: #dc2626;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 1rem;
+    }
+    .confirm-modal .confirm-body {
+      text-align: center;
+      color: #4b5563;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      margin-bottom: 1.25rem;
+    }
+    .confirm-modal .confirm-body strong { color: #1f2937; }
 
     /* ===== ANIMATIONS ===== */
     @keyframes fadeSlideUp {
@@ -471,22 +492,37 @@
     </div>
   </div>
 
-  <!-- ===== CUSTOM PASSWORD MODAL (NEW) ===== -->
+  <!-- ===== CUSTOM CONFIRM MODAL ===== -->
+  <div id="confirmModal" class="modal-overlay confirm-modal">
+    <div class="modal-box">
+      <div class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="modal-header" style="justify-content:center; margin-bottom:0.5rem;">
+        <h3 id="confirmModalTitle" class="text-xl font-bold text-gray-900 text-center">Confirm</h3>
+      </div>
+      <div id="confirmModalBody" class="confirm-body"></div>
+      <div class="mt-2 flex gap-3">
+        <button type="button" id="confirmModalYes" class="btn-danger flex-1 justify-center">Yes, Cancel</button>
+        <button type="button" id="confirmModalNo" class="btn-outline flex-1 justify-center">Keep Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CUSTOM PASSWORD MODAL ===== -->
   <div id="passwordModal" class="modal-overlay password-modal">
     <div class="modal-box">
       <div class="modal-header">
         <h3 id="passwordModalTitle" class="text-xl font-bold text-gray-900">Enter Password</h3>
-        <button onclick="closePasswordModal()" class="modal-close">&times;</button>
+        <button type="button" onclick="closePasswordModal()" class="modal-close">&times;</button>
       </div>
       <p id="passwordModalDesc" class="text-sm text-gray-500 mb-4">Please enter your password to confirm this action.</p>
       <div class="password-input-wrap">
-        <input type="password" id="passwordInput" placeholder="Your password" class="form-input pr-12" />
+        <input type="password" id="passwordInput" placeholder="Your account password" class="form-input pr-12" autocomplete="current-password" />
         <i class="fas fa-eye" id="togglePasswordVisibility" onclick="togglePasswordVisibility()"></i>
       </div>
       <div id="passwordError" class="error-text">Incorrect password. Please try again.</div>
       <div class="mt-4 flex gap-3">
-        <button onclick="confirmPassword()" id="passwordConfirmBtn" class="btn-primary flex-1">Confirm</button>
-        <button onclick="closePasswordModal()" class="btn-outline flex-1">Cancel</button>
+        <button type="button" onclick="confirmPassword()" id="passwordConfirmBtn" class="btn-primary flex-1 justify-center">Confirm</button>
+        <button type="button" onclick="closePasswordModal()" class="btn-outline flex-1 justify-center">Cancel</button>
       </div>
     </div>
   </div>
@@ -590,20 +626,54 @@
     }
 
     // ================================================================
-    // CUSTOM PASSWORD MODAL (NEW)
+    // CUSTOM CONFIRM MODAL (replaces browser confirm)
     // ================================================================
-    let passwordModalCallback = null;
+    let confirmModalResolve = null;
+
+    window.showConfirmModal = function(title, bodyHtml, yesText, noText) {
+      return new Promise((resolve) => {
+        document.getElementById('confirmModalTitle').textContent = title || 'Confirm';
+        document.getElementById('confirmModalBody').innerHTML = bodyHtml || '';
+        document.getElementById('confirmModalYes').textContent = yesText || 'Yes';
+        document.getElementById('confirmModalNo').textContent = noText || 'Cancel';
+        document.getElementById('confirmModal').classList.add('open');
+        confirmModalResolve = resolve;
+      });
+    };
+
+    function finishConfirmModal(result) {
+      document.getElementById('confirmModal').classList.remove('open');
+      if (confirmModalResolve) {
+        confirmModalResolve(result);
+        confirmModalResolve = null;
+      }
+    }
+
+    document.getElementById('confirmModalYes').addEventListener('click', () => finishConfirmModal(true));
+    document.getElementById('confirmModalNo').addEventListener('click', () => finishConfirmModal(false));
+    document.getElementById('confirmModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) finishConfirmModal(false);
+    });
+
+    // ================================================================
+    // CUSTOM PASSWORD MODAL
+    // ================================================================
     let passwordModalResolve = null;
 
     window.showPasswordModal = function(title, description) {
       return new Promise((resolve) => {
         document.getElementById('passwordModalTitle').textContent = title || 'Enter Password';
         document.getElementById('passwordModalDesc').textContent = description || 'Please enter your password to confirm this action.';
-        document.getElementById('passwordInput').value = '';
-        document.getElementById('passwordError').style.display = 'none';
+        const input = document.getElementById('passwordInput');
+        input.value = '';
+        input.type = 'password';
+        document.getElementById('togglePasswordVisibility').className = 'fas fa-eye';
+        const err = document.getElementById('passwordError');
+        err.style.display = 'none';
+        err.textContent = '';
         document.getElementById('passwordModal').classList.add('open');
         passwordModalResolve = resolve;
-        document.getElementById('passwordInput').focus();
+        setTimeout(() => input.focus(), 50);
       });
     };
 
@@ -616,13 +686,25 @@
     };
 
     window.confirmPassword = function() {
-      const password = document.getElementById('passwordInput').value;
+      const input = document.getElementById('passwordInput');
+      const password = (input.value || '').trim();
+      const err = document.getElementById('passwordError');
+
       if (!password) {
-        document.getElementById('passwordError').textContent = 'Please enter your password.';
-        document.getElementById('passwordError').style.display = 'block';
+        err.textContent = 'Please enter your password.';
+        err.style.display = 'block';
+        input.focus();
         return;
       }
-      document.getElementById('passwordError').style.display = 'none';
+      if (password.length < 6) {
+        err.textContent = 'Password must be at least 6 characters.';
+        err.style.display = 'block';
+        input.focus();
+        return;
+      }
+
+      err.style.display = 'none';
+      err.textContent = '';
       if (passwordModalResolve) {
         passwordModalResolve(password);
         passwordModalResolve = null;
@@ -630,24 +712,43 @@
       document.getElementById('passwordModal').classList.remove('open');
     };
 
-    window.togglePasswordVisibility = function() {
+    /** Show error on password modal and keep it open for retry (used after failed re-auth) */
+    window.showPasswordError = function(message) {
+      const err = document.getElementById('passwordError');
+      err.textContent = message || 'Incorrect password. Please try again.';
+      err.style.display = 'block';
+      const input = document.getElementById('passwordInput');
+      input.value = '';
+      document.getElementById('passwordModal').classList.add('open');
+      setTimeout(() => input.focus(), 50);
+    };
+
+    window.togglePasswordVisibility = function(id) {
+      if (id) {
+        const input = document.getElementById(id);
+        if (input) input.type = input.type === 'password' ? 'text' : 'password';
+        return;
+      }
       const input = document.getElementById('passwordInput');
       const icon = document.getElementById('togglePasswordVisibility');
+      if (!input) return;
       if (input.type === 'password') {
         input.type = 'text';
-        icon.className = 'fas fa-eye-slash';
+        if (icon) icon.className = 'fas fa-eye-slash';
       } else {
         input.type = 'password';
-        icon.className = 'fas fa-eye';
+        if (icon) icon.className = 'fas fa-eye';
       }
     };
 
-    // Enter key support in password modal
     document.getElementById('passwordInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
         window.confirmPassword();
       }
+    });
+    document.getElementById('passwordModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) window.closePasswordModal();
     });
 
     // ================================================================
@@ -669,11 +770,6 @@
       currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
       window.openAuthModal(currentAuthMode);
     });
-
-    window.togglePasswordVisibility = (id) => {
-      const input = document.getElementById(id);
-      input.type = input.type === 'password' ? 'text' : 'password';
-    };
 
         window.socialLogin = async (provider) => {
           if (provider !== 'google') {
@@ -1067,30 +1163,107 @@
         return;
       }
 
-      if (!confirm('Cancel this pending order?\n\nAccording to our policy you may receive a 95% refund after admin verification. This cannot be undone.')) return;
+      const user = auth.currentUser;
+      if (!user) { showToast('Not logged in', 'error'); return; }
+      if (!user.email) { showToast('Account email missing. Cannot verify.', 'error'); return; }
 
-      const password = await window.showPasswordModal(
-        'Confirm Cancellation',
-        'Enter your password to cancel this pending order (95% refund policy applies).'
-      );
-
-      if (!password) {
-        showToast('Cancellation cancelled', 'warning');
+      // Google-only accounts have no password
+      const hasPassword = (user.providerData || []).some(p => p.providerId === 'password');
+      if (!hasPassword) {
+        await window.showConfirmModal(
+          'Cannot verify with password',
+          `<p>This account was signed in with <strong>Google</strong> and has no password.</p>
+           <p class="mt-2">Contact support to cancel, or set a password from <strong>Settings</strong> first.</p>`,
+          'OK',
+          'Close'
+        );
         return;
       }
 
-      try {
-        const user = auth.currentUser;
-        if (!user) { showToast('Not logged in', 'error'); return; }
-        const credential = EmailAuthProvider.credential(user.email, password);
-        await reauthenticateWithCredential(user, credential);
-        await deleteDoc(doc(db, 'orders', orderId));
-        showToast('✅ Order cancelled. Admin will process 95% refund if payment was received.', 'success');
-      } catch (err) {
-        if (err.code === 'auth/wrong-password') {
-          showToast('❌ Incorrect password. Cancellation failed.', 'error');
-        } else {
-          showToast('⚠️ ' + err.message, 'error');
+      // 1) Custom confirm box (not browser default)
+      const confirmed = await window.showConfirmModal(
+        'Cancel this order?',
+        `<p>You are about to cancel order <strong>#${(orderId || '').slice(0, 8).toUpperCase()}</strong>.</p>
+         <p class="mt-2">If payment was received, you may get a <strong>95% refund</strong> after admin verification (usually 3–7 business days).</p>
+         <p class="mt-2 text-red-600"><strong>This cannot be undone.</strong></p>`,
+        'Yes, Cancel Order',
+        'Keep Order'
+      );
+      if (!confirmed) {
+        showToast('Order kept — nothing was cancelled', 'warning');
+        return;
+      }
+
+      // 2) Custom password box — retry until success or user cancels
+      let done = false;
+      let showErrorOnOpen = false;
+
+      while (!done) {
+        const password = await new Promise((resolve) => {
+          document.getElementById('passwordModalTitle').textContent = 'Confirm with password';
+          document.getElementById('passwordModalDesc').textContent =
+            'Enter your account password to cancel this pending order (95% refund policy applies).';
+          const input = document.getElementById('passwordInput');
+          input.value = '';
+          input.type = 'password';
+          document.getElementById('togglePasswordVisibility').className = 'fas fa-eye';
+          const errEl = document.getElementById('passwordError');
+          if (showErrorOnOpen) {
+            errEl.textContent = '❌ Incorrect password. Please try again.';
+            errEl.style.display = 'block';
+          } else {
+            errEl.textContent = '';
+            errEl.style.display = 'none';
+          }
+          document.getElementById('passwordModal').classList.add('open');
+          passwordModalResolve = resolve;
+          setTimeout(() => input.focus(), 50);
+        });
+
+        if (!password) {
+          showToast('Cancellation cancelled', 'warning');
+          return;
+        }
+
+        // Client-side validation already ran in confirmPassword; double-check
+        if (password.length < 6) {
+          showErrorOnOpen = true;
+          continue;
+        }
+
+        const btn = document.getElementById('passwordConfirmBtn');
+        try {
+          if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+          }
+          const credential = EmailAuthProvider.credential(user.email, password);
+          await reauthenticateWithCredential(user, credential);
+          await deleteDoc(doc(db, 'orders', orderId));
+          showToast('✅ Order cancelled. Admin will process 95% refund if payment was received.', 'success');
+          done = true;
+        } catch (err) {
+          console.error('Cancel order error:', err);
+          const code = err.code || '';
+          if (
+            code === 'auth/wrong-password' ||
+            code === 'auth/invalid-credential' ||
+            code === 'auth/invalid-login-credentials'
+          ) {
+            showErrorOnOpen = true;
+            // loop again → password modal with error
+          } else if (code === 'auth/too-many-requests') {
+            showToast('⚠️ Too many attempts. Please wait and try again later.', 'error');
+            done = true;
+          } else {
+            showToast('⚠️ ' + (err.message || 'Cancellation failed'), 'error');
+            done = true;
+          }
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Confirm';
+          }
         }
       }
     };
