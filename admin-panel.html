@@ -599,7 +599,12 @@
         <input type="text" id="prodDesc" placeholder="Description" class="form-input" />
         <input type="number" id="prodPrice" placeholder="Price" required class="form-input" />
         <input type="text" id="prodCategory" placeholder="Category" class="form-input" />
-        <input type="text" id="prodImage" placeholder="Image URL" class="form-input" />
+        <!-- ===== NEW: File upload for image ===== -->
+        <label class="block text-sm font-medium text-gray-700">Product Image (Upload)</label>
+        <input type="file" id="prodImageFile" accept="image/*" class="form-input p-2" />
+        <p class="text-xs text-gray-400 mt-1">Max 64MB (JPG, PNG, WEBP, GIF). Leave empty to use image URL below.</p>
+        <!-- Old text input kept as fallback, hidden but can be used -->
+        <input type="text" id="prodImage" placeholder="Image URL (optional)" class="form-input" style="display:none;" />
         <div class="flex items-center gap-2 mt-2">
           <input type="checkbox" id="prodFeatured" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
           <label for="prodFeatured" class="text-sm font-medium text-gray-700">Show on Landing Page (Featured)</label>
@@ -671,9 +676,10 @@
       onSnapshot, query, where, serverTimestamp,
       signOut, onAuthStateChanged,
       EmailAuthProvider, reauthenticateWithCredential,
-      adminCreateUser, adminDeleteUser  // নতুন ফাংশন
+      adminCreateUser, adminDeleteUser
     } from './firebase-config.js';
     import { setLoading } from './components.js';
+    import { uploadImage } from './components.js'; // 👈 নতুন ইমপোর্ট
 
     // ===== DOM =====
     const loader = document.getElementById('adminLoader');
@@ -887,6 +893,7 @@
           document.getElementById('prodPrice').value = data.price;
           document.getElementById('prodCategory').value = data.category || '';
           document.getElementById('prodImage').value = data.imageUrl || '';
+          document.getElementById('prodImageFile').value = ''; // reset file input
           document.getElementById('prodFeatured').checked = data.featured || false;
           document.getElementById('productModalTitle').innerText = 'Edit Product';
           document.getElementById('productModal').classList.add('open');
@@ -899,6 +906,7 @@
         document.getElementById('prodId').value = '';
         document.getElementById('productForm').reset();
         document.getElementById('prodFeatured').checked = false;
+        document.getElementById('prodImageFile').value = ''; // clear file input
       };
 
       window.closeProductModal = () => {
@@ -909,16 +917,34 @@
       const productSubmitBtn = productForm.querySelector('button[type="submit"]');
       productForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const name = document.getElementById('prodName').value.trim();
         const desc = document.getElementById('prodDesc').value.trim();
         const price = parseFloat(document.getElementById('prodPrice').value);
         const category = document.getElementById('prodCategory').value.trim();
-        const imageUrl = document.getElementById('prodImage').value.trim();
         const featured = document.getElementById('prodFeatured').checked;
         const id = document.getElementById('prodId').value;
 
+        // ===== NEW: Image upload logic =====
+        const imageFile = document.getElementById('prodImageFile').files[0];
+        let imageUrl = '';
+        if (imageFile) {
+          try {
+            setLoading(productSubmitBtn, true, 'Uploading image...');
+            imageUrl = await uploadImage(imageFile);
+          } catch (err) {
+            showToast('⚠️ Image upload failed: ' + err.message, 'error');
+            setLoading(productSubmitBtn, false);
+            return;
+          }
+        } else {
+          // Fallback to text input if no file selected
+          imageUrl = document.getElementById('prodImage').value.trim();
+        }
+
         if (!name || !price) { showToast('Name and price required.', 'error'); return; }
-        setLoading(productSubmitBtn, true, 'Save');
+        
+        setLoading(productSubmitBtn, true, 'Saving...');
         try {
           const data = { name, desc, price, category, imageUrl, featured };
           if (id) await updateDoc(doc(db, 'products', id), data);

@@ -847,3 +847,38 @@ window.checkout = async function() {
     if (checkoutBtn) setLoading(checkoutBtn, false);
   }
 };
+
+// ================================================================
+// ✅ FreeImage.Host ইমেজ আপলোড (ফ্রি)
+// ================================================================
+const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5'; // 👈 আপনার দেওয়া API Key
+
+export async function uploadImage(file) {
+  if (!file) throw new Error('No file selected.');
+  
+  // FreeImage.Host 64MB পর্যন্ত সাপোর্ট করে
+  if (file.size > 64 * 1024 * 1024) {
+    throw new Error('Image must be less than 64MB.');
+  }
+
+  const formData = new FormData();
+  formData.append('source', file); // FreeImage.Host 'source' ফিল্ড নাম ব্যবহার করে
+
+  try {
+    const response = await fetch('https://freeimage.host/api/1/upload?key=' + FREEIMAGE_API_KEY, {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await response.json();
+
+    if (data.status_code === 200) {
+      // FreeImage.Host রেসপন্সে 'image' অবজেক্টে 'display_url' থাকে
+      return data.image.display_url;
+    } else {
+      throw new Error(data.error?.message || 'Upload failed.');
+    }
+  } catch (err) {
+    console.error('FreeImage.Host Upload Error:', err);
+    throw err;
+  }
+}
