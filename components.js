@@ -531,7 +531,6 @@ export function renderPaymentModal() {
               <option value="bKash">bKash</option>
               <option value="Nagad">Nagad</option>
               <option value="USDT">USDT (BEP20)</option>
-              <option value="Rocket">Rocket</option>
             </select>
           </div>
           <div>
