@@ -985,33 +985,35 @@ window.checkout = async function() {
 };
 
 // ================================================================
-// ✅ FreeImage.Host ইমেজ আপলোড
+// ✅ CLOUDINARY ইমেজ আপলোড (FreeImage.Host এর পরিবর্তে)
 // ================================================================
-const FREEIMAGE_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
+const CLOUDINARY_CLOUD_NAME = 'zmoyykj7';
+const CLOUDINARY_UPLOAD_PRESET = 'codecurebd';
 
 export async function uploadImage(file) {
   if (!file) throw new Error('No file selected.');
-  if (file.size > 64 * 1024 * 1024) {
-    throw new Error('Image must be less than 64MB.');
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error('Image must be less than 10MB.');
   }
 
   const formData = new FormData();
-  formData.append('source', file);
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
   try {
-    const response = await fetch('https://freeimage.host/api/1/upload?key=' + FREEIMAGE_API_KEY, {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: formData }
+    );
     const data = await response.json();
 
-    if (data.status_code === 200) {
-      return data.image.display_url;
-    } else {
-      throw new Error(data.error?.message || 'Upload failed.');
+    if (data.error) {
+      throw new Error(data.error.message || 'Upload failed.');
     }
+
+    return data.secure_url;
   } catch (err) {
-    console.error('FreeImage.Host Upload Error:', err);
+    console.error('❌ Cloudinary Upload Error:', err);
     throw err;
   }
 }

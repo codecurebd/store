@@ -260,18 +260,17 @@
                         placeholder="What's broken? Slow speed? Error messages? Please be as detailed as possible."></textarea>
             </div>
 
-            <!-- Image Link -->
+            <!-- ===== Cloudinary Image Upload (Updated) ===== -->
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                Screenshot / Image (Google Drive link)
+                Screenshot / Image (Upload)
               </label>
-              <div class="relative">
-                <input type="text" id="fixImageLink" class="form-input pl-12" 
-                       placeholder="Paste your Google Drive share link here" />
-                <i class="fas fa-image absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
-              </div>
+              <img id="fixImagePreview" class="hidden w-full h-40 object-cover rounded-xl mb-2 border border-gray-200" alt="Screenshot Preview" />
+              <input type="file" id="fixImageFile" accept="image/*" class="form-input" onchange="window.handleFixImageUpload(event)" />
+              <input type="text" id="fixImageLink" class="form-input mt-2" placeholder="Image URL will appear here automatically" readonly />
               <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-                <i class="fas fa-info-circle"></i> Upload image to Google Drive, get shareable link, and paste here.
+                <i class="fas fa-cloud-upload-alt text-blue-500"></i> 
+                Select a screenshot to upload directly to Cloudinary.
               </p>
             </div>
 
@@ -337,6 +336,7 @@
       renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
       renderCartSidebar, setLoading, renderPaymentModal
     } from './components.js';
+    import { uploadImage } from './components.js'; // ✅ যোগ করেছি
     import { 
       auth, db, collection, addDoc, serverTimestamp, 
       signInWithEmailAndPassword, createUserWithEmailAndPassword, 
@@ -466,6 +466,34 @@
     window.handleLogout = async () => {
       await signOut(auth);
       showToast('✅ Logged out', 'success');
+    };
+
+    // ================================================================
+    // ===== Cloudinary Upload Handler for Fix Request =====
+    // ================================================================
+    window.handleFixImageUpload = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const input = document.getElementById('fixImageLink');
+      const preview = document.getElementById('fixImagePreview');
+      const btn = e.target;
+
+      btn.disabled = true;
+
+      try {
+        const url = await uploadImage(file);
+        input.value = url;
+        preview.src = url;
+        preview.classList.remove('hidden');
+        showToast('✅ Screenshot uploaded successfully!', 'success');
+      } catch (err) {
+        showToast('⚠️ Upload failed: ' + err.message, 'error');
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.value = '';
+      }
     };
 
     // ================================================================
