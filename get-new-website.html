@@ -342,160 +342,6 @@
             transform: scale(1.2);
         }
 
-        /* ── modals ── */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(6px);
-            z-index: 300;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        .modal-overlay.open {
-            display: flex;
-        }
-        .modal-box {
-            background: white;
-            border-radius: 24px;
-            padding: 1.5rem;
-            max-width: 700px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            animation: scaleIn 0.3s ease forwards;
-        }
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        .modal-box .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .modal-box .modal-header h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.8rem;
-            cursor: pointer;
-            color: #8e8e93;
-            transition: 0.2s;
-        }
-        .modal-close:hover {
-            color: #1c1c1e;
-        }
-
-        .detail-image-wrapper {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-            background: #f0f2f5;
-        }
-        .detail-image-wrapper img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            display: block;
-        }
-        .detail-image-wrapper .discount-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: #dc2626;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1rem;
-            padding: 6px 18px;
-            border-radius: 60px;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
-            z-index: 6;
-        }
-        .fullscreen-btn {
-            position: absolute;
-            bottom: 12px;
-            right: 12px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            z-index: 10;
-        }
-        .fullscreen-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
-            transform: scale(1.05);
-        }
-
-        .fullscreen-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-        .fullscreen-overlay.open {
-            display: flex;
-        }
-        .fullscreen-overlay img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-        .fullscreen-close {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(4px);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        }
-        .fullscreen-close:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: scale(1.05);
-        }
-
         /* ── scroll top ── */
         .scroll-top-btn {
             position: fixed;
@@ -606,9 +452,6 @@
             .product-card .img-wrapper img {
                 height: 150px;
             }
-            .modal-box {
-                padding: 1rem;
-            }
             .btn-primary,
             .btn-outline,
             .btn-details,
@@ -619,19 +462,6 @@
             }
             .rating-stars .star {
                 font-size: 1.5rem;
-            }
-            .detail-image-wrapper img {
-                height: 200px;
-            }
-            .fullscreen-overlay {
-                padding: 1rem;
-            }
-            .fullscreen-close {
-                top: 16px;
-                right: 16px;
-                width: 44px;
-                height: 44px;
-                font-size: 1.6rem;
             }
             #toast-container {
                 bottom: 16px;
@@ -648,12 +478,6 @@
                 top: 8px;
                 right: 8px;
             }
-            .detail-image-wrapper .discount-badge {
-                font-size: 0.85rem;
-                padding: 4px 12px;
-                top: 12px;
-                right: 12px;
-            }
             .discount-price {
                 font-size: 1.2rem;
             }
@@ -668,12 +492,6 @@
         @media (max-width: 480px) {
             .product-card .img-wrapper img {
                 height: 120px;
-            }
-            .modal-box {
-                border-radius: 16px;
-            }
-            .detail-image-wrapper img {
-                height: 160px;
             }
             .btn-details,
             .btn-add-cart {
@@ -691,12 +509,6 @@
                 padding: 2px 8px;
                 top: 6px;
                 right: 6px;
-            }
-            .detail-image-wrapper .discount-badge {
-                font-size: 0.75rem;
-                padding: 3px 10px;
-                top: 8px;
-                right: 8px;
             }
             .discount-price {
                 font-size: 1.05rem;
@@ -761,64 +573,6 @@
     <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
         <i class="fas fa-arrow-up"></i>
     </button>
-
-    <!-- ─── PRODUCT DETAIL MODAL ─── -->
-    <div id="productDetailModal" class="modal-overlay" onclick="closeDetailModal()">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h3 id="detailName" class="text-2xl font-bold text-gray-900"></h3>
-                <button onclick="closeDetailModal()" class="modal-close" aria-label="Close">&times;</button>
-            </div>
-            <div class="detail-image-wrapper">
-                <img id="detailImage" src="" alt="" loading="lazy" />
-                <div id="detailBadge" class="discount-badge" style="display:none;">-0%</div>
-                <button class="fullscreen-btn" onclick="openFullscreenImage()" aria-label="View fullscreen">
-                    <i class="fas fa-expand"></i>
-                </button>
-            </div>
-
-            <div id="detailDescContainer" class="relative">
-                <p id="detailDesc" class="text-gray-600 overflow-hidden" style="max-height:4.5em;line-height:1.5em;white-space:pre-wrap;word-wrap:break-word;"></p>
-                <button id="seeMoreBtn" class="text-blue-600 text-sm font-medium mt-1 hover:underline" onclick="toggleDescription()">See more</button>
-            </div>
-
-            <div id="detailPriceContainer" class="mt-2"></div>
-            <div id="detailRating" class="mt-1 text-yellow-500"></div>
-
-            <div class="mt-4 flex flex-wrap gap-3">
-                <button onclick="window.addToCartFromDetail()" class="btn-primary">
-                    <i class="fas fa-cart-plus"></i> Add to Cart
-                </button>
-                <button onclick="window.buyNowFromDetail()" class="btn-primary" style="background:linear-gradient(135deg,#34C759,#28A745);">
-                    <i class="fas fa-bolt"></i> Buy Now
-                </button>
-            </div>
-
-            <div class="mt-6 border-t border-gray-200 pt-4">
-                <h4 class="font-semibold text-gray-900">Rate this product</h4>
-                <div class="rating-stars flex gap-2 mt-2" id="ratingStars">
-                    <span class="star" data-val="1">☆</span>
-                    <span class="star" data-val="2">☆</span>
-                    <span class="star" data-val="3">☆</span>
-                    <span class="star" data-val="4">☆</span>
-                    <span class="star" data-val="5">☆</span>
-                </div>
-                <textarea id="ratingReview" placeholder="Write a review..." class="form-input mt-2" rows="2"></textarea>
-                <button onclick="submitRating()" class="btn-primary mt-2 text-sm py-2 px-4">
-                    <i class="fas fa-paper-plane"></i> Submit Review
-                </button>
-                <div id="reviewsList" class="mt-4 space-y-2"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── FULLSCREEN IMAGE ─── -->
-    <div id="fullscreenOverlay" class="fullscreen-overlay">
-        <button class="fullscreen-close" onclick="closeFullscreenImage()" aria-label="Close fullscreen">
-            <i class="fas fa-times"></i>
-        </button>
-        <img id="fullscreenImage" src="" alt="Fullscreen view" />
-    </div>
 
     <!-- ─── AUTH MODAL ─── -->
     <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
@@ -956,8 +710,7 @@
                 else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
                 showToast('⚠️ ' + msg, 'error');
                 const errEl = document.getElementById('authError');
-                if (errEl) { errEl.textContent = msg;
-                    errEl.classList.remove('hidden'); }
+                if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
             }
         };
 
@@ -1015,8 +768,6 @@
 
         let allProducts = [];
         let allDiscounts = [];
-        let currentProductId = null;
-        let currentProductData = null;
 
         const grid = document.getElementById('productGrid');
         const searchInput = document.getElementById('searchInput');
@@ -1115,13 +866,11 @@
                 if (discount) {
                     discountedPrice = originalPrice * (1 - discount.discountPercent / 100);
                     const percent = Math.round(discount.discountPercent);
-                    // Price: original + discounted + percentage tag
                     priceHtml = `
                         <span class="original-price">$${originalPrice.toFixed(2)}</span>
                         <span class="discount-price">$${discountedPrice.toFixed(2)}</span>
                         <span class="discount-percent-tag"><i class="fas fa-tag"></i> -${percent}%</span>
                     `;
-                    // Badge on image
                     badgeHtml = `<div class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</div>`;
                 } else {
                     priceHtml = `<span class="discount-price" style="font-size:1.4rem;">$${originalPrice.toFixed(2)}</span>`;
@@ -1141,9 +890,9 @@
                   <div class="price-wrapper">${priceHtml}</div>
                   <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
                   <div class="mt-3 flex flex-wrap gap-2">
-                    <button onclick="window.openProductDetail('${p.id}')" class="btn-details">
+                    <a href="product-detail.html?id=${p.id}" class="btn-details">
                       <i class="fas fa-eye"></i> Details
-                    </button>
+                    </a>
                     <button onclick="window.addToCart('${p.id}')" class="btn-add-cart">
                       <i class="fas fa-cart-plus"></i> Add
                     </button>
@@ -1167,11 +916,6 @@
             allDiscounts = [];
             snapshot.forEach(doc => { allDiscounts.push({ id: doc.id, ...doc.data() }); });
             renderProducts();
-            if (currentProductId) {
-                const product = allProducts.find(p => p.id === currentProductId);
-                if (product) updateDetailPrice(product);
-                updateDetailBadge(product);
-            }
         });
 
         function debounce(fn, wait) {
@@ -1220,202 +964,7 @@
             showToast(`✅ "${product.name}" added to cart`, 'success');
         };
 
-        window.addToCartFromDetail = () => { if (currentProductId) window.addToCart(currentProductId); };
-        window.buyNowFromDetail = () => {
-            if (currentProductId) {
-                window.addToCart(currentProductId);
-                setTimeout(() => window.checkout(), 500);
-            }
-        };
-
-        // ─── DETAIL MODAL ──────────────────────────────────────────────
-
-        let descExpanded = false;
-
-        function updateDetailPrice(product) {
-            const discount = getDiscountForProduct(product);
-            const container = document.getElementById('detailPriceContainer');
-            const price = product.price;
-            if (discount) {
-                const percent = Math.round(discount.discountPercent);
-                const discounted = price * (1 - discount.discountPercent / 100);
-                container.innerHTML = `
-                <div class="price-wrapper">
-                  <span class="original-price text-lg">$${price.toFixed(2)}</span>
-                  <span class="discount-price text-2xl font-bold">$${discounted.toFixed(2)}</span>
-                  <span class="discount-percent-tag" style="font-size:0.9rem;padding:3px 16px;">
-                    <i class="fas fa-tag"></i> -${percent}%
-                  </span>
-                </div>
-              `;
-            } else {
-                container.innerHTML =
-                    `<span class="text-2xl font-bold text-blue-600">$${price.toFixed(2)}</span>`;
-            }
-        }
-
-        function updateDetailBadge(product) {
-            const badge = document.getElementById('detailBadge');
-            if (!badge) return;
-            const discount = getDiscountForProduct(product);
-            if (discount) {
-                badge.style.display = 'flex';
-                badge.textContent = `-${Math.round(discount.discountPercent)}%`;
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
-        window.openProductDetail = async (id) => {
-            currentProductId = id;
-            const docSnap = await getDoc(doc(db, 'products', id));
-            if (!docSnap.exists()) { showToast('Product not found', 'error'); return; }
-            currentProductData = { id, ...docSnap.data() };
-            const p = currentProductData;
-
-            document.getElementById('detailName').textContent = p.name;
-            document.getElementById('detailImage').src = p.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
-
-            const descText = p.desc || p.description || '';
-            const descEl = document.getElementById('detailDesc');
-            descEl.innerHTML = descText.replace(/\n/g, '<br>');
-
-            const seeMoreBtn = document.getElementById('seeMoreBtn');
-            descEl.style.maxHeight = '4.5em';
-            seeMoreBtn.textContent = 'See more';
-            descExpanded = false;
-
-            updateDetailPrice(p);
-            updateDetailBadge(p);
-
-            const rating = p.averageRating || 0;
-            document.getElementById('detailRating').textContent = renderStars(rating) + ` (${p.ratingCount || 0} reviews)`;
-
-            document.getElementById('fullscreenImage').src = p.imageUrl || 'https://via.placeholder.com/1200x800?text=No+Image';
-
-            loadReviews(id);
-            document.getElementById('productDetailModal').classList.add('open');
-        };
-
-        window.toggleDescription = function() {
-            const descEl = document.getElementById('detailDesc');
-            const btn = document.getElementById('seeMoreBtn');
-            if (!descExpanded) {
-                descEl.style.maxHeight = 'none';
-                btn.textContent = 'See less';
-            } else {
-                descEl.style.maxHeight = '4.5em';
-                btn.textContent = 'See more';
-            }
-            descExpanded = !descExpanded;
-        };
-
-        window.closeDetailModal = () => {
-            document.getElementById('productDetailModal').classList.remove('open');
-            currentProductId = null;
-            currentProductData = null;
-            descExpanded = false;
-            const descEl = document.getElementById('detailDesc');
-            const btn = document.getElementById('seeMoreBtn');
-            if (descEl) descEl.style.maxHeight = '4.5em';
-            if (btn) btn.textContent = 'See more';
-        };
-
-        // ─── FULLSCREEN ────────────────────────────────────────────────
-
-        window.openFullscreenImage = () => {
-            document.getElementById('fullscreenOverlay').classList.add('open');
-            document.body.style.overflow = 'hidden';
-        };
-        window.closeFullscreenImage = () => {
-            document.getElementById('fullscreenOverlay').classList.remove('open');
-            document.body.style.overflow = '';
-        };
-        document.getElementById('fullscreenOverlay').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) closeFullscreenImage();
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('fullscreenOverlay').classList.contains('open')) {
-                closeFullscreenImage();
-            }
-        });
-
-        // ─── RATING ────────────────────────────────────────────────────
-
-        let selectedRating = 0;
-        document.querySelectorAll('#ratingStars .star').forEach(el => {
-            el.addEventListener('click', () => {
-                selectedRating = parseInt(el.dataset.val);
-                document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('active'));
-                for (let i = 0; i < selectedRating; i++) {
-                    document.querySelectorAll('#ratingStars .star')[i].classList.add('active');
-                }
-            });
-        });
-
-        window.submitRating = async () => {
-            if (!selectedRating) { showToast('Please select a rating', 'warning'); return; }
-            const user = auth.currentUser;
-            if (!user) { showToast('Please sign in to rate', 'warning'); return; }
-            if (!currentProductId) { showToast('No product selected', 'error'); return; }
-            const review = document.getElementById('ratingReview').value.trim();
-            try {
-                await addDoc(collection(db, 'ratings'), {
-                    productId: currentProductId,
-                    userId: user.uid,
-                    userEmail: user.email,
-                    rating: selectedRating,
-                    review: review,
-                    timestamp: serverTimestamp()
-                });
-                const productRef = doc(db, 'products', currentProductId);
-                const snap = await getDoc(productRef);
-                const data = snap.data();
-                const count = (data.ratingCount || 0) + 1;
-                const avg = ((data.averageRating || 0) * (data.ratingCount || 0) + selectedRating) / count;
-                await updateDoc(productRef, { averageRating: avg, ratingCount: count });
-                showToast('✅ Review submitted!', 'success');
-                selectedRating = 0;
-                document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('active'));
-                document.getElementById('ratingReview').value = '';
-                loadReviews(currentProductId);
-                renderProducts();
-            } catch (err) {
-                showToast('⚠️ ' + err.message, 'error');
-            }
-        };
-
-        async function loadReviews(productId) {
-            const container = document.getElementById('reviewsList');
-            try {
-                const q = query(collection(db, 'ratings'), where('productId', '==', productId));
-                const snap = await getDocs(q);
-                if (snap.empty) {
-                    container.innerHTML = '<p class="text-gray-400 text-sm">No reviews yet.</p>';
-                    return;
-                }
-                let html = '';
-                snap.forEach(doc => {
-                    const r = doc.data();
-                    const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-                    html += `
-                <div class="border-b border-gray-200 pb-2">
-                  <div class="flex justify-between">
-                    <span class="font-semibold text-gray-900">${r.userEmail || 'Anonymous'}</span>
-                    <span class="text-yellow-500">${stars}</span>
-                  </div>
-                  ${r.review ? `<p class="text-sm text-gray-600">${r.review}</p>` : ''}
-                  <p class="text-xs text-gray-400">${r.timestamp?.toDate?.()?.toLocaleString() || ''}</p>
-                </div>
-              `;
-                });
-                container.innerHTML = html;
-            } catch (_) {
-                container.innerHTML = '<p class="text-gray-400 text-sm">Error loading reviews.</p>';
-            }
-        }
-
-        console.log('🚀 Store page loaded — discount % now shown on every product card!');
+        console.log('🚀 Store page loaded — product details now link to separate page.');
     </script>
 
 </body>
