@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>Admin Panel – CodeCureBD</title>
+  <title>Admin Panel – SWD Store</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -234,7 +233,7 @@
 
   <!-- ===== সাইডবার ===== -->
   <div class="sidebar" id="adminSidebar" style="display:none;">
-    <div class="logo">CodeCureBD <span class="gradient-text">Admin</span></div>
+    <div class="logo">SWD <span class="gradient-text">Admin</span></div>
     <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;">
       <button class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
       <button class="nav-item" data-tab="products"><i class="fas fa-box"></i> Products</button>
@@ -254,7 +253,7 @@
   <!-- ===== মোবাইল হেডার ===== -->
   <div class="mobile-header" id="mobileHeader" style="display:none;">
     <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-    <span class="title">CodeCureBD Admin</span>
+    <span class="title">SWD Admin</span>
     <span style="width:1.6rem;"></span>
   </div>
 
@@ -597,17 +596,11 @@
       <div class="modal-header"><h3 id="productModalTitle">Add Product</h3><button class="modal-close" onclick="closeProductModal()">&times;</button></div>
       <form id="productForm" class="space-y-3">
         <input type="text" id="prodName" placeholder="Product Name" required class="form-input" />
-        <input type="text" id="prodDesc" placeholder="Description" class="form-input" />
+        <!-- ✅ ডেসক্রিপশন বড় করা হলো – textarea, rows 5 -->
+        <textarea id="prodDesc" placeholder="Description" rows="5" class="form-input"></textarea>
         <input type="number" id="prodPrice" placeholder="Price" required class="form-input" />
         <input type="text" id="prodCategory" placeholder="Category" class="form-input" />
-        <!-- ===== Cloudinary Image Upload (Updated) ===== -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Image</label>
-          <img id="prodImagePreview" class="hidden w-full h-40 object-cover rounded-xl mb-2 border border-gray-200" alt="Preview" />
-          <input type="file" id="prodImageFile" accept="image/*" class="form-input mb-2" onchange="window.handleProductImageUpload(event)" />
-          <input type="text" id="prodImage" placeholder="Or paste image URL manually" class="form-input" />
-          <p class="text-xs text-gray-400 mt-1.5"><i class="fas fa-cloud-upload-alt"></i> Select an image to upload automatically to Cloudinary.</p>
-        </div>
+        <input type="text" id="prodImage" placeholder="Image URL" class="form-input" />
         <div class="flex items-center gap-2 mt-2">
           <input type="checkbox" id="prodFeatured" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
           <label for="prodFeatured" class="text-sm font-medium text-gray-700">Show on Landing Page (Featured)</label>
@@ -679,9 +672,9 @@
       onSnapshot, query, where, serverTimestamp,
       signOut, onAuthStateChanged,
       EmailAuthProvider, reauthenticateWithCredential,
-      adminCreateUser, adminDeleteUser
+      adminCreateUser, adminDeleteUser  // নতুন ফাংশন
     } from './firebase-config.js';
-    import { setLoading, uploadImage } from './components.js'; // ✅ uploadImage যোগ করেছি
+    import { setLoading } from './components.js';
 
     // ===== DOM =====
     const loader = document.getElementById('adminLoader');
@@ -885,7 +878,6 @@
         productList.innerHTML = html;
       }
 
-      // ===== UPDATED: editProduct with image preview =====
       window.editProduct = async (id) => {
         const docSnap = await getDoc(doc(db, 'products', id));
         if (docSnap.exists()) {
@@ -898,16 +890,6 @@
           document.getElementById('prodImage').value = data.imageUrl || '';
           document.getElementById('prodFeatured').checked = data.featured || false;
           document.getElementById('productModalTitle').innerText = 'Edit Product';
-
-          // ✅ Image preview
-          const preview = document.getElementById('prodImagePreview');
-          if (data.imageUrl) {
-            preview.src = data.imageUrl;
-            preview.classList.remove('hidden');
-          } else {
-            preview.classList.add('hidden');
-          }
-
           document.getElementById('productModal').classList.add('open');
         }
       };
@@ -918,37 +900,10 @@
         document.getElementById('prodId').value = '';
         document.getElementById('productForm').reset();
         document.getElementById('prodFeatured').checked = false;
-        document.getElementById('prodImagePreview').classList.add('hidden');
       };
 
       window.closeProductModal = () => {
         document.getElementById('productModal').classList.remove('open');
-      };
-
-      // ===== Cloudinary Upload Handler for Product Image =====
-      window.handleProductImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const input = document.getElementById('prodImage');
-        const preview = document.getElementById('prodImagePreview');
-        const btn = e.target;
-
-        btn.disabled = true;
-
-        try {
-          const url = await uploadImage(file);
-          input.value = url;
-          preview.src = url;
-          preview.classList.remove('hidden');
-          showToast('✅ Image uploaded successfully!', 'success');
-        } catch (err) {
-          showToast('⚠️ Upload failed: ' + err.message, 'error');
-          console.error(err);
-        } finally {
-          btn.disabled = false;
-          btn.value = '';
-        }
       };
 
       const productForm = document.getElementById('productForm');
@@ -1551,7 +1506,6 @@
           }
           const adminEmail = auth.currentUser?.email;
           if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
-          // অ্যাডমিন পাসওয়ার্ড প্রম্পট
           const adminPassword = prompt('Enter your admin password to create user:');
           if (!adminPassword) return;
           setLoading(userSubmitBtn, true, 'Creating...');
@@ -1914,11 +1868,11 @@
           .header{text-align:center;margin-bottom:20px;}
           hr{margin:20px 0;}</style>
           </head><body>
-          <div class="header"><h1>CodeCureBD - Invoice</h1></div>
+          <div class="header"><h1>SWD Store - Invoice</h1></div>
           <hr/>
           ${content.innerHTML}
           <hr/>
-          <p style="text-align:center;color:#9ca3af;">Thank you for shopping with CodeCureBD!</p>
+          <p style="text-align:center;color:#9ca3af;">Thank you for shopping with SWD Store!</p>
           </body></html>
         `);
         win.document.close();
@@ -1939,7 +1893,7 @@
         }
         const invoice = `
 ========================================
-           CodeCureBD - INVOICE
+           SWD STORE - INVOICE
 ========================================
 Order ID: #${order.id}
 Date: ${dateStr}
@@ -1952,7 +1906,7 @@ Total: $${order.total?.toFixed(2) || '0.00'}
 Payment: ${order.paymentMethod || 'N/A'}
 Transaction: ${order.transactionId || 'Not provided'}
 ----------------------------------------
-Thank you for shopping with CodeCureBD!
+Thank you for shopping with SWD Store!
 ========================================
         `.trim();
         const blob = new Blob([invoice], { type: 'text/plain;charset=utf-8' });
