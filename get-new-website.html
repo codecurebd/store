@@ -33,6 +33,7 @@
       padding: 1.25rem;
       box-shadow: 0 4px 16px rgba(0,0,0,0.02);
       transition: all 0.3s ease;
+      cursor: pointer;
     }
     .glass-card:hover {
       box-shadow: 0 12px 40px rgba(0,0,0,0.06);
@@ -50,12 +51,19 @@
       object-fit: cover;
       border-radius: 12px 12px 0 0;
       transition: transform 0.4s ease;
+      pointer-events: none; /* ইমেজে ক্লিক না যায় */
     }
     .product-card:hover img {
       transform: scale(1.03);
     }
     .product-card .card-body {
       padding: 1rem 0.5rem 0.5rem;
+      pointer-events: none; /* বাটন ছাড়া বাকি অংশে ক্লিক ইভেন্ট ব্লক */
+    }
+    /* বাটনগুলোকে ক্লিকযোগ্য করতে pointer-events: auto */
+    .product-card .card-body .btn-primary,
+    .product-card .card-body .btn-outline {
+      pointer-events: auto;
     }
     
     /* ===== DESCRIPTION LINES ===== */
@@ -68,6 +76,7 @@
       text-overflow: ellipsis;
       line-height: 1.5;
       max-height: 3em; /* 1.5 * 2 */
+      pointer-events: none;
     }
     /* মডালে ৪ লাইন */
     .modal-desc {
@@ -651,7 +660,7 @@
         const imageUrl = p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image';
         const desc = p.desc || p.description || '';
         return `
-          <div class="glass-card product-card fade-up">
+          <div class="glass-card product-card fade-up" onclick="window.openProductDetail('${p.id}')">
             <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
             <div class="card-body">
               <div class="flex justify-between items-start">
@@ -659,21 +668,21 @@
               </div>
               <p class="text-2xl font-bold text-blue-600 mt-1">$${p.price}</p>
               
-              <!-- ✅ Add to Cart + Buy Now (উপরে) -->
+              <!-- ✅ Add to Cart + Buy Now (উপরে) – বাটনে ক্লিক করলে মডাল খুলবে না -->
               <div class="mt-2 flex flex-wrap gap-2">
-                <button onclick="window.addToCart('${p.id}')" class="btn-primary text-sm py-2 px-4 flex-1">
+                <button onclick="event.stopPropagation(); window.addToCart('${p.id}')" class="btn-primary text-sm py-2 px-4 flex-1">
                   <i class="fas fa-cart-plus"></i> Add to Cart
                 </button>
-                <button onclick="window.buyNow('${p.id}')" class="btn-primary text-sm py-2 px-4" style="background:linear-gradient(135deg,#34C759,#28A745);">
+                <button onclick="event.stopPropagation(); window.buyNow('${p.id}')" class="btn-primary text-sm py-2 px-4" style="background:linear-gradient(135deg,#34C759,#28A745);">
                   <i class="fas fa-bolt"></i> Buy Now
                 </button>
               </div>
 
-              <!-- ✅ Description – 2 লাইন -->
+              <!-- ✅ Description – ২ লাইন -->
               <p class="text-sm text-gray-500 mt-2 product-desc">${desc}</p>
 
-              <!-- ✅ See More লিংক (কার্ডে) -->
-              <a href="#" onclick="window.openProductDetail('${p.id}'); return false;" class="text-blue-600 text-sm font-medium hover:underline mt-1 inline-block">See More →</a>
+              <!-- ✅ See More লিংক – ক্লিক করলেও মডাল খুলবে, কিন্তু event.stopPropagation() দরকার নেই কারণ এটাতে আলাদা onclick আছে -->
+              <a href="#" onclick="event.stopPropagation(); window.openProductDetail('${p.id}'); return false;" class="text-blue-600 text-sm font-medium hover:underline mt-1 inline-block">See More →</a>
 
               <!-- ✅ Ratings (নিচে) -->
               <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
