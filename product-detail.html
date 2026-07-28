@@ -5,15 +5,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>Product Detail – CodeCureBD</title>
-
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-
+  
   <style>
+    /* ===== BASE ===== */
     * { box-sizing: border-box; }
     body {
       background: #f2f4f7;
@@ -22,7 +24,6 @@
       padding: 0;
       min-height: 100vh;
     }
-
     .glass-card {
       background: rgba(255,255,255,0.72);
       backdrop-filter: blur(12px);
@@ -32,150 +33,65 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.02);
       transition: all 0.3s ease;
     }
-
-    .product-image {
+    .glass-card:hover {
+      box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+      transform: translateY(-3px);
+    }
+    .form-input {
       width: 100%;
-      max-height: 400px;
-      object-fit: cover;
+      padding: 12px 16px;
+      border: 1.5px solid rgba(60, 60, 67, 0.08);
       border-radius: 12px;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.8);
+      transition: all 0.3s ease;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      color: #1c1c1e;
     }
-
-    .detail-image-wrapper {
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #f0f2f5;
+    .form-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
+      background: #ffffff;
     }
-    .detail-image-wrapper .discount-badge {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: #dc2626;
-      color: #fff;
-      font-weight: 700;
-      font-size: 1rem;
-      padding: 6px 18px;
-      border-radius: 60px;
-      box-shadow: 0 4px 16px rgba(220,38,38,0.4);
-      z-index: 6;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    .form-input::placeholder {
+      color: #8e8e93;
+      opacity: 0.7;
     }
-
-    .fullscreen-btn {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      border: none;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      z-index: 10;
+    textarea.form-input {
+      resize: vertical;
+      min-height: 80px;
     }
-    .fullscreen-btn:hover {
-      background: rgba(0,0,0,0.8);
-      transform: scale(1.05);
-    }
-
-    .fullscreen-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.92);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-    .fullscreen-overlay.open { display: flex; }
-    .fullscreen-overlay img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      border-radius: 12px;
-    }
-    .fullscreen-close {
-      position: fixed;
-      top: 24px;
-      right: 24px;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(4px);
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 2rem;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-    .fullscreen-close:hover {
-      background: rgba(255,255,255,0.25);
-      transform: scale(1.05);
-    }
-
-    .desc-text {
-      overflow: hidden;
-      transition: max-height 0.4s ease;
-      max-height: 7.5em;
-      line-height: 1.5em;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-    .desc-text.expanded {
-      max-height: none;
-    }
-
-    .rating-stars .star {
-      font-size: 2rem;
-      cursor: pointer;
-      transition: 0.2s;
-      color: #d1d5db;
-    }
-    .rating-stars .star.active { color: #f59e0b; }
-    .rating-stars .star:hover { transform: scale(1.2); }
-
     .btn-primary {
       background: linear-gradient(135deg, #007AFF, #5856D6);
       color: #fff;
-      padding: 12px 24px;
+      padding: 10px 22px;
       border-radius: 60px;
       font-weight: 600;
       font-size: 0.95rem;
       border: none;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       min-height: 48px;
-      text-decoration: none;
     }
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0,122,255,0.35);
+      box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
+    }
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
     }
     .btn-outline {
       background: transparent;
       color: #1c1c1e;
-      padding: 12px 24px;
+      padding: 10px 22px;
       border-radius: 60px;
       font-weight: 600;
       font-size: 0.95rem;
@@ -184,11 +100,9 @@
       transition: all 0.3s ease;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 8px;
       background: rgba(255,255,255,0.5);
       min-height: 48px;
-      text-decoration: none;
     }
     .btn-outline:hover {
       background: rgba(0,122,255,0.04);
@@ -196,34 +110,70 @@
       color: #007AFF;
       transform: translateY(-2px);
     }
-
-    .form-input {
+    .rating-stars .star {
+      font-size: 2rem;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #d1d5db;
+    }
+    .rating-stars .star.active {
+      color: #f59e0b;
+    }
+    .rating-stars .star:hover {
+      transform: scale(1.2);
+    }
+    .detail-image {
       width: 100%;
-      padding: 12px 16px;
-      border: 1.5px solid rgba(60,60,67,0.08);
+      max-height: 400px;
+      object-fit: cover;
       border-radius: 12px;
-      font-size: 0.95rem;
-      background: rgba(255,255,255,0.8);
-      outline: none;
-      transition: 0.3s;
+      background: #f0f2f5;
     }
-    .form-input:focus {
-      border-color: #007AFF;
-      background: #fff;
-      box-shadow: 0 0 0 4px rgba(0,122,255,0.08);
+    .discount-badge {
+      background: #dc2626;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 4px 16px;
+      border-radius: 60px;
+      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
-
-    /* Skeleton */
-    .skeleton-line {
-      height: 16px;
-      background: #e5e7eb;
-      border-radius: 8px;
-      animation: pulse 1.5s ease-in-out infinite;
-      margin-bottom: 0.75rem;
+    .price-wrapper {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      margin-top: 0.5rem;
     }
-    .skeleton-line.short { width: 40%; }
-    .skeleton-line.medium { width: 70%; }
-    .skeleton-line.long { width: 90%; }
+    .original-price {
+      text-decoration: line-through;
+      color: #9ca3af;
+      font-size: 1.1rem;
+    }
+    .discount-price {
+      color: #16a34a;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .discount-percent-tag {
+      background: rgba(220, 38, 38, 0.10);
+      color: #dc2626;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 2px 14px;
+      border-radius: 40px;
+      border: 1px solid rgba(220, 38, 38, 0.12);
+    }
+    .review-item {
+      border-bottom: 1px solid #f3f4f6;
+      padding: 12px 0;
+    }
+    .review-item:last-child {
+      border-bottom: none;
+    }
     .skeleton-img {
       width: 100%;
       height: 300px;
@@ -231,8 +181,19 @@
       border-radius: 12px;
       animation: pulse 1.5s ease-in-out infinite;
     }
-    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
-
+    .skeleton-line {
+      height: 16px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .skeleton-line.short { width: 40%; }
+    .skeleton-line.medium { width: 70%; }
+    @keyframes pulse {
+      0%,100% { opacity:1; }
+      50% { opacity:0.5; }
+    }
     .fade-up {
       opacity: 0;
       transform: translateY(20px);
@@ -242,397 +203,327 @@
       opacity: 1;
       transform: translateY(0);
     }
-
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(0,122,255,0.35);
+      z-index: 999;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .scroll-top-btn.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    .scroll-top-btn:hover { transform: scale(1.05); }
     @media (max-width: 768px) {
-      .product-image { max-height: 250px; }
-      .detail-image-wrapper .discount-badge { font-size: 0.85rem; padding: 4px 12px; top: 12px; right: 12px; }
-      .fullscreen-btn { width: 36px; height: 36px; font-size: 1rem; bottom: 8px; right: 8px; }
-      .btn-primary, .btn-outline { padding: 10px 18px; font-size: 0.85rem; min-height: 42px; }
+      .detail-image {
+        max-height: 250px;
+      }
+      .discount-price {
+        font-size: 1.6rem;
+      }
+      .rating-stars .star {
+        font-size: 1.6rem;
+      }
     }
     @media (max-width: 480px) {
-      .product-image { max-height: 200px; }
-      .rating-stars .star { font-size: 1.5rem; }
+      .glass-card {
+        padding: 0.75rem;
+      }
+      .detail-image {
+        max-height: 200px;
+      }
+      .discount-price {
+        font-size: 1.3rem;
+      }
     }
   </style>
 </head>
 <body>
-
-<div class="page-wrapper">
-  <div id="navbar-placeholder"></div>
-
-  <main class="main-content">
-    <section class="pt-28 pb-16 px-6 max-w-4xl mx-auto">
-      <div id="productDetailContainer">
-        <!-- Skeleton -->
-        <div id="skeletonLoader">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-line medium" style="margin-top:1rem;"></div>
-          <div class="skeleton-line short"></div>
-          <div class="skeleton-line long"></div>
-          <div class="skeleton-line long"></div>
-          <div class="skeleton-line" style="width:60%;"></div>
-        </div>
-
-        <!-- Actual content -->
-        <div id="productContent" style="display:none;">
-          <div class="glass-card">
-            <!-- Image & Discount Badge -->
-            <div class="detail-image-wrapper">
-              <img id="detailImage" src="" alt="Product" class="product-image" />
-              <div id="detailBadge" class="discount-badge" style="display:none;">-0%</div>
-              <button class="fullscreen-btn" onclick="openFullscreen()" aria-label="View fullscreen">
-                <i class="fas fa-expand"></i>
-              </button>
-            </div>
-
-            <!-- Name & Price -->
-            <h1 id="detailName" class="text-2xl md:text-3xl font-bold text-gray-900 mt-4"></h1>
-            <div id="detailPriceContainer" class="mt-2"></div>
-
-            <!-- Rating -->
-            <div id="detailRating" class="mt-1 text-yellow-500 text-sm"></div>
-
-            <!-- Description -->
-            <div class="mt-4">
-              <p id="detailDesc" class="desc-text text-gray-600"></p>
-              <button id="seeMoreBtn" class="text-blue-600 text-sm font-medium mt-1 hover:underline" onclick="toggleDescription()">See more</button>
-            </div>
-
-            <!-- Actions -->
-            <div class="mt-6 flex flex-wrap gap-3">
-              <button onclick="addToCartFromDetail()" class="btn-primary flex-1">
-                <i class="fas fa-cart-plus"></i> Add to Cart
-              </button>
-              <button onclick="buyNowFromDetail()" class="btn-primary flex-1" style="background:linear-gradient(135deg,#34C759,#28A745);">
-                <i class="fas fa-bolt"></i> Buy Now
-              </button>
-            </div>
-
-            <!-- Rating & Reviews -->
-            <div class="mt-8 border-t border-gray-200 pt-4">
-              <h4 class="font-semibold text-gray-900">Rate this product</h4>
-              <div class="rating-stars flex gap-2 mt-2" id="ratingStars">
-                <span class="star" data-val="1">☆</span>
-                <span class="star" data-val="2">☆</span>
-                <span class="star" data-val="3">☆</span>
-                <span class="star" data-val="4">☆</span>
-                <span class="star" data-val="5">☆</span>
-              </div>
-              <textarea id="ratingReview" placeholder="Write a review..." class="form-input mt-2" rows="2"></textarea>
-              <button onclick="submitRating()" class="btn-primary mt-2 text-sm py-2 px-4">
-                <i class="fas fa-paper-plane"></i> Submit Review
-              </button>
-              <div id="reviewsList" class="mt-4 space-y-2"></div>
+  <div class="page-wrapper">
+    <div id="navbar-placeholder"></div>
+    <main class="main-content">
+      <section class="pt-28 pb-16 px-6 max-w-4xl mx-auto">
+        <!-- Loading / Error placeholder -->
+        <div id="productDetailContainer">
+          <!-- Skeleton shown initially -->
+          <div class="fade-up">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-line medium" style="margin-top:1rem;"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line" style="width:50%;"></div>
+            <div style="display:flex; gap:1rem; margin-top:1rem;">
+              <div class="skeleton-line" style="width:30%;"></div>
+              <div class="skeleton-line" style="width:40%;"></div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  </main>
-
-  <div id="footer-placeholder"></div>
-</div>
-
-<!-- Fullscreen Overlay -->
-<div id="fullscreenOverlay" class="fullscreen-overlay">
-  <button class="fullscreen-close" onclick="closeFullscreen()" aria-label="Close fullscreen">
-    <i class="fas fa-times"></i>
-  </button>
-  <img id="fullscreenImage" src="" alt="Fullscreen view" />
-</div>
-
-<!-- Auth Modal -->
-<div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-    <div class="flex justify-between items-center mb-4">
-      <h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3>
-      <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
-    </div>
-    <form id="authForm" class="space-y-4">
-      <input type="email" id="authEmail" placeholder="Email" required class="form-input" />
-      <div class="relative">
-        <input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" />
-        <button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button>
-      </div>
-      <button type="submit" class="btn-primary w-full justify-center">Continue</button>
-    </form>
-    <div class="mt-4 flex flex-col gap-2">
-      <button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button>
-    </div>
-    <p class="mt-4 text-sm text-gray-500 text-center">
-      <span id="authToggleText">Don't have an account?</span>
-      <a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a>
-    </p>
-    <div id="authError" class="text-red-500 text-sm mt-2 hidden"></div>
+      </section>
+    </main>
+    <div id="footer-placeholder"></div>
   </div>
-</div>
 
-<!-- Toast container -->
-<div id="toast-container"></div>
+  <!-- ===== BACK TO TOP ===== -->
+  <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
 
-<script type="module">
-  // ================================================================
-  // Imports
-  // ================================================================
-  import {
-    auth, db, collection, doc, getDoc, getDocs, onSnapshot,
-    addDoc, updateDoc, serverTimestamp, query, where,
-    signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    onAuthStateChanged, signOut, setDoc,
-    signInWithPopup, googleProvider
-  } from './firebase-config.js';
-  import {
-    renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
-    renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore,
-    showToast as toastFn
-  } from './components.js';
+  <!-- ===== AUTH MODAL (shared) ===== -->
+  <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3>
+        <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="authForm" class="space-y-4">
+        <input type="email" id="authEmail" placeholder="Email" required class="form-input" />
+        <div class="relative">
+          <input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" />
+          <button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button>
+        </div>
+        <button type="submit" class="btn-primary w-full justify-center">Continue</button>
+      </form>
+      <div class="mt-4 flex flex-col gap-2">
+        <button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button>
+      </div>
+      <p class="mt-4 text-sm text-gray-500 text-center">
+        <span id="authToggleText">Don't have an account?</span>
+        <a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a>
+      </p>
+      <div id="authError" class="text-red-500 text-sm mt-2 hidden"></div>
+    </div>
+  </div>
 
-  // ===== Render common =====
-  renderNavbar();
-  renderFooter();
-  renderCartSidebar();
-  renderPaymentModal();
-  updateCartBadge();
+  <div id="toast-container"></div>
 
-  // ===== Toast =====
-  window.showToast = toastFn || ((msg, type) => {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-    const toast = document.createElement('div');
-    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${msg}`;
-    container.appendChild(toast);
-    setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
-  });
+  <script type="module">
+    // ================================================================
+    // IMPORTS
+    // ================================================================
+    import {
+      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
+      renderCartSidebar, setLoading, renderPaymentModal, uploadImage
+    } from './components.js';
+    import {
+      auth, db, collection, doc, getDoc, getDocs, addDoc, updateDoc,
+      query, where, serverTimestamp, onAuthStateChanged, signOut,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword,
+      signInWithPopup, googleProvider, setDoc
+    } from './firebase-config.js';
 
-  // ===== Auth Modal =====
-  let currentAuthMode = 'signin';
-  window.openAuthModal = (mode) => {
-    currentAuthMode = mode;
-    document.getElementById('authModalTitle').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
-    document.getElementById('authToggleText').textContent = mode === 'signin' ? "Don't have an account?" : "Already have an account?";
-    document.getElementById('authToggleLink').textContent = mode === 'signin' ? 'Sign Up' : 'Sign In';
-    document.getElementById('authError').classList.add('hidden');
-    document.getElementById('authModal').classList.remove('hidden');
-  };
-  window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
-  document.getElementById('authToggleLink').addEventListener('click', (e) => {
-    e.preventDefault();
-    currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
-    window.openAuthModal(currentAuthMode);
-  });
-  window.togglePasswordVisibility = (id) => {
-    const input = document.getElementById(id);
-    input.type = input.type === 'password' ? 'text' : 'password';
-  };
+    // ================================================================
+    // RENDER COMMON
+    // ================================================================
+    renderNavbar();
+    renderFooter();
+    renderCartSidebar();
+    renderPaymentModal();
+    updateCartBadge();
 
-  window.socialLogin = async (provider) => {
-    if (provider !== 'google') {
-      showToast('Only Google sign-in is supported', 'warning');
-      return;
-    }
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, 'users', user.uid), {
-          email: user.email || '',
-          displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
-          photoURL: user.photoURL || '',
-          role: 'user',
-          createdAt: new Date().toISOString(),
-          isActive: true,
-          emailVerified: !!user.emailVerified,
-        });
-      }
-      showToast('✅ Signed in with Google', 'success');
-      closeAuthModal();
-    } catch (error) {
-      console.error('Google sign-in error:', error);
-      let msg = error.message || 'Sign-in failed';
-      if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-      else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
-      else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
-      else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
-      showToast('⚠️ ' + msg, 'error');
-      const errEl = document.getElementById('authError');
-      if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
-    }
-  };
+    // ===== TOAST =====
+    window.showToast = (message, type = 'success') => {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
+    };
 
-  const authForm = document.getElementById('authForm');
-  const authSubmitBtn = authForm.querySelector('button[type="submit"]');
-  authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('authEmail').value.trim();
-    const password = document.getElementById('authPassword').value.trim();
-    const errorDiv = document.getElementById('authError');
-    errorDiv.classList.add('hidden');
-    setLoading(authSubmitBtn, true, 'Continue');
-    try {
-      let userCred;
-      if (currentAuthMode === 'signin') {
-        userCred = await signInWithEmailAndPassword(auth, email, password);
-        showToast('✅ Signed in!', 'success');
-      } else {
-        userCred = await createUserWithEmailAndPassword(auth, email, password);
-        await setDoc(doc(db, 'users', userCred.user.uid), {
-          email, displayName: email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
-        });
-        showToast('✅ Account created!', 'success');
-      }
-      closeAuthModal();
-      authForm.reset();
-    } catch (error) {
-      errorDiv.textContent = error.message;
-      errorDiv.classList.remove('hidden');
-      showToast('⚠️ ' + error.message, 'error');
-    } finally { setLoading(authSubmitBtn, false); }
-  });
-
-  window.handleLogout = async () => {
-    await signOut(auth);
-    showToast('✅ Logged out', 'success');
-    window.location.href = 'index.html';
-  };
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      await syncCart(user.uid);
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      const name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
-      updateNavbarAuth(user, name);
-    } else {
-      updateNavbarAuth(null);
-    }
-  });
-
-  // ================================================================
-  // Product Detail Logic (FIXED)
-  // ================================================================
-  const container = document.getElementById('productContent');
-  const skeleton = document.getElementById('skeletonLoader');
-  const detailName = document.getElementById('detailName');
-  const detailImage = document.getElementById('detailImage');
-  const detailPriceContainer = document.getElementById('detailPriceContainer');
-  const detailRating = document.getElementById('detailRating');
-  const detailDesc = document.getElementById('detailDesc');
-  const seeMoreBtn = document.getElementById('seeMoreBtn');
-  const detailBadge = document.getElementById('detailBadge');
-  const fullscreenImage = document.getElementById('fullscreenImage');
-  const reviewsList = document.getElementById('reviewsList');
-
-  let currentProductId = null;
-  let currentProductData = null;
-  let allDiscounts = [];
-  let selectedRating = 0;
-
-  // Get product ID from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const productId = urlParams.get('id');
-
-  if (!productId) {
-    showToast('No product specified.', 'error');
-    container.style.display = 'none';
-    skeleton.innerHTML = '<div class="text-center py-12 text-gray-500"><i class="fas fa-exclamation-triangle text-4xl"></i><p class="mt-3">Product not found.</p></div>';
-  } else {
-    // Load discounts (realtime)
-    const discountUnsub = onSnapshot(collection(db, 'discounts'), (snap) => {
-      allDiscounts = [];
-      snap.forEach(doc => allDiscounts.push({ id: doc.id, ...doc.data() }));
-      // If product already loaded, update price
-      if (currentProductData) {
-        updatePriceAndBadge(currentProductData);
-      }
-    }, (err) => {
-      console.warn('Discounts listener error:', err);
+    // ===== SCROLL OBSERVER =====
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     });
 
-    // Load product
-    async function loadProduct() {
-      try {
-        const docSnap = await getDoc(doc(db, 'products', productId));
-        if (!docSnap.exists()) {
-          container.style.display = 'none';
-          skeleton.innerHTML = '<div class="text-center py-12 text-gray-500"><i class="fas fa-box-open text-4xl"></i><p class="mt-3">Product not found.</p></div>';
-          return;
-        }
-        currentProductData = { id: docSnap.id, ...docSnap.data() };
-        currentProductId = productId;
+    // ===== BACK TO TOP =====
+    const scrollBtn = document.getElementById('scrollTopBtn');
+    window.addEventListener('scroll', () => {
+      scrollBtn.classList.toggle('show', window.scrollY > 400);
+    });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
-        // Display product
-        displayProduct(currentProductData);
-        loadReviews(productId);
+    // ================================================================
+    // AUTH MODAL (same as before)
+    // ================================================================
+    let currentAuthMode = 'signin';
+    window.openAuthModal = (mode) => {
+      currentAuthMode = mode;
+      document.getElementById('authModalTitle').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
+      document.getElementById('authToggleText').textContent = mode === 'signin' ? "Don't have an account?" : "Already have an account?";
+      document.getElementById('authToggleLink').textContent = mode === 'signin' ? 'Sign Up' : 'Sign In';
+      document.getElementById('authError').classList.add('hidden');
+      document.getElementById('authModal').classList.remove('hidden');
+    };
+    window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
 
-        // Hide skeleton, show content
-        skeleton.style.display = 'none';
-        container.style.display = 'block';
-      } catch (err) {
-        console.error('Error loading product:', err);
-        showToast('Error loading product: ' + err.message, 'error');
-        skeleton.innerHTML = '<div class="text-center py-12 text-red-500"><i class="fas fa-exclamation-circle text-4xl"></i><p class="mt-3">Error loading product.</p></div>';
+    document.getElementById('authToggleLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
+      window.openAuthModal(currentAuthMode);
+    });
+
+    window.togglePasswordVisibility = (id) => {
+      const input = document.getElementById(id);
+      if (input) input.type = input.type === 'password' ? 'text' : 'password';
+    };
+
+    window.socialLogin = async (provider) => {
+      if (provider !== 'google') {
+        showToast('Only Google sign-in is supported', 'warning');
+        return;
       }
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, 'users', user.uid), {
+            email: user.email || '',
+            displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+            photoURL: user.photoURL || '',
+            role: 'user',
+            createdAt: new Date().toISOString(),
+            isActive: true,
+            emailVerified: !!user.emailVerified,
+          });
+        }
+        showToast('✅ Signed in with Google', 'success');
+        if (typeof closeAuthModal === 'function') closeAuthModal();
+        else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+      } catch (error) {
+        console.error('Google sign-in error:', error);
+        let msg = error.message || 'Sign-in failed';
+        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
+        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
+        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
+        showToast('⚠️ ' + msg, 'error');
+        const errEl = document.getElementById('authError');
+        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+      }
+    };
+
+    const authForm = document.getElementById('authForm');
+    const authSubmitBtn = authForm.querySelector('button[type="submit"]');
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value.trim();
+      const errorDiv = document.getElementById('authError');
+      errorDiv.classList.add('hidden');
+      setLoading(authSubmitBtn, true, 'Continue');
+      try {
+        let userCred;
+        if (currentAuthMode === 'signin') {
+          userCred = await signInWithEmailAndPassword(auth, email, password);
+          showToast('✅ Signed in!', 'success');
+        } else {
+          userCred = await createUserWithEmailAndPassword(auth, email, password);
+          await setDoc(doc(db, 'users', userCred.user.uid), {
+            email, displayName: email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
+          });
+          showToast('✅ Account created!', 'success');
+        }
+        closeAuthModal();
+        authForm.reset();
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.remove('hidden');
+        showToast('⚠️ ' + error.message, 'error');
+      } finally {
+        setLoading(authSubmitBtn, false);
+      }
+    });
+
+    window.handleLogout = async () => {
+      await signOut(auth);
+      showToast('✅ Logged out', 'success');
+      window.location.href = 'index.html';
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
+        updateNavbarAuth(user, displayName);
+      } else {
+        updateNavbarAuth(null, null);
+      }
+    });
+
+    // ================================================================
+    // PRODUCT DETAIL LOGIC
+    // ================================================================
+    const container = document.getElementById('productDetailContainer');
+    let currentProductId = null;
+    let currentProductData = null;
+    let allDiscounts = [];
+
+    // Get product ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+
+    if (!productId) {
+      container.innerHTML = `
+        <div class="glass-card text-center py-12 fade-up">
+          <i class="fas fa-exclamation-circle text-4xl text-red-400 mb-4"></i>
+          <h2 class="text-2xl font-bold text-gray-900">No product specified</h2>
+          <p class="text-gray-500 mt-2">Please go back to the store and select a product.</p>
+          <a href="get-new-website.html" class="btn-primary mt-4 inline-block">← Back to Store</a>
+        </div>
+      `;
+    } else {
+      currentProductId = productId;
+      // Load discounts first
+      getDocs(collection(db, 'discounts')).then(snap => {
+        allDiscounts = [];
+        snap.forEach(doc => allDiscounts.push({ id: doc.id, ...doc.data() }));
+        loadProduct(productId);
+      }).catch(err => {
+        console.error('Error loading discounts:', err);
+        allDiscounts = [];
+        loadProduct(productId);
+      });
     }
 
     function getDiscountForProduct(product) {
       if (!allDiscounts || allDiscounts.length === 0) return null;
-      // Specific product discount
+      // 1. Specific
       const specific = allDiscounts.filter(d => d.type === 'specific' && d.productId === product.id);
-      if (specific.length) return specific.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, specific[0]);
-      // Category discount
+      if (specific.length > 0) {
+        return specific.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, specific[0]);
+      }
+      // 2. Category
       if (product.category) {
         const catDiscounts = allDiscounts.filter(d => d.type === 'category' && d.category === product.category);
-        if (catDiscounts.length) return catDiscounts.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, catDiscounts[0]);
+        if (catDiscounts.length > 0) {
+          return catDiscounts.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, catDiscounts[0]);
+        }
       }
-      // All products discount
-      const allDiscount = allDiscounts.filter(d => d.type === 'all');
-      if (allDiscount.length) return allDiscount.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, allDiscount[0]);
+      // 3. All
+      const all = allDiscounts.filter(d => d.type === 'all');
+      if (all.length > 0) {
+        return all.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, all[0]);
+      }
       return null;
-    }
-
-    function updatePriceAndBadge(product) {
-      const discount = getDiscountForProduct(product);
-      const price = product.price || 0;
-      if (discount) {
-        const percent = Math.round(discount.discountPercent);
-        const discounted = price * (1 - discount.discountPercent / 100);
-        detailPriceContainer.innerHTML = `
-          <div class="flex items-center gap-3 flex-wrap">
-            <span class="text-lg line-through text-gray-400">$${price.toFixed(2)}</span>
-            <span class="text-3xl font-bold text-blue-600">$${discounted.toFixed(2)}</span>
-            <span class="discount-percent-tag" style="background:rgba(220,38,38,0.10);color:#dc2626;font-weight:700;font-size:0.85rem;padding:2px 14px;border-radius:40px;border:1px solid rgba(220,38,38,0.12);display:inline-flex;align-items:center;gap:4px;">
-              <i class="fas fa-tag"></i> -${percent}%
-            </span>
-          </div>
-        `;
-        detailBadge.style.display = 'flex';
-        detailBadge.innerHTML = `<i class="fas fa-tag"></i> -${percent}%`;
-      } else {
-        detailPriceContainer.innerHTML = `<span class="text-3xl font-bold text-blue-600">$${price.toFixed(2)}</span>`;
-        detailBadge.style.display = 'none';
-      }
-    }
-
-    function displayProduct(product) {
-      detailName.textContent = product.name || 'Unnamed Product';
-      const imgUrl = product.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
-      detailImage.src = imgUrl;
-      fullscreenImage.src = imgUrl;
-
-      // Description
-      const descText = product.desc || product.description || '';
-      detailDesc.textContent = descText;
-      detailDesc.classList.remove('expanded');
-      seeMoreBtn.textContent = 'See more';
-      window._descExpanded = false;
-
-      updatePriceAndBadge(product);
-
-      const rating = product.averageRating || 0;
-      const count = product.ratingCount || 0;
-      detailRating.textContent = renderStars(rating) + ` (${count} reviews)`;
     }
 
     function renderStars(rating) {
@@ -645,122 +536,135 @@
       return s;
     }
 
-    // ===== See More / Less =====
-    window.toggleDescription = function() {
-      const el = detailDesc;
-      if (!window._descExpanded) {
-        el.classList.add('expanded');
-        seeMoreBtn.textContent = 'See less';
-      } else {
-        el.classList.remove('expanded');
-        seeMoreBtn.textContent = 'See more';
-      }
-      window._descExpanded = !window._descExpanded;
-    };
-    window._descExpanded = false;
-
-    // ===== Fullscreen =====
-    window.openFullscreen = function() {
-      document.getElementById('fullscreenOverlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    };
-    window.closeFullscreen = function() {
-      document.getElementById('fullscreenOverlay').classList.remove('open');
-      document.body.style.overflow = '';
-    };
-    document.getElementById('fullscreenOverlay').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) closeFullscreen();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && document.getElementById('fullscreenOverlay').classList.contains('open')) closeFullscreen();
-    });
-
-    // ===== Rating =====
-    document.querySelectorAll('#ratingStars .star').forEach(el => {
-      el.addEventListener('click', () => {
-        selectedRating = parseInt(el.dataset.val);
-        document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('active'));
-        for (let i = 0; i < selectedRating; i++) {
-          document.querySelectorAll('#ratingStars .star')[i].classList.add('active');
-        }
-      });
-    });
-
-    window.submitRating = async () => {
-      if (!selectedRating) { showToast('Please select a rating', 'warning'); return; }
-      const user = auth.currentUser;
-      if (!user) { showToast('Please sign in to rate', 'warning'); return; }
-      if (!currentProductId) { showToast('No product selected', 'error'); return; }
-      const review = document.getElementById('ratingReview').value.trim();
+    async function loadProduct(id) {
       try {
-        await addDoc(collection(db, 'ratings'), {
-          productId: currentProductId,
-          userId: user.uid,
-          userEmail: user.email,
-          rating: selectedRating,
-          review: review,
-          timestamp: serverTimestamp()
-        });
-        const productRef = doc(db, 'products', currentProductId);
-        const snap = await getDoc(productRef);
-        const data = snap.data();
-        const count = (data.ratingCount || 0) + 1;
-        const avg = ((data.averageRating || 0) * (data.ratingCount || 0) + selectedRating) / count;
-        await updateDoc(productRef, { averageRating: avg, ratingCount: count });
-        showToast('✅ Review submitted!', 'success');
-        selectedRating = 0;
-        document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('active'));
-        document.getElementById('ratingReview').value = '';
-        loadReviews(currentProductId);
-        // Reload product to update rating
-        const updated = await getDoc(doc(db, 'products', currentProductId));
-        if (updated.exists()) displayProduct({ id: updated.id, ...updated.data() });
-      } catch (err) {
-        showToast('⚠️ ' + err.message, 'error');
-      }
-    };
-
-    async function loadReviews(productId) {
-      try {
-        const q = query(collection(db, 'ratings'), where('productId', '==', productId));
-        const snap = await getDocs(q);
-        if (snap.empty) {
-          reviewsList.innerHTML = '<p class="text-gray-400 text-sm">No reviews yet.</p>';
-          return;
-        }
-        let html = '';
-        snap.forEach(doc => {
-          const r = doc.data();
-          const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-          html += `
-            <div class="border-b border-gray-200 pb-2">
-              <div class="flex justify-between">
-                <span class="font-semibold text-gray-900">${r.userEmail || 'Anonymous'}</span>
-                <span class="text-yellow-500">${stars}</span>
-              </div>
-              ${r.review ? `<p class="text-sm text-gray-600">${r.review}</p>` : ''}
-              <p class="text-xs text-gray-400">${r.timestamp?.toDate?.()?.toLocaleString() || ''}</p>
+        const docSnap = await getDoc(doc(db, 'products', id));
+        if (!docSnap.exists()) {
+          container.innerHTML = `
+            <div class="glass-card text-center py-12 fade-up">
+              <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
+              <h2 class="text-2xl font-bold text-gray-900">Product not found</h2>
+              <p class="text-gray-500 mt-2">The product you are looking for does not exist.</p>
+              <a href="get-new-website.html" class="btn-primary mt-4 inline-block">← Back to Store</a>
             </div>
           `;
-        });
-        reviewsList.innerHTML = html;
-      } catch (_) {
-        reviewsList.innerHTML = '<p class="text-gray-400 text-sm">Error loading reviews.</p>';
+          return;
+        }
+        currentProductData = { id, ...docSnap.data() };
+        renderProductDetail(currentProductData);
+        // Load reviews
+        loadReviews(id);
+        // Update page title
+        document.title = `${currentProductData.name} – CodeCureBD`;
+      } catch (err) {
+        console.error('Error loading product:', err);
+        container.innerHTML = `
+          <div class="glass-card text-center py-12 fade-up">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-900">Error loading product</h2>
+            <p class="text-gray-500 mt-2">${err.message}</p>
+            <button onclick="window.location.reload()" class="btn-primary mt-4 inline-block">Retry</button>
+          </div>
+        `;
       }
     }
 
-    // ===== Add to Cart & Buy Now =====
-    window.addToCartFromDetail = async () => {
-      if (!currentProductData) return;
+    function renderProductDetail(product) {
+      const discount = getDiscountForProduct(product);
+      const imageUrl = product.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
+      const desc = product.desc || product.description || '';
+      const rating = product.averageRating || 0;
+      const ratingCount = product.ratingCount || 0;
+
+      let priceHtml = '';
+      let badgeHtml = '';
+      if (discount) {
+        const percent = Math.round(discount.discountPercent);
+        const discounted = product.price * (1 - discount.discountPercent / 100);
+        priceHtml = `
+          <span class="original-price">$${product.price.toFixed(2)}</span>
+          <span class="discount-price">$${discounted.toFixed(2)}</span>
+          <span class="discount-percent-tag">-${percent}%</span>
+        `;
+        badgeHtml = `<span class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</span>`;
+      } else {
+        priceHtml = `<span class="discount-price" style="font-size:2rem;">$${product.price.toFixed(2)}</span>`;
+      }
+
+      container.innerHTML = `
+        <div class="fade-up">
+          <div class="glass-card" style="padding:0; overflow:hidden;">
+            <div style="position:relative;">
+              <img src="${imageUrl}" alt="${product.name}" class="detail-image" loading="lazy" />
+              <div style="position:absolute; top:16px; right:16px; z-index:5;">
+                ${badgeHtml}
+              </div>
+            </div>
+            <div style="padding:1.5rem;">
+              <h1 class="text-3xl font-bold text-gray-900">${product.name}</h1>
+              <div class="mt-1 text-yellow-500 text-lg">
+                ${renderStars(rating)} <span class="text-gray-500 text-sm">(${ratingCount} reviews)</span>
+              </div>
+              <div class="price-wrapper">${priceHtml}</div>
+              <div class="mt-4 text-gray-700 whitespace-pre-wrap">${desc.replace(/\n/g, '<br>')}</div>
+              <div class="mt-6 flex flex-wrap gap-3">
+                <button onclick="addToCart()" class="btn-primary"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                <button onclick="buyNow()" class="btn-primary" style="background:linear-gradient(135deg,#34C759,#28A745);"><i class="fas fa-bolt"></i> Buy Now</button>
+                <a href="get-new-website.html" class="btn-outline"><i class="fas fa-arrow-left"></i> Back</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rating & Review Section -->
+          <div class="glass-card mt-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Rate & Review</h3>
+            <div class="rating-stars flex gap-2" id="ratingStars">
+              <span class="star" data-val="1">☆</span>
+              <span class="star" data-val="2">☆</span>
+              <span class="star" data-val="3">☆</span>
+              <span class="star" data-val="4">☆</span>
+              <span class="star" data-val="5">☆</span>
+            </div>
+            <textarea id="ratingReview" rows="3" class="form-input mt-3" placeholder="Write your review..."></textarea>
+            <button onclick="submitRating()" class="btn-primary mt-3 text-sm py-2 px-4"><i class="fas fa-paper-plane"></i> Submit Review</button>
+            <div id="reviewsList" class="mt-6 space-y-2">
+              <!-- Reviews will be loaded here -->
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Attach star click events
+      document.querySelectorAll('#ratingStars .star').forEach(el => {
+        el.addEventListener('click', function() {
+          const val = parseInt(this.dataset.val);
+          document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('active'));
+          for (let i = 0; i < val; i++) {
+            document.querySelectorAll('#ratingStars .star')[i].classList.add('active');
+          }
+          window.selectedRating = val;
+        });
+      });
+
+      // Ensure fade-up visibility
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    }
+
+    // Global selected rating
+    window.selectedRating = 0;
+
+    // ===== ADD TO CART =====
+    window.addToCart = async function() {
+      if (!currentProductData) { showToast('Product not loaded', 'error'); return; }
       const product = currentProductData;
+      const discount = getDiscountForProduct(product);
+      let price = product.price;
+      if (discount) price = product.price * (1 - discount.discountPercent / 100);
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
       const existing = cart.find(item => item.id === product.id);
       if (existing) {
         existing.quantity = (existing.quantity || 1) + 1;
       } else {
-        const discount = getDiscountForProduct(product);
-        let price = product.price;
-        if (discount) price = product.price * (1 - discount.discountPercent / 100);
         cart.push({
           id: product.id,
           name: product.name,
@@ -772,39 +676,93 @@
       }
       localStorage.setItem('cart', JSON.stringify(cart));
       const user = auth.currentUser;
-      if (user) await updateCartInFirestore(user.uid, cart);
-      updateCartBadge();
+      if (user) {
+        const { updateCartInFirestore } = await import('./components.js');
+        updateCartInFirestore(user.uid, cart);
+      }
+      window.updateCartUI?.();
       showToast(`✅ "${product.name}" added to cart`, 'success');
     };
 
-    window.buyNowFromDetail = async () => {
-      await addToCartFromDetail();
+    window.buyNow = function() {
+      window.addToCart();
       setTimeout(() => {
         if (typeof window.checkout === 'function') window.checkout();
-        else window.location.href = 'get-new-website.html';
+        else window.location.href = 'get-new-website.html?checkout=1';
       }, 500);
     };
 
-    // ===== Init =====
-    loadProduct();
+    // ===== LOAD REVIEWS =====
+    async function loadReviews(productId) {
+      const reviewsContainer = document.getElementById('reviewsList');
+      if (!reviewsContainer) return;
+      try {
+        const q = query(collection(db, 'ratings'), where('productId', '==', productId));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          reviewsContainer.innerHTML = '<p class="text-gray-400 text-sm">No reviews yet. Be the first!</p>';
+          return;
+        }
+        let html = '';
+        snap.forEach(doc => {
+          const r = doc.data();
+          const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+          html += `
+            <div class="review-item">
+              <div class="flex justify-between">
+                <span class="font-semibold text-gray-900">${r.userEmail || 'Anonymous'}</span>
+                <span class="text-yellow-500">${stars}</span>
+              </div>
+              ${r.review ? `<p class="text-sm text-gray-600 mt-1">${r.review}</p>` : ''}
+              <p class="text-xs text-gray-400 mt-1">${r.timestamp?.toDate?.()?.toLocaleString() || ''}</p>
+            </div>
+          `;
+        });
+        reviewsContainer.innerHTML = html;
+      } catch (_) {
+        reviewsContainer.innerHTML = '<p class="text-gray-400 text-sm">Error loading reviews.</p>';
+      }
+    }
 
-    // Cleanup discount listener
-    window.addEventListener('beforeunload', () => {
-      if (discountUnsub) discountUnsub();
-    });
-  }
+    // ===== SUBMIT RATING =====
+    window.submitRating = async function() {
+      if (!currentProductData) { showToast('Product not loaded', 'error'); return; }
+      if (!window.selectedRating || window.selectedRating < 1) {
+        showToast('Please select a rating', 'warning');
+        return;
+      }
+      const user = auth.currentUser;
+      if (!user) { showToast('Please sign in to rate', 'warning'); return; }
+      const review = document.getElementById('ratingReview').value.trim();
+      try {
+        await addDoc(collection(db, 'ratings'), {
+          productId: currentProductData.id,
+          userId: user.uid,
+          userEmail: user.email,
+          rating: window.selectedRating,
+          review: review,
+          timestamp: serverTimestamp()
+        });
+        // Update product average
+        const productRef = doc(db, 'products', currentProductData.id);
+        const snap = await getDoc(productRef);
+        const data = snap.data();
+        const count = (data.ratingCount || 0) + 1;
+        const avg = ((data.averageRating || 0) * (data.ratingCount || 0) + window.selectedRating) / count;
+        await updateDoc(productRef, { averageRating: avg, ratingCount: count });
+        showToast('✅ Review submitted!', 'success');
+        window.selectedRating = 0;
+        document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('active'));
+        document.getElementById('ratingReview').value = '';
+        loadReviews(currentProductData.id);
+        // Re-render to update rating display
+        renderProductDetail(currentProductData);
+      } catch (err) {
+        showToast('⚠️ ' + err.message, 'error');
+      }
+    };
 
-  // ===== Fade-up observer =====
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) entry.target.classList.add('visible');
-    });
-  }, { threshold: 0.1 });
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-  });
-
-  console.log('📄 Product Detail page loaded (fully fixed).');
-</script>
+    console.log('📄 Product detail page loaded successfully.');
+  </script>
 </body>
 </html>
