@@ -58,15 +58,31 @@
       padding: 1rem 0.5rem 0.5rem;
     }
     
-    /* ✅ Description – 3 lines with ellipsis */
+    /* ===== DESCRIPTION LINES ===== */
+    /* কার্ডে ২ লাইন */
     .product-desc {
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 1.5;
-      max-height: 4.5em; /* 1.5 * 3 */
+      max-height: 3em; /* 1.5 * 2 */
+    }
+    /* মডালে ৪ লাইন */
+    .modal-desc {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.6;
+      max-height: 6.4em; /* 1.6 * 4 */
+      transition: max-height 0.3s ease;
+    }
+    .modal-desc.expanded {
+      -webkit-line-clamp: unset;
+      max-height: 1000px;
     }
 
     /* ===== SKELETON ===== */
@@ -339,7 +355,15 @@
         <button onclick="closeDetailModal()" class="modal-close" aria-label="Close">&times;</button>
       </div>
       <img id="detailImage" src="" alt="" class="w-full h-72 object-cover rounded-xl mb-4" loading="lazy" />
-      <p id="detailDesc" class="text-gray-600"></p>
+      
+      <!-- ===== DESCRIPTION IN MODAL (4 lines + See More) ===== -->
+      <div class="mb-3">
+        <p id="detailDesc" class="text-gray-600 modal-desc"></p>
+        <button id="detailSeeMoreBtn" onclick="toggleDetailDescription()" class="text-blue-600 text-sm font-medium hover:underline mt-1">
+          See More
+        </button>
+      </div>
+
       <p id="detailPrice" class="text-2xl font-bold text-blue-600 mt-2"></p>
       <div id="detailRating" class="mt-1 text-yellow-500"></div>
       <!-- Stock div সম্পূর্ণ সরানো হয়েছে -->
@@ -645,10 +669,10 @@
                 </button>
               </div>
 
-              <!-- ✅ Description – 3 lines -->
+              <!-- ✅ Description – 2 লাইন -->
               <p class="text-sm text-gray-500 mt-2 product-desc">${desc}</p>
 
-              <!-- ✅ See More লিংক -->
+              <!-- ✅ See More লিংক (কার্ডে) -->
               <a href="#" onclick="window.openProductDetail('${p.id}'); return false;" class="text-blue-600 text-sm font-medium hover:underline mt-1 inline-block">See More →</a>
 
               <!-- ✅ Ratings (নিচে) -->
@@ -750,6 +774,22 @@
     // ================================================================
     // ✅ প্রোডাক্ট ডিটেইল মডাল (Stock সম্পূর্ণ সরানো হয়েছে)
     // ================================================================
+    let descExpanded = false;
+
+    window.toggleDetailDescription = function() {
+      const descEl = document.getElementById('detailDesc');
+      const btn = document.getElementById('detailSeeMoreBtn');
+      if (!descEl || !btn) return;
+      descExpanded = !descExpanded;
+      if (descExpanded) {
+        descEl.classList.add('expanded');
+        btn.textContent = 'See Less';
+      } else {
+        descEl.classList.remove('expanded');
+        btn.textContent = 'See More';
+      }
+    };
+
     window.openProductDetail = async (id) => {
       currentProductId = id;
       const docSnap = await getDoc(doc(db, 'products', id));
@@ -759,7 +799,15 @@
 
       document.getElementById('detailName').textContent = p.name;
       document.getElementById('detailImage').src = p.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
-      document.getElementById('detailDesc').textContent = p.desc || p.description || '';
+      
+      // Description reset
+      const descEl = document.getElementById('detailDesc');
+      const btn = document.getElementById('detailSeeMoreBtn');
+      descEl.textContent = p.desc || p.description || '';
+      descEl.classList.remove('expanded');
+      btn.textContent = 'See More';
+      descExpanded = false;
+
       document.getElementById('detailPrice').textContent = `$${p.price}`;
       const rating = p.averageRating || 0;
       document.getElementById('detailRating').textContent = renderStars(rating) + ` (${p.ratingCount || 0} reviews)`;
@@ -773,6 +821,12 @@
       document.getElementById('productDetailModal').classList.remove('open');
       currentProductId = null;
       currentProductData = null;
+      // description state reset
+      const descEl = document.getElementById('detailDesc');
+      const btn = document.getElementById('detailSeeMoreBtn');
+      if (descEl) descEl.classList.remove('expanded');
+      if (btn) btn.textContent = 'See More';
+      descExpanded = false;
     };
 
     // ================================================================
