@@ -48,18 +48,45 @@
             transition: all 0.3s ease;
             overflow: hidden;
         }
-        .product-card img {
+        .product-card .img-wrapper {
+            position: relative;
+            border-radius: 12px 12px 0 0;
+            overflow: hidden;
+        }
+        .product-card .img-wrapper img {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            border-radius: 12px 12px 0 0;
+            display: block;
             transition: transform 0.4s ease;
         }
-        .product-card:hover img {
+        .product-card:hover .img-wrapper img {
             transform: scale(1.03);
         }
         .product-card .card-body {
             padding: 1rem 0.5rem 0.5rem;
+        }
+
+        /* ── discount badge ── */
+        .discount-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #dc2626;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 4px 12px;
+            border-radius: 60px;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+            letter-spacing: 0.3px;
+            z-index: 5;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .discount-badge i {
+            margin-right: 4px;
+            font-size: 0.7rem;
         }
 
         .product-desc {
@@ -199,8 +226,6 @@
         }
 
         /* ── NEW: professional product-card buttons ── */
-
-        /* "Details" – clean, subtle, ghost-style */
         .btn-details {
             background: rgba(0, 122, 255, 0.06);
             color: #007AFF;
@@ -233,7 +258,6 @@
             transform: scale(0.97);
         }
 
-        /* "Add to Cart" – bold, vibrant green gradient */
         .btn-add-cart {
             background: linear-gradient(135deg, #34C759, #28A745);
             color: #fff;
@@ -347,6 +371,19 @@
             height: 300px;
             object-fit: cover;
             display: block;
+        }
+        .detail-image-wrapper .discount-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #dc2626;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 6px 16px;
+            border-radius: 60px;
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+            z-index: 6;
         }
         .fullscreen-btn {
             position: absolute;
@@ -537,7 +574,7 @@
 
         /* ── responsive ── */
         @media (max-width: 768px) {
-            .product-card img {
+            .product-card .img-wrapper img {
                 height: 150px;
             }
             .modal-box {
@@ -576,9 +613,21 @@
                 padding: 10px 18px;
                 font-size: 0.82rem;
             }
+            .discount-badge {
+                font-size: 0.7rem;
+                padding: 3px 10px;
+                top: 8px;
+                right: 8px;
+            }
+            .detail-image-wrapper .discount-badge {
+                font-size: 0.85rem;
+                padding: 4px 12px;
+                top: 12px;
+                right: 12px;
+            }
         }
         @media (max-width: 480px) {
-            .product-card img {
+            .product-card .img-wrapper img {
                 height: 120px;
             }
             .modal-box {
@@ -597,6 +646,18 @@
             .btn-details i,
             .btn-add-cart i {
                 font-size: 0.75rem;
+            }
+            .discount-badge {
+                font-size: 0.65rem;
+                padding: 2px 8px;
+                top: 6px;
+                right: 6px;
+            }
+            .detail-image-wrapper .discount-badge {
+                font-size: 0.75rem;
+                padding: 3px 10px;
+                top: 8px;
+                right: 8px;
             }
         }
     </style>
@@ -661,6 +722,7 @@
             </div>
             <div class="detail-image-wrapper">
                 <img id="detailImage" src="" alt="" loading="lazy" />
+                <div id="detailBadge" class="discount-badge" style="display:none;">-0%</div>
                 <button class="fullscreen-btn" onclick="openFullscreenImage()" aria-label="View fullscreen">
                     <i class="fas fa-expand"></i>
                 </button>
@@ -990,17 +1052,23 @@
                 const originalPrice = p.price;
                 let discountedPrice = null;
                 let priceHtml = '';
+                let badgeHtml = '';
                 if (discount) {
                     discountedPrice = originalPrice * (1 - discount.discountPercent / 100);
                     priceHtml =
                         `<span class="original-price">$${originalPrice.toFixed(2)}</span> <span class="discount-price">$${discountedPrice.toFixed(2)}</span>`;
+                    badgeHtml =
+                        `<div class="discount-badge"><i class="fas fa-tag"></i> -${Math.round(discount.discountPercent)}%</div>`;
                 } else {
                     priceHtml = `$${originalPrice.toFixed(2)}`;
                 }
 
                 return `
               <div class="glass-card product-card fade-up">
-                <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
+                <div class="img-wrapper">
+                  <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
+                  ${badgeHtml}
+                </div>
                 <div class="card-body">
                   <div class="flex justify-between items-start">
                     <h3 class="font-bold text-xl text-gray-900 product-title">${p.name}</h3>
@@ -1038,6 +1106,8 @@
             if (currentProductId) {
                 const product = allProducts.find(p => p.id === currentProductId);
                 if (product) updateDetailPrice(product);
+                // also update detail badge
+                updateDetailBadge(product);
             }
         });
 
@@ -1108,9 +1178,22 @@
                 container.innerHTML = `
                 <span class="original-price text-lg">$${price.toFixed(2)}</span>
                 <span class="discount-price text-2xl font-bold">$${discounted.toFixed(2)}</span>
+                <span class="ml-2 text-sm text-red-500 font-semibold">(-${Math.round(discount.discountPercent)}%)</span>
               `;
             } else {
                 container.innerHTML = `<span class="text-2xl font-bold text-blue-600">$${price.toFixed(2)}</span>`;
+            }
+        }
+
+        function updateDetailBadge(product) {
+            const badge = document.getElementById('detailBadge');
+            if (!badge) return;
+            const discount = getDiscountForProduct(product);
+            if (discount) {
+                badge.style.display = 'block';
+                badge.textContent = `-${Math.round(discount.discountPercent)}%`;
+            } else {
+                badge.style.display = 'none';
             }
         }
 
@@ -1134,6 +1217,7 @@
             descExpanded = false;
 
             updateDetailPrice(p);
+            updateDetailBadge(p);
 
             const rating = p.averageRating || 0;
             document.getElementById('detailRating').textContent = renderStars(rating) + ` (${p.ratingCount || 0} reviews)`;
@@ -1262,7 +1346,7 @@
             }
         }
 
-        console.log('🚀 Store page loaded with professional buttons!');
+        console.log('🚀 Store page loaded with discount badges!');
     </script>
 
 </body>
