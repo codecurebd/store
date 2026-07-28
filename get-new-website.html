@@ -266,6 +266,37 @@
             transform: translateY(-2px);
         }
 
+        /* ✅ নতুন বাটন স্টাইল */
+        .btn-buy-now {
+            background: linear-gradient(135deg, #34C759, #28A745);
+            color: #fff;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 44px;
+            padding: 8px 18px;
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 2px 8px rgba(52, 199, 89, 0.20);
+        }
+        .btn-buy-now i {
+            font-size: 0.9rem;
+        }
+        .btn-buy-now:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(52, 199, 89, 0.35);
+        }
+        .btn-buy-now:active {
+            transform: scale(0.97);
+        }
+
         .btn-details {
             background: rgba(0, 122, 255, 0.06);
             color: #007AFF;
@@ -299,34 +330,31 @@
             transform: scale(0.97);
         }
 
-        .btn-add-cart {
-            background: linear-gradient(135deg, #34C759, #28A745);
-            color: #fff;
-            border: none;
+        /* কার্ট আইকন বাটন */
+        .btn-cart-icon {
+            background: rgba(0, 122, 255, 0.06);
+            color: #007AFF;
+            border: 1.5px solid rgba(0, 122, 255, 0.15);
             border-radius: 60px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            display: inline-flex;
+            transition: all 0.25s ease;
+            min-height: 44px;
+            width: 48px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            min-height: 44px;
-            padding: 8px 18px;
-            flex: 1;
-            font-family: 'Inter', sans-serif;
-            box-shadow: 0 2px 8px rgba(52, 199, 89, 0.20);
+            flex-shrink: 0;
         }
-        .btn-add-cart i {
-            font-size: 0.9rem;
-        }
-        .btn-add-cart:hover {
+        .btn-cart-icon:hover {
+            background: rgba(0, 122, 255, 0.12);
+            border-color: #007AFF;
             transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(52, 199, 89, 0.35);
+            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.10);
         }
-        .btn-add-cart:active {
-            transform: scale(0.97);
+        .btn-cart-icon:active {
+            transform: scale(0.93);
         }
 
         /* ── rating stars ── */
@@ -453,13 +481,16 @@
             .product-card .img-wrapper img {
                 height: 150px;
             }
-            .btn-primary,
-            .btn-outline,
+            .btn-buy-now,
             .btn-details,
-            .btn-add-cart {
+            .btn-cart-icon {
                 font-size: 0.82rem;
                 min-height: 40px;
                 padding: 6px 14px;
+            }
+            .btn-cart-icon {
+                width: 44px;
+                font-size: 1rem;
             }
             .rating-stars .star {
                 font-size: 1.5rem;
@@ -494,15 +525,20 @@
             .product-card .img-wrapper img {
                 height: 120px;
             }
-            .btn-details,
-            .btn-add-cart {
+            .btn-buy-now,
+            .btn-details {
                 font-size: 0.75rem;
                 min-height: 36px;
                 padding: 4px 12px;
                 gap: 4px;
             }
-            .btn-details i,
-            .btn-add-cart i {
+            .btn-cart-icon {
+                width: 38px;
+                min-height: 36px;
+                font-size: 0.85rem;
+            }
+            .btn-buy-now i,
+            .btn-details i {
                 font-size: 0.75rem;
             }
             .discount-badge {
@@ -616,7 +652,8 @@
         } from './firebase-config.js';
         import {
             renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
-            renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore
+            renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore,
+            showToast as toastFn
         } from './components.js';
 
         renderNavbar();
@@ -889,12 +926,18 @@
                   <p class="text-sm text-gray-500 mt-1 product-desc">${desc}</p>
                   <div class="price-wrapper">${priceHtml}</div>
                   <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
-                  <div class="mt-3 flex flex-wrap gap-2">
+                  <div class="mt-3 flex flex-wrap gap-2 items-center">
+                    <!-- 1. Buy Now -->
+                    <button onclick="window.buyNowFromStore('${p.id}')" class="btn-buy-now">
+                      <i class="fas fa-bolt"></i> Buy Now
+                    </button>
+                    <!-- 2. Details -->
                     <a href="product-detail.html?id=${p.id}" class="btn-details">
                       <i class="fas fa-eye"></i> Details
                     </a>
-                    <button onclick="window.addToCart('${p.id}')" class="btn-add-cart">
-                      <i class="fas fa-cart-plus"></i> Add
+                    <!-- 3. Cart Logo -->
+                    <button onclick="window.addToCart('${p.id}')" class="btn-cart-icon" title="Add to cart">
+                      <i class="fas fa-shopping-cart"></i>
                     </button>
                   </div>
                 </div>
@@ -964,7 +1007,43 @@
             showToast(`✅ "${product.name}" added to cart`, 'success');
         };
 
-        console.log('🚀 Store page loaded — Details now link to product-detail.html');
+        // ─── BUY NOW (Direct Checkout) ──────────────────────────────
+        window.buyNowFromStore = async (productId) => {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) { showToast('Product not found', 'error'); return; }
+
+            // 1. Add to cart (single item)
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity = (existing.quantity || 1) + 1;
+            } else {
+                const discount = getDiscountForProduct(product);
+                let price = product.price;
+                if (discount) price = product.price * (1 - discount.discountPercent / 100);
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: price,
+                    originalPrice: product.price,
+                    imageUrl: product.imageUrl || '',
+                    quantity: 1
+                });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            const user = auth.currentUser;
+            if (user) await updateCartInFirestore(user.uid, cart);
+            updateCartBadge();
+
+            // 2. Proceed to checkout
+            if (typeof window.checkout === 'function') {
+                window.checkout();
+            } else {
+                showToast('Checkout not ready', 'error');
+            }
+        };
+
+        console.log('🚀 Store page loaded — 3 buttons added (Buy Now, Details, Cart)');
     </script>
 </body>
 </html>
