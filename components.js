@@ -255,9 +255,9 @@ export function renderNavbar() {
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
         <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
-  <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
-  <span class="logo-text tracking-tight">CodeCure<span class="gradient-text">BD</span></span>
-</a>
+          <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
+          <span class="logo-text tracking-tight">CodeCure<span class="gradient-text">BD</span></span>
+        </a>
         
         <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-1 lg:gap-2">
@@ -268,33 +268,36 @@ export function renderNavbar() {
 
         <!-- Right Actions -->
         <div class="flex items-center gap-2 md:gap-3">
-          <!-- Notifications -->
-          <div class="relative">
-            <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" aria-label="Notifications">
-              <i class="fas fa-bell"></i>
-              <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden">
-                0
-              </span>
-            </button>
-            <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 hidden max-h-[70vh] overflow-y-auto z-50">
-              <div class="p-4 font-semibold border-b text-gray-900 flex items-center justify-between">
-                <span><i class="fas fa-bell mr-2 text-blue-500"></i>Notifications</span>
-                <span class="text-xs font-normal text-gray-400" id="notifCountLabel">0 new</span>
-              </div>
-              <div id="notificationList" class="divide-y divide-gray-50">
-                <div class="p-4 text-sm text-gray-500 text-center">Loading...</div>
-              </div>
-              <div class="p-2 border-t">
-                <a href="messages.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">View all messages</a>
+          <!-- 🔒 Cart & Notification: visible only when signed in -->
+          <div id="authRequiredActions" class="flex items-center gap-2 md:gap-3" style="display:none;">
+            <!-- Notifications -->
+            <div class="relative">
+              <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+                <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden">
+                  0
+                </span>
+              </button>
+              <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 hidden max-h-[70vh] overflow-y-auto z-50">
+                <div class="p-4 font-semibold border-b text-gray-900 flex items-center justify-between">
+                  <span><i class="fas fa-bell mr-2 text-blue-500"></i>Notifications</span>
+                  <span class="text-xs font-normal text-gray-400" id="notifCountLabel">0 new</span>
+                </div>
+                <div id="notificationList" class="divide-y divide-gray-50">
+                  <div class="p-4 text-sm text-gray-500 text-center">Loading...</div>
+                </div>
+                <div class="p-2 border-t">
+                  <a href="messages.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">View all messages</a>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Cart -->
-          <button onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
-            <i class="fas fa-shopping-cart"></i>
-            <span id="cartCount" class="cart-badge" style="display:none;">0</span>
-          </button>
+            <!-- Cart -->
+            <button onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
+              <i class="fas fa-shopping-cart"></i>
+              <span id="cartCount" class="cart-badge" style="display:none;">0</span>
+            </button>
+          </div>
           
           <!-- Auth Loading -->
           <div id="auth-loading" class="flex items-center gap-2">
@@ -414,7 +417,7 @@ export function renderFooter() {
           </div>
         </div>
         <div class="flex items-center gap-4">
-          <a href="https://nopqrshov.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium transition-colors">Portfolio</a>
+          <a href="https://codecurebd.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium transition-colors">Portfolio</a>
           <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
           <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
         </div>
@@ -471,6 +474,7 @@ export function updateNavbarAuth(user, displayName, role = null) {
   const avatar = document.getElementById('profileAvatar');
   const adminLink = document.getElementById('adminPanelLink');
   const mobileAdminLink = document.getElementById('mobileAdminPanelLink');
+  const authRequiredActions = document.getElementById('authRequiredActions');
 
   if (loadingEl) loadingEl.style.display = 'none';
 
@@ -479,6 +483,9 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
     
+    // ✅ Show cart & notification icons
+    if (authRequiredActions) authRequiredActions.style.display = 'flex';
+
     const isAdmin = (role === 'admin');
     if (adminLink) {
       adminLink.style.display = isAdmin ? '' : 'none';
@@ -511,6 +518,9 @@ export function updateNavbarAuth(user, displayName, role = null) {
     }
     updateNotificationBadge(0);
     updateNotificationList([]);
+
+    // ✅ Hide cart & notification icons
+    if (authRequiredActions) authRequiredActions.style.display = 'none';
   }
 }
 
