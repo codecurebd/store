@@ -59,7 +59,7 @@
       padding: 1rem 0.5rem 0.5rem;
     }
     
-    /* ✅ Description – 1 line only with ellipsis */
+    /* Description – 1 line only with ellipsis */
     .product-desc {
       display: -webkit-box;
       -webkit-line-clamp: 1;
@@ -70,7 +70,7 @@
       max-height: 1.5em;
     }
 
-    /* ✅ Product title – 1 line with ellipsis */
+    /* Product title – 1 line with ellipsis */
     .product-title {
       display: -webkit-box;
       -webkit-line-clamp: 1;
@@ -431,7 +431,7 @@
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- ===== PRODUCT DETAIL MODAL (modified) ===== -->
+  <!-- ===== PRODUCT DETAIL MODAL ===== -->
   <div id="productDetailModal" class="modal-overlay" onclick="closeDetailModal()">
     <div class="modal-box" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -446,7 +446,7 @@
         </button>
       </div>
 
-      <!-- ===== Description with toggle ===== -->
+      <!-- ===== Description with toggle (preserves line breaks) ===== -->
       <div id="detailDescContainer" class="relative">
         <p id="detailDesc" class="text-gray-600 overflow-hidden" style="max-height: 4.5em; line-height: 1.5em; white-space: pre-wrap; word-wrap: break-word;"></p>
         <button id="seeMoreBtn" class="text-blue-600 text-sm font-medium mt-1 hover:underline" onclick="toggleDescription()">See more</button>
@@ -520,7 +520,7 @@
 
   <script type="module">
     // ================================================================
-    // ইমপোর্ট
+    // Imports
     // ================================================================
     import { 
       auth, db, collection, doc, getDoc, getDocs, onSnapshot, 
@@ -535,14 +535,14 @@
       renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore
     } from './components.js';
 
-    // ===== রেন্ডার =====
+    // ===== Render =====
     renderNavbar();
     renderFooter();
     renderCartSidebar();
     renderPaymentModal();
     updateCartBadge();
 
-    // ===== টোস্ট =====
+    // ===== Toast =====
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -687,7 +687,7 @@
     };
 
     // ================================================================
-    // ✅ প্রোডাক্ট লজিক (উইশলিস্ট বাদ)
+    // Product logic
     // ================================================================
     let allProducts = [];
     let currentProductId = null;
@@ -716,7 +716,7 @@
     }
     renderSkeletons();
 
-    // ===== RENDER PRODUCTS (Stock সম্পূর্ণ সরানো হয়েছে) =====
+    // ===== RENDER PRODUCTS =====
     function renderProducts() {
       let filtered = [...allProducts];
       
@@ -730,7 +730,7 @@
       
       const cat = categoryFilter.value;
       if (cat !== 'all') {
-        // ✅ Case-insensitive trimming fix
+        // Case-insensitive trimming fix
         filtered = filtered.filter(p => p.category?.toLowerCase().trim() === cat);
       }
       
@@ -814,7 +814,7 @@
     };
 
     // ================================================================
-    // ✅ কার্ট ফাংশন (Firestore সিঙ্ক সহ)
+    // Cart functions
     // ================================================================
     window.addToCart = async (productId) => {
       const product = allProducts.find(p => p.id === productId);
@@ -855,8 +855,10 @@
     };
 
     // ================================================================
-    // ✅ প্রোডাক্ট ডিটেইল মডাল (Description with toggle)
+    // Product Detail Modal (with preserved line breaks)
     // ================================================================
+    let descExpanded = false;
+
     window.openProductDetail = async (id) => {
       currentProductId = id;
       const docSnap = await getDoc(doc(db, 'products', id));
@@ -867,27 +869,27 @@
       document.getElementById('detailName').textContent = p.name;
       document.getElementById('detailImage').src = p.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
       
-      // Set description with line breaks preserved
+      // Set description with line breaks preserved (convert \n to <br>)
+      const descText = p.desc || p.description || '';
       const descEl = document.getElementById('detailDesc');
-      descEl.textContent = p.desc || p.description || '';
+      descEl.innerHTML = descText.replace(/\n/g, '<br>');
+      
       // Reset toggle state
       const seeMoreBtn = document.getElementById('seeMoreBtn');
       descEl.style.maxHeight = '4.5em';
       seeMoreBtn.textContent = 'See more';
+      descExpanded = false;
       
       document.getElementById('detailPrice').textContent = `$${p.price}`;
       const rating = p.averageRating || 0;
       document.getElementById('detailRating').textContent = renderStars(rating) + ` (${p.ratingCount || 0} reviews)`;
 
-      // ফুলস্ক্রিন ইমেজের জন্য সোর্স সেট করুন
       document.getElementById('fullscreenImage').src = p.imageUrl || 'https://via.placeholder.com/1200x800?text=No+Image';
 
       loadReviews(id);
       document.getElementById('productDetailModal').classList.add('open');
     };
 
-    // ===== Description toggle =====
-    let descExpanded = false;
     window.toggleDescription = function() {
       const descEl = document.getElementById('detailDesc');
       const btn = document.getElementById('seeMoreBtn');
@@ -905,7 +907,7 @@
       document.getElementById('productDetailModal').classList.remove('open');
       currentProductId = null;
       currentProductData = null;
-      // Reset description toggle for next open
+      // Reset description toggle
       descExpanded = false;
       const descEl = document.getElementById('detailDesc');
       const btn = document.getElementById('seeMoreBtn');
@@ -926,14 +928,12 @@
       document.body.style.overflow = '';
     };
 
-    // ক্লোজ বাটন ছাড়াও ওভারলে ক্লিক করলে বন্ধ হবে
     document.getElementById('fullscreenOverlay').addEventListener('click', (e) => {
       if (e.target === e.currentTarget) {
         closeFullscreenImage();
       }
     });
 
-    // ESC কী প্রেস করলেও বন্ধ হবে
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (document.getElementById('fullscreenOverlay').classList.contains('open')) {
@@ -943,7 +943,7 @@
     });
 
     // ================================================================
-    // ✅ রেটিং সিস্টেম
+    // Rating system
     // ================================================================
     let selectedRating = 0;
     document.querySelectorAll('#ratingStars .star').forEach(el => {
