@@ -47,11 +47,14 @@
         .product-card {
             transition: all 0.3s ease;
             overflow: hidden;
+            padding: 0 !important;
+            background: rgba(255, 255, 255, 0.78);
         }
         .product-card .img-wrapper {
             position: relative;
-            border-radius: 12px 12px 0 0;
+            border-radius: 16px 16px 0 0;
             overflow: hidden;
+            background: #f0f2f5;
         }
         .product-card .img-wrapper img {
             width: 100%;
@@ -64,10 +67,10 @@
             transform: scale(1.03);
         }
         .product-card .card-body {
-            padding: 1rem 0.5rem 0.5rem;
+            padding: 1rem 0.75rem 0.75rem;
         }
 
-        /* ── discount badge ── */
+        /* ── discount badge (on image) ── */
         .discount-badge {
             position: absolute;
             top: 12px;
@@ -76,17 +79,55 @@
             color: #fff;
             font-weight: 700;
             font-size: 0.85rem;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 60px;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
             letter-spacing: 0.3px;
             z-index: 5;
             backdrop-filter: blur(2px);
             border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         .discount-badge i {
-            margin-right: 4px;
             font-size: 0.7rem;
+            opacity: 0.9;
+        }
+
+        /* ── price section with discount % ── */
+        .price-wrapper {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            margin-top: 0.5rem;
+        }
+        .original-price {
+            text-decoration: line-through;
+            color: #9ca3af;
+            font-size: 0.95rem;
+        }
+        .discount-price {
+            color: #16a34a;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+        .discount-percent-tag {
+            background: rgba(220, 38, 38, 0.10);
+            color: #dc2626;
+            font-weight: 700;
+            font-size: 0.78rem;
+            padding: 2px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(220, 38, 38, 0.12);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .discount-percent-tag i {
+            font-size: 0.6rem;
         }
 
         .product-desc {
@@ -225,7 +266,6 @@
             transform: translateY(-2px);
         }
 
-        /* ── NEW: professional product-card buttons ── */
         .btn-details {
             background: rgba(0, 122, 255, 0.06);
             color: #007AFF;
@@ -365,6 +405,7 @@
             border-radius: 12px;
             overflow: hidden;
             margin-bottom: 1rem;
+            background: #f0f2f5;
         }
         .detail-image-wrapper img {
             width: 100%;
@@ -380,7 +421,7 @@
             color: #fff;
             font-weight: 700;
             font-size: 1rem;
-            padding: 6px 16px;
+            padding: 6px 18px;
             border-radius: 60px;
             box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
             z-index: 6;
@@ -493,18 +534,6 @@
         .fade-up.visible {
             opacity: 1;
             transform: translateY(0);
-        }
-
-        /* ── discount price ── */
-        .original-price {
-            text-decoration: line-through;
-            color: #9ca3af;
-            margin-right: 8px;
-            font-size: 0.9rem;
-        }
-        .discount-price {
-            color: #16a34a;
-            font-weight: 700;
         }
 
         /* ── toast ── */
@@ -625,6 +654,16 @@
                 top: 12px;
                 right: 12px;
             }
+            .discount-price {
+                font-size: 1.2rem;
+            }
+            .discount-percent-tag {
+                font-size: 0.7rem;
+                padding: 1px 10px;
+            }
+            .price-wrapper {
+                gap: 4px 8px;
+            }
         }
         @media (max-width: 480px) {
             .product-card .img-wrapper img {
@@ -658,6 +697,16 @@
                 padding: 3px 10px;
                 top: 8px;
                 right: 8px;
+            }
+            .discount-price {
+                font-size: 1.05rem;
+            }
+            .discount-percent-tag {
+                font-size: 0.62rem;
+                padding: 1px 8px;
+            }
+            .original-price {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -991,22 +1040,30 @@
         }
         renderSkeletons();
 
+        // ── get best discount for a product ──
         function getDiscountForProduct(product) {
             if (!allDiscounts || allDiscounts.length === 0) return null;
+
+            // 1. Specific product discount
             const specific = allDiscounts.filter(d => d.type === 'specific' && d.productId === product.id);
             if (specific.length > 0) {
                 return specific.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, specific[0]);
             }
+
+            // 2. Category discount
             if (product.category) {
                 const catDiscounts = allDiscounts.filter(d => d.type === 'category' && d.category === product.category);
                 if (catDiscounts.length > 0) {
                     return catDiscounts.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, catDiscounts[0]);
                 }
             }
+
+            // 3. All products discount
             const allDiscount = allDiscounts.filter(d => d.type === 'all');
             if (allDiscount.length > 0) {
                 return allDiscount.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, allDiscount[0]);
             }
+
             return null;
         }
 
@@ -1053,14 +1110,21 @@
                 let discountedPrice = null;
                 let priceHtml = '';
                 let badgeHtml = '';
+                let percentTagHtml = '';
+
                 if (discount) {
                     discountedPrice = originalPrice * (1 - discount.discountPercent / 100);
-                    priceHtml =
-                        `<span class="original-price">$${originalPrice.toFixed(2)}</span> <span class="discount-price">$${discountedPrice.toFixed(2)}</span>`;
-                    badgeHtml =
-                        `<div class="discount-badge"><i class="fas fa-tag"></i> -${Math.round(discount.discountPercent)}%</div>`;
+                    const percent = Math.round(discount.discountPercent);
+                    // Price: original + discounted + percentage tag
+                    priceHtml = `
+                        <span class="original-price">$${originalPrice.toFixed(2)}</span>
+                        <span class="discount-price">$${discountedPrice.toFixed(2)}</span>
+                        <span class="discount-percent-tag"><i class="fas fa-tag"></i> -${percent}%</span>
+                    `;
+                    // Badge on image
+                    badgeHtml = `<div class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</div>`;
                 } else {
-                    priceHtml = `$${originalPrice.toFixed(2)}`;
+                    priceHtml = `<span class="discount-price" style="font-size:1.4rem;">$${originalPrice.toFixed(2)}</span>`;
                 }
 
                 return `
@@ -1074,7 +1138,7 @@
                     <h3 class="font-bold text-xl text-gray-900 product-title">${p.name}</h3>
                   </div>
                   <p class="text-sm text-gray-500 mt-1 product-desc">${desc}</p>
-                  <p class="text-2xl font-bold text-blue-600 mt-2">${priceHtml}</p>
+                  <div class="price-wrapper">${priceHtml}</div>
                   <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
                   <div class="mt-3 flex flex-wrap gap-2">
                     <button onclick="window.openProductDetail('${p.id}')" class="btn-details">
@@ -1106,7 +1170,6 @@
             if (currentProductId) {
                 const product = allProducts.find(p => p.id === currentProductId);
                 if (product) updateDetailPrice(product);
-                // also update detail badge
                 updateDetailBadge(product);
             }
         });
@@ -1174,14 +1237,20 @@
             const container = document.getElementById('detailPriceContainer');
             const price = product.price;
             if (discount) {
+                const percent = Math.round(discount.discountPercent);
                 const discounted = price * (1 - discount.discountPercent / 100);
                 container.innerHTML = `
-                <span class="original-price text-lg">$${price.toFixed(2)}</span>
-                <span class="discount-price text-2xl font-bold">$${discounted.toFixed(2)}</span>
-                <span class="ml-2 text-sm text-red-500 font-semibold">(-${Math.round(discount.discountPercent)}%)</span>
+                <div class="price-wrapper">
+                  <span class="original-price text-lg">$${price.toFixed(2)}</span>
+                  <span class="discount-price text-2xl font-bold">$${discounted.toFixed(2)}</span>
+                  <span class="discount-percent-tag" style="font-size:0.9rem;padding:3px 16px;">
+                    <i class="fas fa-tag"></i> -${percent}%
+                  </span>
+                </div>
               `;
             } else {
-                container.innerHTML = `<span class="text-2xl font-bold text-blue-600">$${price.toFixed(2)}</span>`;
+                container.innerHTML =
+                    `<span class="text-2xl font-bold text-blue-600">$${price.toFixed(2)}</span>`;
             }
         }
 
@@ -1190,7 +1259,7 @@
             if (!badge) return;
             const discount = getDiscountForProduct(product);
             if (discount) {
-                badge.style.display = 'block';
+                badge.style.display = 'flex';
                 badge.textContent = `-${Math.round(discount.discountPercent)}%`;
             } else {
                 badge.style.display = 'none';
@@ -1346,7 +1415,7 @@
             }
         }
 
-        console.log('🚀 Store page loaded with discount badges!');
+        console.log('🚀 Store page loaded — discount % now shown on every product card!');
     </script>
 
 </body>
