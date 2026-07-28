@@ -299,17 +299,135 @@ export function renderNavbar() {
             </button>
           </div>
           
-          // ... (rest of navbar code remains same) ...
-          // I'll keep the rest of navbar code as it was, just updating the checkout logic below.
-          
-          // Note: I'm truncating the navbar in this response for brevity, but it remains unchanged in your actual file.
-          // The critical change is in the checkout and payment modal logic.
+          <!-- Auth Loading -->
+          <div id="auth-loading" class="flex items-center gap-2">
+            <div class="w-16 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+            <div class="w-24 h-10 bg-gray-200 rounded-full animate-pulse hidden md:block"></div>
+          </div>
+
+          <!-- Auth Buttons -->
+          <div id="auth-buttons" class="hidden flex items-center gap-2">
+            <button onclick="window.openAuthModal('signin')" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-blue-50/50">Sign In</button>
+            <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30">
+              <i class="fas fa-rocket text-xs"></i> Get Started
+            </button>
+          </div>
+
+          <!-- Profile -->
+          <div id="profile-section" class="relative hidden">
+            <button class="profile-avatar w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center hover:scale-105 transition-transform shadow-md shadow-blue-500/20" id="profileAvatar">U</button>
+            <div class="dropdown-menu" id="dropdownMenu">
+              <a href="my-profile.html" class="hover:bg-blue-50/50"><i class="fas fa-user mr-3 text-gray-400"></i> My Profile</a>
+              <a href="my-orders.html" class="hover:bg-blue-50/50"><i class="fas fa-box mr-3 text-gray-400"></i> My Orders</a>
+              <a href="my-fix-requests.html" class="hover:bg-blue-50/50"><i class="fas fa-tools mr-3 text-gray-400"></i> Fix Requests</a>
+              <a href="messages.html" class="hover:bg-blue-50/50"><i class="fas fa-comment-dots mr-3 text-gray-400"></i> Support Chat</a>
+              <a href="settings.html" class="hover:bg-blue-50/50"><i class="fas fa-cog mr-3 text-gray-400"></i> Settings</a>
+              <a href="admin-panel.html" id="adminPanelLink" class="hidden hover:bg-blue-50/50"><i class="fas fa-shield-alt mr-3 text-blue-500"></i> Admin Panel</a>
+              <hr class="my-1 border-gray-100" />
+              <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50/50"><i class="fas fa-sign-out-alt mr-3 text-red-400"></i> Logout</a>
+            </div>
+          </div>
+
+          <!-- Hamburger -->
+          <button onclick="window.toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-700 text-2xl transition-colors" aria-label="Toggle menu">
+            <i class="fas fa-bars" id="hamburgerIcon"></i>
+          </button>
         </div>
       </div>
     </nav>
-    // ... (mobile menu) ...
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
+      <div class="flex flex-col p-4 gap-1">
+        <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
+        <a href="get-new-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Store</a>
+        <a href="fix-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Fix</a>
+        <hr class="my-2 border-gray-100" />
+        <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
+        <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
+        <a href="my-fix-requests.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-tools mr-3"></i> Fix Requests</a>
+        <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-comment-dots mr-3"></i> Support Chat</a>
+        <a href="admin-panel.html" id="mobileAdminPanelLink" class="hidden nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-blue-600 transition-colors"><i class="fas fa-shield-alt mr-3"></i> Admin Panel</a>
+        <a href="#" onclick="window.handleLogout()" class="nav-link py-3 px-4 rounded-xl hover:bg-red-50/50 font-medium text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
+      </div>
+    </div>
   `;
-  // For brevity, I'm using the existing navbar logic, but the actual file remains unchanged except for the checkout.
+  
+  const placeholder = document.getElementById('navbar-placeholder');
+  if (placeholder) {
+    placeholder.innerHTML = navbarHTML;
+  } else {
+    console.error('❌ navbar-placeholder not found!');
+  }
+
+  // Profile dropdown toggle
+  const avatar = document.getElementById('profileAvatar');
+  const dropdown = document.getElementById('dropdownMenu');
+  if (avatar) {
+    avatar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
+  }
+
+  // ✅ Profile dropdown close on outside click
+  document.addEventListener('click', (e) => {
+    if (avatar && !avatar.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  // ✅ NEW: Notification dropdown close on outside click
+  const notifBtn = document.querySelector('[onclick="window.toggleNotifications()"]');
+  const notifDropdown = document.getElementById('notificationDropdown');
+  if (notifBtn && notifDropdown) {
+    document.addEventListener('click', (e) => {
+      if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+        if (!notifDropdown.classList.contains('hidden')) {
+          notifDropdown.classList.add('hidden');
+          displayMessages = [];
+        }
+      }
+    });
+  }
+
+  updateCartBadge();
+
+  // Cart sync
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      syncCart(user.uid);
+    }
+  });
+}
+
+// ================================================================
+// ✅ FOOTER
+// ================================================================
+export function renderFooter() {
+  const footerHTML = `
+    <footer class="glass border-t border-gray-200/30 py-10 px-6 sm:px-8 lg:px-12 mt-auto">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+        <div class="space-y-1 text-center sm:text-left">
+          <div class="font-medium text-gray-700">&copy; 2026 CodeCureBD. All rights reserved.</div>
+          <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
+            <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
+            <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
+            <a href="messages.html" class="hover:text-blue-600 transition-colors"><i class="fas fa-comment-dots mr-1"></i> Support Chat</a>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="https://codecurebd.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium transition-colors">Portfolio</a>
+          <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </footer>
+  `;
+  const placeholder = document.getElementById('footer-placeholder');
+  if (placeholder) {
+    placeholder.innerHTML = footerHTML;
+  }
 }
 
 // ================================================================
@@ -442,7 +560,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (FIXED)
+// ✅ PAYMENT MODAL & CHECKOUT (FIXED: Order created on confirm)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
@@ -938,34 +1056,5 @@ export function updateNavbarAuth(user, displayName, role = null) {
 
     // ✅ Hide cart & notification icons
     if (authRequiredActions) authRequiredActions.style.display = 'none';
-  }
-}
-
-// ================================================================
-// ✅ FOOTER
-// ================================================================
-export function renderFooter() {
-  const footerHTML = `
-    <footer class="glass border-t border-gray-200/30 py-10 px-6 sm:px-8 lg:px-12 mt-auto">
-      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-        <div class="space-y-1 text-center sm:text-left">
-          <div class="font-medium text-gray-700">&copy; 2026 CodeCureBD. All rights reserved.</div>
-          <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
-            <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
-            <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
-            <a href="messages.html" class="hover:text-blue-600 transition-colors"><i class="fas fa-comment-dots mr-1"></i> Support Chat</a>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <a href="https://codecurebd.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium transition-colors">Portfolio</a>
-          <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
-          <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        </div>
-      </div>
-    </footer>
-  `;
-  const placeholder = document.getElementById('footer-placeholder');
-  if (placeholder) {
-    placeholder.innerHTML = footerHTML;
   }
 }
