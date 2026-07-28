@@ -431,9 +431,9 @@
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- ===== PRODUCT DETAIL MODAL ===== -->
-  <div id="productDetailModal" class="modal-overlay">
-    <div class="modal-box">
+  <!-- ===== PRODUCT DETAIL MODAL (modified) ===== -->
+  <div id="productDetailModal" class="modal-overlay" onclick="closeDetailModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
       <div class="modal-header">
         <h3 id="detailName" class="text-2xl font-bold text-gray-900"></h3>
         <button onclick="closeDetailModal()" class="modal-close" aria-label="Close">&times;</button>
@@ -445,7 +445,13 @@
           <i class="fas fa-expand"></i>
         </button>
       </div>
-      <p id="detailDesc" class="text-gray-600"></p>
+
+      <!-- ===== Description with toggle ===== -->
+      <div id="detailDescContainer" class="relative">
+        <p id="detailDesc" class="text-gray-600 overflow-hidden" style="max-height: 4.5em; line-height: 1.5em; white-space: pre-wrap; word-wrap: break-word;"></p>
+        <button id="seeMoreBtn" class="text-blue-600 text-sm font-medium mt-1 hover:underline" onclick="toggleDescription()">See more</button>
+      </div>
+
       <p id="detailPrice" class="text-2xl font-bold text-blue-600 mt-2"></p>
       <div id="detailRating" class="mt-1 text-yellow-500"></div>
       <div class="mt-4 flex flex-wrap gap-3">
@@ -723,7 +729,10 @@
       }
       
       const cat = categoryFilter.value;
-      if (cat !== 'all') filtered = filtered.filter(p => p.category === cat);
+      if (cat !== 'all') {
+        // ✅ Case-insensitive trimming fix
+        filtered = filtered.filter(p => p.category?.toLowerCase().trim() === cat);
+      }
       
       const sort = sortFilter.value;
       if (sort === 'price-asc') filtered.sort((a, b) => a.price - b.price);
@@ -846,7 +855,7 @@
     };
 
     // ================================================================
-    // ✅ প্রোডাক্ট ডিটেইল মডাল (Stock সম্পূর্ণ সরানো হয়েছে)
+    // ✅ প্রোডাক্ট ডিটেইল মডাল (Description with toggle)
     // ================================================================
     window.openProductDetail = async (id) => {
       currentProductId = id;
@@ -857,7 +866,15 @@
 
       document.getElementById('detailName').textContent = p.name;
       document.getElementById('detailImage').src = p.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
-      document.getElementById('detailDesc').textContent = p.desc || p.description || '';
+      
+      // Set description with line breaks preserved
+      const descEl = document.getElementById('detailDesc');
+      descEl.textContent = p.desc || p.description || '';
+      // Reset toggle state
+      const seeMoreBtn = document.getElementById('seeMoreBtn');
+      descEl.style.maxHeight = '4.5em';
+      seeMoreBtn.textContent = 'See more';
+      
       document.getElementById('detailPrice').textContent = `$${p.price}`;
       const rating = p.averageRating || 0;
       document.getElementById('detailRating').textContent = renderStars(rating) + ` (${p.ratingCount || 0} reviews)`;
@@ -869,10 +886,31 @@
       document.getElementById('productDetailModal').classList.add('open');
     };
 
+    // ===== Description toggle =====
+    let descExpanded = false;
+    window.toggleDescription = function() {
+      const descEl = document.getElementById('detailDesc');
+      const btn = document.getElementById('seeMoreBtn');
+      if (!descExpanded) {
+        descEl.style.maxHeight = 'none';
+        btn.textContent = 'See less';
+      } else {
+        descEl.style.maxHeight = '4.5em';
+        btn.textContent = 'See more';
+      }
+      descExpanded = !descExpanded;
+    };
+
     window.closeDetailModal = () => {
       document.getElementById('productDetailModal').classList.remove('open');
       currentProductId = null;
       currentProductData = null;
+      // Reset description toggle for next open
+      descExpanded = false;
+      const descEl = document.getElementById('detailDesc');
+      const btn = document.getElementById('seeMoreBtn');
+      if (descEl) descEl.style.maxHeight = '4.5em';
+      if (btn) btn.textContent = 'See more';
     };
 
     // ===== FULLSCREEN IMAGE TOGGLE =====

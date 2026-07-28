@@ -598,7 +598,8 @@
       <div class="modal-header"><h3 id="productModalTitle">Add Product</h3><button class="modal-close" onclick="closeProductModal()">&times;</button></div>
       <form id="productForm" class="space-y-3">
         <input type="text" id="prodName" placeholder="Product Name" required class="form-input" />
-        <input type="text" id="prodDesc" placeholder="Description" class="form-input" />
+        <!-- ✅ Description changed to textarea with rows="4" and resize vertical -->
+        <textarea id="prodDesc" placeholder="Description" class="form-input" rows="4" style="resize:vertical;"></textarea>
         <input type="number" id="prodPrice" placeholder="Price" required class="form-input" />
         <input type="text" id="prodCategory" placeholder="Category" class="form-input" />
         <!-- ===== Cloudinary Image Upload (Updated) ===== -->
@@ -2475,3 +2476,4 @@ Thank you for shopping with CodeCureBD!
     }
   </script>
 </body>
+</html>
