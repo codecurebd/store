@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>Get New Website – CodeCureBD</title>
   
-  <!-- Preconnect for faster font loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   
@@ -25,7 +24,6 @@
       min-height: 100vh;
     }
 
-    /* ===== GLASS CARD ===== */
     .glass-card {
       background: rgba(255,255,255,0.72);
       backdrop-filter: blur(12px);
@@ -40,7 +38,6 @@
       transform: translateY(-4px);
     }
 
-    /* ===== PRODUCT CARD ===== */
     .product-card {
       transition: all 0.3s ease;
       overflow: hidden;
@@ -59,7 +56,6 @@
       padding: 1rem 0.5rem 0.5rem;
     }
     
-    /* Description – 1 line only with ellipsis */
     .product-desc {
       display: -webkit-box;
       -webkit-line-clamp: 1;
@@ -70,7 +66,6 @@
       max-height: 1.5em;
     }
 
-    /* Product title – 1 line with ellipsis */
     .product-title {
       display: -webkit-box;
       -webkit-line-clamp: 1;
@@ -81,7 +76,6 @@
       max-height: 1.2em;
     }
 
-    /* ===== SKELETON ===== */
     .skeleton-card {
       background: #f3f4f6;
       border-radius: 16px;
@@ -108,7 +102,6 @@
       50% { opacity: 0.5; }
     }
 
-    /* ===== FORM INPUTS ===== */
     .form-input {
       width: 100%;
       padding: 12px 16px;
@@ -138,7 +131,6 @@
       padding-right: 40px;
     }
 
-    /* ===== BUTTONS ===== */
     .btn-primary {
       background: linear-gradient(135deg, #007AFF, #5856D6);
       color: #fff;
@@ -189,7 +181,6 @@
       transform: translateY(-2px);
     }
 
-    /* ===== RATING STARS ===== */
     .rating-stars .star {
       font-size: 1.8rem;
       cursor: pointer;
@@ -199,7 +190,6 @@
     .rating-stars .star.active { color: #f59e0b; }
     .rating-stars .star:hover { transform: scale(1.2); }
 
-    /* ===== MODAL ===== */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -244,7 +234,6 @@
     }
     .modal-close:hover { color: #1c1c1e; }
 
-    /* ===== IMAGE CONTAINER WITH FULLSCREEN BUTTON ===== */
     .detail-image-wrapper {
       position: relative;
       border-radius: 12px;
@@ -282,7 +271,6 @@
       transform: scale(1.05);
     }
 
-    /* ===== FULLSCREEN IMAGE OVERLAY ===== */
     .fullscreen-overlay {
       position: fixed;
       inset: 0;
@@ -328,7 +316,6 @@
       transform: scale(1.05);
     }
 
-    /* ===== SCROLL TOP ===== */
     .scroll-top-btn {
       position: fixed;
       bottom: 30px;
@@ -355,7 +342,6 @@
     }
     .scroll-top-btn:hover { transform: scale(1.05); }
 
-    /* ===== FADE UP ===== */
     .fade-up {
       opacity: 0;
       transform: translateY(20px);
@@ -366,7 +352,18 @@
       transform: translateY(0);
     }
 
-    /* ===== RESPONSIVE ===== */
+    /* Discount price styling */
+    .original-price {
+      text-decoration: line-through;
+      color: #9ca3af;
+      margin-right: 8px;
+      font-size: 0.9rem;
+    }
+    .discount-price {
+      color: #dc2626;
+      font-weight: 700;
+    }
+
     @media (max-width: 768px) {
       .product-card img { height: 150px; }
       .modal-box { padding: 1rem; }
@@ -392,7 +389,6 @@
         <div class="max-w-7xl mx-auto">
           <h1 class="text-3xl font-bold text-gray-900 fade-up">Choose Your Website Package</h1>
           
-          <!-- ===== FILTERS ===== -->
           <div class="flex flex-wrap gap-4 mt-4 items-center fade-up">
             <div class="relative flex-1 min-w-[200px]">
               <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -415,7 +411,6 @@
             </button>
           </div>
 
-          <!-- ===== PRODUCT GRID ===== -->
           <div id="productGrid" class="grid md:grid-cols-3 gap-6 mt-8">
             <!-- Skeleton will be rendered by JS -->
           </div>
@@ -426,19 +421,17 @@
     <div id="footer-placeholder"></div>
   </div>
 
-  <!-- ===== BACK TO TOP ===== -->
   <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- ===== PRODUCT DETAIL MODAL ===== -->
+  <!-- PRODUCT DETAIL MODAL -->
   <div id="productDetailModal" class="modal-overlay" onclick="closeDetailModal()">
     <div class="modal-box" onclick="event.stopPropagation()">
       <div class="modal-header">
         <h3 id="detailName" class="text-2xl font-bold text-gray-900"></h3>
         <button onclick="closeDetailModal()" class="modal-close" aria-label="Close">&times;</button>
       </div>
-      <!-- Image wrapper with fullscreen button -->
       <div class="detail-image-wrapper">
         <img id="detailImage" src="" alt="" loading="lazy" />
         <button class="fullscreen-btn" onclick="openFullscreenImage()" aria-label="View fullscreen">
@@ -446,13 +439,14 @@
         </button>
       </div>
 
-      <!-- ===== Description with toggle (preserves line breaks) ===== -->
       <div id="detailDescContainer" class="relative">
         <p id="detailDesc" class="text-gray-600 overflow-hidden" style="max-height: 4.5em; line-height: 1.5em; white-space: pre-wrap; word-wrap: break-word;"></p>
         <button id="seeMoreBtn" class="text-blue-600 text-sm font-medium mt-1 hover:underline" onclick="toggleDescription()">See more</button>
       </div>
 
-      <p id="detailPrice" class="text-2xl font-bold text-blue-600 mt-2"></p>
+      <div id="detailPriceContainer" class="mt-2">
+        <!-- Price will be rendered by JS with discount if any -->
+      </div>
       <div id="detailRating" class="mt-1 text-yellow-500"></div>
       <div class="mt-4 flex flex-wrap gap-3">
         <button onclick="window.addToCartFromDetail()" class="btn-primary">
@@ -463,7 +457,6 @@
         </button>
       </div>
 
-      <!-- ===== RATING ===== -->
       <div class="mt-6 border-t border-gray-200 pt-4">
         <h4 class="font-semibold text-gray-900">Rate this product</h4>
         <div class="rating-stars flex gap-2 mt-2" id="ratingStars">
@@ -482,7 +475,7 @@
     </div>
   </div>
 
-  <!-- ===== FULLSCREEN IMAGE OVERLAY ===== -->
+  <!-- FULLSCREEN IMAGE OVERLAY -->
   <div id="fullscreenOverlay" class="fullscreen-overlay">
     <button class="fullscreen-close" onclick="closeFullscreenImage()" aria-label="Close fullscreen">
       <i class="fas fa-times"></i>
@@ -490,7 +483,7 @@
     <img id="fullscreenImage" src="" alt="Fullscreen view" />
   </div>
 
-  <!-- ===== AUTH MODAL ===== -->
+  <!-- AUTH MODAL -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -519,9 +512,6 @@
   <div id="toast-container"></div>
 
   <script type="module">
-    // ================================================================
-    // Imports
-    // ================================================================
     import { 
       auth, db, collection, doc, getDoc, getDocs, onSnapshot, 
       addDoc, updateDoc, serverTimestamp, 
@@ -535,14 +525,12 @@
       renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore
     } from './components.js';
 
-    // ===== Render =====
     renderNavbar();
     renderFooter();
     renderCartSidebar();
     renderPaymentModal();
     updateCartBadge();
 
-    // ===== Toast =====
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -554,7 +542,6 @@
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // ===== SCROLL ANIMATION =====
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -567,7 +554,6 @@
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     });
 
-    // ===== BACK TO TOP =====
     const scrollBtn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 400) {
@@ -580,7 +566,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ===== AUTH MODAL =====
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -687,9 +672,10 @@
     };
 
     // ================================================================
-    // Product logic
+    // PRODUCT LOGIC WITH DISCOUNTS
     // ================================================================
     let allProducts = [];
+    let allDiscounts = [];
     let currentProductId = null;
     let currentProductData = null;
 
@@ -698,7 +684,6 @@
     const categoryFilter = document.getElementById('categoryFilter');
     const sortFilter = document.getElementById('sortFilter');
 
-    // ===== SKELETON =====
     function renderSkeletons(count = 6) {
       let html = '';
       for (let i = 0; i < count; i++) {
@@ -716,7 +701,30 @@
     }
     renderSkeletons();
 
-    // ===== RENDER PRODUCTS =====
+    // Function to compute discount for a product
+    function getDiscountForProduct(product) {
+      if (!allDiscounts || allDiscounts.length === 0) return null;
+      // Check specific product discount
+      const specific = allDiscounts.filter(d => d.type === 'specific' && d.productId === product.id);
+      if (specific.length > 0) {
+        // take the highest percentage
+        return specific.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, specific[0]);
+      }
+      // Check category discount
+      if (product.category) {
+        const catDiscounts = allDiscounts.filter(d => d.type === 'category' && d.category === product.category);
+        if (catDiscounts.length > 0) {
+          return catDiscounts.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, catDiscounts[0]);
+        }
+      }
+      // Check all-products discount
+      const allDiscount = allDiscounts.filter(d => d.type === 'all');
+      if (allDiscount.length > 0) {
+        return allDiscount.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, allDiscount[0]);
+      }
+      return null;
+    }
+
     function renderProducts() {
       let filtered = [...allProducts];
       
@@ -730,7 +738,6 @@
       
       const cat = categoryFilter.value;
       if (cat !== 'all') {
-        // Case-insensitive trimming fix
         filtered = filtered.filter(p => p.category?.toLowerCase().trim() === cat);
       }
       
@@ -748,6 +755,17 @@
         const rating = p.averageRating || 0;
         const imageUrl = p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image';
         const desc = p.desc || p.description || '';
+        const discount = getDiscountForProduct(p);
+        const originalPrice = p.price;
+        let discountedPrice = null;
+        let priceHtml = '';
+        if (discount) {
+          discountedPrice = originalPrice * (1 - discount.discountPercent / 100);
+          priceHtml = `<span class="original-price">$${originalPrice.toFixed(2)}</span> <span class="discount-price">$${discountedPrice.toFixed(2)}</span>`;
+        } else {
+          priceHtml = `$${originalPrice.toFixed(2)}`;
+        }
+
         return `
           <div class="glass-card product-card fade-up">
             <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
@@ -756,7 +774,7 @@
                 <h3 class="font-bold text-xl text-gray-900 product-title">${p.name}</h3>
               </div>
               <p class="text-sm text-gray-500 mt-1 product-desc">${desc}</p>
-              <p class="text-2xl font-bold text-blue-600 mt-2">$${p.price}</p>
+              <p class="text-2xl font-bold text-blue-600 mt-2">${priceHtml}</p>
               <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
               <div class="mt-3 flex flex-wrap gap-2">
                 <button onclick="window.openProductDetail('${p.id}')" class="btn-primary text-sm py-2 px-4 flex-1">
@@ -784,7 +802,7 @@
       return s;
     }
 
-    // ===== REAL-TIME PRODUCTS =====
+    // Listen to products and discounts
     onSnapshot(collection(db, 'products'), (snapshot) => {
       allProducts = [];
       snapshot.forEach(doc => {
@@ -793,7 +811,19 @@
       renderProducts();
     });
 
-    // ===== DEBOUNCED SEARCH =====
+    onSnapshot(collection(db, 'discounts'), (snapshot) => {
+      allDiscounts = [];
+      snapshot.forEach(doc => {
+        allDiscounts.push({ id: doc.id, ...doc.data() });
+      });
+      renderProducts();
+      // If detail modal is open, refresh its price
+      if (currentProductId) {
+        const product = allProducts.find(p => p.id === currentProductId);
+        if (product) updateDetailPrice(product);
+      }
+    });
+
     function debounce(func, wait) {
       let timeout;
       return function(...args) {
@@ -814,7 +844,7 @@
     };
 
     // ================================================================
-    // Cart functions
+    // CART
     // ================================================================
     window.addToCart = async (productId) => {
       const product = allProducts.find(p => p.id === productId);
@@ -824,21 +854,26 @@
       if (existing) {
         existing.quantity = (existing.quantity || 1) + 1;
       } else {
+        // Store both original and discounted price if applicable
+        const discount = getDiscountForProduct(product);
+        let price = product.price;
+        if (discount) {
+          price = product.price * (1 - discount.discountPercent / 100);
+        }
         cart.push({
           id: product.id,
           name: product.name,
-          price: product.price,
+          price: price,
+          originalPrice: product.price,
           imageUrl: product.imageUrl || '',
           quantity: 1
         });
       }
       localStorage.setItem('cart', JSON.stringify(cart));
-      
       const user = auth.currentUser;
       if (user) {
         await updateCartInFirestore(user.uid, cart);
       }
-      
       window.updateCartUI?.();
       showToast(`✅ "${product.name}" added to cart`, 'success');
     };
@@ -855,9 +890,24 @@
     };
 
     // ================================================================
-    // Product Detail Modal (with preserved line breaks)
+    // PRODUCT DETAIL MODAL
     // ================================================================
     let descExpanded = false;
+
+    function updateDetailPrice(product) {
+      const discount = getDiscountForProduct(product);
+      const container = document.getElementById('detailPriceContainer');
+      const price = product.price;
+      if (discount) {
+        const discounted = price * (1 - discount.discountPercent / 100);
+        container.innerHTML = `
+          <span class="original-price text-lg">$${price.toFixed(2)}</span>
+          <span class="discount-price text-2xl font-bold">$${discounted.toFixed(2)}</span>
+        `;
+      } else {
+        container.innerHTML = `<span class="text-2xl font-bold text-blue-600">$${price.toFixed(2)}</span>`;
+      }
+    }
 
     window.openProductDetail = async (id) => {
       currentProductId = id;
@@ -869,18 +919,17 @@
       document.getElementById('detailName').textContent = p.name;
       document.getElementById('detailImage').src = p.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
       
-      // Set description with line breaks preserved (convert \n to <br>)
       const descText = p.desc || p.description || '';
       const descEl = document.getElementById('detailDesc');
       descEl.innerHTML = descText.replace(/\n/g, '<br>');
       
-      // Reset toggle state
       const seeMoreBtn = document.getElementById('seeMoreBtn');
       descEl.style.maxHeight = '4.5em';
       seeMoreBtn.textContent = 'See more';
       descExpanded = false;
       
-      document.getElementById('detailPrice').textContent = `$${p.price}`;
+      updateDetailPrice(p);
+      
       const rating = p.averageRating || 0;
       document.getElementById('detailRating').textContent = renderStars(rating) + ` (${p.ratingCount || 0} reviews)`;
 
@@ -907,7 +956,6 @@
       document.getElementById('productDetailModal').classList.remove('open');
       currentProductId = null;
       currentProductData = null;
-      // Reset description toggle
       descExpanded = false;
       const descEl = document.getElementById('detailDesc');
       const btn = document.getElementById('seeMoreBtn');
@@ -915,7 +963,7 @@
       if (btn) btn.textContent = 'See more';
     };
 
-    // ===== FULLSCREEN IMAGE TOGGLE =====
+    // ===== FULLSCREEN IMAGE =====
     window.openFullscreenImage = () => {
       const overlay = document.getElementById('fullscreenOverlay');
       overlay.classList.add('open');
@@ -943,7 +991,7 @@
     });
 
     // ================================================================
-    // Rating system
+    // RATING SYSTEM
     // ================================================================
     let selectedRating = 0;
     document.querySelectorAll('#ratingStars .star').forEach(el => {
@@ -1018,7 +1066,7 @@
       }
     }
 
-    console.log('🚀 Store page loaded successfully!');
+    console.log('🚀 Store page loaded with discounts!');
   </script>
 </body>
 </html>

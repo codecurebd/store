@@ -194,7 +194,7 @@
     .toast.hide { animation: slideOut 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     @keyframes slideOut { to { transform: translateX(calc(100% + 40px)); opacity: 0; } }
 
-    /* ===== TESTIMONIAL & FAQ CARDS (new) ===== */
+    /* ===== TESTIMONIAL & FAQ CARDS ===== */
     .testimonial-card, .faq-card {
       background: rgba(255,255,255,0.72);
       backdrop-filter: blur(12px);
@@ -210,6 +210,20 @@
     .testimonial-card:hover, .faq-card:hover {
       box-shadow: 0 4px 16px rgba(0,0,0,0.04);
     }
+
+    /* ===== DISCOUNT CARD ===== */
+    .discount-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      transition: 0.2s;
+    }
+    .discount-card:hover { border-color: #007AFF; }
 
     @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } .chart-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
     @media (max-width: 768px) {
@@ -241,9 +255,10 @@
       <button class="nav-item" data-tab="products"><i class="fas fa-box"></i> Products</button>
       <button class="nav-item" data-tab="orders"><i class="fas fa-shopping-cart"></i> Orders</button>
       <button class="nav-item" data-tab="users"><i class="fas fa-users"></i> Users</button>
-      <button class="nav-item" data-tab="archived"><i class="fas fa-archive"></i> Archived</button>
+      <!-- Archived removed -->
       <button class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages</button>
       <button class="nav-item" data-tab="fixrequests"><i class="fas fa-wrench"></i> Fix Requests</button>
+      <button class="nav-item" data-tab="discounts"><i class="fas fa-tags"></i> Discounts</button>
       <button class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</button>
       <button class="nav-item" data-tab="supportchat"><i class="fas fa-comments"></i> Support Chat</button>
     </div>
@@ -294,7 +309,7 @@
       </div>
     </div>
 
-    <!-- ===== ORDERS (with Bulk Delete) ===== -->
+    <!-- ORDERS -->
     <div id="tab-orders" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
@@ -347,7 +362,7 @@
       </div>
     </div>
 
-    <!-- ===== USERS (Advanced) ===== -->
+    <!-- USERS -->
     <div id="tab-users" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
@@ -476,21 +491,7 @@
       </div>
     </div>
 
-    <!-- ARCHIVED (deleted users + their orders) -->
-    <div id="tab-archived" class="tab-content">
-      <div style="padding:0 1rem 1rem 1rem;">
-        <h2 class="text-2xl font-bold">Archived Users &amp; Orders</h2>
-        <p class="text-sm text-gray-500 mt-1">Users deleted from admin and their orders are kept here for records.</p>
-        <div class="mt-4">
-          <h3 class="text-lg font-semibold mb-2"><i class="fas fa-user-slash"></i> Deleted Users</h3>
-          <div id="deletedUsersList" class="space-y-2"></div>
-        </div>
-        <div class="mt-6">
-          <h3 class="text-lg font-semibold mb-2"><i class="fas fa-box-archive"></i> Archived Orders</h3>
-          <div id="archivedOrdersList" class="space-y-2"></div>
-        </div>
-      </div>
-    </div>
+    <!-- ===== ARCHIVED REMOVED ===== -->
 
     <!-- MESSAGES -->
     <div id="tab-messages" class="tab-content">
@@ -508,7 +509,51 @@
       </div>
     </div>
 
-    <!-- ===== SETTINGS (with Testimonials & FAQs) ===== -->
+    <!-- ===== DISCOUNTS TAB ===== -->
+    <div id="tab-discounts" class="tab-content">
+      <div style="padding:0 1rem 1rem 1rem;">
+        <h2 class="text-2xl font-bold">Discount Management</h2>
+        <p class="text-sm text-gray-500 mt-1">Add discounts to products. The best applicable discount will be shown on the store.</p>
+
+        <form id="discountForm" class="mt-4 space-y-3 max-w-md">
+          <div>
+            <label class="block text-sm font-medium">Discount Type</label>
+            <select id="discountType" class="form-input">
+              <option value="all">All Products</option>
+              <option value="category">Category</option>
+              <option value="specific">Specific Product</option>
+            </select>
+          </div>
+          <div id="discountCategoryGroup" style="display:none;">
+            <label class="block text-sm font-medium">Category</label>
+            <select id="discountCategory" class="form-input">
+              <option value="static">Static</option>
+              <option value="spa">SPA</option>
+              <option value="dynamic">Dynamic</option>
+              <option value="ecommerce">E-Commerce</option>
+            </select>
+          </div>
+          <div id="discountProductGroup" style="display:none;">
+            <label class="block text-sm font-medium">Product</label>
+            <select id="discountProduct" class="form-input">
+              <!-- populated by JS -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Discount Percentage (%)</label>
+            <input type="number" id="discountPercent" class="form-input" min="1" max="100" placeholder="e.g. 20" required />
+          </div>
+          <button type="submit" class="btn-primary w-full">Add Discount</button>
+        </form>
+
+        <div class="mt-6">
+          <h3 class="text-lg font-semibold mb-2">Active Discounts</h3>
+          <div id="discountList" class="space-y-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
     <div id="tab-settings" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <h2 class="text-2xl font-bold">Settings</h2>
@@ -528,7 +573,7 @@
           <button type="submit" class="btn-primary w-full">Save Settings</button>
         </form>
 
-        <!-- Site Contact (display only reminder) -->
+        <!-- Site Contact -->
         <div class="mt-6 max-w-md p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-gray-700">
           <p class="font-semibold text-gray-900 mb-1"><i class="fas fa-address-card mr-1"></i> Site Contact Info</p>
           <p>Email: <a href="mailto:nopqrshov337@gmail.com" class="text-blue-600">nopqrshov337@gmail.com</a></p>
@@ -536,7 +581,7 @@
           <p class="text-xs text-gray-400 mt-1">Shown in footer &amp; homepage. To change, update code files.</p>
         </div>
 
-        <!-- ====== নতুন: Testimonials ====== -->
+        <!-- Testimonials -->
         <div class="mt-8">
           <h3 class="text-xl font-bold">Testimonials</h3>
           <form id="testimonialForm" class="space-y-3 max-w-md mt-4">
@@ -549,7 +594,7 @@
           <div id="testimonialList" class="mt-4 space-y-2"></div>
         </div>
 
-        <!-- ====== নতুন: FAQs ====== -->
+        <!-- FAQs -->
         <div class="mt-8">
           <h3 class="text-xl font-bold">FAQs</h3>
           <form id="faqForm" class="space-y-3 max-w-md mt-4">
@@ -598,11 +643,15 @@
       <div class="modal-header"><h3 id="productModalTitle">Add Product</h3><button class="modal-close" onclick="closeProductModal()">&times;</button></div>
       <form id="productForm" class="space-y-3">
         <input type="text" id="prodName" placeholder="Product Name" required class="form-input" />
-        <!-- ✅ Description changed to textarea with rows="4" and resize vertical -->
         <textarea id="prodDesc" placeholder="Description" class="form-input" rows="4" style="resize:vertical;"></textarea>
         <input type="number" id="prodPrice" placeholder="Price" required class="form-input" />
-        <input type="text" id="prodCategory" placeholder="Category" class="form-input" />
-        <!-- ===== Cloudinary Image Upload (Updated) ===== -->
+        <!-- Category dropdown -->
+        <select id="prodCategory" class="form-input">
+          <option value="static">Static</option>
+          <option value="spa">SPA</option>
+          <option value="dynamic">Dynamic</option>
+          <option value="ecommerce">E-Commerce</option>
+        </select>
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Image</label>
           <img id="prodImagePreview" class="hidden w-full h-40 object-cover rounded-xl mb-2 border border-gray-200" alt="Preview" />
@@ -646,9 +695,7 @@
         <button class="modal-close" onclick="closeUserDetailModal()">&times;</button>
       </div>
       <div id="userDetailContent" class="space-y-4"></div>
-      <div class="mt-4 flex flex-wrap gap-2 border-t pt-4" id="userDetailActions">
-        <!-- JS will fill action buttons -->
-      </div>
+      <div class="mt-4 flex flex-wrap gap-2 border-t pt-4" id="userDetailActions"></div>
     </div>
   </div>
 
@@ -683,7 +730,7 @@
       EmailAuthProvider, reauthenticateWithCredential,
       adminCreateUser, adminDeleteUser
     } from './firebase-config.js';
-    import { setLoading, uploadImage } from './components.js'; // ✅ uploadImage যোগ করেছি
+    import { setLoading, uploadImage } from './components.js';
 
     // ===== DOM =====
     const loader = document.getElementById('adminLoader');
@@ -852,6 +899,8 @@
       onSnapshot(collection(db, 'products'), (snapshot) => {
         document.getElementById('totalProducts').innerText = snapshot.size;
         renderProducts(snapshot);
+        // Also refresh discount product dropdown when products change
+        populateProductDropdown();
       });
 
       // ==============================================================
@@ -887,7 +936,6 @@
         productList.innerHTML = html;
       }
 
-      // ===== UPDATED: editProduct with image preview =====
       window.editProduct = async (id) => {
         const docSnap = await getDoc(doc(db, 'products', id));
         if (docSnap.exists()) {
@@ -896,12 +944,11 @@
           document.getElementById('prodName').value = data.name;
           document.getElementById('prodDesc').value = data.desc || '';
           document.getElementById('prodPrice').value = data.price;
-          document.getElementById('prodCategory').value = data.category || '';
+          document.getElementById('prodCategory').value = data.category || 'static';
           document.getElementById('prodImage').value = data.imageUrl || '';
           document.getElementById('prodFeatured').checked = data.featured || false;
           document.getElementById('productModalTitle').innerText = 'Edit Product';
 
-          // ✅ Image preview
           const preview = document.getElementById('prodImagePreview');
           if (data.imageUrl) {
             preview.src = data.imageUrl;
@@ -921,23 +968,21 @@
         document.getElementById('productForm').reset();
         document.getElementById('prodFeatured').checked = false;
         document.getElementById('prodImagePreview').classList.add('hidden');
+        // Set default category
+        document.getElementById('prodCategory').value = 'static';
       };
 
       window.closeProductModal = () => {
         document.getElementById('productModal').classList.remove('open');
       };
 
-      // ===== Cloudinary Upload Handler for Product Image =====
       window.handleProductImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const input = document.getElementById('prodImage');
         const preview = document.getElementById('prodImagePreview');
         const btn = e.target;
-
         btn.disabled = true;
-
         try {
           const url = await uploadImage(file);
           input.value = url;
@@ -960,7 +1005,7 @@
         const name = document.getElementById('prodName').value.trim();
         const desc = document.getElementById('prodDesc').value.trim();
         const price = parseFloat(document.getElementById('prodPrice').value);
-        const category = document.getElementById('prodCategory').value.trim();
+        const category = document.getElementById('prodCategory').value;
         const imageUrl = document.getElementById('prodImage').value.trim();
         const featured = document.getElementById('prodFeatured').checked;
         const id = document.getElementById('prodId').value;
@@ -985,7 +1030,7 @@
       };
 
       // ==============================================================
-      // ✅ ADVANCED USERS SECTION
+      // USERS (advanced) - unchanged, keep as is
       // ==============================================================
       let currentUserPage = 1;
       let perPage = 20;
@@ -1157,7 +1202,6 @@
         });
       }
 
-      // ===== USER DETAIL MODAL =====
       window.viewUserDetail = function(id) {
         const u = allUsers.find(user => user.id === id);
         if (!u) { showToast('User not found', 'error'); return; }
@@ -1177,7 +1221,6 @@
         const role = u.role || 'user';
         const adminNote = u.adminNote || '';
 
-        // Recent orders for this user
         const userOrders = allOrders
           .filter(o => o.userId === u.id)
           .sort((a, b) => {
@@ -1418,7 +1461,6 @@
         updateBulkActions();
       };
 
-      // ===== USER CRUD (with Admin Functions) =====
       window.editUser = async (id) => {
         const docSnap = await getDoc(doc(db, 'users', id));
         if (docSnap.exists()) {
@@ -1452,47 +1494,6 @@
           showToast('⚠️ ' + result.error, 'error');
         }
       };
-
-      // Archived users + orders listeners
-      onSnapshot(collection(db, 'deletedUsers'), (snapshot) => {
-        const list = document.getElementById('deletedUsersList');
-        if (!list) return;
-        if (snapshot.empty) {
-          list.innerHTML = '<div class="text-gray-400 text-sm">No deleted users.</div>';
-          return;
-        }
-        let html = '';
-        snapshot.forEach(d => {
-          const u = d.data();
-          html += `<div class="glass-card p-3 text-sm">
-            <strong>${u.displayName || '—'}</strong> · ${u.email || '—'}
-            <span class="text-gray-400"> · uid: ${u.originalUid || d.id}</span>
-            <div class="text-xs text-gray-500 mt-1">Deleted: ${u.deletedAt || '—'} · Orders archived: ${u.archivedOrdersCount ?? '—'}</div>
-          </div>`;
-        });
-        list.innerHTML = html;
-      });
-
-      onSnapshot(collection(db, 'archivedOrders'), (snapshot) => {
-        const list = document.getElementById('archivedOrdersList');
-        if (!list) return;
-        if (snapshot.empty) {
-          list.innerHTML = '<div class="text-gray-400 text-sm">No archived orders.</div>';
-          return;
-        }
-        let html = '';
-        snapshot.forEach(d => {
-          const o = d.data();
-          html += `<div class="glass-card p-3 text-sm">
-            <strong>#${(o.originalOrderId || d.id).toString().slice(0, 8).toUpperCase()}</strong>
-            · ${o.deletedUserEmail || o.userEmail || '—'}
-            · $${Number(o.total || 0).toFixed(2)}
-            · <span class="status-badge">${o.status || '—'}</span>
-            <div class="text-xs text-gray-500 mt-1">User: ${o.deletedUserName || '—'} · Archived: ${o.archivedAt || '—'}</div>
-          </div>`;
-        });
-        list.innerHTML = html;
-      });
 
       window.toggleUserStatus = async (id, newStatus) => {
         try {
@@ -1536,7 +1537,6 @@
         const role = document.getElementById('userRole').value;
 
         if (id) {
-          // Edit user
           if (!email) { showToast('Email is required.', 'error'); return; }
           setLoading(userSubmitBtn, true, 'Saving...');
           try {
@@ -1546,14 +1546,12 @@
           } catch (err) { showToast('Error: ' + err.message, 'error'); }
           finally { setLoading(userSubmitBtn, false); }
         } else {
-          // Create new user with Authentication
           if (!email || !password || password.length < 6) {
             showToast('Password must be at least 6 characters.', 'error');
             return;
           }
           const adminEmail = auth.currentUser?.email;
           if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
-          // অ্যাডমিন পাসওয়ার্ড প্রম্পট
           const adminPassword = prompt('Enter your admin password to create user:');
           if (!adminPassword) return;
           setLoading(userSubmitBtn, true, 'Creating...');
@@ -1570,7 +1568,6 @@
         }
       });
 
-      // ===== EXPORT USERS =====
       window.exportUsers = function(format) {
         const filtered = getFilteredUsers();
         if (filtered.length === 0) { showToast('No users to export.', 'warning'); return; }
@@ -1610,13 +1607,11 @@
       }
 
       // ==============================================================
-      // ORDERS (with Bulk Delete)
+      // ORDERS (unchanged)
       // ==============================================================
       let filteredOrders = [];
       const orderTableBody = document.getElementById('orderTableBody');
       let currentOrderDetail = null;
-
-      // Selection for orders
       let selectedOrderIds = new Set();
 
       function updateOrderBulkUI() {
@@ -1654,13 +1649,10 @@
           return;
         }
         if (!confirm(`⚠️ Are you sure you want to permanently delete ${selectedOrderIds.size} order(s)? This cannot be undone.`)) return;
-
         const password = prompt('Enter your admin password to confirm deletion:');
         if (!password) return;
-
         const adminEmail = auth.currentUser?.email;
         if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
-
         let successCount = 0, failCount = 0;
         let stop = false;
         for (const orderId of selectedOrderIds) {
@@ -1681,7 +1673,6 @@
         }
         showToast(`✅ ${successCount} order(s) deleted. Failed: ${failCount}`, failCount && !stop ? 'warning' : 'success');
         clearOrderSelection();
-        // onSnapshot will refresh the table
       };
 
       function renderOrdersTable(orders) {
@@ -1740,7 +1731,6 @@
         });
         orderTableBody.innerHTML = html;
 
-        // Attach checkbox events
         document.querySelectorAll('.order-checkbox').forEach(cb => {
           cb.addEventListener('change', updateOrderSelection);
         });
@@ -1764,7 +1754,6 @@
         renderOrdersTable(allOrders);
       };
 
-      // ===== ORDER DELETE (single) =====
       window.deleteOrder = async (orderId) => {
         if (!confirm('Delete this order permanently?')) return;
         const password = prompt('Enter your admin password to confirm deletion:');
@@ -1862,7 +1851,6 @@
         currentOrderDetail = null;
       };
 
-      // ✅ FIXED: serverTimestamp() removed from array, using ISO string instead
       window.updateOrderStatus = async (orderId) => {
         const select = document.getElementById('orderStatusSelect');
         if (!select) return;
@@ -1967,7 +1955,7 @@ Thank you for shopping with CodeCureBD!
       };
 
       // ==============================================================
-      // CONTACT MESSAGES
+      // MESSAGES & FIX REQUESTS (unchanged)
       // ==============================================================
       const messageList = document.getElementById('messageList');
       onSnapshot(collection(db, 'contactMessages'), (snapshot) => {
@@ -1989,9 +1977,6 @@ Thank you for shopping with CodeCureBD!
         messageList.innerHTML = html;
       });
 
-      // ==============================================================
-      // FIX REQUESTS (with reply timestamp fix)
-      // ==============================================================
       const fixRequestList = document.getElementById('fixRequestList');
       onSnapshot(collection(db, 'fixRequests'), (snapshot) => {
         if (snapshot.empty) {
@@ -2002,7 +1987,6 @@ Thank you for shopping with CodeCureBD!
         snapshot.forEach(doc => {
           const r = doc.data();
           const reply = r.reply || '';
-          // ✅ ফিক্স: reply timestamp সঠিকভাবে দেখানো
           let replyTimeStr = '';
           if (r.replyTimestamp) {
             const replyDate = r.replyTimestamp.toDate ? r.replyTimestamp.toDate() : new Date(r.replyTimestamp);
@@ -2042,12 +2026,10 @@ Thank you for shopping with CodeCureBD!
       };
 
       // ==============================================================
-      // SETTINGS (Payment + Testimonials + FAQs)
+      // SETTINGS (unchanged)
       // ==============================================================
-      // Payment Settings
       const settingsForm = document.getElementById('settingsForm');
       const settingsBtn = settingsForm.querySelector('button[type="submit"]');
-      // Load existing payment settings
       (async () => {
         try {
           const snap = await getDoc(doc(db, 'settings', 'payment'));
@@ -2076,10 +2058,9 @@ Thank you for shopping with CodeCureBD!
         finally { setLoading(settingsBtn, false); }
       });
 
-      // ===== Testimonials CRUD =====
+      // ===== TESTIMONIALS & FAQS (unchanged) =====
       const testimonialForm = document.getElementById('testimonialForm');
       const testimonialList = document.getElementById('testimonialList');
-
       onSnapshot(collection(db, 'testimonials'), (snapshot) => {
         if (snapshot.empty) {
           testimonialList.innerHTML = '<div class="text-gray-400 text-sm">No testimonials yet.</div>';
@@ -2137,10 +2118,8 @@ Thank you for shopping with CodeCureBD!
         }
       };
 
-      // ===== FAQs CRUD =====
       const faqForm = document.getElementById('faqForm');
       const faqList = document.getElementById('faqList');
-
       onSnapshot(collection(db, 'faqs'), (snapshot) => {
         if (snapshot.empty) {
           faqList.innerHTML = '<div class="text-gray-400 text-sm">No FAQs yet.</div>';
@@ -2197,7 +2176,102 @@ Thank you for shopping with CodeCureBD!
       };
 
       // ==============================================================
-      // SUPPORT CHAT
+      // ===== NEW: DISCOUNTS SECTION =====
+      // ==============================================================
+      const discountForm = document.getElementById('discountForm');
+      const discountType = document.getElementById('discountType');
+      const discountCategoryGroup = document.getElementById('discountCategoryGroup');
+      const discountProductGroup = document.getElementById('discountProductGroup');
+      const discountCategory = document.getElementById('discountCategory');
+      const discountProduct = document.getElementById('discountProduct');
+      const discountPercent = document.getElementById('discountPercent');
+      const discountList = document.getElementById('discountList');
+
+      // Toggle visibility of category/product fields based on type
+      discountType.addEventListener('change', function() {
+        const val = this.value;
+        discountCategoryGroup.style.display = val === 'category' ? 'block' : 'none';
+        discountProductGroup.style.display = val === 'specific' ? 'block' : 'none';
+      });
+
+      // Populate product dropdown
+      async function populateProductDropdown() {
+        try {
+          const snap = await getDocs(collection(db, 'products'));
+          const select = discountProduct;
+          select.innerHTML = '<option value="">Select Product</option>';
+          snap.forEach(doc => {
+            const data = doc.data();
+            select.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
+          });
+        } catch (e) { console.warn('Error loading products for discount', e); }
+      }
+      populateProductDropdown();
+
+      // Load discounts
+      function renderDiscounts() {
+        onSnapshot(collection(db, 'discounts'), (snapshot) => {
+          if (snapshot.empty) {
+            discountList.innerHTML = '<div class="text-gray-400 text-sm">No discounts active.</div>';
+            return;
+          }
+          let html = '';
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            const typeLabel = d.type === 'all' ? 'All Products' : d.type === 'category' ? `Category: ${d.category}` : `Product: ${d.productId}`;
+            html += `
+              <div class="discount-card">
+                <div>
+                  <span class="font-medium">${d.discountPercent}% off</span>
+                  <span class="text-gray-500 text-sm ml-2">${typeLabel}</span>
+                </div>
+                <button onclick="deleteDiscount('${doc.id}')" class="btn-delete text-xs">Delete</button>
+              </div>
+            `;
+          });
+          discountList.innerHTML = html;
+        });
+      }
+      renderDiscounts();
+
+      // Add discount
+      discountForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const type = discountType.value;
+        const percent = parseFloat(discountPercent.value);
+        if (!percent || percent < 1 || percent > 100) {
+          showToast('Please enter a valid discount percentage (1-100).', 'error');
+          return;
+        }
+        let data = { type, discountPercent: percent, createdAt: serverTimestamp() };
+        if (type === 'category') {
+          data.category = discountCategory.value;
+        } else if (type === 'specific') {
+          const productId = discountProduct.value;
+          if (!productId) { showToast('Please select a product.', 'error'); return; }
+          data.productId = productId;
+        }
+        try {
+          await addDoc(collection(db, 'discounts'), data);
+          showToast('✅ Discount added!', 'success');
+          discountForm.reset();
+          discountType.value = 'all';
+          discountCategoryGroup.style.display = 'none';
+          discountProductGroup.style.display = 'none';
+        } catch (err) {
+          showToast('Error: ' + err.message, 'error');
+        }
+      });
+
+      window.deleteDiscount = async (id) => {
+        if (confirm('Delete this discount?')) {
+          await deleteDoc(doc(db, 'discounts', id));
+          showToast('✅ Discount removed', 'success');
+        }
+      };
+
+      // ==============================================================
+      // SUPPORT CHAT (unchanged)
       // ==============================================================
       const convListEl = document.getElementById('convList');
       const chatMessagesEl = document.getElementById('chatMessages');
@@ -2469,10 +2543,8 @@ Thank you for shopping with CodeCureBD!
         }
       });
 
-      // Initial render for users
       renderUsersPage(allUsers);
-
-      console.log('✅ Admin Panel loaded with Advanced Users & Orders (Bulk Delete).');
+      console.log('✅ Admin Panel loaded with Discounts.');
     }
   </script>
 </body>
