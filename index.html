@@ -240,6 +240,36 @@
       transform: translateY(-2px);
     }
 
+    /* ✅ নতুন Details বাটন স্টাইল (View বাটন প্রতিস্থাপন) */
+    .btn-details {
+      background: rgba(0, 122, 255, 0.06);
+      color: #007AFF;
+      border: 1.5px solid rgba(0, 122, 255, 0.15);
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px 18px;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+    }
+    .btn-details i {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    .btn-details:hover {
+      background: rgba(0, 122, 255, 0.12);
+      border-color: #007AFF;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 122, 255, 0.10);
+    }
+
     /* ===== SKELETON ===== */
     .skeleton-card {
       background: #f3f4f6;
@@ -273,13 +303,14 @@
     @media (max-width: 768px) {
       .glass-card { padding: 1rem; border-radius: 12px; }
       .stat-number { font-size: 2rem; }
-      .btn-primary, .btn-outline { font-size: 0.85rem; min-height: 44px; padding: 10px 20px; }
+      .btn-primary, .btn-outline, .btn-details { font-size: 0.85rem; min-height: 44px; padding: 10px 20px; }
       .trust-badge { font-size: 0.75rem; padding: 0.3rem 1rem; }
       .featured-card img { height: 140px; }
     }
     @media (max-width: 480px) {
       .stat-number { font-size: 1.6rem; }
       .featured-card img { height: 120px; }
+      .btn-details { font-size: 0.78rem; padding: 6px 14px; min-height: 36px; }
     }
 
     /* ===== FAQ Show More Button ===== */
@@ -643,38 +674,6 @@
       input.type = input.type === 'password' ? 'text' : 'password';
     };
 
-    const authForm = document.getElementById('authForm');
-    const authSubmitBtn = authForm.querySelector('button[type="submit"]');
-    authForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('authEmail').value.trim();
-      const password = document.getElementById('authPassword').value.trim();
-      const errorDiv = document.getElementById('authError');
-      errorDiv.classList.add('hidden');
-      setLoading(authSubmitBtn, true, 'Continue');
-      try {
-        let userCred;
-        if (currentAuthMode === 'signin') {
-          userCred = await signInWithEmailAndPassword(auth, email, password);
-          showToast('✅ Signed in!', 'success');
-        } else {
-          userCred = await createUserWithEmailAndPassword(auth, email, password);
-          await setDoc(doc(db, 'users', userCred.user.uid), {
-            email, displayName: email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
-          });
-          showToast('✅ Account created!', 'success');
-        }
-        closeAuthModal();
-        authForm.reset();
-      } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.remove('hidden');
-        showToast('⚠️ ' + error.message, 'error');
-      } finally {
-        setLoading(authSubmitBtn, false);
-      }
-    });
-
         window.socialLogin = async (provider) => {
           if (provider !== 'google') {
             showToast('Only Google sign-in is supported', 'warning');
@@ -710,6 +709,38 @@
             if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
           }
         };
+
+    const authForm = document.getElementById('authForm');
+    const authSubmitBtn = authForm.querySelector('button[type="submit"]');
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value.trim();
+      const errorDiv = document.getElementById('authError');
+      errorDiv.classList.add('hidden');
+      setLoading(authSubmitBtn, true, 'Continue');
+      try {
+        let userCred;
+        if (currentAuthMode === 'signin') {
+          userCred = await signInWithEmailAndPassword(auth, email, password);
+          showToast('✅ Signed in!', 'success');
+        } else {
+          userCred = await createUserWithEmailAndPassword(auth, email, password);
+          await setDoc(doc(db, 'users', userCred.user.uid), {
+            email, displayName: email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
+          });
+          showToast('✅ Account created!', 'success');
+        }
+        closeAuthModal();
+        authForm.reset();
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.remove('hidden');
+        showToast('⚠️ ' + error.message, 'error');
+      } finally {
+        setLoading(authSubmitBtn, false);
+      }
+    });
 
     onAuthStateChanged(auth, async (user) => {
       let name = null;
@@ -786,8 +817,10 @@
                 <!-- ✅ Description এক লাইনে -->
                 <p class="text-sm text-gray-500 product-desc">${p.desc || p.description || ''}</p>
                 <span class="block mt-2 font-bold text-gray-800">$${p.price}</span>
-                <!-- ✅ "View" বাটন প্রোডাক্ট আইডি সহ -->
-                <a href="get-new-website.html?productId=${p.id}" class="btn-primary text-sm py-2 px-4 mt-3 inline-block">View</a>
+                <!-- ✅ View বাটন এখন product-detail.html-এ রিডাইরেক্ট করে এবং স্টাইল btn-details -->
+                <a href="product-detail.html?id=${p.id}" class="btn-details text-sm py-2 px-4 mt-3 inline-block">
+                  <i class="fas fa-eye"></i> View
+                </a>
               </div>
             </div>
           `;
