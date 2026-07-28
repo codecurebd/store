@@ -283,6 +283,7 @@
             padding: 8px 18px;
             flex: 1;
             font-family: 'Inter', sans-serif;
+            text-decoration: none;
         }
         .btn-details i {
             font-size: 0.9rem;
@@ -768,7 +769,6 @@
 
         let allProducts = [];
         let allDiscounts = [];
-
         const grid = document.getElementById('productGrid');
         const searchInput = document.getElementById('searchInput');
         const categoryFilter = document.getElementById('categoryFilter');
@@ -964,8 +964,7 @@
             showToast(`✅ "${product.name}" added to cart`, 'success');
         };
 
-        console.log('🚀 Store page loaded — product details now link to separate page.');
+        console.log('🚀 Store page loaded — Details now link to product-detail.html');
     </script>
-
 </body>
 </html>
