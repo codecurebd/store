@@ -255,6 +255,7 @@
       <button class="nav-item" data-tab="products"><i class="fas fa-box"></i> Products</button>
       <button class="nav-item" data-tab="orders"><i class="fas fa-shopping-cart"></i> Orders</button>
       <button class="nav-item" data-tab="users"><i class="fas fa-users"></i> Users</button>
+      <!-- Archived removed -->
       <button class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages</button>
       <button class="nav-item" data-tab="fixrequests"><i class="fas fa-wrench"></i> Fix Requests</button>
       <button class="nav-item" data-tab="discounts"><i class="fas fa-tags"></i> Discounts</button>
@@ -490,6 +491,8 @@
       </div>
     </div>
 
+    <!-- ===== ARCHIVED REMOVED ===== -->
+
     <!-- MESSAGES -->
     <div id="tab-messages" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
@@ -506,7 +509,7 @@
       </div>
     </div>
 
-    <!-- DISCOUNTS -->
+    <!-- ===== DISCOUNTS TAB ===== -->
     <div id="tab-discounts" class="tab-content">
       <div style="padding:0 1rem 1rem 1rem;">
         <h2 class="text-2xl font-bold">Discount Management</h2>
@@ -712,28 +715,6 @@
     </div>
   </div>
 
-  <!-- ===== CUSTOM CONFIRM MODAL (with ID input) ===== -->
-  <div class="modal-overlay" id="customConfirmModal">
-    <div class="modal-box" style="max-width:420px;">
-      <div class="modal-header">
-        <h3 id="confirmModalTitle" class="text-xl font-bold text-gray-900">Confirm Delete</h3>
-        <button class="modal-close" onclick="closeCustomConfirm()">&times;</button>
-      </div>
-      <div id="confirmModalBody" class="space-y-3">
-        <p id="confirmModalMessage" class="text-gray-600"></p>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1" id="confirmInputLabel">Enter the ID to confirm:</label>
-          <input type="text" id="confirmIdInput" class="form-input" placeholder="Paste or type the ID shown above" />
-          <p id="confirmIdError" class="text-red-500 text-sm mt-1 hidden">Input does not match. Please try again.</p>
-        </div>
-      </div>
-      <div class="mt-4 flex gap-3">
-        <button id="confirmDeleteBtn" class="btn-danger flex-1 justify-center"><i class="fas fa-trash"></i> Delete</button>
-        <button onclick="closeCustomConfirm()" class="btn-outline flex-1 justify-center">Cancel</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ===== TOAST ===== -->
   <div id="toast-container"></div>
 
@@ -747,7 +728,7 @@
       onSnapshot, query, where, serverTimestamp,
       signOut, onAuthStateChanged,
       EmailAuthProvider, reauthenticateWithCredential,
-      adminCreateUser
+      adminCreateUser, adminDeleteUser
     } from './firebase-config.js';
     import { setLoading, uploadImage } from './components.js';
 
@@ -787,69 +768,6 @@
       } catch (err) {
         console.error('Auth error:', err);
         loader.innerHTML = `<div class="text-red-500 text-center"><i class="fas fa-exclamation-circle text-4xl"></i><p class="mt-2">Error verifying access.</p><button onclick="window.location.reload()" class="btn-primary mt-4">Retry</button></div>`;
-      }
-    });
-
-    // ================================================================
-    // CUSTOM CONFIRM MODAL
-    // ================================================================
-    let confirmResolve = null;
-    let confirmTargetId = '';
-    let confirmIsText = false;
-
-    function showConfirmWithId(itemIdOrText, message, isText = false) {
-      return new Promise((resolve) => {
-        confirmTargetId = itemIdOrText;
-        confirmIsText = isText;
-        document.getElementById('confirmModalTitle').textContent = isText ? 'Confirm Action' : 'Confirm Delete';
-        document.getElementById('confirmModalMessage').textContent = message;
-        document.getElementById('confirmIdInput').value = '';
-        document.getElementById('confirmIdError').classList.add('hidden');
-        document.getElementById('confirmInputLabel').textContent = isText ? 'Type the exact text to confirm:' : 'Enter the ID to confirm:';
-        document.getElementById('customConfirmModal').classList.add('open');
-        confirmResolve = resolve;
-        setTimeout(() => document.getElementById('confirmIdInput').focus(), 50);
-      });
-    }
-
-    window.closeCustomConfirm = function() {
-      document.getElementById('customConfirmModal').classList.remove('open');
-      if (confirmResolve) {
-        confirmResolve(false);
-        confirmResolve = null;
-      }
-    };
-
-    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-      const input = document.getElementById('confirmIdInput').value.trim();
-      const error = document.getElementById('confirmIdError');
-      if (input === confirmTargetId) {
-        error.classList.add('hidden');
-        closeCustomConfirm();
-        if (confirmResolve) {
-          confirmResolve(true);
-          confirmResolve = null;
-        }
-      } else {
-        error.classList.remove('hidden');
-        document.getElementById('confirmIdInput').classList.add('error');
-      }
-    });
-
-    document.getElementById('confirmIdInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        document.getElementById('confirmDeleteBtn').click();
-      }
-    });
-
-    document.getElementById('confirmIdInput').addEventListener('input', function() {
-      document.getElementById('confirmIdError').classList.add('hidden');
-      this.classList.remove('error');
-    });
-
-    document.getElementById('customConfirmModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeCustomConfirm();
       }
     });
 
@@ -981,6 +899,7 @@
       onSnapshot(collection(db, 'products'), (snapshot) => {
         document.getElementById('totalProducts').innerText = snapshot.size;
         renderProducts(snapshot);
+        // Also refresh discount product dropdown when products change
         populateProductDropdown();
       });
 
@@ -1049,6 +968,7 @@
         document.getElementById('productForm').reset();
         document.getElementById('prodFeatured').checked = false;
         document.getElementById('prodImagePreview').classList.add('hidden');
+        // Set default category
         document.getElementById('prodCategory').value = 'static';
       };
 
@@ -1102,21 +1022,15 @@
         finally { setLoading(productSubmitBtn, false); }
       });
 
-      // ===== UPDATED: deleteProduct with custom confirm =====
       window.deleteProduct = async (id) => {
-        const docSnap = await getDoc(doc(db, 'products', id));
-        if (!docSnap.exists()) { showToast('Product not found', 'error'); return; }
-        const p = docSnap.data();
-        const confirmed = await showConfirmWithId(id, `Are you sure you want to delete product "${p.name}"? Type the product ID to confirm.`);
-        if (!confirmed) return;
-        try {
+        if (confirm('Delete this product?')) {
           await deleteDoc(doc(db, 'products', id));
-          showToast('✅ Product deleted', 'success');
-        } catch (err) { showToast('Error: ' + err.message, 'error'); }
+          showToast('✅ Deleted', 'success');
+        }
       };
 
       // ==============================================================
-      // USERS (advanced)
+      // USERS (advanced) - unchanged, keep as is
       // ==============================================================
       let currentUserPage = 1;
       let perPage = 20;
@@ -1519,77 +1433,26 @@
         } catch (err) { showToast('Error: ' + err.message, 'error'); }
       };
 
-      // ===== UPDATED: bulkDelete with custom confirm (text "DELETE") =====
       window.bulkDelete = async function() {
         if (selectedUsers.size === 0) return;
-        const confirmed = await showConfirmWithId('DELETE', `⚠️ Are you sure you want to permanently delete ${selectedUsers.size} user(s)? Type "DELETE" to confirm.`, true);
-        if (!confirmed) return;
-        let ok = 0, fail = 0;
-        for (const id of selectedUsers) {
-          try {
-            await deleteUserDirect(id);
-            ok++;
-          } catch (err) {
-            console.error(`Failed to delete user ${id}:`, err);
-            fail++;
-          }
-        }
-        showToast(`✅ ${ok} user(s) deleted. Failed: ${fail}`, fail ? 'warning' : 'success');
-        clearBulkSelection();
-      };
-
-      // ===== UPDATED: deleteUser with custom confirm (ID) =====
-      window.deleteUser = async (id) => {
-        const user = allUsers.find(u => u.id === id);
-        if (!user) { showToast('User not found', 'error'); return; }
-        const name = user.displayName || user.email || 'Unknown';
-        const confirmed = await showConfirmWithId(id, `Are you sure you want to delete user "${name}"? Type the user ID to confirm.`);
-        if (!confirmed) return;
+        if (!confirm(`⚠️ Delete ${selectedUsers.size} user(s)? Their orders will be archived. Auth delete needs Cloud Function for same-email re-register.`)) return;
+        const password = prompt('Enter your admin password to confirm:');
+        if (!password) return;
+        const adminEmail = auth.currentUser?.email;
+        if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
         try {
-          await deleteUserDirect(id);
-          showToast('✅ User deleted (orders archived, auth not removed).', 'success');
+          let ok = 0, fail = 0, authOk = 0;
+          for (const id of selectedUsers) {
+            const result = await adminDeleteUser(id, adminEmail, password);
+            if (result.success) {
+              ok++;
+              if (result.authDeleted) authOk++;
+            } else fail++;
+          }
+          showToast(`✅ ${ok} deleted (Auth removed: ${authOk}). Failed: ${fail}`, fail ? 'warning' : 'success');
+          clearBulkSelection();
         } catch (err) { showToast('Error: ' + err.message, 'error'); }
       };
-
-      // Helper: delete user from Firestore, archive orders, store in deletedUsers
-      async function deleteUserDirect(uid) {
-        const userRef = doc(db, 'users', uid);
-        const userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) return;
-        const userData = userSnap.data();
-
-        // Archive orders
-        const ordersQ = query(collection(db, 'orders'), where('userId', '==', uid));
-        const ordersSnap = await getDocs(ordersQ);
-        const archivePromises = [];
-        ordersSnap.forEach((orderDoc) => {
-          const orderData = orderDoc.data();
-          archivePromises.push(
-            setDoc(doc(db, 'archivedOrders', orderDoc.id), {
-              ...orderData,
-              originalOrderId: orderDoc.id,
-              archivedAt: new Date().toISOString(),
-              archivedReason: 'user_deleted',
-              deletedUserId: uid,
-              deletedUserEmail: userData.email || '',
-              deletedUserName: userData.displayName || '',
-            }).then(() => deleteDoc(doc(db, 'orders', orderDoc.id)))
-          );
-        });
-        await Promise.all(archivePromises);
-
-        // Store in deletedUsers
-        await setDoc(doc(db, 'deletedUsers', uid), {
-          ...userData,
-          originalUid: uid,
-          deletedAt: new Date().toISOString(),
-          deletedBy: auth.currentUser?.uid || '',
-          archivedOrdersCount: ordersSnap.size,
-        });
-
-        // Delete user doc
-        await deleteDoc(userRef);
-      }
 
       window.clearBulkSelection = function() {
         selectedUsers.clear();
@@ -1611,6 +1474,24 @@
           document.getElementById('userPassword').required = false;
           document.getElementById('userModalTitle').innerText = 'Edit User';
           document.getElementById('userModal').classList.add('open');
+        }
+      };
+
+      window.deleteUser = async (id) => {
+        if (!confirm('Delete this user? Orders will move to Archived. For same-email re-registration, Cloud Function must delete Auth (see functions/deleteAuthUser).')) return;
+        const password = prompt('Enter your admin password to confirm deletion:');
+        if (!password) return;
+        const adminEmail = auth.currentUser?.email;
+        if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
+        const result = await adminDeleteUser(id, adminEmail, password);
+        if (result.success) {
+          if (result.authDeleted) {
+            showToast(`✅ User deleted + Auth removed. ${result.archivedOrders || 0} order(s) archived. Same email can register again.`, 'success');
+          } else {
+            showToast(`✅ User archived (${result.archivedOrders || 0} orders). Auth still exists — deploy Cloud Function deleteAuthUser for same-email re-register. ${result.authDeleteError || ''}`, 'warning');
+          }
+        } else {
+          showToast('⚠️ ' + result.error, 'error');
         }
       };
 
@@ -1726,7 +1607,7 @@
       }
 
       // ==============================================================
-      // ORDERS
+      // ORDERS (unchanged)
       // ==============================================================
       let filteredOrders = [];
       const orderTableBody = document.getElementById('orderTableBody');
@@ -1762,26 +1643,35 @@
         updateOrderBulkUI();
       }
 
-      // ===== UPDATED: bulkDeleteOrders with custom confirm (text "DELETE") =====
       window.bulkDeleteOrders = async function() {
         if (selectedOrderIds.size === 0) {
           showToast('No orders selected.', 'warning');
           return;
         }
-        const confirmed = await showConfirmWithId('DELETE', `⚠️ Are you sure you want to permanently delete ${selectedOrderIds.size} order(s)? Type "DELETE" to confirm.`, true);
-        if (!confirmed) return;
-
+        if (!confirm(`⚠️ Are you sure you want to permanently delete ${selectedOrderIds.size} order(s)? This cannot be undone.`)) return;
+        const password = prompt('Enter your admin password to confirm deletion:');
+        if (!password) return;
+        const adminEmail = auth.currentUser?.email;
+        if (!adminEmail) { showToast('Admin email not found', 'error'); return; }
         let successCount = 0, failCount = 0;
+        let stop = false;
         for (const orderId of selectedOrderIds) {
           try {
+            const credential = EmailAuthProvider.credential(adminEmail, password);
+            await reauthenticateWithCredential(auth.currentUser, credential);
             await deleteDoc(doc(db, 'orders', orderId));
             successCount++;
           } catch (err) {
             console.error(`Failed to delete ${orderId}:`, err);
             failCount++;
+            if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+              showToast('⚠️ Incorrect password. Operation stopped.', 'error');
+              stop = true;
+              break;
+            }
           }
         }
-        showToast(`✅ ${successCount} order(s) deleted. Failed: ${failCount}`, failCount ? 'warning' : 'success');
+        showToast(`✅ ${successCount} order(s) deleted. Failed: ${failCount}`, failCount && !stop ? 'warning' : 'success');
         clearOrderSelection();
       };
 
