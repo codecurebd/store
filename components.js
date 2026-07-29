@@ -268,9 +268,14 @@ export function renderNavbar() {
 
         <!-- Right Actions -->
         <div class="flex items-center gap-2 md:gap-3">
-          <!-- 🔒 Cart & Notification: visible only when signed in -->
+          <!-- ===== CART (always visible) ===== -->
+          <button onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cartCount" class="cart-badge" style="display:none;">0</span>
+          </button>
+
+          <!-- ===== NOTIFICATIONS (only visible when signed in) ===== -->
           <div id="authRequiredActions" class="flex items-center gap-2 md:gap-3" style="display:none;">
-            <!-- Notifications -->
             <div class="relative">
               <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" aria-label="Notifications">
                 <i class="fas fa-bell"></i>
@@ -291,12 +296,6 @@ export function renderNavbar() {
                 </div>
               </div>
             </div>
-
-            <!-- Cart -->
-            <button onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
-              <i class="fas fa-shopping-cart"></i>
-              <span id="cartCount" class="cart-badge" style="display:none;">0</span>
-            </button>
           </div>
           
           <!-- Auth Loading -->
@@ -1018,7 +1017,7 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
     
-    // ✅ Show cart & notification icons
+    // ✅ Show notifications only when signed in
     if (authRequiredActions) authRequiredActions.style.display = 'flex';
 
     const isAdmin = (role === 'admin');
@@ -1054,7 +1053,8 @@ export function updateNavbarAuth(user, displayName, role = null) {
     updateNotificationBadge(0);
     updateNotificationList([]);
 
-    // ✅ Hide cart & notification icons
+    // ✅ Hide notifications when signed out
     if (authRequiredActions) authRequiredActions.style.display = 'none';
+    // Cart is now always visible (outside this container)
   }
 }
