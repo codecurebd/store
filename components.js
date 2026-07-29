@@ -247,9 +247,138 @@ window.toggleMobileMenu = function() {
 };
 
 // ================================================================
-// ✅ NAVBAR (Contact লিংক যোগ করা হয়েছে)
+// ✅ CONTACT MODAL (NEW)
+// ================================================================
+function renderContactModal() {
+  if (document.getElementById('contactModal')) return;
+
+  const modalHTML = `
+    <div id="contactModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[500] hidden p-4">
+      <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold text-gray-900">Contact Us</h3>
+          <button onclick="window.closeContactModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors" aria-label="Close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <p class="text-gray-500 text-sm mb-4">Send us a message and we'll respond as soon as possible.</p>
+        <form id="contactModalForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Your Name *</label>
+            <input type="text" id="contactModalName" required class="form-input" placeholder="John Doe" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email Address *</label>
+            <input type="email" id="contactModalEmail" required class="form-input" placeholder="john@example.com" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Message *</label>
+            <textarea id="contactModalMessage" rows="5" required class="form-input" placeholder="Write your message..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary w-full justify-center" id="contactModalSubmitBtn">
+            <i class="fas fa-paper-plane"></i> Send Message
+          </button>
+          <div id="contactModalError" class="text-red-500 text-sm hidden text-center"></div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+  // Add form submit handler
+  const form = document.getElementById('contactModalForm');
+  const submitBtn = document.getElementById('contactModalSubmitBtn');
+  const errorDiv = document.getElementById('contactModalError');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('contactModalName').value.trim();
+    const email = document.getElementById('contactModalEmail').value.trim();
+    const message = document.getElementById('contactModalMessage').value.trim();
+
+    if (!name || !email || !message) {
+      errorDiv.textContent = 'All fields are required.';
+      errorDiv.classList.remove('hidden');
+      return;
+    }
+    errorDiv.classList.add('hidden');
+    setLoading(submitBtn, true, 'Sending...');
+
+    try {
+      await addDoc(collection(db, 'contactMessages'), {
+        name,
+        email,
+        message,
+        timestamp: serverTimestamp(),
+      });
+      window.showToast('✅ Message sent! We\'ll get back to you soon.', 'success');
+      form.reset();
+      window.closeContactModal();
+    } catch (err) {
+      errorDiv.textContent = err.message;
+      errorDiv.classList.remove('hidden');
+      window.showToast('⚠️ Failed to send message. Please try again.', 'error');
+    } finally {
+      setLoading(submitBtn, false);
+    }
+  });
+
+  // Close on overlay click
+  document.getElementById('contactModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) window.closeContactModal();
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') window.closeContactModal();
+  });
+}
+
+window.openContactModal = function() {
+  const modal = document.getElementById('contactModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.getElementById('contactModalName').focus();
+  }
+};
+
+window.closeContactModal = function() {
+  const modal = document.getElementById('contactModal');
+  if (modal) modal.classList.add('hidden');
+};
+
+// ================================================================
+// ✅ HANDLE CONTACT CLICK (Smart: scroll on index, modal elsewhere)
+// ================================================================
+window.handleContactClick = function(e) {
+  e.preventDefault();
+  const isIndexPage = window.location.pathname.endsWith('index.html') || 
+                       window.location.pathname === '/' || 
+                       window.location.pathname.endsWith('/');
+  
+  if (isIndexPage) {
+    // Scroll to contact section on index page
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Fallback: if contact section not found (shouldn't happen), open modal
+      window.openContactModal();
+    }
+  } else {
+    // Open modal on other pages
+    window.openContactModal();
+  }
+};
+
+// ================================================================
+// ✅ NAVBAR (Contact লিংক smart behaviour সহ)
 // ================================================================
 export function renderNavbar() {
+  // First, render the contact modal (once)
+  renderContactModal();
+
   const navbarHTML = `
     <nav class="fixed top-0 left-0 w-full glass z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 shadow-sm border-b border-gray-100/30">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
@@ -264,8 +393,8 @@ export function renderNavbar() {
           <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
           <a href="get-new-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Store</a>
           <a href="fix-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Fix</a>
-          <!-- ✅ New Contact link -->
-          <a href="#contact" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Contact</a>
+          <!-- ✅ Smart Contact link -->
+          <a href="#" onclick="window.handleContactClick(event)" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Contact</a>
         </div>
 
         <!-- Right Actions -->
@@ -337,14 +466,14 @@ export function renderNavbar() {
       </div>
     </nav>
 
-    <!-- Mobile Menu (Contact যোগ করা হয়েছে) -->
+    <!-- Mobile Menu (Contact smart link সহ) -->
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
         <a href="get-new-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Store</a>
         <a href="fix-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Fix</a>
-        <!-- ✅ New Contact link -->
-        <a href="#contact" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Contact</a>
+        <!-- ✅ Smart Contact link -->
+        <a href="#" onclick="window.handleContactClick(event)" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Contact</a>
         <hr class="my-2 border-gray-100" />
         <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
         <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
