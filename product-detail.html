@@ -122,58 +122,223 @@
     .rating-stars .star:hover {
       transform: scale(1.2);
     }
-    .detail-image {
+
+    /* ===== IMAGE CONTAINER WITH ARROWS ===== */
+    .image-container {
+      position: relative;
+      background: #f0f2f5;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .image-container .main-image {
       width: 100%;
       max-height: 400px;
-      object-fit: cover;
-      border-radius: 12px;
+      object-fit: contain;
+      display: block;
+      transition: opacity 0.25s ease;
       background: #f0f2f5;
     }
-    .discount-badge {
-      background: #dc2626;
+    .image-container .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(4px);
       color: #fff;
-      font-weight: 700;
-      font-size: 0.9rem;
-      padding: 4px 16px;
-      border-radius: 60px;
-      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .price-wrapper {
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 1.3rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 6px 10px;
-      margin-top: 0.5rem;
+      justify-content: center;
+      transition: 0.3s;
+      z-index: 5;
+      opacity: 0.7;
     }
-    .original-price {
-      text-decoration: line-through;
-      color: #9ca3af;
+    .image-container .nav-arrow:hover {
+      background: rgba(0,0,0,0.7);
+      opacity: 1;
+      transform: translateY(-50%) scale(1.05);
+    }
+    .image-container .nav-arrow.left {
+      left: 12px;
+    }
+    .image-container .nav-arrow.right {
+      right: 12px;
+    }
+    .image-container .fullscreen-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
       font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
     }
-    .discount-price {
-      color: #16a34a;
-      font-weight: 700;
+    .image-container .fullscreen-btn:hover {
+      background: rgba(0,0,0,0.8);
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    .image-counter {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      padding: 2px 12px;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      z-index: 5;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* ===== FULLSCREEN OVERLAY ===== */
+    .fullscreen-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 1rem;
+    }
+    .fullscreen-overlay.open {
+      display: flex;
+    }
+    .fullscreen-overlay .close-fs {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
       font-size: 2rem;
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+      z-index: 10;
     }
-    .discount-percent-tag {
-      background: rgba(220, 38, 38, 0.10);
-      color: #dc2626;
-      font-weight: 700;
-      font-size: 0.85rem;
-      padding: 2px 14px;
-      border-radius: 40px;
-      border: 1px solid rgba(220, 38, 38, 0.12);
+    .fullscreen-overlay .close-fs:hover {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.05);
     }
-    .review-item {
-      border-bottom: 1px solid #f3f4f6;
-      padding: 12px 0;
+    .fullscreen-overlay .fs-image-container {
+      position: relative;
+      width: 100%;
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .review-item:last-child {
-      border-bottom: none;
+    .fullscreen-overlay .fs-image-container img {
+      max-width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
     }
+    .fullscreen-overlay .fs-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      font-size: 1.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+      z-index: 6;
+    }
+    .fullscreen-overlay .fs-arrow:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-50%) scale(1.05);
+    }
+    .fullscreen-overlay .fs-arrow.left {
+      left: 20px;
+    }
+    .fullscreen-overlay .fs-arrow.right {
+      right: 20px;
+    }
+    .fullscreen-overlay .fs-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+      background: rgba(0,0,0,0.3);
+      padding: 4px 16px;
+      border-radius: 30px;
+      backdrop-filter: blur(4px);
+      z-index: 6;
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .fullscreen-overlay .fs-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+      .fullscreen-overlay .fs-arrow.left { left: 8px; }
+      .fullscreen-overlay .fs-arrow.right { right: 8px; }
+      .fullscreen-overlay .close-fs {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+        top: 12px;
+        right: 12px;
+      }
+      .image-container .main-image {
+        max-height: 300px;
+      }
+      .image-container .nav-arrow {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .image-container .main-image {
+        max-height: 250px;
+      }
+    }
+
+    /* ===== SKELETON ===== */
     .skeleton-img {
       width: 100%;
       height: 300px;
@@ -228,27 +393,59 @@
       pointer-events: auto;
     }
     .scroll-top-btn:hover { transform: scale(1.05); }
-    @media (max-width: 768px) {
-      .detail-image {
-        max-height: 250px;
-      }
-      .discount-price {
-        font-size: 1.6rem;
-      }
-      .rating-stars .star {
-        font-size: 1.6rem;
-      }
+
+    /* ===== REVIEW ITEM ===== */
+    .review-item {
+      border-bottom: 1px solid #f3f4f6;
+      padding: 12px 0;
     }
-    @media (max-width: 480px) {
-      .glass-card {
-        padding: 0.75rem;
-      }
-      .detail-image {
-        max-height: 200px;
-      }
-      .discount-price {
-        font-size: 1.3rem;
-      }
+    .review-item:last-child {
+      border-bottom: none;
+    }
+    .detail-image {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #f0f2f5;
+    }
+    .discount-badge {
+      background: #dc2626;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 4px 16px;
+      border-radius: 60px;
+      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .price-wrapper {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      margin-top: 0.5rem;
+    }
+    .original-price {
+      text-decoration: line-through;
+      color: #9ca3af;
+      font-size: 1.1rem;
+    }
+    .discount-price {
+      color: #16a34a;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .discount-percent-tag {
+      background: rgba(220, 38, 38, 0.10);
+      color: #dc2626;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 2px 14px;
+      border-radius: 40px;
+      border: 1px solid rgba(220, 38, 38, 0.12);
     }
   </style>
 </head>
@@ -257,7 +454,7 @@
     <div id="navbar-placeholder"></div>
     <main class="main-content">
       <section class="pt-28 pb-16 px-6 max-w-4xl mx-auto">
-        <!-- Loading / Error placeholder -->
+        <!-- Product detail container -->
         <div id="productDetailContainer">
           <!-- Skeleton shown initially -->
           <div class="fade-up">
@@ -279,7 +476,18 @@
   <!-- ===== BACK TO TOP ===== -->
   <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
 
-  <!-- ===== AUTH MODAL (shared) ===== -->
+  <!-- ===== FULLSCREEN OVERLAY ===== -->
+  <div class="fullscreen-overlay" id="fullscreenOverlay">
+    <button class="close-fs" id="closeFullscreen" aria-label="Close fullscreen"><i class="fas fa-times"></i></button>
+    <div class="fs-image-container">
+      <button class="fs-arrow left" id="fsPrev"><i class="fas fa-chevron-left"></i></button>
+      <img id="fsImage" src="" alt="Fullscreen view" />
+      <button class="fs-arrow right" id="fsNext"><i class="fas fa-chevron-right"></i></button>
+      <div class="fs-counter" id="fsCounter"></div>
+    </div>
+  </div>
+
+  <!-- ===== AUTH MODAL ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -361,7 +569,7 @@
     });
 
     // ================================================================
-    // AUTH MODAL (same as before)
+    // AUTH MODAL
     // ================================================================
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
@@ -470,7 +678,7 @@
     });
 
     // ================================================================
-    // PRODUCT DETAIL LOGIC
+    // PRODUCT DETAIL LOGIC (with multi‑image support)
     // ================================================================
     const container = document.getElementById('productDetailContainer');
     let currentProductId = null;
@@ -536,6 +744,78 @@
       return s;
     }
 
+    // ===== Image navigation state =====
+    let productImages = [];
+    let currentImageIndex = 0;
+
+    function updateMainImage(index) {
+      const img = document.getElementById('mainProductImage');
+      const counter = document.getElementById('imageCounter');
+      if (!img || !counter) return;
+      if (productImages.length === 0) {
+        img.src = 'https://via.placeholder.com/600x400?text=No+Image';
+        counter.textContent = '0 / 0';
+        return;
+      }
+      if (index < 0) index = productImages.length - 1;
+      if (index >= productImages.length) index = 0;
+      currentImageIndex = index;
+      img.src = productImages[currentImageIndex];
+      counter.textContent = `${currentImageIndex + 1} / ${productImages.length}`;
+    }
+
+    function nextImage() {
+      if (productImages.length === 0) return;
+      updateMainImage(currentImageIndex + 1);
+    }
+
+    function prevImage() {
+      if (productImages.length === 0) return;
+      updateMainImage(currentImageIndex - 1);
+    }
+
+    // ===== Fullscreen =====
+    function openFullscreen() {
+      const overlay = document.getElementById('fullscreenOverlay');
+      const fsImg = document.getElementById('fsImage');
+      const counter = document.getElementById('fsCounter');
+      if (productImages.length === 0) {
+        showToast('No images to view', 'warning');
+        return;
+      }
+      fsImg.src = productImages[currentImageIndex];
+      counter.textContent = `${currentImageIndex + 1} / ${productImages.length}`;
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeFullscreen() {
+      document.getElementById('fullscreenOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function fsNext() {
+      if (productImages.length === 0) return;
+      let newIdx = currentImageIndex + 1;
+      if (newIdx >= productImages.length) newIdx = 0;
+      currentImageIndex = newIdx;
+      document.getElementById('fsImage').src = productImages[currentImageIndex];
+      document.getElementById('fsCounter').textContent = `${currentImageIndex + 1} / ${productImages.length}`;
+      // Also update main image to keep sync
+      updateMainImage(currentImageIndex);
+    }
+
+    function fsPrev() {
+      if (productImages.length === 0) return;
+      let newIdx = currentImageIndex - 1;
+      if (newIdx < 0) newIdx = productImages.length - 1;
+      currentImageIndex = newIdx;
+      document.getElementById('fsImage').src = productImages[currentImageIndex];
+      document.getElementById('fsCounter').textContent = `${currentImageIndex + 1} / ${productImages.length}`;
+      updateMainImage(currentImageIndex);
+    }
+
+    // ===== Load product =====
     async function loadProduct(id) {
       try {
         const docSnap = await getDoc(doc(db, 'products', id));
@@ -551,6 +831,15 @@
           return;
         }
         currentProductData = { id, ...docSnap.data() };
+        // Set images array
+        productImages = currentProductData.images || [];
+        if (productImages.length === 0 && currentProductData.imageUrl) {
+          productImages = [currentProductData.imageUrl];
+        }
+        if (productImages.length === 0) {
+          productImages = ['https://via.placeholder.com/600x400?text=No+Image'];
+        }
+        currentImageIndex = 0;
         renderProductDetail(currentProductData);
         // Load reviews
         loadReviews(id);
@@ -571,7 +860,6 @@
 
     function renderProductDetail(product) {
       const discount = getDiscountForProduct(product);
-      const imageUrl = product.imageUrl || 'https://via.placeholder.com/600x400?text=No+Image';
       const desc = product.desc || product.description || '';
       const rating = product.averageRating || 0;
       const ratingCount = product.ratingCount || 0;
@@ -591,14 +879,20 @@
         priceHtml = `<span class="discount-price" style="font-size:2rem;">$${product.price.toFixed(2)}</span>`;
       }
 
+      // Build image container with navigation
+      const mainImageSrc = productImages[0] || 'https://via.placeholder.com/600x400?text=No+Image';
+      const imageCounterText = `${productImages.length > 0 ? '1' : '0'} / ${productImages.length}`;
+
       container.innerHTML = `
         <div class="fade-up">
           <div class="glass-card" style="padding:0; overflow:hidden;">
-            <div style="position:relative;">
-              <img src="${imageUrl}" alt="${product.name}" class="detail-image" loading="lazy" />
-              <div style="position:absolute; top:16px; right:16px; z-index:5;">
-                ${badgeHtml}
-              </div>
+            <!-- Image container with arrows & fullscreen button -->
+            <div class="image-container">
+              <img id="mainProductImage" src="${mainImageSrc}" alt="${product.name}" class="main-image" loading="lazy" />
+              <button class="nav-arrow left" id="prevImageBtn" aria-label="Previous image"><i class="fas fa-chevron-left"></i></button>
+              <button class="nav-arrow right" id="nextImageBtn" aria-label="Next image"><i class="fas fa-chevron-right"></i></button>
+              <button class="fullscreen-btn" id="fullscreenBtn" aria-label="View fullscreen"><i class="fas fa-expand"></i></button>
+              <div class="image-counter" id="imageCounter">${imageCounterText}</div>
             </div>
             <div style="padding:1.5rem;">
               <h1 class="text-3xl font-bold text-gray-900">${product.name}</h1>
@@ -634,7 +928,34 @@
         </div>
       `;
 
-      // Attach star click events
+      // ---- Attach event listeners for image navigation ----
+      document.getElementById('prevImageBtn').addEventListener('click', prevImage);
+      document.getElementById('nextImageBtn').addEventListener('click', nextImage);
+      document.getElementById('fullscreenBtn').addEventListener('click', openFullscreen);
+
+      // Keyboard arrow keys on main document (when not in fullscreen)
+      document.addEventListener('keydown', (e) => {
+        if (document.getElementById('fullscreenOverlay').classList.contains('open')) return;
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prevImage(); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); nextImage(); }
+      });
+
+      // ---- Fullscreen controls ----
+      document.getElementById('closeFullscreen').addEventListener('click', closeFullscreen);
+      document.getElementById('fsPrev').addEventListener('click', fsPrev);
+      document.getElementById('fsNext').addEventListener('click', fsNext);
+      document.getElementById('fullscreenOverlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeFullscreen();
+      });
+      // Keyboard in fullscreen
+      document.addEventListener('keydown', (e) => {
+        if (!document.getElementById('fullscreenOverlay').classList.contains('open')) return;
+        if (e.key === 'ArrowLeft') { e.preventDefault(); fsPrev(); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); fsNext(); }
+        if (e.key === 'Escape') { closeFullscreen(); }
+      });
+
+      // ---- Star click for rating ----
       document.querySelectorAll('#ratingStars .star').forEach(el => {
         el.addEventListener('click', function() {
           const val = parseInt(this.dataset.val);
@@ -670,7 +991,7 @@
           name: product.name,
           price: price,
           originalPrice: product.price,
-          imageUrl: product.imageUrl || '',
+          imageUrl: productImages[0] || product.imageUrl || '',
           quantity: 1
         });
       }
@@ -762,7 +1083,7 @@
       }
     };
 
-    console.log('📄 Product detail page loaded successfully.');
+    console.log('📄 Product detail page loaded with multi‑image navigation.');
   </script>
 </body>
 </html>
