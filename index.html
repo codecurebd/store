@@ -240,7 +240,6 @@
       transform: translateY(-2px);
     }
 
-    /* ✅ নতুন Details বাটন স্টাইল (View বাটন প্রতিস্থাপন) */
     .btn-details {
       background: rgba(0, 122, 255, 0.06);
       color: #007AFF;
@@ -341,6 +340,25 @@
     }
     .faq-show-more-btn.rotated i {
       transform: rotate(180deg);
+    }
+
+    /* ===== CONTACT FORM ===== */
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid rgba(60,60,67,0.06);
+      border-radius: 14px;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(4px);
+      transition: all 0.25s ease;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+    }
+    .form-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0,122,255,0.06);
+      background: #fff;
     }
   </style>
 </head>
@@ -486,7 +504,7 @@
         </div>
       </section>
 
-      <!-- ===== STATISTICS (UPDATED) ===== -->
+      <!-- ===== STATISTICS ===== -->
       <section id="stats" class="py-16 px-6">
         <div class="max-w-6xl mx-auto">
           <div class="grid md:grid-cols-4 gap-8 text-center">
@@ -520,7 +538,7 @@
         </div>
       </section>
 
-      <!-- ===== FAQ (with Show More – first 5 shown) ===== -->
+      <!-- ===== FAQ (with Show More) ===== -->
       <section id="faq" class="py-16 px-6">
         <div class="max-w-3xl mx-auto">
           <h2 class="text-3xl font-bold text-center fade-up">Frequently Asked Questions</h2>
@@ -533,6 +551,32 @@
               <i class="fas fa-chevron-down" id="faqToggleIcon"></i>
             </button>
           </div>
+        </div>
+      </section>
+
+      <!-- ===== CONTACT FORM (NEW) ===== -->
+      <section id="contact" class="py-16 px-6 bg-gray-50/50">
+        <div class="max-w-3xl mx-auto">
+          <h2 class="text-3xl font-bold text-center fade-up">Contact Us</h2>
+          <p class="text-gray-500 text-center mt-2 fade-up">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+          <form id="contactForm" class="mt-8 space-y-4 glass-card">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Your Name *</label>
+              <input type="text" id="contactName" required class="form-input" placeholder="John Doe" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email Address *</label>
+              <input type="email" id="contactEmail" required class="form-input" placeholder="john@example.com" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Message *</label>
+              <textarea id="contactMessage" rows="5" required class="form-input" placeholder="Write your message..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary w-full justify-center" id="contactSubmitBtn">
+              <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+            <div id="contactError" class="text-red-500 text-sm hidden text-center"></div>
+          </form>
         </div>
       </section>
 
@@ -599,7 +643,7 @@
       auth, db, collection, doc, getDoc, getDocs, onSnapshot, query, where,
       signInWithEmailAndPassword, createUserWithEmailAndPassword, 
       onAuthStateChanged, signOut, setDoc, 
-      signInWithPopup, googleProvider 
+      signInWithPopup, googleProvider, serverTimestamp, addDoc
     } from './firebase-config.js';
     import { 
       renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
@@ -674,41 +718,41 @@
       input.type = input.type === 'password' ? 'text' : 'password';
     };
 
-        window.socialLogin = async (provider) => {
-          if (provider !== 'google') {
-            showToast('Only Google sign-in is supported', 'warning');
-            return;
-          }
-          try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (!userDoc.exists()) {
-              await setDoc(doc(db, 'users', user.uid), {
-                email: user.email || '',
-                displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
-                photoURL: user.photoURL || '',
-                role: 'user',
-                createdAt: new Date().toISOString(),
-                isActive: true,
-                emailVerified: !!user.emailVerified,
-              });
-            }
-            showToast('✅ Signed in with Google', 'success');
-            if (typeof closeAuthModal === 'function') closeAuthModal();
-            else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
-          } catch (error) {
-            console.error('Google sign-in error:', error);
-            let msg = error.message || 'Sign-in failed';
-            if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-            else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
-            else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
-            else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
-            showToast('⚠️ ' + msg, 'error');
-            const errEl = document.getElementById('authError');
-            if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
-          }
-        };
+    window.socialLogin = async (provider) => {
+      if (provider !== 'google') {
+        showToast('Only Google sign-in is supported', 'warning');
+        return;
+      }
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, 'users', user.uid), {
+            email: user.email || '',
+            displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+            photoURL: user.photoURL || '',
+            role: 'user',
+            createdAt: new Date().toISOString(),
+            isActive: true,
+            emailVerified: !!user.emailVerified,
+          });
+        }
+        showToast('✅ Signed in with Google', 'success');
+        if (typeof closeAuthModal === 'function') closeAuthModal();
+        else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+      } catch (error) {
+        console.error('Google sign-in error:', error);
+        let msg = error.message || 'Sign-in failed';
+        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
+        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
+        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
+        showToast('⚠️ ' + msg, 'error');
+        const errEl = document.getElementById('authError');
+        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+      }
+    };
 
     const authForm = document.getElementById('authForm');
     const authSubmitBtn = authForm.querySelector('button[type="submit"]');
@@ -745,7 +789,6 @@
     onAuthStateChanged(auth, async (user) => {
       let name = null;
       if (user) {
-        // ✅ কার্ট সিঙ্ক (Firestore থেকে)
         await syncCart(user.uid);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
@@ -759,11 +802,10 @@
     };
 
     // ================================================================
-    // ✅ ফিচার্ড প্রোডাক্ট – সর্বোচ্চ ৬টি (স্কেলটন সহ)
+    // ✅ ফিচার্ড প্রোডাক্ট
     // ================================================================
     const packagesContainer = document.getElementById('featuredPackages');
 
-    // Show skeleton initially
     function renderSkeletons(count = 6) {
       let html = '';
       for (let i = 0; i < count; i++) {
@@ -785,20 +827,17 @@
 
     async function loadFeaturedProducts() {
       try {
-        // 1. featured=true থাকা প্রোডাক্ট আনা
         const qFeatured = query(collection(db, 'products'), where('featured', '==', true));
         const snapFeatured = await getDocs(qFeatured);
         let products = [];
         snapFeatured.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
 
-        // 2. যদি কোনো featured না থাকে, সব প্রোডাক্ট আনা
         if (products.length === 0) {
           const qAll = query(collection(db, 'products'));
           const snapAll = await getDocs(qAll);
           snapAll.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
         }
 
-        // 3. সর্বোচ্চ ৬টি
         products = products.slice(0, 6);
 
         if (products.length === 0) {
@@ -814,10 +853,8 @@
               <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
               <div class="card-body">
                 <h3 class="font-bold text-lg text-gray-900">${p.name}</h3>
-                <!-- ✅ Description এক লাইনে -->
                 <p class="text-sm text-gray-500 product-desc">${p.desc || p.description || ''}</p>
                 <span class="block mt-2 font-bold text-gray-800">$${p.price}</span>
-                <!-- ✅ View বাটন এখন product-detail.html-এ রিডাইরেক্ট করে এবং স্টাইল btn-details -->
                 <a href="product-detail.html?id=${p.id}" class="btn-details text-sm py-2 px-4 mt-3 inline-block">
                   <i class="fas fa-eye"></i> View
                 </a>
@@ -836,7 +873,7 @@
     loadFeaturedProducts();
 
     // ================================================================
-    // ✅ টেস্টিমোনিয়াল (রিয়েল-টাইম না, getDocs ব্যবহার করেছি)
+    // ✅ টেস্টিমোনিয়াল
     // ================================================================
     const testimonialContainer = document.getElementById('testimonialList');
 
@@ -868,7 +905,7 @@
     loadTestimonials();
 
     // ================================================================
-    // ✅ FAQ (First 5 visible, Show More for rest)
+    // ✅ FAQ
     // ================================================================
     const faqContainer = document.getElementById('faqList');
     const toggleBtn = document.getElementById('faqToggleBtn');
@@ -928,7 +965,6 @@
       faqContainer.innerHTML = html;
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-      // Toggle button state
       if (total > initialLimit) {
         toggleBtn.style.display = 'inline-flex';
         if (showAll) {
@@ -942,7 +978,6 @@
         toggleBtn.style.display = 'none';
       }
 
-      // Define toggleFaq globally
       window.toggleFaq = function(index) {
         const answer = document.getElementById(`faqAnswer${index}`);
         const icon = document.getElementById(`faqIcon${index}`);
@@ -953,13 +988,51 @@
       };
     }
 
-    // Toggle show/hide
     toggleBtn.addEventListener('click', () => {
       showAll = !showAll;
       renderFaqs(showAll);
     });
 
     loadFaqs();
+
+    // ================================================================
+    // ✅ CONTACT FORM (NEW)
+    // ================================================================
+    const contactForm = document.getElementById('contactForm');
+    const contactSubmitBtn = document.getElementById('contactSubmitBtn');
+    const contactError = document.getElementById('contactError');
+
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('contactName').value.trim();
+      const email = document.getElementById('contactEmail').value.trim();
+      const message = document.getElementById('contactMessage').value.trim();
+
+      if (!name || !email || !message) {
+        contactError.textContent = 'All fields are required.';
+        contactError.classList.remove('hidden');
+        return;
+      }
+      contactError.classList.add('hidden');
+      setLoading(contactSubmitBtn, true, 'Sending...');
+
+      try {
+        await addDoc(collection(db, 'contactMessages'), {
+          name,
+          email,
+          message,
+          timestamp: serverTimestamp(),
+        });
+        showToast('✅ Message sent! We\'ll get back to you soon.', 'success');
+        contactForm.reset();
+      } catch (err) {
+        contactError.textContent = err.message;
+        contactError.classList.remove('hidden');
+        showToast('⚠️ Failed to send message. Please try again.', 'error');
+      } finally {
+        setLoading(contactSubmitBtn, false);
+      }
+    });
 
     console.log('🏠 Landing page loaded successfully!');
   </script>
