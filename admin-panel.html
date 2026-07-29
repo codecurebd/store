@@ -1592,6 +1592,64 @@
                 width: 260px;
             }
         }
+
+        /* ===== MULTI-IMAGE UPLOAD STYLES ===== */
+        .image-thumbnail-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .image-thumbnail-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            flex-shrink: 0;
+        }
+        .image-thumbnail-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-thumbnail-item .remove-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .image-thumbnail-item .remove-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .upload-btn-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -1977,7 +2035,7 @@
         </div><!-- /main-content-inner -->
     </div><!-- /main -->
 
-    <!-- ===== PRODUCT MODAL ===== -->
+    <!-- ===== PRODUCT MODAL (UPDATED: Multi‑image) ===== -->
     <div class="modal-overlay" id="productModal">
         <div class="modal-box">
             <div class="modal-header"><h3 id="productModalTitle">Add Product</h3><button class="modal-close" onclick="closeProductModal()">&times;</button></div>
@@ -1991,13 +2049,23 @@
                     <option value="dynamic">Dynamic</option>
                     <option value="ecommerce">E-Commerce</option>
                 </select>
+
+                <!-- ===== MULTI-IMAGE UPLOAD SECTION ===== -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Image</label>
-                    <img id="prodImagePreview" class="hidden w-full h-40 object-cover rounded-xl mb-2 border border-gray-200" alt="Preview" />
-                    <input type="file" id="prodImageFile" accept="image/*" class="form-input mb-2" onchange="window.handleProductImageUpload(event)" />
-                    <input type="text" id="prodImage" placeholder="Or paste image URL manually" class="form-input" />
-                    <p class="text-xs text-gray-400 mt-1.5"><i class="fas fa-cloud-upload-alt"></i> Select an image to upload automatically to Cloudinary.</p>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Images (max 5)</label>
+                    <div class="upload-btn-wrapper">
+                        <button type="button" class="btn-primary btn-sm" id="addImageBtn">
+                            <i class="fas fa-plus"></i> Add Image
+                        </button>
+                        <input type="file" id="prodImageFile" accept="image/*" />
+                    </div>
+                    <div id="imageThumbnailList" class="image-thumbnail-list"></div>
+                    <p class="text-xs text-gray-400 mt-2">
+                        <i class="fas fa-cloud-upload-alt"></i> Click "Add Image" and select a file. Uploads automatically to Cloudinary.
+                    </p>
+                    <input type="hidden" id="productImagesData" value="" />
                 </div>
+
                 <div class="flex items-center gap-2 mt-2">
                     <input type="checkbox" id="prodFeatured" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                     <label for="prodFeatured" class="text-sm font-medium text-gray-700">Show on Landing Page (Featured)</label>
@@ -2182,8 +2250,7 @@
                     confirmCancelBtn.removeEventListener('click', onCancel);
                 };
                 const origResolve = confirmResolve;
-                confirmResolve = (result) => { cleanup();
-                    origResolve(result); };
+                confirmResolve = (result) => { cleanup(); origResolve(result); };
             });
         }
 
@@ -2413,9 +2480,12 @@
                     const p = doc.data();
                     const featuredBadge = p.featured ?
                         '<span class="featured-badge ml-1"><i class="fas fa-star"></i> Featured</span>' : '';
+                    // Use first image from array or fallback imageUrl
+                    const images = p.images || [];
+                    const mainImage = images.length > 0 ? images[0] : (p.imageUrl || 'https://via.placeholder.com/300x140?text=No+Image');
                     html += `
                         <div class="glass-card product-card" style="padding:0;overflow:hidden;">
-                            <img src="${p.imageUrl || 'https://via.placeholder.com/300x140?text=No+Image'}" alt="${p.name}" loading="lazy" />
+                            <img src="${mainImage}" alt="${p.name}" loading="lazy" />
                             <div class="p-3">
                                 <div class="flex items-center justify-between">
                                     <h3 class="font-bold text-sm">${p.name}</h3>
@@ -2433,6 +2503,73 @@
                 productList.innerHTML = html;
             }
 
+            // ===== MULTI‑IMAGE STATE =====
+            let productImages = []; // array of image URLs
+
+            function renderImageThumbnails() {
+                const container = document.getElementById('imageThumbnailList');
+                const hiddenInput = document.getElementById('productImagesData');
+                if (!container) return;
+                if (productImages.length === 0) {
+                    container.innerHTML = '<span class="text-gray-400 text-sm">No images uploaded yet.</span>';
+                    hiddenInput.value = '';
+                    return;
+                }
+                let html = '';
+                productImages.forEach((url, index) => {
+                    html += `
+                        <div class="image-thumbnail-item">
+                            <img src="${url}" alt="Product image ${index+1}" loading="lazy" />
+                            <button type="button" class="remove-btn" onclick="removeProductImage(${index})" title="Remove image">&times;</button>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+                hiddenInput.value = JSON.stringify(productImages);
+                // Update add button disabled state (max 5)
+                document.getElementById('addImageBtn').disabled = productImages.length >= 5;
+            }
+
+            window.addProductImage = function(url) {
+                if (productImages.length >= 5) {
+                    showToast('Maximum 5 images allowed.', 'warning');
+                    return;
+                }
+                productImages.push(url);
+                renderImageThumbnails();
+                showToast('✅ Image added', 'success');
+            };
+
+            window.removeProductImage = function(index) {
+                productImages.splice(index, 1);
+                renderImageThumbnails();
+            };
+
+            // Handle file upload
+            const fileInput = document.getElementById('prodImageFile');
+            const addBtn = document.getElementById('addImageBtn');
+            addBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (productImages.length >= 5) {
+                    showToast('Maximum 5 images already added.', 'warning');
+                    fileInput.value = '';
+                    return;
+                }
+                addBtn.disabled = true;
+                try {
+                    const url = await uploadImage(file);
+                    window.addProductImage(url);
+                } catch (err) {
+                    showToast('⚠️ Upload failed: ' + err.message, 'error');
+                    console.error(err);
+                } finally {
+                    addBtn.disabled = false;
+                    fileInput.value = '';
+                }
+            });
+
             window.editProduct = async (id) => {
                 const docSnap = await getDoc(doc(db, 'products', id));
                 if (docSnap.exists()) {
@@ -2442,12 +2579,17 @@
                     document.getElementById('prodDesc').value = data.desc || '';
                     document.getElementById('prodPrice').value = data.price;
                     document.getElementById('prodCategory').value = data.category || 'static';
-                    document.getElementById('prodImage').value = data.imageUrl || '';
                     document.getElementById('prodFeatured').checked = data.featured || false;
                     document.getElementById('productModalTitle').innerText = 'Edit Product';
-                    const preview = document.getElementById('prodImagePreview');
-                    if (data.imageUrl) { preview.src = data.imageUrl;
-                        preview.classList.remove('hidden'); } else { preview.classList.add('hidden'); }
+
+                    // Load images
+                    productImages = data.images || [];
+                    if (productImages.length === 0 && data.imageUrl) {
+                        // fallback to single imageUrl
+                        productImages = [data.imageUrl];
+                    }
+                    renderImageThumbnails();
+
                     document.getElementById('productModal').classList.add('open');
                 }
             };
@@ -2458,35 +2600,17 @@
                 document.getElementById('prodId').value = '';
                 document.getElementById('productForm').reset();
                 document.getElementById('prodFeatured').checked = false;
-                document.getElementById('prodImagePreview').classList.add('hidden');
                 document.getElementById('prodCategory').value = 'static';
+                productImages = [];
+                renderImageThumbnails();
             };
 
             window.closeProductModal = () => {
                 document.getElementById('productModal').classList.remove('open');
             };
 
-            window.handleProductImageUpload = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const input = document.getElementById('prodImage');
-                const preview = document.getElementById('prodImagePreview');
-                const btn = e.target;
-                btn.disabled = true;
-                try {
-                    const url = await uploadImage(file);
-                    input.value = url;
-                    preview.src = url;
-                    preview.classList.remove('hidden');
-                    showToast('✅ Image uploaded successfully!', 'success');
-                } catch (err) {
-                    showToast('⚠️ Upload failed: ' + err.message, 'error');
-                    console.error(err);
-                } finally {
-                    btn.disabled = false;
-                    btn.value = '';
-                }
-            };
+            // Remove old single image handlers (keep the upload logic via new file input)
+            // We no longer need the old preview and manual URL input; we keep the file upload.
 
             window.deleteProduct = async (id) => {
                 const snap = await getDoc(doc(db, 'products', id));
@@ -2518,13 +2642,23 @@
                 const desc = document.getElementById('prodDesc').value.trim();
                 const price = parseFloat(document.getElementById('prodPrice').value);
                 const category = document.getElementById('prodCategory').value;
-                const imageUrl = document.getElementById('prodImage').value.trim();
                 const featured = document.getElementById('prodFeatured').checked;
                 const id = document.getElementById('prodId').value;
+
                 if (!name || !price) { showToast('Name and price required.', 'error'); return; }
+                if (productImages.length === 0) { showToast('Please add at least one image.', 'warning'); return; }
+
                 setLoading(productSubmitBtn, true, 'Save');
                 try {
-                    const data = { name, desc, price, category, imageUrl, featured };
+                    const data = {
+                        name,
+                        desc,
+                        price,
+                        category,
+                        images: productImages,
+                        featured,
+                        imageUrl: productImages[0] || '' // keep first as fallback
+                    };
                     if (id) await updateDoc(doc(db, 'products', id), data);
                     else await addDoc(collection(db, 'products'), data);
                     closeProductModal();
@@ -2533,7 +2667,7 @@
             });
 
             // ==============================================================
-            // USERS
+            // USERS (unchanged)
             // ==============================================================
             let currentUserPage = 1;
             let perPage = 20;
