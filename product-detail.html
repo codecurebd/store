@@ -145,329 +145,19 @@
       transform: scale(1.2);
     }
 
-    /* ===== IMAGE CONTAINER WITH ARROWS ===== */
-    .image-container {
-      position: relative;
-      background: #f0f2f5;
+    /* ===== PREVIEW IFRAME ===== */
+    .preview-iframe {
+      width: 100%;
+      height: 400px;
+      border: none;
       border-radius: 12px;
-      overflow: hidden;
-    }
-    .image-container .main-image {
-      width: 100%;
-      max-height: 400px;
-      object-fit: contain;
-      display: block;
-      transition: opacity 0.25s ease;
       background: #f0f2f5;
-    }
-    .image-container .nav-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0,0,0,0.45);
-      backdrop-filter: blur(4px);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      font-size: 1.3rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: 0.3s;
-      z-index: 5;
-      opacity: 0.7;
-    }
-    .image-container .nav-arrow:hover {
-      background: rgba(0,0,0,0.7);
-      opacity: 1;
-      transform: translateY(-50%) scale(1.05);
-    }
-    .image-container .nav-arrow.left {
-      left: 12px;
-    }
-    .image-container .nav-arrow.right {
-      right: 12px;
-    }
-    .image-container .fullscreen-btn {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(4px);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: 0.3s;
-      z-index: 5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0.7;
-    }
-    .image-container .fullscreen-btn:hover {
-      background: rgba(0,0,0,0.8);
-      opacity: 1;
-      transform: scale(1.05);
-    }
-    .image-counter {
-      position: absolute;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(4px);
-      color: #fff;
-      padding: 2px 12px;
-      border-radius: 30px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      z-index: 5;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-
-    /* ===== FULLSCREEN OVERLAY (image) ===== */
-    .fullscreen-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.92);
-      backdrop-filter: blur(12px);
-      z-index: 9999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      padding: 1rem;
-    }
-    .fullscreen-overlay.open {
-      display: flex;
-    }
-    .fullscreen-overlay .close-fs {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(255,255,255,0.15);
-      border: none;
-      color: #fff;
-      font-size: 2rem;
-      cursor: pointer;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: 0.3s;
-      z-index: 10;
-    }
-    .fullscreen-overlay .close-fs:hover {
-      background: rgba(255,255,255,0.25);
-      transform: scale(1.05);
-    }
-    .fullscreen-overlay .fs-image-container {
-      position: relative;
-      width: 100%;
-      max-width: 90vw;
-      max-height: 85vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .fullscreen-overlay .fs-image-container img {
-      max-width: 100%;
-      max-height: 85vh;
-      object-fit: contain;
-      border-radius: 8px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
-    }
-    .fullscreen-overlay .fs-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(4px);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 56px;
-      height: 56px;
-      font-size: 1.8rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: 0.3s;
-      z-index: 6;
-    }
-    .fullscreen-overlay .fs-arrow:hover {
-      background: rgba(255,255,255,0.25);
-      transform: translateY(-50%) scale(1.05);
-    }
-    .fullscreen-overlay .fs-arrow.left {
-      left: 20px;
-    }
-    .fullscreen-overlay .fs-arrow.right {
-      right: 20px;
-    }
-    .fullscreen-overlay .fs-counter {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: rgba(255,255,255,0.7);
-      font-size: 0.9rem;
-      background: rgba(0,0,0,0.3);
-      padding: 4px 16px;
-      border-radius: 30px;
-      backdrop-filter: blur(4px);
-      z-index: 6;
-      pointer-events: none;
     }
     @media (max-width: 768px) {
-      .fullscreen-overlay .fs-arrow {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-      }
-      .fullscreen-overlay .fs-arrow.left { left: 8px; }
-      .fullscreen-overlay .fs-arrow.right { right: 8px; }
-      .fullscreen-overlay .close-fs {
-        width: 40px;
-        height: 40px;
-        font-size: 1.5rem;
-        top: 12px;
-        right: 12px;
-      }
-      .image-container .main-image {
-        max-height: 300px;
-      }
-      .image-container .nav-arrow {
-        width: 36px;
-        height: 36px;
-        font-size: 1rem;
-      }
+      .preview-iframe { height: 300px; }
     }
     @media (max-width: 480px) {
-      .image-container .main-image {
-        max-height: 250px;
-      }
-    }
-
-    /* ===== SKELETON ===== */
-    .skeleton-img {
-      width: 100%;
-      height: 300px;
-      background: #e5e7eb;
-      border-radius: 12px;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    .skeleton-line {
-      height: 16px;
-      background: #e5e7eb;
-      border-radius: 8px;
-      margin-bottom: 0.75rem;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    .skeleton-line.short { width: 40%; }
-    .skeleton-line.medium { width: 70%; }
-    @keyframes pulse {
-      0%,100% { opacity:1; }
-      50% { opacity:0.5; }
-    }
-    .fade-up {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .scroll-top-btn {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #007AFF, #5856D6);
-      color: #fff;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 8px 30px rgba(0,122,255,0.35);
-      z-index: 999;
-      opacity: 0;
-      transform: scale(0.8);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      pointer-events: none;
-    }
-    .scroll-top-btn.show {
-      opacity: 1;
-      transform: scale(1);
-      pointer-events: auto;
-    }
-    .scroll-top-btn:hover { transform: scale(1.05); }
-
-    /* ===== REVIEW ITEM ===== */
-    .review-item {
-      border-bottom: 1px solid #f3f4f6;
-      padding: 12px 0;
-    }
-    .review-item:last-child {
-      border-bottom: none;
-    }
-    .detail-image {
-      width: 100%;
-      max-height: 400px;
-      object-fit: cover;
-      border-radius: 12px;
-      background: #f0f2f5;
-    }
-    .discount-badge {
-      background: #dc2626;
-      color: #fff;
-      font-weight: 700;
-      font-size: 0.9rem;
-      padding: 4px 16px;
-      border-radius: 60px;
-      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .price-wrapper {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px 10px;
-      margin-top: 0.5rem;
-    }
-    .original-price {
-      text-decoration: line-through;
-      color: #9ca3af;
-      font-size: 1.1rem;
-    }
-    .discount-price {
-      color: #16a34a;
-      font-weight: 700;
-      font-size: 2rem;
-    }
-    .discount-percent-tag {
-      background: rgba(220, 38, 38, 0.10);
-      color: #dc2626;
-      font-weight: 700;
-      font-size: 0.85rem;
-      padding: 2px 14px;
-      border-radius: 40px;
-      border: 1px solid rgba(220, 38, 38, 0.12);
+      .preview-iframe { height: 240px; }
     }
 
     /* ===== TRY NOW OVERLAY ===== */
@@ -621,6 +311,115 @@
     @media (max-width: 480px) {
       .trynow-overlay .bottom-bar button { padding: 4px 10px; font-size: 0.65rem; min-height: 28px; gap: 3px; }
     }
+
+    /* ===== SKELETON ===== */
+    .skeleton-img {
+      width: 100%;
+      height: 300px;
+      background: #e5e7eb;
+      border-radius: 12px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .skeleton-line {
+      height: 16px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .skeleton-line.short { width: 40%; }
+    .skeleton-line.medium { width: 70%; }
+    @keyframes pulse {
+      0%,100% { opacity:1; }
+      50% { opacity:0.5; }
+    }
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(0,122,255,0.35);
+      z-index: 999;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .scroll-top-btn.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    .scroll-top-btn:hover { transform: scale(1.05); }
+
+    /* ===== REVIEW ITEM ===== */
+    .review-item {
+      border-bottom: 1px solid #f3f4f6;
+      padding: 12px 0;
+    }
+    .review-item:last-child {
+      border-bottom: none;
+    }
+    .discount-badge {
+      background: #dc2626;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 4px 16px;
+      border-radius: 60px;
+      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .price-wrapper {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      margin-top: 0.5rem;
+    }
+    .original-price {
+      text-decoration: line-through;
+      color: #9ca3af;
+      font-size: 1.1rem;
+    }
+    .discount-price {
+      color: #16a34a;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .discount-percent-tag {
+      background: rgba(220, 38, 38, 0.10);
+      color: #dc2626;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 2px 14px;
+      border-radius: 40px;
+      border: 1px solid rgba(220, 38, 38, 0.12);
+    }
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -648,17 +447,6 @@
 
   <!-- ===== BACK TO TOP ===== -->
   <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
-
-  <!-- ===== FULLSCREEN OVERLAY (image) ===== -->
-  <div class="fullscreen-overlay" id="fullscreenOverlay">
-    <button class="close-fs" id="closeFullscreen" aria-label="Close fullscreen"><i class="fas fa-times"></i></button>
-    <div class="fs-image-container">
-      <button class="fs-arrow left" id="fsPrev"><i class="fas fa-chevron-left"></i></button>
-      <img id="fsImage" src="" alt="Fullscreen view" />
-      <button class="fs-arrow right" id="fsNext"><i class="fas fa-chevron-right"></i></button>
-      <div class="fs-counter" id="fsCounter"></div>
-    </div>
-  </div>
 
   <!-- ===== AUTH MODAL ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
@@ -692,13 +480,11 @@
   <div class="trynow-overlay" id="trynowOverlay">
     <div class="overlay-inner">
       <button class="close-overlay" onclick="closeTryNow()" aria-label="Close">&times;</button>
-      <!-- Demo content area -->
       <div class="demo-content" id="demoContent">
         <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#94a3b8; font-size:1.2rem;">
           <i class="fas fa-spinner fa-spin mr-2"></i> Loading demo...
         </div>
       </div>
-      <!-- Bottom bar -->
       <div class="bottom-bar">
         <button class="btn-buy" onclick="window.handleTryNowBuy()"><i class="fas fa-bolt"></i> Buy Now</button>
         <button class="btn-cart" onclick="window.handleTryNowCart()"><i class="fas fa-cart-plus"></i> Add to Cart</button>
@@ -713,7 +499,7 @@
     // ================================================================
     import {
       renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
-      renderCartSidebar, setLoading, renderPaymentModal, uploadImage
+      renderCartSidebar, setLoading, renderPaymentModal
     } from './components.js';
     import {
       auth, db, collection, doc, getDoc, getDocs, addDoc, updateDoc,
@@ -875,27 +661,9 @@
     let currentProductId = null;
     let currentProductData = null;
     let allDiscounts = [];
-    let productDemos = {};
 
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
-
-    // Listen to demos
-    onSnapshot(collection(db, 'productDemos'), (snapshot) => {
-      productDemos = {};
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.productId) {
-          productDemos[data.productId] = { id: doc.id, ...data };
-        }
-      });
-      console.log('✅ Demos loaded:', productDemos);
-      if (currentProductData) {
-        renderProductDetail(currentProductData);
-      }
-    }, (error) => {
-      console.warn('Error loading demos:', error);
-    });
 
     if (!productId) {
       container.innerHTML = `
@@ -948,74 +716,6 @@
       return s;
     }
 
-    let productImages = [];
-    let currentImageIndex = 0;
-
-    function updateMainImage(index) {
-      const img = document.getElementById('mainProductImage');
-      const counter = document.getElementById('imageCounter');
-      if (!img || !counter) return;
-      if (productImages.length === 0) {
-        img.src = 'https://via.placeholder.com/600x400?text=No+Image';
-        counter.textContent = '0 / 0';
-        return;
-      }
-      if (index < 0) index = productImages.length - 1;
-      if (index >= productImages.length) index = 0;
-      currentImageIndex = index;
-      img.src = productImages[currentImageIndex];
-      counter.textContent = `${currentImageIndex + 1} / ${productImages.length}`;
-    }
-
-    function nextImage() {
-      if (productImages.length === 0) return;
-      updateMainImage(currentImageIndex + 1);
-    }
-
-    function prevImage() {
-      if (productImages.length === 0) return;
-      updateMainImage(currentImageIndex - 1);
-    }
-
-    function openFullscreen() {
-      const overlay = document.getElementById('fullscreenOverlay');
-      const fsImg = document.getElementById('fsImage');
-      const counter = document.getElementById('fsCounter');
-      if (productImages.length === 0) {
-        showToast('No images to view', 'warning');
-        return;
-      }
-      fsImg.src = productImages[currentImageIndex];
-      counter.textContent = `${currentImageIndex + 1} / ${productImages.length}`;
-      overlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeFullscreen() {
-      document.getElementById('fullscreenOverlay').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function fsNext() {
-      if (productImages.length === 0) return;
-      let newIdx = currentImageIndex + 1;
-      if (newIdx >= productImages.length) newIdx = 0;
-      currentImageIndex = newIdx;
-      document.getElementById('fsImage').src = productImages[currentImageIndex];
-      document.getElementById('fsCounter').textContent = `${currentImageIndex + 1} / ${productImages.length}`;
-      updateMainImage(currentImageIndex);
-    }
-
-    function fsPrev() {
-      if (productImages.length === 0) return;
-      let newIdx = currentImageIndex - 1;
-      if (newIdx < 0) newIdx = productImages.length - 1;
-      currentImageIndex = newIdx;
-      document.getElementById('fsImage').src = productImages[currentImageIndex];
-      document.getElementById('fsCounter').textContent = `${currentImageIndex + 1} / ${productImages.length}`;
-      updateMainImage(currentImageIndex);
-    }
-
     async function loadProduct(id) {
       try {
         const docSnap = await getDoc(doc(db, 'products', id));
@@ -1031,14 +731,6 @@
           return;
         }
         currentProductData = { id, ...docSnap.data() };
-        productImages = currentProductData.images || [];
-        if (productImages.length === 0 && currentProductData.imageUrl) {
-          productImages = [currentProductData.imageUrl];
-        }
-        if (productImages.length === 0) {
-          productImages = ['https://via.placeholder.com/600x400?text=No+Image'];
-        }
-        currentImageIndex = 0;
         renderProductDetail(currentProductData);
         loadReviews(id);
         document.title = `${currentProductData.name} – CodeCureBD`;
@@ -1059,22 +751,15 @@
     function openTryNow() {
       const overlay = document.getElementById('trynowOverlay');
       const content = document.getElementById('demoContent');
-      
-      const demo = productDemos[currentProductId];
-      console.log('🔍 Trying to open demo for product:', currentProductId, 'Demo found:', !!demo);
-      
-      if (!demo || !demo.htmlContent) {
+      const htmlContent = currentProductData?.htmlContent;
+      if (!htmlContent) {
         showToast('No demo available for this product.', 'warning');
-        console.warn('No demo content for product:', currentProductId);
         return;
       }
-
-      const escapedHtml = demo.htmlContent.replace(/"/g, '&quot;');
-      content.innerHTML = `<iframe id="demoIframe" style="width:100%; height:100%; border:none;" srcdoc="${escapedHtml}"></iframe>`;
-      
+      const escaped = htmlContent.replace(/"/g, '&quot;');
+      content.innerHTML = `<iframe id="demoIframe" style="width:100%; height:100%; border:none;" srcdoc="${escaped}"></iframe>`;
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
-      console.log('✅ Try Now overlay opened.');
     }
 
     function closeTryNow() {
@@ -1082,14 +767,12 @@
       document.body.style.overflow = '';
       const content = document.getElementById('demoContent');
       content.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#94a3b8; font-size:1.2rem;"><i class="fas fa-spinner fa-spin mr-2"></i> Loading demo...</div>`;
-      console.log('❌ Try Now overlay closed.');
     }
 
     // ===== HANDLE BUY NOW & ADD TO CART FROM OVERLAY =====
     async function handleTryNowBuy() {
       await window.addToCart();
       closeTryNow();
-      // After closing, trigger checkout
       setTimeout(() => {
         if (typeof window.checkout === 'function') window.checkout();
         else window.location.href = 'get-new-website.html?checkout=1';
@@ -1099,7 +782,6 @@
     async function handleTryNowCart() {
       await window.addToCart();
       closeTryNow();
-      // Show cart sidebar after closing
       setTimeout(() => {
         if (typeof window.toggleCart === 'function') window.toggleCart();
       }, 300);
@@ -1138,22 +820,20 @@
         priceHtml = `<span class="discount-price" style="font-size:2rem;">$${product.price.toFixed(2)}</span>`;
       }
 
-      const demo = productDemos[product.id] || null;
-      const hasDemo = !!demo && !!demo.htmlContent;
-
-      const mainImageSrc = productImages[0] || 'https://via.placeholder.com/600x400?text=No+Image';
-      const imageCounterText = `${productImages.length > 0 ? '1' : '0'} / ${productImages.length}`;
+      const hasHtml = product.htmlContent && product.htmlContent.length > 0;
+      // For preview, we show an iframe with the HTML content (if available) or a placeholder
+      let previewHtml = '';
+      if (hasHtml) {
+        const escaped = product.htmlContent.replace(/"/g, '&quot;');
+        previewHtml = `<iframe class="preview-iframe" srcdoc="${escaped}" loading="lazy" style="width:100%; height:400px; border:none; border-radius:12px; background:#f0f2f5;"></iframe>`;
+      } else {
+        previewHtml = `<div style="width:100%; height:400px; border-radius:12px; background:#f0f2f5; display:flex; align-items:center; justify-content:center; color:#9ca3af; flex-direction:column; gap:10px;"><i class="fas fa-file-code" style="font-size:3rem; opacity:0.3;"></i><span>No HTML demo available</span></div>`;
+      }
 
       container.innerHTML = `
         <div class="fade-up">
           <div class="glass-card" style="padding:0; overflow:hidden;">
-            <div class="image-container">
-              <img id="mainProductImage" src="${mainImageSrc}" alt="${product.name}" class="main-image" loading="lazy" />
-              <button class="nav-arrow left" id="prevImageBtn" aria-label="Previous image"><i class="fas fa-chevron-left"></i></button>
-              <button class="nav-arrow right" id="nextImageBtn" aria-label="Next image"><i class="fas fa-chevron-right"></i></button>
-              <button class="fullscreen-btn" id="fullscreenBtn" aria-label="View fullscreen"><i class="fas fa-expand"></i></button>
-              <div class="image-counter" id="imageCounter">${imageCounterText}</div>
-            </div>
+            ${previewHtml}
             <div style="padding:1.5rem;">
               <h1 class="text-3xl font-bold text-gray-900">${product.name}</h1>
               <div class="mt-1 text-yellow-500 text-lg">
@@ -1161,10 +841,10 @@
               </div>
               <div class="price-wrapper">${priceHtml}</div>
               <div class="mt-4 text-gray-700 whitespace-pre-wrap">${desc.replace(/\n/g, '<br>')}</div>
-              <div class="mt-6 flex flex-wrap gap-3">
+              <div class="action-buttons">
                 <button onclick="window.addToCart()" class="btn-primary"><i class="fas fa-cart-plus"></i> Add to Cart</button>
                 <button onclick="window.buyNow()" class="btn-primary" style="background:linear-gradient(135deg,#34C759,#28A745);"><i class="fas fa-bolt"></i> Buy Now</button>
-                ${hasDemo ? `<button onclick="window.openTryNow()" class="btn-try-now"><i class="fas fa-play-circle"></i> Try Now</button>` : ''}
+                ${hasHtml ? `<button onclick="window.openTryNow()" class="btn-try-now"><i class="fas fa-play-circle"></i> Try Now</button>` : ''}
                 <a href="get-new-website.html" class="btn-outline"><i class="fas fa-arrow-left"></i> Back</a>
               </div>
             </div>
@@ -1186,40 +866,6 @@
         </div>
       `;
 
-      document.getElementById('prevImageBtn').addEventListener('click', prevImage);
-      document.getElementById('nextImageBtn').addEventListener('click', nextImage);
-      document.getElementById('fullscreenBtn').addEventListener('click', openFullscreen);
-
-      document.addEventListener('keydown', (e) => {
-        if (document.getElementById('fullscreenOverlay').classList.contains('open')) return;
-        if (e.key === 'ArrowLeft') { e.preventDefault(); prevImage(); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); nextImage(); }
-      });
-
-      document.getElementById('closeFullscreen').addEventListener('click', closeFullscreen);
-      document.getElementById('fsPrev').addEventListener('click', fsPrev);
-      document.getElementById('fsNext').addEventListener('click', fsNext);
-      document.getElementById('fullscreenOverlay').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) closeFullscreen();
-      });
-      document.addEventListener('keydown', (e) => {
-        if (!document.getElementById('fullscreenOverlay').classList.contains('open')) return;
-        if (e.key === 'ArrowLeft') { e.preventDefault(); fsPrev(); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); fsNext(); }
-        if (e.key === 'Escape') { closeFullscreen(); }
-      });
-
-      document.querySelectorAll('#ratingStars .star').forEach(el => {
-        el.addEventListener('click', function() {
-          const val = parseInt(this.dataset.val);
-          document.querySelectorAll('#ratingStars .star').forEach(s => s.classList.remove('active'));
-          for (let i = 0; i < val; i++) {
-            document.querySelectorAll('#ratingStars .star')[i].classList.add('active');
-          }
-          window.selectedRating = val;
-        });
-      });
-
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
 
@@ -1236,12 +882,13 @@
       if (existing) {
         existing.quantity = (existing.quantity || 1) + 1;
       } else {
+        // Use a placeholder image (since we don't have images anymore, we use a generic icon)
         cart.push({
           id: product.id,
           name: product.name,
           price: price,
           originalPrice: product.price,
-          imageUrl: productImages[0] || product.imageUrl || '',
+          imageUrl: '', // no image, but cart will show a placeholder
           quantity: 1
         });
       }
@@ -1329,7 +976,7 @@
       }
     }
 
-    console.log('📄 Product detail page loaded with Try Now – overlay auto‑closes on Buy/Cart.');
+    console.log('📄 Product detail page loaded with automated Try Now from HTML content.');
   </script>
 </body>
 </html>

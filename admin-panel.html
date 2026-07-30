@@ -251,8 +251,8 @@
             min-width: 44px;
             justify-content: flex-end;
         }
-        .top-nav .nav-right .mr-badge {
-            background: rgba(52, 199, 89, 0.10);
+        .top-nav .nav-right .pending-badge {
+            background: rgba(255, 149, 0, 0.10);
             padding: 4px 16px 4px 14px;
             border-radius: 40px;
             font-size: 0.85rem;
@@ -261,14 +261,14 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            border: 1px solid rgba(52, 199, 89, 0.15);
+            border: 1px solid rgba(255, 149, 0, 0.15);
             white-space: nowrap;
         }
-        .top-nav .nav-right .mr-badge i {
-            color: #34C759;
+        .top-nav .nav-right .pending-badge i {
+            color: #FF9500;
             font-size: 0.9rem;
         }
-        .top-nav .nav-right .mr-badge .amount {
+        .top-nav .nav-right .pending-badge .count {
             color: #1c1c1e;
             font-weight: 700;
         }
@@ -1287,11 +1287,29 @@
             gap: 1rem;
             margin-top: 1rem;
         }
-        .product-card img {
+        .product-card iframe {
             width: 100%;
             height: 140px;
-            object-fit: cover;
+            border: none;
             border-radius: 16px 16px 0 0;
+            background: #f0f2f5;
+        }
+        .product-card .preview-placeholder {
+            width: 100%;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f2f5;
+            color: #9ca3af;
+            font-size: 0.85rem;
+            border-radius: 16px 16px 0 0;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .product-card .preview-placeholder i {
+            font-size: 2rem;
+            opacity: 0.3;
         }
         .discount-card {
             background: rgba(255, 255, 255, 0.68);
@@ -1395,6 +1413,52 @@
             backdrop-filter: blur(4px);
         }
 
+        /* ===== HTML FILE UPLOAD ===== */
+        .html-upload-wrapper {
+            position: relative;
+            border: 2px dashed rgba(60, 60, 67, 0.12);
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .html-upload-wrapper:hover {
+            border-color: #007AFF;
+            background: rgba(0, 122, 255, 0.04);
+        }
+        .html-upload-wrapper .file-icon {
+            font-size: 2.5rem;
+            color: #8e8e93;
+            margin-bottom: 0.5rem;
+        }
+        .html-upload-wrapper .file-text {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        .html-upload-wrapper .file-name {
+            font-weight: 600;
+            color: #1c1c1e;
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+        .html-upload-wrapper .file-size {
+            font-size: 0.7rem;
+            color: #8e8e93;
+        }
+        .html-upload-wrapper input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .html-upload-wrapper.has-file {
+            border-color: #34C759;
+            background: rgba(52, 199, 89, 0.04);
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
             .dashboard-grid {
@@ -1436,11 +1500,11 @@
                 font-size: 0.85rem;
                 padding: 0 10px;
             }
-            .top-nav .nav-right .mr-badge {
+            .top-nav .nav-right .pending-badge {
                 font-size: 0.72rem;
                 padding: 2px 12px 2px 10px;
             }
-            .top-nav .nav-right .mr-badge .label {
+            .top-nav .nav-right .pending-badge .label {
                 display: none;
             }
             .main {
@@ -1506,7 +1570,7 @@
                 grid-template-columns: repeat(2, 1fr);
                 gap: 0.75rem;
             }
-            .product-card img {
+            .product-card iframe {
                 height: 120px;
             }
             .admin-table {
@@ -1572,11 +1636,11 @@
                 font-size: 0.78rem;
                 padding: 0 8px;
             }
-            .top-nav .nav-right .mr-badge {
+            .top-nav .nav-right .pending-badge {
                 font-size: 0.65rem;
                 padding: 2px 8px 2px 6px;
             }
-            .top-nav .nav-right .mr-badge i {
+            .top-nav .nav-right .pending-badge i {
                 font-size: 0.7rem;
             }
             .conv-item {
@@ -1591,176 +1655,11 @@
                 width: 260px;
             }
         }
-
-        /* ===== MULTI-IMAGE UPLOAD STYLES ===== */
-        .image-thumbnail-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        .image-thumbnail-item {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            flex-shrink: 0;
-        }
-        .image-thumbnail-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .image-thumbnail-item .remove-btn {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-        }
-        .image-thumbnail-item .remove-btn:hover {
-            background: #dc2626;
-            transform: scale(1.1);
-        }
-        .upload-btn-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-        .upload-btn-wrapper input[type=file] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        /* ===== TRY NOW ADMIN STYLES ===== */
-        .demo-item {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.55);
-            border-radius: 14px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s ease;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
-        }
-        .demo-item:hover {
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
-        }
-        .demo-item .demo-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .demo-item .demo-info .demo-product {
-            font-weight: 600;
-            color: #1c1c1e;
-        }
-        .demo-item .demo-info .demo-meta {
-            font-size: 0.75rem;
-            color: #8e8e93;
-        }
-        .demo-item .demo-actions {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        .demo-item .demo-actions button {
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            border: none;
-            cursor: pointer;
-            transition: 0.2s;
-            font-weight: 500;
-        }
-        .demo-item .demo-actions .btn-preview {
-            background: rgba(0, 122, 255, 0.08);
-            color: #007AFF;
-        }
-        .demo-item .demo-actions .btn-preview:hover {
-            background: rgba(0, 122, 255, 0.16);
-        }
-        .demo-item .demo-actions .btn-edit {
-            background: rgba(139, 92, 246, 0.08);
-            color: #7c3aed;
-        }
-        .demo-item .demo-actions .btn-edit:hover {
-            background: rgba(139, 92, 246, 0.16);
-        }
-        .demo-item .demo-actions .btn-delete-demo {
-            background: rgba(220, 38, 38, 0.08);
-            color: #dc2626;
-        }
-        .demo-item .demo-actions .btn-delete-demo:hover {
-            background: rgba(220, 38, 38, 0.16);
-        }
-
-        /* File input styling */
-        .file-upload-wrapper {
-            position: relative;
-            border: 2px dashed rgba(60, 60, 67, 0.12);
-            border-radius: 14px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: 0.3s ease;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.4);
-        }
-        .file-upload-wrapper:hover {
-            border-color: #007AFF;
-            background: rgba(0, 122, 255, 0.04);
-        }
-        .file-upload-wrapper .file-icon {
-            font-size: 2.5rem;
-            color: #8e8e93;
-            margin-bottom: 0.5rem;
-        }
-        .file-upload-wrapper .file-text {
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-        .file-upload-wrapper .file-name {
-            font-weight: 600;
-            color: #1c1c1e;
-            margin-top: 0.25rem;
-            font-size: 0.85rem;
-            word-break: break-all;
-        }
-        .file-upload-wrapper input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        .file-upload-wrapper.has-file {
-            border-color: #34C759;
-            background: rgba(52, 199, 89, 0.04);
-        }
     </style>
 </head>
 <body>
 
-    <!-- ===== PRILOADER ===== -->
+    <!-- ===== PRELOADER ===== -->
     <div id="adminLoader" style="position:fixed;inset:0;background:#e8ecf1;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px;">
         <div class="spinner-big"></div>
         <p class="text-gray-500 font-medium" style="letter-spacing:0.3px;">Verifying access…</p>
@@ -1769,7 +1668,7 @@
     <!-- ===== SIDEBAR OVERLAY ===== -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- ===== SIDEBAR (logo removed) ===== -->
+    <!-- ===== SIDEBAR ===== -->
     <div class="sidebar" id="adminSidebar" style="display:none;">
         <div class="nav-section" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;">
             <button class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
@@ -1779,8 +1678,7 @@
             <button class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages</button>
             <button class="nav-item" data-tab="fixrequests"><i class="fas fa-wrench"></i> Fix Requests</button>
             <button class="nav-item" data-tab="discounts"><i class="fas fa-tags"></i> Discounts</button>
-            <!-- ===== NEW: Try Now ===== -->
-            <button class="nav-item" data-tab="trynow"><i class="fas fa-play-circle"></i> Try Now</button>
+            <!-- Try Now tab REMOVED — now automated via products -->
             <button class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</button>
             <button class="nav-item" data-tab="supportchat"><i class="fas fa-comments"></i> Support Chat</button>
         </div>
@@ -1808,10 +1706,10 @@
             </div>
         </div>
         <div class="nav-right">
-            <div class="mr-badge" id="monthlyRevenueBadge">
-                <i class="fas fa-chart-line"></i>
-                <span class="label">M/R:</span>
-                <span class="amount" id="monthlyRevenueAmount">$0.00</span>
+            <div class="pending-badge" id="pendingOrdersBadge">
+                <i class="fas fa-clock"></i>
+                <span class="label">Pending:</span>
+                <span class="count" id="pendingOrdersCount">0</span>
             </div>
         </div>
     </div>
@@ -2064,23 +1962,6 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- ===== TRY NOW TAB ===== -->
-            <!-- ============================================================ -->
-            <div id="tab-trynow" class="tab-content">
-                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-                    <div>
-                        <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Try Now Demos</h2>
-                        <p class="text-sm text-gray-500 mt-1">Upload HTML demos for products. Users can preview them with a "Try Now" button on the product detail page.</p>
-                    </div>
-                    <button onclick="openDemoModal()" class="btn-primary text-sm py-2 px-4"><i class="fas fa-plus"></i> Add Demo</button>
-                </div>
-
-                <div id="demoList" class="mt-4 space-y-2">
-                    <!-- Rendered by JS -->
-                </div>
-            </div>
-
             <!-- SETTINGS -->
             <div id="tab-settings" class="tab-content">
                 <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Settings</h2>
@@ -2160,14 +2041,14 @@
         </div><!-- /main-content-inner -->
     </div><!-- /main -->
 
-    <!-- ===== PRODUCT MODAL (UPDATED: Multi‑image) ===== -->
+    <!-- ===== PRODUCT MODAL (HTML upload instead of images) ===== -->
     <div class="modal-overlay" id="productModal">
         <div class="modal-box">
             <div class="modal-header"><h3 id="productModalTitle">Add Product</h3><button class="modal-close" onclick="closeProductModal()">&times;</button></div>
             <form id="productForm" class="space-y-3">
                 <input type="text" id="prodName" placeholder="Product Name" required class="form-input" />
                 <textarea id="prodDesc" placeholder="Description" class="form-input" rows="4" style="resize:vertical;"></textarea>
-                <input type="number" id="prodPrice" placeholder="Price" required class="form-input" />
+                <input type="number" id="prodPrice" placeholder="Price" required class="form-input" step="0.01" />
                 <select id="prodCategory" class="form-input">
                     <option value="static">Static</option>
                     <option value="spa">SPA</option>
@@ -2175,20 +2056,20 @@
                     <option value="ecommerce">E-Commerce</option>
                 </select>
 
-                <!-- ===== MULTI-IMAGE UPLOAD SECTION ===== -->
+                <!-- ===== HTML FILE UPLOAD (replaces images) ===== -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Images (max 5)</label>
-                    <div class="upload-btn-wrapper">
-                        <button type="button" class="btn-primary btn-sm" id="addImageBtn">
-                            <i class="fas fa-plus"></i> Add Image
-                        </button>
-                        <input type="file" id="prodImageFile" accept="image/*" />
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">HTML File *</label>
+                    <div class="html-upload-wrapper" id="htmlUploadWrapper">
+                        <div class="file-icon"><i class="fas fa-file-code"></i></div>
+                        <div class="file-text">Click to select an HTML file</div>
+                        <div class="file-name" id="selectedHtmlFileName"></div>
+                        <div class="file-size" id="selectedHtmlFileSize"></div>
+                        <input type="file" id="prodHtmlFile" accept=".html,.htm" />
                     </div>
-                    <div id="imageThumbnailList" class="image-thumbnail-list"></div>
                     <p class="text-xs text-gray-400 mt-2">
-                        <i class="fas fa-cloud-upload-alt"></i> Click "Add Image" and select a file. Uploads automatically to Cloudinary.
+                        <i class="fas fa-info-circle"></i> Upload the HTML file for this product. The first view will be shown as a preview on the landing page.
                     </p>
-                    <input type="hidden" id="productImagesData" value="" />
+                    <input type="hidden" id="productHtmlContent" value="" />
                 </div>
 
                 <div class="flex items-center gap-2 mt-2">
@@ -2266,41 +2147,6 @@
         </div>
     </div>
 
-    <!-- ================================================================ -->
-    <!-- ===== TRY NOW MODAL (Add/Edit Demo) ===== -->
-    <!-- ================================================================ -->
-    <div class="modal-overlay" id="demoModal">
-        <div class="modal-box" style="max-width:700px;">
-            <div class="modal-header">
-                <h3 id="demoModalTitle">Add Demo</h3>
-                <button class="modal-close" onclick="closeDemoModal()">&times;</button>
-            </div>
-            <form id="demoForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Select Product *</label>
-                    <select id="demoProductSelect" class="form-input" required>
-                        <option value="">— Select a product —</option>
-                    </select>
-                    <p class="text-xs text-gray-400 mt-1">The demo will appear on this product's detail page.</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">HTML File *</label>
-                    <div class="file-upload-wrapper" id="fileUploadWrapper">
-                        <div class="file-icon"><i class="fas fa-file-code"></i></div>
-                        <div class="file-text">Click to select an HTML file</div>
-                        <div class="file-name" id="selectedFileName"></div>
-                        <input type="file" id="demoFileInput" accept=".html,.htm" />
-                    </div>
-                    <p class="text-xs text-gray-400 mt-1">Upload the HTML file that will be previewed when users click "Try Now".</p>
-                </div>
-
-                <input type="hidden" id="demoId" value="" />
-                <button type="submit" id="demoSubmitBtn" class="btn-primary w-full">Save Demo</button>
-            </form>
-        </div>
-    </div>
-
     <!-- ===== TOAST ===== -->
     <div id="toast-container"></div>
 
@@ -2316,7 +2162,7 @@
             EmailAuthProvider, reauthenticateWithCredential,
             adminCreateUser, adminDeleteUser
         } from './firebase-config.js';
-        import { setLoading, uploadImage } from './components.js';
+        import { setLoading } from './components.js';
 
         // ===== DOM =====
         const loader = document.getElementById('adminLoader');
@@ -2482,22 +2328,14 @@
             updateClock();
             setInterval(updateClock, 1000);
 
-            // ===== MONTHLY REVENUE =====
+            // ===== PENDING ORDERS =====
             let allOrders = [],
                 allUsers = [],
                 allFixRequests = [];
 
-            function updateMonthlyRevenue(orders) {
-                const now = new Date();
-                const monthKey = now.toISOString().slice(0, 7);
-                let total = 0;
-                orders.forEach(o => {
-                    const dt = o.createdAt?.toDate?.() || new Date(o.createdAt);
-                    if (dt.toISOString().slice(0, 7) === monthKey) {
-                        total += (o.total || 0);
-                    }
-                });
-                document.getElementById('monthlyRevenueAmount').textContent = `$${total.toFixed(2)}`;
+            function updatePendingOrders(orders) {
+                const pending = orders.filter(o => (o.status || 'pending') === 'pending');
+                document.getElementById('pendingOrdersCount').textContent = pending.length;
             }
 
             // ===== DASHBOARD CHARTS =====
@@ -2597,7 +2435,7 @@
                     totalRevenue += (data.total || 0);
                 });
                 document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
-                updateMonthlyRevenue(allOrders);
+                updatePendingOrders(allOrders);
                 renderDashboardCharts(allOrders, allUsers, allFixRequests);
                 renderOrdersTable(allOrders);
                 renderUsersPage(allUsers);
@@ -2623,11 +2461,10 @@
                 document.getElementById('totalProducts').innerText = snapshot.size;
                 renderProducts(snapshot);
                 populateProductDropdown();
-                populateDemoProductDropdown();
             });
 
             // ==============================================================
-            // PRODUCTS
+            // PRODUCTS (HTML upload, no images)
             // ==============================================================
             function renderProducts(snapshot) {
                 const productList = document.getElementById('productList');
@@ -2641,11 +2478,21 @@
                     const p = doc.data();
                     const featuredBadge = p.featured ?
                         '<span class="featured-badge ml-1"><i class="fas fa-star"></i> Featured</span>' : '';
-                    const images = p.images || [];
-                    const mainImage = images.length > 0 ? images[0] : (p.imageUrl || 'https://via.placeholder.com/300x140?text=No+Image');
+                    const hasHtml = p.htmlContent && p.htmlContent.length > 0;
+                    // Show preview iframe or placeholder
+                    let previewHtml = '';
+                    if (hasHtml) {
+                        // Use a small iframe to preview the HTML
+                        const escaped = p.htmlContent.replace(/"/g, '&quot;');
+                        previewHtml =
+                            `<iframe srcdoc="${escaped}" loading="lazy" style="width:100%;height:140px;border:none;border-radius:16px 16px 0 0;background:#f0f2f5;"></iframe>`;
+                    } else {
+                        previewHtml =
+                            `<div class="preview-placeholder"><i class="fas fa-file-code"></i><span>No HTML</span></div>`;
+                    }
                     html += `
                         <div class="glass-card product-card" style="padding:0;overflow:hidden;">
-                            <img src="${mainImage}" alt="${p.name}" loading="lazy" />
+                            ${previewHtml}
                             <div class="p-3">
                                 <div class="flex items-center justify-between">
                                     <h3 class="font-bold text-sm">${p.name}</h3>
@@ -2663,69 +2510,60 @@
                 productList.innerHTML = html;
             }
 
-            // ===== MULTI‑IMAGE STATE =====
-            let productImages = [];
+            // ===== HTML FILE UPLOAD STATE =====
+            let currentHtmlContent = '';
+            let currentHtmlFileName = '';
 
-            function renderImageThumbnails() {
-                const container = document.getElementById('imageThumbnailList');
-                const hiddenInput = document.getElementById('productImagesData');
-                if (!container) return;
-                if (productImages.length === 0) {
-                    container.innerHTML = '<span class="text-gray-400 text-sm">No images uploaded yet.</span>';
-                    hiddenInput.value = '';
-                    return;
+            function updateHtmlUploadUI() {
+                const wrapper = document.getElementById('htmlUploadWrapper');
+                const fileNameEl = document.getElementById('selectedHtmlFileName');
+                const fileSizeEl = document.getElementById('selectedHtmlFileSize');
+                if (currentHtmlContent && currentHtmlContent.length > 0) {
+                    wrapper.classList.add('has-file');
+                    fileNameEl.textContent = currentHtmlFileName || 'index.html';
+                    fileSizeEl.textContent = (currentHtmlContent.length / 1024).toFixed(1) + ' KB';
+                } else {
+                    wrapper.classList.remove('has-file');
+                    fileNameEl.textContent = '';
+                    fileSizeEl.textContent = '';
                 }
-                let html = '';
-                productImages.forEach((url, index) => {
-                    html += `
-                        <div class="image-thumbnail-item">
-                            <img src="${url}" alt="Product image ${index+1}" loading="lazy" />
-                            <button type="button" class="remove-btn" onclick="removeProductImage(${index})" title="Remove image">&times;</button>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-                hiddenInput.value = JSON.stringify(productImages);
-                document.getElementById('addImageBtn').disabled = productImages.length >= 5;
+                document.getElementById('productHtmlContent').value = currentHtmlContent;
             }
 
-            window.addProductImage = function(url) {
-                if (productImages.length >= 5) {
-                    showToast('Maximum 5 images allowed.', 'warning');
-                    return;
-                }
-                productImages.push(url);
-                renderImageThumbnails();
-                showToast('✅ Image added', 'success');
-            };
+            // HTML file input handler
+            const htmlFileInput = document.getElementById('prodHtmlFile');
+            const htmlUploadWrapper = document.getElementById('htmlUploadWrapper');
 
-            window.removeProductImage = function(index) {
-                productImages.splice(index, 1);
-                renderImageThumbnails();
-            };
-
-            const fileInput = document.getElementById('prodImageFile');
-            const addBtn = document.getElementById('addImageBtn');
-            addBtn.addEventListener('click', () => fileInput.click());
-            fileInput.addEventListener('change', async (e) => {
-                const file = e.target.files[0];
+            htmlFileInput.addEventListener('change', function(e) {
+                const file = this.files[0];
                 if (!file) return;
-                if (productImages.length >= 5) {
-                    showToast('Maximum 5 images already added.', 'warning');
-                    fileInput.value = '';
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!['html', 'htm'].includes(ext)) {
+                    showToast('Please select an HTML file (.html or .htm)', 'error');
+                    this.value = '';
                     return;
                 }
-                addBtn.disabled = true;
-                try {
-                    const url = await uploadImage(file);
-                    window.addProductImage(url);
-                } catch (err) {
-                    showToast('⚠️ Upload failed: ' + err.message, 'error');
-                    console.error(err);
-                } finally {
-                    addBtn.disabled = false;
-                    fileInput.value = '';
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('File size must be less than 5MB.', 'error');
+                    this.value = '';
+                    return;
                 }
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    currentHtmlContent = ev.target.result;
+                    currentHtmlFileName = file.name;
+                    updateHtmlUploadUI();
+                    showToast('✅ HTML file loaded', 'success');
+                };
+                reader.onerror = () => {
+                    showToast('Error reading file.', 'error');
+                };
+                reader.readAsText(file);
+            });
+
+            // Click on wrapper triggers file input
+            htmlUploadWrapper.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') htmlFileInput.click();
             });
 
             window.editProduct = async (id) => {
@@ -2740,11 +2578,10 @@
                     document.getElementById('prodFeatured').checked = data.featured || false;
                     document.getElementById('productModalTitle').innerText = 'Edit Product';
 
-                    productImages = data.images || [];
-                    if (productImages.length === 0 && data.imageUrl) {
-                        productImages = [data.imageUrl];
-                    }
-                    renderImageThumbnails();
+                    // Load HTML content
+                    currentHtmlContent = data.htmlContent || '';
+                    currentHtmlFileName = data.htmlFileName || 'index.html';
+                    updateHtmlUploadUI();
 
                     document.getElementById('productModal').classList.add('open');
                 }
@@ -2757,8 +2594,10 @@
                 document.getElementById('productForm').reset();
                 document.getElementById('prodFeatured').checked = false;
                 document.getElementById('prodCategory').value = 'static';
-                productImages = [];
-                renderImageThumbnails();
+                currentHtmlContent = '';
+                currentHtmlFileName = '';
+                updateHtmlUploadUI();
+                htmlFileInput.value = '';
             };
 
             window.closeProductModal = () => {
@@ -2799,7 +2638,10 @@
                 const id = document.getElementById('prodId').value;
 
                 if (!name || !price) { showToast('Name and price required.', 'error'); return; }
-                if (productImages.length === 0) { showToast('Please add at least one image.', 'warning'); return; }
+                if (!currentHtmlContent && !id) {
+                    showToast('Please upload an HTML file.', 'warning');
+                    return;
+                }
 
                 setLoading(productSubmitBtn, true, 'Save');
                 try {
@@ -2808,9 +2650,9 @@
                         desc,
                         price,
                         category,
-                        images: productImages,
+                        htmlContent: currentHtmlContent,
+                        htmlFileName: currentHtmlFileName || 'index.html',
                         featured,
-                        imageUrl: productImages[0] || ''
                     };
                     if (id) await updateDoc(doc(db, 'products', id), data);
                     else await addDoc(collection(db, 'products'), data);
@@ -3236,9 +3078,7 @@
                     inputLabel: 'Type "DELETE" below to confirm:'
                 });
                 if (!confirmed) { showToast('Deletion cancelled.', 'info'); return; }
-                let ok = 0,
-                    fail = 0,
-                    authOk = 0;
+                let ok = 0, fail = 0, authOk = 0;
                 for (const id of selectedUsers) {
                     try {
                         const result = await adminDeleteUser(id);
@@ -3451,8 +3291,7 @@
                     inputLabel: 'Type "DELETE" below to confirm:'
                 });
                 if (!confirmed) { showToast('Deletion cancelled.', 'info'); return; }
-                let successCount = 0,
-                    failCount = 0;
+                let successCount = 0, failCount = 0;
                 for (const orderId of selectedOrderIds) {
                     try { await deleteDoc(doc(db, 'orders', orderId));
                         successCount++; } catch (err) { console.error(`Failed to delete ${orderId}:`, err);
@@ -4334,488 +4173,6 @@
             initMessenger();
 
             // ==============================================================
-            // ==============================================================
-            // ===== TRY NOW FEATURE =====
-            // ==============================================================
-            // ==============================================================
-
-            let allProductsForDemo = [];
-            let allDemos = [];
-            let editingDemoId = null;
-
-            // ── Populate product dropdown for demo modal ──
-            async function populateDemoProductDropdown() {
-                try {
-                    const snap = await getDocs(collection(db, 'products'));
-                    const select = document.getElementById('demoProductSelect');
-                    select.innerHTML = '<option value="">— Select a product —</option>';
-                    allProductsForDemo = [];
-                    snap.forEach(doc => {
-                        const data = doc.data();
-                        allProductsForDemo.push({ id: doc.id, name: data.name });
-                        select.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
-                    });
-                } catch (e) { console.warn('Error loading products for demo dropdown', e); }
-            }
-
-            // ── Render demo list ──
-            function renderDemoList() {
-                const container = document.getElementById('demoList');
-                if (allDemos.length === 0) {
-                    container.innerHTML = `
-                        <div class="glass-card text-center py-10 text-gray-500">
-                            <i class="fas fa-play-circle text-4xl opacity-30"></i>
-                            <p class="mt-2">No demos uploaded yet. Add your first demo!</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                let html = '';
-                // Sort by product name
-                const sorted = [...allDemos].sort((a, b) => (a.productName || '').localeCompare(b.productName || ''));
-                sorted.forEach(demo => {
-                    const productName = demo.productName || 'Unknown Product';
-                    const createdAt = demo.createdAt?.toDate?.() || new Date(demo.createdAt);
-                    const dateStr = createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'short',
-                        day: 'numeric' });
-                    const timeStr = createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    const hasHtml = demo.htmlContent && demo.htmlContent.length > 0;
-
-                    html += `
-                        <div class="demo-item">
-                            <div class="demo-info">
-                                <div class="demo-product"><i class="fas fa-file-code text-blue-500 mr-2"></i> ${productName}</div>
-                                <div class="demo-meta">
-                                    Added: ${dateStr} at ${timeStr} 
-                                    ${hasHtml ? `· <span class="text-green-600">✔ HTML loaded (${demo.htmlContent.length} chars)</span>` : '· <span class="text-red-400">⚠ No HTML</span>'}
-                                </div>
-                            </div>
-                            <div class="demo-actions">
-                                ${hasHtml ? `<button onclick="previewDemo('${demo.id}')" class="btn-preview" title="Preview"><i class="fas fa-eye"></i> Preview</button>` : ''}
-                                <button onclick="editDemo('${demo.id}')" class="btn-edit" title="Edit"><i class="fas fa-edit"></i> Edit</button>
-                                <button onclick="deleteDemo('${demo.id}')" class="btn-delete-demo" title="Delete"><i class="fas fa-trash"></i> Delete</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            }
-
-            // ── Listen to demos ──
-            onSnapshot(collection(db, 'productDemos'), (snapshot) => {
-                allDemos = [];
-                snapshot.forEach(doc => {
-                    allDemos.push({ id: doc.id, ...doc.data() });
-                });
-                renderDemoList();
-            });
-
-            // ── Open Demo Modal (Add) ──
-            window.openDemoModal = function() {
-                editingDemoId = null;
-                document.getElementById('demoModalTitle').textContent = 'Add Demo';
-                document.getElementById('demoId').value = '';
-                document.getElementById('demoForm').reset();
-                document.getElementById('selectedFileName').textContent = '';
-                document.getElementById('fileUploadWrapper').classList.remove('has-file');
-                document.getElementById('demoProductSelect').value = '';
-                document.getElementById('demoModal').classList.add('open');
-                // Populate dropdown if empty
-                if (allProductsForDemo.length === 0) populateDemoProductDropdown();
-            };
-
-            // ── Close Demo Modal ──
-            window.closeDemoModal = function() {
-                document.getElementById('demoModal').classList.remove('open');
-                editingDemoId = null;
-            };
-
-            // ── Edit Demo ──
-            window.editDemo = async function(id) {
-                const demo = allDemos.find(d => d.id === id);
-                if (!demo) { showToast('Demo not found.', 'error'); return; }
-                editingDemoId = id;
-                document.getElementById('demoModalTitle').textContent = 'Edit Demo';
-                document.getElementById('demoId').value = id;
-                document.getElementById('demoProductSelect').value = demo.productId || '';
-                document.getElementById('selectedFileName').textContent = demo.fileName || 'HTML file loaded';
-                document.getElementById('fileUploadWrapper').classList.add('has-file');
-                document.getElementById('demoModal').classList.add('open');
-                if (allProductsForDemo.length === 0) populateDemoProductDropdown();
-            };
-
-            // ── Delete Demo ──
-            window.deleteDemo = async function(id) {
-                const demo = allDemos.find(d => d.id === id);
-                if (!demo) { showToast('Demo not found.', 'error'); return; }
-                const productName = demo.productName || 'this demo';
-                const confirmed = await openConfirmModal({
-                    title: 'Delete Demo',
-                    desc: `Are you sure you want to delete the demo for "${productName}"? This action cannot be undone.`,
-                    icon: 'fa-play-circle',
-                    itemId: id,
-                    itemIdLabel: 'Demo ID',
-                    expectedValue: id,
-                    inputPlaceholder: 'Paste or type the demo ID exactly as shown…',
-                    inputLabel: 'Type the demo ID below to confirm:'
-                });
-                if (confirmed) {
-                    try { await deleteDoc(doc(db, 'productDemos', id));
-                        showToast('✅ Demo deleted.', 'success'); } catch (err) { showToast('❌ Error: ' + err
-                            .message, 'error'); }
-                } else { showToast('Deletion cancelled.', 'info'); }
-            };
-
-            // ── File upload handler ──
-            const demoFileInput = document.getElementById('demoFileInput');
-            const fileUploadWrapper = document.getElementById('fileUploadWrapper');
-            const selectedFileName = document.getElementById('selectedFileName');
-
-            demoFileInput.addEventListener('change', function(e) {
-                const file = this.files[0];
-                if (!file) {
-                    fileUploadWrapper.classList.remove('has-file');
-                    selectedFileName.textContent = '';
-                    return;
-                }
-                // Only allow .html and .htm
-                const ext = file.name.split('.').pop().toLowerCase();
-                if (!['html', 'htm'].includes(ext)) {
-                    showToast('Please select an HTML file (.html or .htm)', 'error');
-                    this.value = '';
-                    fileUploadWrapper.classList.remove('has-file');
-                    selectedFileName.textContent = '';
-                    return;
-                }
-                // Max 2MB
-                if (file.size > 2 * 1024 * 1024) {
-                    showToast('File size must be less than 2MB.', 'error');
-                    this.value = '';
-                    fileUploadWrapper.classList.remove('has-file');
-                    selectedFileName.textContent = '';
-                    return;
-                }
-                fileUploadWrapper.classList.add('has-file');
-                selectedFileName.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
-            });
-
-            // ── Demo Form Submit ──
-            const demoForm = document.getElementById('demoForm');
-            const demoSubmitBtn = document.getElementById('demoSubmitBtn');
-
-            demoForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const productId = document.getElementById('demoProductSelect').value;
-                const file = document.getElementById('demoFileInput').files[0];
-                const demoId = document.getElementById('demoId').value;
-
-                if (!productId) { showToast('Please select a product.', 'error'); return; }
-
-                // If editing and no new file, keep existing HTML
-                let htmlContent = '';
-                let fileName = '';
-
-                if (demoId) {
-                    // Editing: if no file selected, keep existing
-                    const existing = allDemos.find(d => d.id === demoId);
-                    if (existing) {
-                        htmlContent = existing.htmlContent || '';
-                        fileName = existing.fileName || 'demo.html';
-                    }
-                }
-
-                if (file) {
-                    try {
-                        const text = await file.text();
-                        htmlContent = text;
-                        fileName = file.name;
-                    } catch (err) {
-                        showToast('Error reading file: ' + err.message, 'error');
-                        return;
-                    }
-                }
-
-                if (!htmlContent && !demoId) {
-                    showToast('Please select an HTML file.', 'error');
-                    return;
-                }
-
-                // Find product name
-                const product = allProductsForDemo.find(p => p.id === productId);
-                const productName = product ? product.name : 'Unknown';
-
-                setLoading(demoSubmitBtn, true, 'Saving...');
-
-                try {
-                    const data = {
-                        productId,
-                        productName,
-                        htmlContent,
-                        fileName: fileName || 'demo.html',
-                        updatedAt: serverTimestamp()
-                    };
-
-                    if (demoId) {
-                        await updateDoc(doc(db, 'productDemos', demoId), data);
-                        showToast('✅ Demo updated!', 'success');
-                    } else {
-                        data.createdAt = serverTimestamp();
-                        await addDoc(collection(db, 'productDemos'), data);
-                        showToast('✅ Demo added!', 'success');
-                    }
-
-                    closeDemoModal();
-                    demoForm.reset();
-                    document.getElementById('selectedFileName').textContent = '';
-                    fileUploadWrapper.classList.remove('has-file');
-
-                } catch (err) {
-                    showToast('❌ Error: ' + err.message, 'error');
-                } finally {
-                    setLoading(demoSubmitBtn, false);
-                }
-            });
-
-            // ── Preview Demo (opens in new window with fixed bottom bar) ──
-            window.previewDemo = function(demoId) {
-                const demo = allDemos.find(d => d.id === demoId);
-                if (!demo) { showToast('Demo not found.', 'error'); return; }
-                if (!demo.htmlContent) { showToast('No HTML content to preview.', 'error'); return; }
-
-                // Build the HTML with fixed bottom bar
-                const productName = demo.productName || 'Demo';
-                const productId = demo.productId;
-
-                // The bottom bar HTML with transparent background, fade-out at top
-                const bottomBar = `
-                    <style>
-                        * { box-sizing: border-box; }
-                        body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
-                        .trynow-wrapper {
-                            position: relative;
-                            min-height: 100vh;
-                            display: flex;
-                            flex-direction: column;
-                        }
-                        .trynow-content {
-                            flex: 1;
-                            padding-bottom: 70px;
-                        }
-                        .trynow-bar {
-                            position: fixed;
-                            bottom: 0;
-                            left: 0;
-                            right: 0;
-                            background: rgba(255, 255, 255, 0.55);
-                            backdrop-filter: blur(20px) saturate(180%);
-                            -webkit-backdrop-filter: blur(20px) saturate(180%);
-                            border-top: 1px solid rgba(255, 255, 255, 0.3);
-                            padding: 10px 16px;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            gap: 8px;
-                            flex-wrap: wrap;
-                            z-index: 9999;
-                            box-shadow: 0 -8px 32px rgba(0,0,0,0.04);
-                        }
-                        .trynow-bar::before {
-                            content: '';
-                            position: absolute;
-                            bottom: 100%;
-                            left: 0;
-                            right: 0;
-                            height: 60px;
-                            background: linear-gradient(to top, rgba(255,255,255,0.7) 0%, transparent 100%);
-                            pointer-events: none;
-                        }
-                        .trynow-bar button, .trynow-bar a {
-                            padding: 8px 18px;
-                            border-radius: 60px;
-                            font-weight: 600;
-                            font-size: 0.82rem;
-                            border: none;
-                            cursor: pointer;
-                            transition: all 0.25s ease;
-                            display: inline-flex;
-                            align-items: center;
-                            gap: 6px;
-                            text-decoration: none;
-                            min-height: 40px;
-                            white-space: nowrap;
-                            font-family: 'Inter', sans-serif;
-                        }
-                        .trynow-bar .btn-buy {
-                            background: linear-gradient(135deg, #34C759, #28A745);
-                            color: #fff;
-                            box-shadow: 0 4px 16px rgba(52, 199, 89, 0.25);
-                        }
-                        .trynow-bar .btn-buy:hover {
-                            transform: translateY(-2px);
-                            box-shadow: 0 8px 28px rgba(52, 199, 89, 0.35);
-                        }
-                        .trynow-bar .btn-cart {
-                            background: linear-gradient(135deg, #007AFF, #5856D6);
-                            color: #fff;
-                            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.2);
-                        }
-                        .trynow-bar .btn-cart:hover {
-                            transform: translateY(-2px);
-                            box-shadow: 0 8px 28px rgba(0, 122, 255, 0.3);
-                        }
-                        .trynow-bar .btn-support {
-                            background: rgba(255, 255, 255, 0.7);
-                            color: #1c1c1e;
-                            border: 1px solid rgba(0,0,0,0.06);
-                            backdrop-filter: blur(4px);
-                        }
-                        .trynow-bar .btn-support:hover {
-                            background: rgba(255, 255, 255, 0.9);
-                            transform: translateY(-2px);
-                        }
-                        .trynow-bar .btn-back {
-                            background: rgba(0, 0, 0, 0.04);
-                            color: #6b7280;
-                            border: 1px solid rgba(0,0,0,0.04);
-                        }
-                        .trynow-bar .btn-back:hover {
-                            background: rgba(0, 0, 0, 0.08);
-                            transform: translateY(-2px);
-                        }
-                        .trynow-bar .btn-back i, .trynow-bar .btn-support i, .trynow-bar .btn-cart i, .trynow-bar .btn-buy i {
-                            font-size: 0.9rem;
-                        }
-                        @media (max-width: 640px) {
-                            .trynow-bar {
-                                padding: 8px 10px;
-                                gap: 4px;
-                            }
-                            .trynow-bar button, .trynow-bar a {
-                                padding: 6px 12px;
-                                font-size: 0.7rem;
-                                min-height: 32px;
-                                gap: 4px;
-                            }
-                            .trynow-bar .btn-buy, .trynow-bar .btn-cart {
-                                font-size: 0.7rem;
-                            }
-                            .trynow-content {
-                                padding-bottom: 56px;
-                            }
-                            .trynow-bar::before {
-                                height: 40px;
-                            }
-                        }
-                        @media (max-width: 480px) {
-                            .trynow-bar button, .trynow-bar a {
-                                padding: 4px 10px;
-                                font-size: 0.65rem;
-                                min-height: 28px;
-                                gap: 3px;
-                            }
-                            .trynow-bar {
-                                padding: 6px 8px;
-                            }
-                            .trynow-content {
-                                padding-bottom: 48px;
-                            }
-                            .trynow-bar::before {
-                                height: 30px;
-                            }
-                        }
-                    </style>
-                    <div class="trynow-wrapper">
-                        <div class="trynow-content" id="trynowContent">
-                            ${demo.htmlContent}
-                        </div>
-                        <div class="trynow-bar">
-                            <button class="btn-buy" onclick="window.tryNowBuy('${productId}')">
-                                <i class="fas fa-bolt"></i> Buy Now
-                            </button>
-                            <button class="btn-cart" onclick="window.tryNowAddToCart('${productId}')">
-                                <i class="fas fa-cart-plus"></i> Add to Cart
-                            </button>
-                            <a href="messages.html" target="_blank" class="btn-support">
-                                <i class="fas fa-comment-dots"></i> Support Chat
-                            </a>
-                            <button class="btn-back" onclick="window.tryNowGoBack()">
-                                <i class="fas fa-arrow-left"></i> Go Back
-                            </button>
-                        </div>
-                    </div>
-                    <script>
-                        // Expose functions to the global scope for the bar buttons
-                        window.tryNowBuy = function(productId) {
-                            // Redirect to product detail with buy action
-                            window.location.href = 'product-detail.html?id=' + productId + '&action=buy';
-                        };
-                        window.tryNowAddToCart = function(productId) {
-                            // Redirect to product detail with add to cart action
-                            window.location.href = 'product-detail.html?id=' + productId + '&action=add';
-                        };
-                        window.tryNowGoBack = function() {
-                            // Go back to product detail page
-                            window.location.href = 'product-detail.html?id=${productId}';
-                        };
-                    <\/script>
-                `;
-
-                // Create a new window
-                const win = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-                if (!win) {
-                    showToast('Please allow popups for this site.', 'warning');
-                    return;
-                }
-
-                // Write the full HTML
-                win.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="UTF-8" />
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-                        <title>Try Now – ${productName}</title>
-                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-                        <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
-                    </head>
-                    <body>
-                        ${bottomBar}
-                    </body>
-                    </html>
-                `);
-                win.document.close();
-
-                // After a short delay, inject the content and ensure the bar works
-                setTimeout(() => {
-                    try {
-                        // The content is already written, but we need to ensure the tryNow functions are available
-                        // They are already in the script tag above
-                        console.log('✅ Try Now preview loaded for:', productName);
-                    } catch (e) {
-                        console.warn('Preview injection error:', e);
-                    }
-                }, 100);
-            };
-
-            // ── Also expose preview from product detail page ──
-            // This function will be called from product-detail.html if a demo exists
-            window.previewDemoById = function(productId) {
-                const demo = allDemos.find(d => d.productId === productId);
-                if (!demo) {
-                    showToast('No demo available for this product.', 'warning');
-                    return;
-                }
-                window.previewDemo(demo.id);
-            };
-
-            // ── Also expose the add-to-cart and buy from preview ──
-            // These are handled in the preview window via redirects to product-detail.html with action params
-
-            console.log('🚀 Try Now feature loaded with demo management.');
-
-            // ==============================================================
             // LOGOUT & TAB
             // ==============================================================
             window.logoutAdmin = () => {
@@ -4865,8 +4222,7 @@
             });
 
             renderUsersPage(allUsers);
-            console.log('✅ Admin Panel loaded — iOS glass design with realtime clock & M/R.');
-            console.log('✅ Try Now feature ready.');
+            console.log('✅ Admin Panel loaded — Pending orders in top nav, Try Now automated via HTML upload.');
         }
     </script>
 </body>
