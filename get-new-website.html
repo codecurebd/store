@@ -55,16 +55,22 @@
             border-radius: 16px 16px 0 0;
             overflow: hidden;
             background: #f0f2f5;
+            height: 200px;
+            pointer-events: none;
+            /* prevent interaction with iframe content */;
+        }
+        .product-card .img-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #ffffff;
         }
         .product-card .img-wrapper img {
             width: 100%;
-            height: 200px;
+            height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.4s ease;
-        }
-        .product-card:hover .img-wrapper img {
-            transform: scale(1.03);
         }
         .product-card .card-body {
             padding: 1rem 0.75rem 0.75rem;
@@ -89,6 +95,7 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            pointer-events: none;
         }
         .discount-badge i {
             font-size: 0.7rem;
@@ -450,7 +457,7 @@
 
         /* ── responsive ── */
         @media (max-width: 768px) {
-            .product-card .img-wrapper img {
+            .product-card .img-wrapper {
                 height: 150px;
             }
             .btn-primary,
@@ -491,7 +498,7 @@
             }
         }
         @media (max-width: 480px) {
-            .product-card .img-wrapper img {
+            .product-card .img-wrapper {
                 height: 120px;
             }
             .btn-details,
@@ -828,6 +835,11 @@
             return s;
         }
 
+        function escapeHtmlAttr(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
         function renderProducts() {
             let filtered = [...allProducts];
             const search = searchInput.value.toLowerCase();
@@ -854,7 +866,6 @@
 
             grid.innerHTML = filtered.map(p => {
                 const rating = p.averageRating || 0;
-                const imageUrl = p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image';
                 const desc = p.desc || p.description || '';
                 const discount = getDiscountForProduct(p);
                 const originalPrice = p.price;
@@ -876,10 +887,31 @@
                     priceHtml = `<span class="discount-price" style="font-size:1.4rem;">$${originalPrice.toFixed(2)}</span>`;
                 }
 
+                // ── HTML preview vs image ──
+                const hasHtml = p.htmlContent && p.htmlContent.length > 0;
+                let previewHtml = '';
+                if (hasHtml) {
+                    const escaped = escapeHtmlAttr(p.htmlContent);
+                    previewHtml = `
+                        <iframe 
+                            srcdoc="${escaped}" 
+                            scrolling="no" 
+                            loading="lazy" 
+                            sandbox="allow-scripts allow-same-origin"
+                            style="width:100%; height:100%; border:none; display:block; background:#ffffff;"
+                        ></iframe>
+                    `;
+                } else {
+                    const fallbackImg = p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image';
+                    previewHtml = `
+                        <img src="${fallbackImg}" alt="${p.name}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;" />
+                    `;
+                }
+
                 return `
               <div class="glass-card product-card fade-up">
                 <div class="img-wrapper">
-                  <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
+                  ${previewHtml}
                   ${badgeHtml}
                 </div>
                 <div class="card-body">
@@ -964,7 +996,7 @@
             showToast(`✅ "${product.name}" added to cart`, 'success');
         };
 
-        console.log('🚀 Store page loaded — Details now link to product-detail.html');
+        console.log('🚀 Store page loaded — HTML previews are now shown as static, scroll‑free iframes.');
     </script>
 </body>
 </html>
