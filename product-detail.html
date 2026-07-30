@@ -889,6 +889,7 @@
           productDemos[data.productId] = { id: doc.id, ...data };
         }
       });
+      console.log('✅ Demos loaded:', productDemos);
       if (currentProductData) {
         renderProductDetail(currentProductData);
       }
@@ -1061,26 +1062,40 @@
       
       // Check if demo exists for this product
       const demo = productDemos[currentProductId];
+      console.log('🔍 Trying to open demo for product:', currentProductId, 'Demo found:', !!demo);
+      
       if (!demo || !demo.htmlContent) {
         showToast('No demo available for this product.', 'warning');
+        console.warn('No demo content for product:', currentProductId);
         return;
       }
 
+      // Escape the HTML content for srcdoc
+      const escapedHtml = demo.htmlContent.replace(/"/g, '&quot;');
+      
       // Inject demo HTML into content area using iframe to isolate styles
-      // We'll use an iframe to prevent CSS conflicts
-      content.innerHTML = `<iframe id="demoIframe" style="width:100%; height:100%; border:none;" srcdoc="${demo.htmlContent.replace(/"/g, '&quot;')}"></iframe>`;
+      content.innerHTML = `<iframe id="demoIframe" style="width:100%; height:100%; border:none;" srcdoc="${escapedHtml}"></iframe>`;
       
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
+      console.log('✅ Try Now overlay opened.');
     }
 
-    window.closeTryNow = function() {
+    function closeTryNow() {
       document.getElementById('trynowOverlay').classList.remove('open');
       document.body.style.overflow = '';
       // Clean up iframe
       const content = document.getElementById('demoContent');
       content.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#94a3b8; font-size:1.2rem;"><i class="fas fa-spinner fa-spin mr-2"></i> Loading demo...</div>`;
-    };
+      console.log('❌ Try Now overlay closed.');
+    }
+
+    // ==== EXPOSE FUNCTIONS TO GLOBAL SCOPE ====
+    window.openTryNow = openTryNow;
+    window.closeTryNow = closeTryNow;
+    window.addToCart = addToCart;
+    window.buyNow = buyNow;
+    window.submitRating = submitRating;
 
     // ================================================================
     // RENDER PRODUCT DETAIL (with Try Now button)
@@ -1130,9 +1145,9 @@
               <div class="price-wrapper">${priceHtml}</div>
               <div class="mt-4 text-gray-700 whitespace-pre-wrap">${desc.replace(/\n/g, '<br>')}</div>
               <div class="mt-6 flex flex-wrap gap-3">
-                <button onclick="addToCart()" class="btn-primary"><i class="fas fa-cart-plus"></i> Add to Cart</button>
-                <button onclick="buyNow()" class="btn-primary" style="background:linear-gradient(135deg,#34C759,#28A745);"><i class="fas fa-bolt"></i> Buy Now</button>
-                ${hasDemo ? `<button onclick="openTryNow()" class="btn-try-now"><i class="fas fa-play-circle"></i> Try Now</button>` : ''}
+                <button onclick="window.addToCart()" class="btn-primary"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                <button onclick="window.buyNow()" class="btn-primary" style="background:linear-gradient(135deg,#34C759,#28A745);"><i class="fas fa-bolt"></i> Buy Now</button>
+                ${hasDemo ? `<button onclick="window.openTryNow()" class="btn-try-now"><i class="fas fa-play-circle"></i> Try Now</button>` : ''}
                 <a href="get-new-website.html" class="btn-outline"><i class="fas fa-arrow-left"></i> Back</a>
               </div>
             </div>
@@ -1148,7 +1163,7 @@
               <span class="star" data-val="5">☆</span>
             </div>
             <textarea id="ratingReview" rows="3" class="form-input mt-3" placeholder="Write your review..."></textarea>
-            <button onclick="submitRating()" class="btn-primary mt-3 text-sm py-2 px-4"><i class="fas fa-paper-plane"></i> Submit Review</button>
+            <button onclick="window.submitRating()" class="btn-primary mt-3 text-sm py-2 px-4"><i class="fas fa-paper-plane"></i> Submit Review</button>
             <div id="reviewsList" class="mt-6 space-y-2"></div>
           </div>
         </div>
@@ -1193,7 +1208,7 @@
 
     window.selectedRating = 0;
 
-    window.addToCart = async function() {
+    async function addToCart() {
       if (!currentProductData) { showToast('Product not loaded', 'error'); return; }
       const product = currentProductData;
       const discount = getDiscountForProduct(product);
@@ -1221,15 +1236,15 @@
       }
       window.updateCartUI?.();
       showToast(`✅ "${product.name}" added to cart`, 'success');
-    };
+    }
 
-    window.buyNow = function() {
-      window.addToCart();
+    async function buyNow() {
+      await addToCart();
       setTimeout(() => {
         if (typeof window.checkout === 'function') window.checkout();
         else window.location.href = 'get-new-website.html?checkout=1';
       }, 500);
-    };
+    }
 
     async function loadReviews(productId) {
       const reviewsContainer = document.getElementById('reviewsList');
@@ -1262,7 +1277,7 @@
       }
     }
 
-    window.submitRating = async function() {
+    async function submitRating() {
       if (!currentProductData) { showToast('Product not loaded', 'error'); return; }
       if (!window.selectedRating || window.selectedRating < 1) {
         showToast('Please select a rating', 'warning');
@@ -1295,9 +1310,9 @@
       } catch (err) {
         showToast('⚠️ ' + err.message, 'error');
       }
-    };
+    }
 
-    console.log('📄 Product detail page loaded with inline Try Now (no form).');
+    console.log('📄 Product detail page loaded with Try Now (global functions attached).');
   </script>
 </body>
 </html>
