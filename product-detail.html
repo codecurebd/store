@@ -144,7 +144,7 @@
       transform: scale(1.2);
     }
 
-    /* ===== STATIC PREVIEW (like an image) ===== */
+    /* ===== STATIC PREVIEW (fixed sizing) ===== */
     .static-preview {
       width: 100%;
       height: 400px;
@@ -154,26 +154,17 @@
       position: relative;
       border: 1px solid rgba(0,0,0,0.04);
     }
-    .static-preview .preview-content {
-      width: 100%;
-      height: 100%;
-      transform: scale(0.85);
-      transform-origin: top left;
-      overflow: hidden;
-      pointer-events: none; /* 🔒 blocks all clicks, scrolls, interactions */
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .static-preview .preview-content iframe,
-    .static-preview .preview-content .html-render {
-      width: 117.65%; /* 1/0.85 */
+    .static-preview iframe {
+      width: 117.65%;
       height: 117.65%;
       border: none;
+      transform: scale(0.85);
+      transform-origin: top left;
       pointer-events: none;
       user-select: none;
       -webkit-user-select: none;
+      background: #fff;
     }
-    /* Optional overlay to make it look more like an image */
     .static-preview .preview-overlay {
       position: absolute;
       inset: 0;
@@ -181,7 +172,6 @@
       pointer-events: none;
       border-radius: 12px;
     }
-    /* Badge on top of preview */
     .static-preview .preview-badge {
       position: absolute;
       top: 12px;
@@ -889,7 +879,7 @@
     window.submitRating = submitRating;
 
     // ================================================================
-    // RENDER PRODUCT DETAIL with STATIC PREVIEW
+    // RENDER PRODUCT DETAIL with STATIC PREVIEW (fixed)
     // ================================================================
     function renderProductDetail(product) {
       const discount = getDiscountForProduct(product);
@@ -914,20 +904,15 @@
 
       const hasHtml = product.htmlContent && product.htmlContent.length > 0;
 
-      // ─── STATIC PREVIEW (like an image) ────────────────────────
+      // ─── STATIC PREVIEW (fixed sizing) ────────────────────────
       let previewHtml = '';
       if (hasHtml) {
         const escaped = product.htmlContent.replace(/"/g, '&quot;');
-        // We use an iframe inside a scaled container with pointer-events: none
         previewHtml = `
           <div class="static-preview">
-            <div class="preview-content">
-              <iframe srcdoc="${escaped}" loading="lazy" style="width:117.65%; height:117.65%; border:none; pointer-events:none; user-select:none;"></iframe>
-            </div>
+            <iframe srcdoc="${escaped}" scrolling="no" style="width:117.65%; height:117.65%; border:none; transform:scale(0.85); transform-origin:top left; pointer-events:none; user-select:none; background:#fff;"></iframe>
             <div class="preview-overlay"></div>
-            <div class="preview-badge">
-              <i class="fas fa-image"></i> Preview
-            </div>
+            <div class="preview-badge"><i class="fas fa-image"></i> Preview</div>
           </div>
         `;
       } else {
@@ -1098,7 +1083,7 @@
       }
     }
 
-    console.log('📄 Product detail page — static preview + "Try Now" overlay for full interaction.');
+    console.log('📄 Product detail page — static preview fixed, "Try Now" for full interaction.');
   </script>
 </body>
 </html>
