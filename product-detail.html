@@ -490,202 +490,136 @@
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(20px);
       border-radius: 32px;
-      max-width: 900px;
+      max-width: 1100px;
       width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 2rem 2.5rem;
+      max-height: 92vh;
+      height: 92vh;
+      overflow: hidden;
       box-shadow: 0 32px 80px rgba(0,0,0,0.2);
       border: 1px solid rgba(255,255,255,0.5);
       position: relative;
       animation: scaleIn 0.3s ease;
+      display: flex;
+      flex-direction: column;
     }
     @keyframes scaleIn {
       from { transform: scale(0.95); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
     .trynow-overlay .close-overlay {
-      position: sticky;
-      top: 0;
-      float: right;
-      background: none;
-      border: none;
-      font-size: 1.8rem;
-      color: #64748b;
-      cursor: pointer;
-      transition: 0.2s;
-      padding: 0 8px;
-    }
-    .trynow-overlay .close-overlay:hover {
-      color: #0f172a;
-      transform: rotate(90deg);
-    }
-
-    /* TryNow form inside overlay */
-    .try-form h2 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-      color: #0f172a;
-    }
-    .try-form .sub {
-      color: #64748b;
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
-    }
-    .try-form label {
-      display: block;
-      font-weight: 600;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      color: #475569;
-      margin-bottom: 0.3rem;
-    }
-    .try-form input, .try-form textarea {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 14px;
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-      background: rgba(255,255,255,0.6);
-      outline: none;
-      transition: 0.2s;
-      font-family: inherit;
-    }
-    .try-form input:focus, .try-form textarea:focus {
-      border-color: #f59e0b;
-      box-shadow: 0 0 0 4px rgba(245,158,11,0.1);
-      background: #fff;
-    }
-    .try-form textarea {
-      resize: vertical;
-      min-height: 70px;
-    }
-    .try-form .btn-submit {
-      width: 100%;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(4px);
       color: #fff;
       border: none;
-      padding: 0.9rem;
-      border-radius: 60px;
-      font-weight: 700;
-      font-size: 1rem;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.5rem;
       cursor: pointer;
-      transition: 0.25s ease;
-      box-shadow: 0 4px 16px rgba(245,158,11,0.25);
-    }
-    .try-form .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(245,158,11,0.35);
-    }
-    .try-form .btn-reset {
-      width: 100%;
-      background: transparent;
-      color: #64748b;
-      border: 1px solid #e2e8f0;
-      padding: 0.7rem;
-      border-radius: 60px;
-      font-weight: 500;
-      font-size: 0.9rem;
-      cursor: pointer;
-      margin-top: 0.5rem;
       transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
     }
-    .try-form .btn-reset:hover {
-      background: #f1f5f9;
+    .trynow-overlay .close-overlay:hover {
+      background: rgba(0,0,0,0.5);
+      transform: scale(1.05);
     }
-    .try-form .row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
+    .trynow-overlay .demo-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+      background: #fff;
     }
-
-    /* Landing preview inside overlay */
-    .landing-preview {
-      display: none;
-      animation: fadeUp 0.5s ease;
-    }
-    .landing-preview.active {
+    .trynow-overlay .demo-content iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
       display: block;
     }
-    .landing-preview .preview-header {
+    /* Bottom bar */
+    .trynow-overlay .bottom-bar {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.3);
+      padding: 12px 16px;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      padding: 0.5rem 0 1rem;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
+      gap: 10px;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      position: relative;
+      z-index: 5;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.04);
     }
-    .landing-preview .preview-logo {
-      font-weight: 800;
-      font-size: 1.4rem;
+    .trynow-overlay .bottom-bar::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: linear-gradient(to top, rgba(255,255,255,0.7) 0%, transparent 100%);
+      pointer-events: none;
     }
-    .landing-preview .preview-logo span { color: #f59e0b; }
-    .landing-preview .preview-hero {
-      text-align: center;
-      padding: 1.5rem 0 1rem;
+    .trynow-overlay .bottom-bar button {
+      padding: 8px 20px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 40px;
+      font-family: 'Inter', sans-serif;
     }
-    .landing-preview .preview-hero h1 {
-      font-size: 2.6rem;
-      font-weight: 800;
-      letter-spacing: -1px;
+    .trynow-overlay .bottom-bar .btn-buy {
+      background: linear-gradient(135deg, #34C759, #28A745);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(52, 199, 89, 0.25);
     }
-    .landing-preview .preview-hero h1 span { color: #f59e0b; }
-    .landing-preview .preview-hero p {
-      color: #64748b;
-      font-size: 1.1rem;
+    .trynow-overlay .bottom-bar .btn-buy:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(52, 199, 89, 0.35);
     }
-    .landing-preview .preview-features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1rem;
-      margin: 1.5rem 0;
+    .trynow-overlay .bottom-bar .btn-cart {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0, 122, 255, 0.2);
     }
-    .landing-preview .preview-feature {
-      background: rgba(255,255,255,0.6);
-      border-radius: 16px;
-      padding: 1rem;
-      border: 1px solid rgba(255,255,255,0.4);
-      text-align: center;
+    .trynow-overlay .bottom-bar .btn-cart:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0, 122, 255, 0.3);
     }
-    .landing-preview .preview-feature .icon { font-size: 1.8rem; }
-    .landing-preview .preview-feature h4 { font-size: 0.95rem; font-weight: 700; margin-top: 0.2rem; }
-    .landing-preview .preview-feature p { font-size: 0.8rem; color: #64748b; }
-    .landing-preview .preview-about {
-      background: rgba(255,255,255,0.4);
-      border-radius: 16px;
-      padding: 1.2rem 1.5rem;
-      margin: 1rem 0;
+    .trynow-overlay .bottom-bar .btn-close {
+      background: rgba(0,0,0,0.04);
+      color: #1c1c1e;
+      border: 1px solid rgba(0,0,0,0.06);
+      backdrop-filter: blur(4px);
     }
-    .landing-preview .preview-about h3 { font-size: 1.2rem; font-weight: 700; }
-    .landing-preview .preview-about p { color: #334155; line-height: 1.6; }
-    .landing-preview .preview-contact {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-      justify-content: space-between;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(0,0,0,0.04);
-      margin-top: 1rem;
-    }
-    .landing-preview .preview-contact .col h4 { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.2rem; }
-    .landing-preview .preview-contact .col p { color: #64748b; font-size: 0.9rem; }
-    .landing-preview .preview-footer {
-      text-align: center;
-      color: #94a3b8;
-      font-size: 0.8rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(0,0,0,0.04);
-      margin-top: 1rem;
+    .trynow-overlay .bottom-bar .btn-close:hover {
+      background: rgba(0,0,0,0.08);
+      transform: translateY(-2px);
     }
     @media (max-width: 640px) {
-      .trynow-overlay { padding: 1rem; }
-      .trynow-overlay .overlay-inner { padding: 1.5rem; }
-      .try-form .row-2 { grid-template-columns: 1fr; }
-      .landing-preview .preview-hero h1 { font-size: 1.8rem; }
+      .trynow-overlay { padding: 0.5rem; }
+      .trynow-overlay .overlay-inner { border-radius: 20px; max-height: 96vh; height: 96vh; }
+      .trynow-overlay .bottom-bar { padding: 8px 10px; gap: 4px; }
+      .trynow-overlay .bottom-bar button { padding: 6px 14px; font-size: 0.75rem; min-height: 32px; gap: 4px; }
+      .trynow-overlay .close-overlay { top: 10px; right: 12px; width: 34px; height: 34px; font-size: 1.2rem; }
+    }
+    @media (max-width: 480px) {
+      .trynow-overlay .bottom-bar button { padding: 4px 10px; font-size: 0.65rem; min-height: 28px; gap: 3px; }
     }
   </style>
 </head>
@@ -758,90 +692,18 @@
   <div class="trynow-overlay" id="trynowOverlay">
     <div class="overlay-inner">
       <button class="close-overlay" onclick="closeTryNow()" aria-label="Close">&times;</button>
-
-      <!-- Form Section -->
-      <div id="tryFormSection">
-        <div class="try-form">
-          <h2>Customize Your Landing Page</h2>
-          <p class="sub">Fill in your details to see a personalized preview of this product's landing page.</p>
-          <form id="tryForm">
-            <label for="companyName">Company / Brand Name *</label>
-            <input type="text" id="companyName" placeholder="e.g. UrbanMart" required />
-
-            <label for="tagline">Tagline / Hero Text *</label>
-            <input type="text" id="tagline" placeholder="e.g. Find your perfect match" required />
-
-            <label for="heroDesc">Hero Description</label>
-            <input type="text" id="heroDesc" placeholder="e.g. Millions of products – curated for you." />
-
-            <div class="row-2">
-              <div>
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" placeholder="+880 1XXX-XXXXXX" />
-              </div>
-              <div>
-                <label for="email">Email Address *</label>
-                <input type="email" id="email" placeholder="hello@company.com" required />
-              </div>
-            </div>
-
-            <label for="address">Address / Location</label>
-            <input type="text" id="address" placeholder="Dhaka, Bangladesh" />
-
-            <label for="aboutText">About / Company Description</label>
-            <textarea id="aboutText" rows="3" placeholder="Tell visitors about your brand..."></textarea>
-
-            <button type="submit" class="btn-submit">🚀 Try Now – Preview</button>
-            <button type="button" class="btn-reset" onclick="resetTryNow()">Reset &amp; Start Over</button>
-          </form>
+      <!-- Demo content area -->
+      <div class="demo-content" id="demoContent">
+        <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#94a3b8; font-size:1.2rem;">
+          <i class="fas fa-spinner fa-spin mr-2"></i> Loading demo...
         </div>
       </div>
-
-      <!-- Landing Preview Section (hidden initially) -->
-      <div id="landingPreview" class="landing-preview">
-        <div class="preview-header">
-          <div class="preview-logo" id="previewLogo">Urban<span>Mart</span></div>
-          <div style="font-size:0.85rem; color:#64748b;">
-            <span id="previewPhone">📞 +880 1XXX-XXXXXX</span> &nbsp;|&nbsp;
-            <span id="previewEmail">✉️ hello@company.com</span>
-          </div>
-        </div>
-
-        <div class="preview-hero">
-          <h1 id="previewHeroTitle">Welcome to <span>UrbanMart</span></h1>
-          <p id="previewTagline">Find your perfect match</p>
-          <p id="previewHeroDesc" style="color:#64748b; font-size:1rem;">Millions of products – curated for you.</p>
-        </div>
-
-        <div class="preview-features">
-          <div class="preview-feature"><div class="icon">🚀</div><h4>Fast Delivery</h4><p>24–48 hours</p></div>
-          <div class="preview-feature"><div class="icon">🛡️</div><h4>Secure Payment</h4><p>Encrypted</p></div>
-          <div class="preview-feature"><div class="icon">💎</div><h4>Premium Quality</h4><p>Top brands</p></div>
-          <div class="preview-feature"><div class="icon">🎯</div><h4>Personalized</h4><p>For you</p></div>
-        </div>
-
-        <div class="preview-about">
-          <h3 id="previewCompanyName">About UrbanMart</h3>
-          <p id="previewAboutText">We are a modern e-commerce platform dedicated to bringing you the best products from around the world. Our mission is to make shopping easy, fast, and enjoyable for everyone.</p>
-          <div style="margin-top:0.5rem; font-size:0.9rem; color:#475569;">
-            <span id="previewAddress">📍 Dhaka, Bangladesh</span>
-          </div>
-        </div>
-
-        <div class="preview-contact">
-          <div class="col"><h4>📞 Phone</h4><p id="previewPhoneFooter">+880 1XXX-XXXXXX</p></div>
-          <div class="col"><h4>✉️ Email</h4><p id="previewEmailFooter">hello@company.com</p></div>
-          <div class="col"><h4>📍 Address</h4><p id="previewAddressFooter">Dhaka, Bangladesh</p></div>
-          <div class="col"><h4>Follow</h4><p>FB · IG · TW</p></div>
-        </div>
-
-        <div class="preview-footer">
-          &copy; 2026 <span id="previewFooterName">UrbanMart</span>. All rights reserved.
-        </div>
-
-        <button class="btn-reset" onclick="resetTryNow()" style="margin-top:1rem; width:100%;">← Go back to form</button>
+      <!-- Bottom bar -->
+      <div class="bottom-bar">
+        <button class="btn-buy" onclick="window.buyNow()"><i class="fas fa-bolt"></i> Buy Now</button>
+        <button class="btn-cart" onclick="window.addToCart()"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+        <button class="btn-close" onclick="closeTryNow()"><i class="fas fa-times"></i> Close</button>
       </div>
-
     </div>
   </div>
 
@@ -1007,7 +869,7 @@
     });
 
     // ================================================================
-    // PRODUCT DETAIL LOGIC (with Try Now overlay)
+    // PRODUCT DETAIL LOGIC
     // ================================================================
     const container = document.getElementById('productDetailContainer');
     let currentProductId = null;
@@ -1194,157 +1056,30 @@
 
     // ===== TRY NOW OVERLAY FUNCTIONS =====
     function openTryNow() {
-      document.getElementById('trynowOverlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
-      // Show form, hide preview
-      document.getElementById('tryFormSection').style.display = 'block';
-      document.getElementById('landingPreview').classList.remove('active');
-      document.getElementById('landingPreview').style.display = 'none';
-      // Pre-fill with product name if available
-      if (currentProductData) {
-        const companyInput = document.getElementById('companyName');
-        if (companyInput && !companyInput.value) {
-          companyInput.value = currentProductData.name || '';
-        }
+      const overlay = document.getElementById('trynowOverlay');
+      const content = document.getElementById('demoContent');
+      
+      // Check if demo exists for this product
+      const demo = productDemos[currentProductId];
+      if (!demo || !demo.htmlContent) {
+        showToast('No demo available for this product.', 'warning');
+        return;
       }
+
+      // Inject demo HTML into content area using iframe to isolate styles
+      // We'll use an iframe to prevent CSS conflicts
+      content.innerHTML = `<iframe id="demoIframe" style="width:100%; height:100%; border:none;" srcdoc="${demo.htmlContent.replace(/"/g, '&quot;')}"></iframe>`;
+      
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
     }
 
     window.closeTryNow = function() {
       document.getElementById('trynowOverlay').classList.remove('open');
       document.body.style.overflow = '';
-    };
-
-    // ===== Render landing preview inside overlay =====
-    function renderPreview(data) {
-      document.getElementById('tryFormSection').style.display = 'none';
-      const preview = document.getElementById('landingPreview');
-      preview.style.display = 'block';
-      preview.classList.add('active');
-
-      // Logo
-      const logo = document.getElementById('previewLogo');
-      if (logo && data.companyName) {
-        logo.innerHTML = data.companyName + '<span>Mart</span>';
-      }
-
-      // Hero
-      const heroTitle = document.getElementById('previewHeroTitle');
-      if (heroTitle && data.companyName) {
-        heroTitle.innerHTML = `Welcome to <span>${data.companyName}</span>`;
-      }
-      const tagline = document.getElementById('previewTagline');
-      if (tagline && data.tagline) {
-        tagline.textContent = data.tagline;
-      }
-      const heroDesc = document.getElementById('previewHeroDesc');
-      if (heroDesc && data.heroDesc) {
-        heroDesc.textContent = data.heroDesc;
-      }
-
-      // Phone/Email header
-      const phoneH = document.getElementById('previewPhone');
-      if (phoneH && data.phone) phoneH.textContent = '📞 ' + data.phone;
-      const emailH = document.getElementById('previewEmail');
-      if (emailH && data.email) emailH.textContent = '✉️ ' + data.email;
-
-      // About
-      const aboutTitle = document.getElementById('previewCompanyName');
-      if (aboutTitle && data.companyName) {
-        aboutTitle.textContent = 'About ' + data.companyName;
-      }
-      const aboutText = document.getElementById('previewAboutText');
-      if (aboutText && data.aboutText) {
-        aboutText.textContent = data.aboutText;
-      }
-      const addr = document.getElementById('previewAddress');
-      if (addr && data.address) {
-        addr.textContent = '📍 ' + data.address;
-      }
-
-      // Footer
-      const phoneF = document.getElementById('previewPhoneFooter');
-      if (phoneF && data.phone) phoneF.textContent = data.phone;
-      const emailF = document.getElementById('previewEmailFooter');
-      if (emailF && data.email) emailF.textContent = data.email;
-      const addrF = document.getElementById('previewAddressFooter');
-      if (addrF && data.address) addrF.textContent = data.address;
-      const footerName = document.getElementById('previewFooterName');
-      if (footerName && data.companyName) footerName.textContent = data.companyName;
-    }
-
-    // ===== Reset Try Now =====
-    window.resetTryNow = function() {
-      localStorage.removeItem('tryNowData');
-      document.getElementById('tryForm').reset();
-      // Show form, hide preview
-      document.getElementById('tryFormSection').style.display = 'block';
-      document.getElementById('landingPreview').classList.remove('active');
-      document.getElementById('landingPreview').style.display = 'none';
-      // Clear any stored data
-      window.tryNowData = null;
-      showToast('Reset complete. You can start over.', 'info');
-    };
-
-    // ===== Form submit =====
-    const tryForm = document.getElementById('tryForm');
-    tryForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const companyName = document.getElementById('companyName').value.trim();
-      const tagline = document.getElementById('tagline').value.trim();
-      const heroDesc = document.getElementById('heroDesc').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const address = document.getElementById('address').value.trim();
-      const aboutText = document.getElementById('aboutText').value.trim();
-
-      if (!companyName || !tagline || !email) {
-        alert('Please fill in Company Name, Tagline, and Email (required).');
-        return;
-      }
-
-      const data = {
-        companyName,
-        tagline,
-        heroDesc: heroDesc || 'Discover amazing products curated just for you.',
-        phone: phone || '+880 1XXX-XXXXXX',
-        email,
-        address: address || 'Dhaka, Bangladesh',
-        aboutText: aboutText || `We are a modern e-commerce platform dedicated to bringing you the best products from around the world. Our mission is to make shopping easy, fast, and enjoyable for everyone.`
-      };
-
-      // Save to localStorage for persistence
-      localStorage.setItem('tryNowData', JSON.stringify(data));
-      window.tryNowData = data;
-
-      // Render preview
-      renderPreview(data);
-    });
-
-    // ===== On overlay open, check if data exists =====
-    // We'll check when the overlay is opened
-    const originalOpenTryNow = openTryNow;
-    window.openTryNow = function() {
-      originalOpenTryNow();
-      // Check if data exists in localStorage
-      const saved = localStorage.getItem('tryNowData');
-      if (saved) {
-        try {
-          const data = JSON.parse(saved);
-          // Auto-render preview if data exists
-          renderPreview(data);
-          // Also populate form fields (so user can edit)
-          document.getElementById('companyName').value = data.companyName || '';
-          document.getElementById('tagline').value = data.tagline || '';
-          document.getElementById('heroDesc').value = data.heroDesc || '';
-          document.getElementById('phone').value = data.phone || '';
-          document.getElementById('email').value = data.email || '';
-          document.getElementById('address').value = data.address || '';
-          document.getElementById('aboutText').value = data.aboutText || '';
-        } catch (e) {
-          // ignore
-        }
-      }
+      // Clean up iframe
+      const content = document.getElementById('demoContent');
+      content.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#94a3b8; font-size:1.2rem;"><i class="fas fa-spinner fa-spin mr-2"></i> Loading demo...</div>`;
     };
 
     // ================================================================
@@ -1397,7 +1132,7 @@
               <div class="mt-6 flex flex-wrap gap-3">
                 <button onclick="addToCart()" class="btn-primary"><i class="fas fa-cart-plus"></i> Add to Cart</button>
                 <button onclick="buyNow()" class="btn-primary" style="background:linear-gradient(135deg,#34C759,#28A745);"><i class="fas fa-bolt"></i> Buy Now</button>
-                ${hasDemo ? `<button onclick="window.openTryNow()" class="btn-try-now"><i class="fas fa-play-circle"></i> Try Now</button>` : ''}
+                ${hasDemo ? `<button onclick="openTryNow()" class="btn-try-now"><i class="fas fa-play-circle"></i> Try Now</button>` : ''}
                 <a href="get-new-website.html" class="btn-outline"><i class="fas fa-arrow-left"></i> Back</a>
               </div>
             </div>
@@ -1562,7 +1297,7 @@
       }
     };
 
-    console.log('📄 Product detail page loaded with inline Try Now overlay.');
+    console.log('📄 Product detail page loaded with inline Try Now (no form).');
   </script>
 </body>
 </html>
