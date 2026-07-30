@@ -111,14 +111,26 @@
       overflow: hidden;
       padding: 0;
     }
-    .featured-card img {
-      width: 100%;
+    .featured-card .img-wrapper {
+      position: relative;
+      border-radius: 16px 16px 0 0;
+      overflow: hidden;
+      background: #f0f2f5;
       height: 180px;
-      object-fit: cover;
-      transition: transform 0.4s ease;
+      pointer-events: none;
     }
-    .featured-card:hover img {
-      transform: scale(1.03);
+    .featured-card .img-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #ffffff;
+    }
+    .featured-card .img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
     .featured-card .card-body {
       padding: 1rem 1.25rem 1.25rem;
@@ -304,11 +316,11 @@
       .stat-number { font-size: 2rem; }
       .btn-primary, .btn-outline, .btn-details { font-size: 0.85rem; min-height: 44px; padding: 10px 20px; }
       .trust-badge { font-size: 0.75rem; padding: 0.3rem 1rem; }
-      .featured-card img { height: 140px; }
+      .featured-card .img-wrapper { height: 140px; }
     }
     @media (max-width: 480px) {
       .stat-number { font-size: 1.6rem; }
-      .featured-card img { height: 120px; }
+      .featured-card .img-wrapper { height: 120px; }
       .btn-details { font-size: 0.78rem; padding: 6px 14px; min-height: 36px; }
     }
 
@@ -359,6 +371,50 @@
       border-color: #007AFF;
       box-shadow: 0 0 0 4px rgba(0,122,255,0.06);
       background: #fff;
+    }
+
+    /* ===== TOAST ===== */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      width: 90%;
+      max-width: 400px;
+    }
+    .toast {
+      pointer-events: auto;
+      background: #1c1c1e;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideUp 0.3s ease forwards;
+      width: 100%;
+      backdrop-filter: blur(4px);
+    }
+    .toast.success { background: #28A745; }
+    .toast.error { background: #dc3545; }
+    .toast.warning { background: #ffc107; color: #1c1c1e; }
+    .toast.hide { animation: slideDown 0.3s ease forwards; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideDown {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(30px); }
     }
   </style>
 </head>
@@ -802,7 +858,7 @@
     };
 
     // ================================================================
-    // ✅ ফিচার্ড প্রোডাক্ট
+    // ✅ ফিচার্ড প্রোডাক্ট (HTML preview)
     // ================================================================
     const packagesContainer = document.getElementById('featuredPackages');
 
@@ -824,6 +880,11 @@
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
     renderSkeletons();
+
+    function escapeHtmlAttr(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
 
     async function loadFeaturedProducts() {
       try {
@@ -847,10 +908,31 @@
 
         let html = '';
         products.forEach(p => {
-          const imageUrl = p.imageUrl || 'https://via.placeholder.com/300x180?text=No+Image';
+          const hasHtml = p.htmlContent && p.htmlContent.length > 0;
+          let previewHtml = '';
+          if (hasHtml) {
+            const escaped = escapeHtmlAttr(p.htmlContent);
+            previewHtml = `
+              <iframe 
+                srcdoc="${escaped}" 
+                scrolling="no" 
+                loading="lazy" 
+                sandbox="allow-scripts allow-same-origin"
+                style="width:100%; height:100%; border:none; display:block; background:#ffffff;"
+              ></iframe>
+            `;
+          } else {
+            const fallbackImg = p.imageUrl || 'https://via.placeholder.com/300x180?text=No+Image';
+            previewHtml = `
+              <img src="${fallbackImg}" alt="${p.name}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;" />
+            `;
+          }
+
           html += `
             <div class="glass-card featured-card fade-up">
-              <img src="${imageUrl}" alt="${p.name}" loading="lazy" />
+              <div class="img-wrapper">
+                ${previewHtml}
+              </div>
               <div class="card-body">
                 <h3 class="font-bold text-lg text-gray-900">${p.name}</h3>
                 <p class="text-sm text-gray-500 product-desc">${p.desc || p.description || ''}</p>
@@ -996,7 +1078,7 @@
     loadFaqs();
 
     // ================================================================
-    // ✅ CONTACT FORM (NEW)
+    // ✅ CONTACT FORM
     // ================================================================
     const contactForm = document.getElementById('contactForm');
     const contactSubmitBtn = document.getElementById('contactSubmitBtn');
@@ -1034,7 +1116,7 @@
       }
     });
 
-    console.log('🏠 Landing page loaded successfully!');
+    console.log('🏠 Landing page loaded with HTML previews in featured products!');
   </script>
 </body>
 </html>
