@@ -89,7 +89,6 @@
         .sidebar.closed {
             transform: translateX(-100%);
         }
-        /* logo removed — brand now lives in top bar */
 
         .sidebar .nav-section {
             flex: 1;
@@ -1606,8 +1605,8 @@
             height: 80px;
             border-radius: 8px;
             overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.06);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             flex-shrink: 0;
         }
         .image-thumbnail-item img {
@@ -1619,7 +1618,7 @@
             position: absolute;
             top: 2px;
             right: 2px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             color: white;
             border: none;
             border-radius: 50%;
@@ -1650,6 +1649,113 @@
             height: 100%;
             cursor: pointer;
         }
+
+        /* ===== TRY NOW ADMIN STYLES ===== */
+        .demo-item {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: 14px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s ease;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+        }
+        .demo-item:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+        }
+        .demo-item .demo-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .demo-item .demo-info .demo-product {
+            font-weight: 600;
+            color: #1c1c1e;
+        }
+        .demo-item .demo-info .demo-meta {
+            font-size: 0.75rem;
+            color: #8e8e93;
+        }
+        .demo-item .demo-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .demo-item .demo-actions button {
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+        .demo-item .demo-actions .btn-preview {
+            background: rgba(0, 122, 255, 0.08);
+            color: #007AFF;
+        }
+        .demo-item .demo-actions .btn-preview:hover {
+            background: rgba(0, 122, 255, 0.16);
+        }
+        .demo-item .demo-actions .btn-edit {
+            background: rgba(139, 92, 246, 0.08);
+            color: #7c3aed;
+        }
+        .demo-item .demo-actions .btn-edit:hover {
+            background: rgba(139, 92, 246, 0.16);
+        }
+        .demo-item .demo-actions .btn-delete-demo {
+            background: rgba(220, 38, 38, 0.08);
+            color: #dc2626;
+        }
+        .demo-item .demo-actions .btn-delete-demo:hover {
+            background: rgba(220, 38, 38, 0.16);
+        }
+
+        /* File input styling */
+        .file-upload-wrapper {
+            position: relative;
+            border: 2px dashed rgba(60, 60, 67, 0.12);
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: 0.3s ease;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .file-upload-wrapper:hover {
+            border-color: #007AFF;
+            background: rgba(0, 122, 255, 0.04);
+        }
+        .file-upload-wrapper .file-icon {
+            font-size: 2.5rem;
+            color: #8e8e93;
+            margin-bottom: 0.5rem;
+        }
+        .file-upload-wrapper .file-text {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        .file-upload-wrapper .file-name {
+            font-weight: 600;
+            color: #1c1c1e;
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-upload-wrapper.has-file {
+            border-color: #34C759;
+            background: rgba(52, 199, 89, 0.04);
+        }
     </style>
 </head>
 <body>
@@ -1673,6 +1779,8 @@
             <button class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages</button>
             <button class="nav-item" data-tab="fixrequests"><i class="fas fa-wrench"></i> Fix Requests</button>
             <button class="nav-item" data-tab="discounts"><i class="fas fa-tags"></i> Discounts</button>
+            <!-- ===== NEW: Try Now ===== -->
+            <button class="nav-item" data-tab="trynow"><i class="fas fa-play-circle"></i> Try Now</button>
             <button class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</button>
             <button class="nav-item" data-tab="supportchat"><i class="fas fa-comments"></i> Support Chat</button>
         </div>
@@ -1956,6 +2064,23 @@
                 </div>
             </div>
 
+            <!-- ============================================================ -->
+            <!-- ===== TRY NOW TAB ===== -->
+            <!-- ============================================================ -->
+            <div id="tab-trynow" class="tab-content">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Try Now Demos</h2>
+                        <p class="text-sm text-gray-500 mt-1">Upload HTML demos for products. Users can preview them with a "Try Now" button on the product detail page.</p>
+                    </div>
+                    <button onclick="openDemoModal()" class="btn-primary text-sm py-2 px-4"><i class="fas fa-plus"></i> Add Demo</button>
+                </div>
+
+                <div id="demoList" class="mt-4 space-y-2">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+
             <!-- SETTINGS -->
             <div id="tab-settings" class="tab-content">
                 <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Settings</h2>
@@ -2138,6 +2263,41 @@
                 <button class="btn-cancel" id="confirmCancelBtn">Cancel</button>
                 <button class="btn-danger" id="confirmDeleteBtn" disabled>Delete</button>
             </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- ===== TRY NOW MODAL (Add/Edit Demo) ===== -->
+    <!-- ================================================================ -->
+    <div class="modal-overlay" id="demoModal">
+        <div class="modal-box" style="max-width:700px;">
+            <div class="modal-header">
+                <h3 id="demoModalTitle">Add Demo</h3>
+                <button class="modal-close" onclick="closeDemoModal()">&times;</button>
+            </div>
+            <form id="demoForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Select Product *</label>
+                    <select id="demoProductSelect" class="form-input" required>
+                        <option value="">— Select a product —</option>
+                    </select>
+                    <p class="text-xs text-gray-400 mt-1">The demo will appear on this product's detail page.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">HTML File *</label>
+                    <div class="file-upload-wrapper" id="fileUploadWrapper">
+                        <div class="file-icon"><i class="fas fa-file-code"></i></div>
+                        <div class="file-text">Click to select an HTML file</div>
+                        <div class="file-name" id="selectedFileName"></div>
+                        <input type="file" id="demoFileInput" accept=".html,.htm" />
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Upload the HTML file that will be previewed when users click "Try Now".</p>
+                </div>
+
+                <input type="hidden" id="demoId" value="" />
+                <button type="submit" id="demoSubmitBtn" class="btn-primary w-full">Save Demo</button>
+            </form>
         </div>
     </div>
 
@@ -2463,6 +2623,7 @@
                 document.getElementById('totalProducts').innerText = snapshot.size;
                 renderProducts(snapshot);
                 populateProductDropdown();
+                populateDemoProductDropdown();
             });
 
             // ==============================================================
@@ -2480,7 +2641,6 @@
                     const p = doc.data();
                     const featuredBadge = p.featured ?
                         '<span class="featured-badge ml-1"><i class="fas fa-star"></i> Featured</span>' : '';
-                    // Use first image from array or fallback imageUrl
                     const images = p.images || [];
                     const mainImage = images.length > 0 ? images[0] : (p.imageUrl || 'https://via.placeholder.com/300x140?text=No+Image');
                     html += `
@@ -2504,7 +2664,7 @@
             }
 
             // ===== MULTI‑IMAGE STATE =====
-            let productImages = []; // array of image URLs
+            let productImages = [];
 
             function renderImageThumbnails() {
                 const container = document.getElementById('imageThumbnailList');
@@ -2526,7 +2686,6 @@
                 });
                 container.innerHTML = html;
                 hiddenInput.value = JSON.stringify(productImages);
-                // Update add button disabled state (max 5)
                 document.getElementById('addImageBtn').disabled = productImages.length >= 5;
             }
 
@@ -2545,7 +2704,6 @@
                 renderImageThumbnails();
             };
 
-            // Handle file upload
             const fileInput = document.getElementById('prodImageFile');
             const addBtn = document.getElementById('addImageBtn');
             addBtn.addEventListener('click', () => fileInput.click());
@@ -2582,10 +2740,8 @@
                     document.getElementById('prodFeatured').checked = data.featured || false;
                     document.getElementById('productModalTitle').innerText = 'Edit Product';
 
-                    // Load images
                     productImages = data.images || [];
                     if (productImages.length === 0 && data.imageUrl) {
-                        // fallback to single imageUrl
                         productImages = [data.imageUrl];
                     }
                     renderImageThumbnails();
@@ -2608,9 +2764,6 @@
             window.closeProductModal = () => {
                 document.getElementById('productModal').classList.remove('open');
             };
-
-            // Remove old single image handlers (keep the upload logic via new file input)
-            // We no longer need the old preview and manual URL input; we keep the file upload.
 
             window.deleteProduct = async (id) => {
                 const snap = await getDoc(doc(db, 'products', id));
@@ -2657,7 +2810,7 @@
                         category,
                         images: productImages,
                         featured,
-                        imageUrl: productImages[0] || '' // keep first as fallback
+                        imageUrl: productImages[0] || ''
                     };
                     if (id) await updateDoc(doc(db, 'products', id), data);
                     else await addDoc(collection(db, 'products'), data);
@@ -4181,6 +4334,488 @@
             initMessenger();
 
             // ==============================================================
+            // ==============================================================
+            // ===== TRY NOW FEATURE =====
+            // ==============================================================
+            // ==============================================================
+
+            let allProductsForDemo = [];
+            let allDemos = [];
+            let editingDemoId = null;
+
+            // ── Populate product dropdown for demo modal ──
+            async function populateDemoProductDropdown() {
+                try {
+                    const snap = await getDocs(collection(db, 'products'));
+                    const select = document.getElementById('demoProductSelect');
+                    select.innerHTML = '<option value="">— Select a product —</option>';
+                    allProductsForDemo = [];
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        allProductsForDemo.push({ id: doc.id, name: data.name });
+                        select.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
+                    });
+                } catch (e) { console.warn('Error loading products for demo dropdown', e); }
+            }
+
+            // ── Render demo list ──
+            function renderDemoList() {
+                const container = document.getElementById('demoList');
+                if (allDemos.length === 0) {
+                    container.innerHTML = `
+                        <div class="glass-card text-center py-10 text-gray-500">
+                            <i class="fas fa-play-circle text-4xl opacity-30"></i>
+                            <p class="mt-2">No demos uploaded yet. Add your first demo!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                // Sort by product name
+                const sorted = [...allDemos].sort((a, b) => (a.productName || '').localeCompare(b.productName || ''));
+                sorted.forEach(demo => {
+                    const productName = demo.productName || 'Unknown Product';
+                    const createdAt = demo.createdAt?.toDate?.() || new Date(demo.createdAt);
+                    const dateStr = createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'short',
+                        day: 'numeric' });
+                    const timeStr = createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    const hasHtml = demo.htmlContent && demo.htmlContent.length > 0;
+
+                    html += `
+                        <div class="demo-item">
+                            <div class="demo-info">
+                                <div class="demo-product"><i class="fas fa-file-code text-blue-500 mr-2"></i> ${productName}</div>
+                                <div class="demo-meta">
+                                    Added: ${dateStr} at ${timeStr} 
+                                    ${hasHtml ? `· <span class="text-green-600">✔ HTML loaded (${demo.htmlContent.length} chars)</span>` : '· <span class="text-red-400">⚠ No HTML</span>'}
+                                </div>
+                            </div>
+                            <div class="demo-actions">
+                                ${hasHtml ? `<button onclick="previewDemo('${demo.id}')" class="btn-preview" title="Preview"><i class="fas fa-eye"></i> Preview</button>` : ''}
+                                <button onclick="editDemo('${demo.id}')" class="btn-edit" title="Edit"><i class="fas fa-edit"></i> Edit</button>
+                                <button onclick="deleteDemo('${demo.id}')" class="btn-delete-demo" title="Delete"><i class="fas fa-trash"></i> Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            // ── Listen to demos ──
+            onSnapshot(collection(db, 'productDemos'), (snapshot) => {
+                allDemos = [];
+                snapshot.forEach(doc => {
+                    allDemos.push({ id: doc.id, ...doc.data() });
+                });
+                renderDemoList();
+            });
+
+            // ── Open Demo Modal (Add) ──
+            window.openDemoModal = function() {
+                editingDemoId = null;
+                document.getElementById('demoModalTitle').textContent = 'Add Demo';
+                document.getElementById('demoId').value = '';
+                document.getElementById('demoForm').reset();
+                document.getElementById('selectedFileName').textContent = '';
+                document.getElementById('fileUploadWrapper').classList.remove('has-file');
+                document.getElementById('demoProductSelect').value = '';
+                document.getElementById('demoModal').classList.add('open');
+                // Populate dropdown if empty
+                if (allProductsForDemo.length === 0) populateDemoProductDropdown();
+            };
+
+            // ── Close Demo Modal ──
+            window.closeDemoModal = function() {
+                document.getElementById('demoModal').classList.remove('open');
+                editingDemoId = null;
+            };
+
+            // ── Edit Demo ──
+            window.editDemo = async function(id) {
+                const demo = allDemos.find(d => d.id === id);
+                if (!demo) { showToast('Demo not found.', 'error'); return; }
+                editingDemoId = id;
+                document.getElementById('demoModalTitle').textContent = 'Edit Demo';
+                document.getElementById('demoId').value = id;
+                document.getElementById('demoProductSelect').value = demo.productId || '';
+                document.getElementById('selectedFileName').textContent = demo.fileName || 'HTML file loaded';
+                document.getElementById('fileUploadWrapper').classList.add('has-file');
+                document.getElementById('demoModal').classList.add('open');
+                if (allProductsForDemo.length === 0) populateDemoProductDropdown();
+            };
+
+            // ── Delete Demo ──
+            window.deleteDemo = async function(id) {
+                const demo = allDemos.find(d => d.id === id);
+                if (!demo) { showToast('Demo not found.', 'error'); return; }
+                const productName = demo.productName || 'this demo';
+                const confirmed = await openConfirmModal({
+                    title: 'Delete Demo',
+                    desc: `Are you sure you want to delete the demo for "${productName}"? This action cannot be undone.`,
+                    icon: 'fa-play-circle',
+                    itemId: id,
+                    itemIdLabel: 'Demo ID',
+                    expectedValue: id,
+                    inputPlaceholder: 'Paste or type the demo ID exactly as shown…',
+                    inputLabel: 'Type the demo ID below to confirm:'
+                });
+                if (confirmed) {
+                    try { await deleteDoc(doc(db, 'productDemos', id));
+                        showToast('✅ Demo deleted.', 'success'); } catch (err) { showToast('❌ Error: ' + err
+                            .message, 'error'); }
+                } else { showToast('Deletion cancelled.', 'info'); }
+            };
+
+            // ── File upload handler ──
+            const demoFileInput = document.getElementById('demoFileInput');
+            const fileUploadWrapper = document.getElementById('fileUploadWrapper');
+            const selectedFileName = document.getElementById('selectedFileName');
+
+            demoFileInput.addEventListener('change', function(e) {
+                const file = this.files[0];
+                if (!file) {
+                    fileUploadWrapper.classList.remove('has-file');
+                    selectedFileName.textContent = '';
+                    return;
+                }
+                // Only allow .html and .htm
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!['html', 'htm'].includes(ext)) {
+                    showToast('Please select an HTML file (.html or .htm)', 'error');
+                    this.value = '';
+                    fileUploadWrapper.classList.remove('has-file');
+                    selectedFileName.textContent = '';
+                    return;
+                }
+                // Max 2MB
+                if (file.size > 2 * 1024 * 1024) {
+                    showToast('File size must be less than 2MB.', 'error');
+                    this.value = '';
+                    fileUploadWrapper.classList.remove('has-file');
+                    selectedFileName.textContent = '';
+                    return;
+                }
+                fileUploadWrapper.classList.add('has-file');
+                selectedFileName.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+            });
+
+            // ── Demo Form Submit ──
+            const demoForm = document.getElementById('demoForm');
+            const demoSubmitBtn = document.getElementById('demoSubmitBtn');
+
+            demoForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const productId = document.getElementById('demoProductSelect').value;
+                const file = document.getElementById('demoFileInput').files[0];
+                const demoId = document.getElementById('demoId').value;
+
+                if (!productId) { showToast('Please select a product.', 'error'); return; }
+
+                // If editing and no new file, keep existing HTML
+                let htmlContent = '';
+                let fileName = '';
+
+                if (demoId) {
+                    // Editing: if no file selected, keep existing
+                    const existing = allDemos.find(d => d.id === demoId);
+                    if (existing) {
+                        htmlContent = existing.htmlContent || '';
+                        fileName = existing.fileName || 'demo.html';
+                    }
+                }
+
+                if (file) {
+                    try {
+                        const text = await file.text();
+                        htmlContent = text;
+                        fileName = file.name;
+                    } catch (err) {
+                        showToast('Error reading file: ' + err.message, 'error');
+                        return;
+                    }
+                }
+
+                if (!htmlContent && !demoId) {
+                    showToast('Please select an HTML file.', 'error');
+                    return;
+                }
+
+                // Find product name
+                const product = allProductsForDemo.find(p => p.id === productId);
+                const productName = product ? product.name : 'Unknown';
+
+                setLoading(demoSubmitBtn, true, 'Saving...');
+
+                try {
+                    const data = {
+                        productId,
+                        productName,
+                        htmlContent,
+                        fileName: fileName || 'demo.html',
+                        updatedAt: serverTimestamp()
+                    };
+
+                    if (demoId) {
+                        await updateDoc(doc(db, 'productDemos', demoId), data);
+                        showToast('✅ Demo updated!', 'success');
+                    } else {
+                        data.createdAt = serverTimestamp();
+                        await addDoc(collection(db, 'productDemos'), data);
+                        showToast('✅ Demo added!', 'success');
+                    }
+
+                    closeDemoModal();
+                    demoForm.reset();
+                    document.getElementById('selectedFileName').textContent = '';
+                    fileUploadWrapper.classList.remove('has-file');
+
+                } catch (err) {
+                    showToast('❌ Error: ' + err.message, 'error');
+                } finally {
+                    setLoading(demoSubmitBtn, false);
+                }
+            });
+
+            // ── Preview Demo (opens in new window with fixed bottom bar) ──
+            window.previewDemo = function(demoId) {
+                const demo = allDemos.find(d => d.id === demoId);
+                if (!demo) { showToast('Demo not found.', 'error'); return; }
+                if (!demo.htmlContent) { showToast('No HTML content to preview.', 'error'); return; }
+
+                // Build the HTML with fixed bottom bar
+                const productName = demo.productName || 'Demo';
+                const productId = demo.productId;
+
+                // The bottom bar HTML with transparent background, fade-out at top
+                const bottomBar = `
+                    <style>
+                        * { box-sizing: border-box; }
+                        body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+                        .trynow-wrapper {
+                            position: relative;
+                            min-height: 100vh;
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        .trynow-content {
+                            flex: 1;
+                            padding-bottom: 70px;
+                        }
+                        .trynow-bar {
+                            position: fixed;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            background: rgba(255, 255, 255, 0.55);
+                            backdrop-filter: blur(20px) saturate(180%);
+                            -webkit-backdrop-filter: blur(20px) saturate(180%);
+                            border-top: 1px solid rgba(255, 255, 255, 0.3);
+                            padding: 10px 16px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            gap: 8px;
+                            flex-wrap: wrap;
+                            z-index: 9999;
+                            box-shadow: 0 -8px 32px rgba(0,0,0,0.04);
+                        }
+                        .trynow-bar::before {
+                            content: '';
+                            position: absolute;
+                            bottom: 100%;
+                            left: 0;
+                            right: 0;
+                            height: 60px;
+                            background: linear-gradient(to top, rgba(255,255,255,0.7) 0%, transparent 100%);
+                            pointer-events: none;
+                        }
+                        .trynow-bar button, .trynow-bar a {
+                            padding: 8px 18px;
+                            border-radius: 60px;
+                            font-weight: 600;
+                            font-size: 0.82rem;
+                            border: none;
+                            cursor: pointer;
+                            transition: all 0.25s ease;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 6px;
+                            text-decoration: none;
+                            min-height: 40px;
+                            white-space: nowrap;
+                            font-family: 'Inter', sans-serif;
+                        }
+                        .trynow-bar .btn-buy {
+                            background: linear-gradient(135deg, #34C759, #28A745);
+                            color: #fff;
+                            box-shadow: 0 4px 16px rgba(52, 199, 89, 0.25);
+                        }
+                        .trynow-bar .btn-buy:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 8px 28px rgba(52, 199, 89, 0.35);
+                        }
+                        .trynow-bar .btn-cart {
+                            background: linear-gradient(135deg, #007AFF, #5856D6);
+                            color: #fff;
+                            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.2);
+                        }
+                        .trynow-bar .btn-cart:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 8px 28px rgba(0, 122, 255, 0.3);
+                        }
+                        .trynow-bar .btn-support {
+                            background: rgba(255, 255, 255, 0.7);
+                            color: #1c1c1e;
+                            border: 1px solid rgba(0,0,0,0.06);
+                            backdrop-filter: blur(4px);
+                        }
+                        .trynow-bar .btn-support:hover {
+                            background: rgba(255, 255, 255, 0.9);
+                            transform: translateY(-2px);
+                        }
+                        .trynow-bar .btn-back {
+                            background: rgba(0, 0, 0, 0.04);
+                            color: #6b7280;
+                            border: 1px solid rgba(0,0,0,0.04);
+                        }
+                        .trynow-bar .btn-back:hover {
+                            background: rgba(0, 0, 0, 0.08);
+                            transform: translateY(-2px);
+                        }
+                        .trynow-bar .btn-back i, .trynow-bar .btn-support i, .trynow-bar .btn-cart i, .trynow-bar .btn-buy i {
+                            font-size: 0.9rem;
+                        }
+                        @media (max-width: 640px) {
+                            .trynow-bar {
+                                padding: 8px 10px;
+                                gap: 4px;
+                            }
+                            .trynow-bar button, .trynow-bar a {
+                                padding: 6px 12px;
+                                font-size: 0.7rem;
+                                min-height: 32px;
+                                gap: 4px;
+                            }
+                            .trynow-bar .btn-buy, .trynow-bar .btn-cart {
+                                font-size: 0.7rem;
+                            }
+                            .trynow-content {
+                                padding-bottom: 56px;
+                            }
+                            .trynow-bar::before {
+                                height: 40px;
+                            }
+                        }
+                        @media (max-width: 480px) {
+                            .trynow-bar button, .trynow-bar a {
+                                padding: 4px 10px;
+                                font-size: 0.65rem;
+                                min-height: 28px;
+                                gap: 3px;
+                            }
+                            .trynow-bar {
+                                padding: 6px 8px;
+                            }
+                            .trynow-content {
+                                padding-bottom: 48px;
+                            }
+                            .trynow-bar::before {
+                                height: 30px;
+                            }
+                        }
+                    </style>
+                    <div class="trynow-wrapper">
+                        <div class="trynow-content" id="trynowContent">
+                            ${demo.htmlContent}
+                        </div>
+                        <div class="trynow-bar">
+                            <button class="btn-buy" onclick="window.tryNowBuy('${productId}')">
+                                <i class="fas fa-bolt"></i> Buy Now
+                            </button>
+                            <button class="btn-cart" onclick="window.tryNowAddToCart('${productId}')">
+                                <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+                            <a href="messages.html" target="_blank" class="btn-support">
+                                <i class="fas fa-comment-dots"></i> Support Chat
+                            </a>
+                            <button class="btn-back" onclick="window.tryNowGoBack()">
+                                <i class="fas fa-arrow-left"></i> Go Back
+                            </button>
+                        </div>
+                    </div>
+                    <script>
+                        // Expose functions to the global scope for the bar buttons
+                        window.tryNowBuy = function(productId) {
+                            // Redirect to product detail with buy action
+                            window.location.href = 'product-detail.html?id=' + productId + '&action=buy';
+                        };
+                        window.tryNowAddToCart = function(productId) {
+                            // Redirect to product detail with add to cart action
+                            window.location.href = 'product-detail.html?id=' + productId + '&action=add';
+                        };
+                        window.tryNowGoBack = function() {
+                            // Go back to product detail page
+                            window.location.href = 'product-detail.html?id=${productId}';
+                        };
+                    <\/script>
+                `;
+
+                // Create a new window
+                const win = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+                if (!win) {
+                    showToast('Please allow popups for this site.', 'warning');
+                    return;
+                }
+
+                // Write the full HTML
+                win.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+                        <title>Try Now – ${productName}</title>
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+                        <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+                    </head>
+                    <body>
+                        ${bottomBar}
+                    </body>
+                    </html>
+                `);
+                win.document.close();
+
+                // After a short delay, inject the content and ensure the bar works
+                setTimeout(() => {
+                    try {
+                        // The content is already written, but we need to ensure the tryNow functions are available
+                        // They are already in the script tag above
+                        console.log('✅ Try Now preview loaded for:', productName);
+                    } catch (e) {
+                        console.warn('Preview injection error:', e);
+                    }
+                }, 100);
+            };
+
+            // ── Also expose preview from product detail page ──
+            // This function will be called from product-detail.html if a demo exists
+            window.previewDemoById = function(productId) {
+                const demo = allDemos.find(d => d.productId === productId);
+                if (!demo) {
+                    showToast('No demo available for this product.', 'warning');
+                    return;
+                }
+                window.previewDemo(demo.id);
+            };
+
+            // ── Also expose the add-to-cart and buy from preview ──
+            // These are handled in the preview window via redirects to product-detail.html with action params
+
+            console.log('🚀 Try Now feature loaded with demo management.');
+
+            // ==============================================================
             // LOGOUT & TAB
             // ==============================================================
             window.logoutAdmin = () => {
@@ -4231,6 +4866,7 @@
 
             renderUsersPage(allUsers);
             console.log('✅ Admin Panel loaded — iOS glass design with realtime clock & M/R.');
+            console.log('✅ Try Now feature ready.');
         }
     </script>
 </body>
