@@ -203,148 +203,26 @@ toastStyles.textContent = `
 document.head.appendChild(toastStyles);
 
 // ================================================================
-// ✅ CART BADGE (Real-time update from localStorage)
+// ✅ CART BADGE (রিয়েল-টাইম আপডেটের জন্য পৃথক ফাংশন)
 // ================================================================
 export function updateCartBadge() {
   const cartBadge = document.getElementById('cartCount');
-  if (!cartBadge) return;
+  if (!cartBadge) {
+    console.warn('⚠️ cartCount element not found');
+    return;
+  }
   try {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
     cartBadge.textContent = totalQty;
     cartBadge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
+    console.log('✅ Badge updated:', totalQty);
   } catch (e) {
     cartBadge.textContent = '0';
     cartBadge.style.display = 'none';
+    console.error('Badge update error:', e);
   }
 }
-
-// ================================================================
-// ✅ CART POPUP UI UPDATE (Real-time)
-// ================================================================
-function updateCartPopupUI() {
-  const itemsContainer = document.getElementById('cartPopupItems');
-  const totalEl = document.getElementById('cartPopupTotal');
-  if (!itemsContainer || !totalEl) return;
-
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  if (cart.length === 0) {
-    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
-    totalEl.textContent = '$0';
-    return;
-  }
-
-  let total = 0;
-  let html = '';
-  cart.forEach((item, index) => {
-    const qty = item.quantity || 1;
-    const price = item.price || 0;
-    const subtotal = qty * price;
-    total += subtotal;
-    html += `
-      <div class="cart-popup-item">
-        <div class="cart-item-info">
-          <span class="cart-item-name">${item.name}</span>
-          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
-        </div>
-        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    `;
-  });
-
-  itemsContainer.innerHTML = html;
-  totalEl.textContent = `$${total.toFixed(2)}`;
-}
-
-// ================================================================
-// ✅ GLOBAL addToCart (Real-time badge & popup update)
-// ================================================================
-window.addToCart = async function(productId, productName, productPrice, productImage = '') {
-  if (!productId || !productName) {
-    window.showToast('⚠️ Product information missing.', 'error');
-    return;
-  }
-
-  // 1. Update localStorage
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const existing = cart.find(item => item.id === productId);
-  if (existing) {
-    existing.quantity = (existing.quantity || 1) + 1;
-  } else {
-    cart.push({
-      id: productId,
-      name: productName,
-      price: productPrice || 0,
-      imageUrl: productImage || '',
-      quantity: 1
-    });
-  }
-  localStorage.setItem('cart', JSON.stringify(cart));
-
-  // 2. Update badge immediately
-  updateCartBadge();
-
-  // 3. Update popup UI if it's open
-  updateCartPopupUI();
-
-  // 4. Sync with Firestore (async)
-  const user = auth.currentUser;
-  if (user) {
-    try {
-      await updateCartInFirestore(user.uid, cart);
-    } catch (err) {
-      console.warn('Firestore sync error:', err);
-    }
-  }
-
-  // 5. Show toast
-  window.showToast(`✅ "${productName}" added to cart`, 'success');
-};
-
-// ================================================================
-// ✅ REMOVE FROM CART (Real-time)
-// ================================================================
-window.removeFromCart = function(index) {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  cart.splice(index, 1);
-  localStorage.setItem('cart', JSON.stringify(cart));
-  
-  updateCartBadge();
-  updateCartPopupUI();
-  
-  const user = auth.currentUser;
-  if (user) {
-    updateCartInFirestore(user.uid, cart);
-  }
-};
-
-// ================================================================
-// ✅ CART TOGGLE (popup)
-// ================================================================
-export function toggleCart() {
-  const popup = document.getElementById('cartPopup');
-  if (!popup) return;
-  popup.classList.toggle('hidden');
-  if (!popup.classList.contains('hidden')) {
-    updateCartPopupUI(); // Refresh items when opening
-  }
-}
-window.toggleCart = toggleCart;
-
-// ================================================================
-// ✅ CHECKOUT (closes popup and proceeds)
-// ================================================================
-window.cartCheckout = function() {
-  const popup = document.getElementById('cartPopup');
-  if (popup) popup.classList.add('hidden');
-  if (typeof window.checkout === 'function') {
-    window.checkout();
-  } else {
-    window.location.href = 'get-new-website.html?checkout=1';
-  }
-};
 
 // ================================================================
 // ✅ MOBILE MENU TOGGLE
@@ -660,6 +538,7 @@ export function renderNavbar() {
     });
   }
 
+  // ✅ Badge আপডেট (পেজ লোড হলে)
   updateCartBadge();
 
   onAuthStateChanged(auth, (user) => {
@@ -672,7 +551,7 @@ export function renderNavbar() {
 }
 
 // ================================================================
-// ✅ CART POPUP RENDER
+// ✅ CART POPUP (replaces sidebar)
 // ================================================================
 let cartPopupRendered = false;
 
@@ -713,34 +592,122 @@ export function renderCartPopup() {
   updateCartPopupUI();
 }
 
-// ================================================================
-// ✅ BACKWARD COMPATIBILITY: renderCartSidebar & updateCartUI
-// ================================================================
-export function renderCartSidebar() {
-  if (!cartPopupRendered) renderCartPopup();
+function updateCartPopupUI() {
+  const itemsContainer = document.getElementById('cartPopupItems');
+  const totalEl = document.getElementById('cartPopupTotal');
+  if (!itemsContainer || !totalEl) return;
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  if (cart.length === 0) {
+    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
+    totalEl.textContent = '$0';
+    return;
+  }
+
+  let total = 0;
+  let html = '';
+  cart.forEach((item, index) => {
+    const qty = item.quantity || 1;
+    const price = item.price || 0;
+    const subtotal = qty * price;
+    total += subtotal;
+    html += `
+      <div class="cart-popup-item">
+        <div class="cart-item-info">
+          <span class="cart-item-name">${item.name}</span>
+          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
+        </div>
+        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+  });
+
+  itemsContainer.innerHTML = html;
+  totalEl.textContent = `$${total.toFixed(2)}`;
 }
 
-export function updateCartUI() {
-  updateCartPopupUI();
-}
-
 // ================================================================
-// ✅ LOADING BUTTON
+// ✅ CART TOGGLE (popup)
 // ================================================================
-export function setLoading(button, isLoading, originalText = null) {
-  if (!button) return;
-  if (isLoading) {
-    button.disabled = true;
-    button._originalText = originalText || button.innerHTML;
-    button.innerHTML = `<span class="spinner"></span> Loading...`;
-  } else {
-    button.disabled = false;
-    if (button._originalText) {
-      button.innerHTML = button._originalText;
-      delete button._originalText;
-    }
+export function toggleCart() {
+  const popup = document.getElementById('cartPopup');
+  if (!popup) return;
+  popup.classList.toggle('hidden');
+  if (!popup.classList.contains('hidden')) {
+    updateCartPopupUI();
   }
 }
+window.toggleCart = toggleCart;
+
+// ================================================================
+// ✅ REMOVE FROM CART
+// ================================================================
+window.removeFromCart = function(index) {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  cart.splice(index, 1);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartPopupUI();
+  updateCartBadge();
+  const user = auth.currentUser;
+  if (user) {
+    updateCartInFirestore(user.uid, cart);
+  }
+};
+
+// ================================================================
+// ✅ CHECKOUT (closes popup and proceeds)
+// ================================================================
+window.cartCheckout = function() {
+  const popup = document.getElementById('cartPopup');
+  if (popup) popup.classList.add('hidden');
+  if (typeof window.checkout === 'function') {
+    window.checkout();
+  } else {
+    window.location.href = 'get-new-website.html?checkout=1';
+  }
+};
+
+// ================================================================
+// ✅ GLOBAL addToCart (রিয়েল-টাইম ব্যাজ আপডেট সহ)
+// ================================================================
+window.addToCart = async function(productId, productName, productPrice, productImage = '') {
+  console.log('🛒 addToCart called:', productId, productName, productPrice);
+  
+  if (!productId || !productName) {
+    window.showToast('⚠️ Product information missing.', 'error');
+    return;
+  }
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const existing = cart.find(item => item.id === productId);
+  if (existing) {
+    existing.quantity = (existing.quantity || 1) + 1;
+  } else {
+    cart.push({
+      id: productId,
+      name: productName,
+      price: productPrice || 0,
+      imageUrl: productImage || '',
+      quantity: 1
+    });
+  }
+
+  localStorage.setItem('cart', JSON.stringify(cart));
+
+  // ✅ রিয়েল-টাইমে ব্যাজ ও পপআপ আপডেট
+  updateCartBadge();
+  updateCartPopupUI();
+
+  // Sync with Firestore if logged in
+  const user = auth.currentUser;
+  if (user) {
+    await updateCartInFirestore(user.uid, cart);
+  }
+
+  window.showToast(`✅ "${productName}" added to cart`, 'success');
+};
 
 // ================================================================
 // ✅ FOOTER
@@ -768,6 +735,37 @@ export function renderFooter() {
   const placeholder = document.getElementById('footer-placeholder');
   if (placeholder) {
     placeholder.innerHTML = footerHTML;
+  }
+}
+
+// ================================================================
+// ✅ BACKWARD COMPATIBILITY: renderCartSidebar & updateCartUI
+// ================================================================
+export function renderCartSidebar() {
+  // পুরোনো sidebar-এর বদলে popup রেন্ডার করা হচ্ছে
+  if (!cartPopupRendered) renderCartPopup();
+}
+
+export function updateCartUI() {
+  // popup-এর UI আপডেট
+  updateCartPopupUI();
+}
+
+// ================================================================
+// ✅ LOADING BUTTON
+// ================================================================
+export function setLoading(button, isLoading, originalText = null) {
+  if (!button) return;
+  if (isLoading) {
+    button.disabled = true;
+    button._originalText = originalText || button.innerHTML;
+    button.innerHTML = `<span class="spinner"></span> Loading...`;
+  } else {
+    button.disabled = false;
+    if (button._originalText) {
+      button.innerHTML = button._originalText;
+      delete button._originalText;
+    }
   }
 }
 
