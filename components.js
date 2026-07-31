@@ -400,10 +400,14 @@ export function renderNavbar() {
         <!-- Right Actions -->
         <div class="flex items-center gap-2 md:gap-3">
           <!-- ===== CART (always visible) ===== -->
-          <button onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
-            <i class="fas fa-shopping-cart"></i>
-            <span id="cartCount" class="cart-badge" style="display:none;">0</span>
-          </button>
+          <div class="relative">
+            <button id="cartBtn" onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
+              <i class="fas fa-shopping-cart"></i>
+              <span id="cartCount" class="cart-badge" style="display:none;">0</span>
+            </button>
+            <!-- Cart Popup (rendered by renderCartPopup) -->
+            <div id="cartPopupContainer"></div>
+          </div>
 
           <!-- ===== NOTIFICATIONS (only visible when signed in) ===== -->
           <div id="authRequiredActions" class="flex items-center gap-2 md:gap-3" style="display:none;">
@@ -523,6 +527,19 @@ export function renderNavbar() {
     });
   }
 
+  // ✅ Cart popup close on outside click
+  const cartBtn = document.getElementById('cartBtn');
+  const cartPopup = document.getElementById('cartPopupContainer')?.querySelector('.cart-popup');
+  if (cartBtn && cartPopup) {
+    document.addEventListener('click', (e) => {
+      if (!cartBtn.contains(e.target) && !cartPopup.contains(e.target)) {
+        if (!cartPopup.classList.contains('hidden')) {
+          cartPopup.classList.add('hidden');
+        }
+      }
+    });
+  }
+
   updateCartBadge();
 
   // Cart sync
@@ -531,7 +548,134 @@ export function renderNavbar() {
       syncCart(user.uid);
     }
   });
+  
+  // Render the cart popup (inside the container)
+  renderCartPopup();
 }
+
+// ================================================================
+// ✅ CART POPUP (replaces sidebar)
+// ================================================================
+let cartPopupRendered = false;
+
+export function renderCartPopup() {
+  const container = document.getElementById('cartPopupContainer');
+  if (!container) return;
+  
+  // If already rendered, just update content
+  if (cartPopupRendered) {
+    updateCartPopupUI();
+    return;
+  }
+
+  const popupHTML = `
+    <div class="cart-popup hidden" id="cartPopup">
+      <div class="cart-popup-header">
+        <span class="cart-popup-title"><i class="fas fa-shopping-bag mr-2"></i> Your Cart</span>
+        <button onclick="window.toggleCart()" class="cart-popup-close" aria-label="Close cart">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="cartPopupItems" class="cart-popup-items">
+        <div class="cart-empty">Your cart is empty.</div>
+      </div>
+      <div class="cart-popup-footer">
+        <div class="cart-popup-total">
+          <span>Total:</span>
+          <span id="cartPopupTotal">$0</span>
+        </div>
+        <button onclick="window.cartCheckout()" class="btn-primary w-full justify-center cart-checkout-btn">
+          <i class="fas fa-lock"></i> Checkout
+        </button>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = popupHTML;
+  cartPopupRendered = true;
+  updateCartPopupUI();
+}
+
+function updateCartPopupUI() {
+  const itemsContainer = document.getElementById('cartPopupItems');
+  const totalEl = document.getElementById('cartPopupTotal');
+  if (!itemsContainer || !totalEl) return;
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  if (cart.length === 0) {
+    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
+    totalEl.textContent = '$0';
+    return;
+  }
+
+  let total = 0;
+  let html = '';
+  cart.forEach((item, index) => {
+    const qty = item.quantity || 1;
+    const price = item.price || 0;
+    const subtotal = qty * price;
+    total += subtotal;
+    html += `
+      <div class="cart-popup-item">
+        <div class="cart-item-info">
+          <span class="cart-item-name">${item.name}</span>
+          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
+        </div>
+        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+  });
+
+  itemsContainer.innerHTML = html;
+  totalEl.textContent = `$${total.toFixed(2)}`;
+}
+
+// ================================================================
+// ✅ CART TOGGLE (popup)
+// ================================================================
+export function toggleCart() {
+  const popup = document.getElementById('cartPopup');
+  if (!popup) return;
+  popup.classList.toggle('hidden');
+  // Update UI when opening
+  if (!popup.classList.contains('hidden')) {
+    updateCartPopupUI();
+  }
+}
+window.toggleCart = toggleCart;
+
+// ================================================================
+// ✅ REMOVE FROM CART
+// ================================================================
+window.removeFromCart = function(index) {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  cart.splice(index, 1);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartPopupUI();
+  updateCartBadge();
+  const user = auth.currentUser;
+  if (user) {
+    updateCartInFirestore(user.uid, cart);
+  }
+};
+
+// ================================================================
+// ✅ CHECKOUT (closes popup and proceeds)
+// ================================================================
+window.cartCheckout = function() {
+  // Close cart popup
+  const popup = document.getElementById('cartPopup');
+  if (popup) popup.classList.add('hidden');
+  // Call existing checkout
+  if (typeof window.checkout === 'function') {
+    window.checkout();
+  } else {
+    // Fallback: redirect to store with checkout param
+    window.location.href = 'get-new-website.html?checkout=1';
+  }
+};
 
 // ================================================================
 // ✅ FOOTER
@@ -563,117 +707,6 @@ export function renderFooter() {
 }
 
 // ================================================================
-// ✅ CART SIDEBAR, TOGGLE, UI
-// ================================================================
-export function renderCartSidebar() {
-  if (document.getElementById('cartSidebar')) return;
-
-  const html = `
-    <div class="cart-overlay" id="cartOverlay" onclick="window.toggleCart()"></div>
-    <div class="cart-sidebar" id="cartSidebar">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-gray-900">Your Cart</h2>
-        <button onclick="window.toggleCart()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors" aria-label="Close cart">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div id="cartItems" class="space-y-4 flex-1 overflow-y-auto"></div>
-      <div class="mt-6 border-t pt-4">
-        <div class="flex justify-between font-bold text-lg">
-          <span>Total:</span>
-          <span id="cartTotal" class="text-blue-600">$0</span>
-        </div>
-        <button onclick="window.checkout()" class="btn-primary w-full mt-4 justify-center">
-          <i class="fas fa-lock"></i> Proceed to Checkout
-        </button>
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML('beforeend', html);
-  updateCartUI();
-}
-
-export function toggleCart() {
-  const sidebar = document.getElementById('cartSidebar');
-  const overlay = document.getElementById('cartOverlay');
-  if (sidebar) {
-    sidebar.classList.toggle('open');
-    document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
-  }
-  if (overlay) overlay.classList.toggle('open');
-}
-window.toggleCart = toggleCart;
-
-export function updateCartUI() {
-  const container = document.getElementById('cartItems');
-  const totalEl = document.getElementById('cartTotal');
-  if (!container || !totalEl) return;
-
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  if (cart.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-12 text-gray-400">
-        <i class="fas fa-shopping-bag text-4xl mb-3 opacity-30"></i>
-        <p>Your cart is empty.</p>
-      </div>
-    `;
-    totalEl.textContent = '$0';
-  } else {
-    let total = 0;
-    container.innerHTML = cart.map((item, idx) => {
-      const qty = item.quantity || 1;
-      const price = item.price || 0;
-      const subtotal = qty * price;
-      total += subtotal;
-      return `
-        <div class="flex items-center gap-3 border-b border-gray-100 pb-3 animate-fadeIn">
-          <img src="${item.imageUrl || 'https://via.placeholder.com/50?text=No+Img'}" alt="${item.name}" class="w-14 h-14 object-cover rounded-lg" loading="lazy" />
-          <div class="flex-1 min-w-0">
-            <span class="font-medium block text-gray-900 truncate">${item.name}</span>
-            <span class="text-sm text-gray-500 block">$${price} × ${qty} = $${subtotal.toFixed(2)}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <button onclick="window.updateQuantity(${idx}, -1)" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">−</button>
-            <span class="w-6 text-center font-medium">${qty}</span>
-            <button onclick="window.updateQuantity(${idx}, 1)" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">+</button>
-          </div>
-          <button onclick="window.removeFromCart(${idx})" class="text-red-400 hover:text-red-600 transition-colors ml-1" aria-label="Remove item">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </div>
-      `;
-    }).join('');
-    totalEl.textContent = `$${total.toFixed(2)}`;
-  }
-  updateCartBadge();
-
-  const user = auth.currentUser;
-  if (user) {
-    const cartData = JSON.parse(localStorage.getItem('cart')) || [];
-    updateCartInFirestore(user.uid, cartData);
-  }
-}
-window.updateCartUI = updateCartUI;
-
-window.updateQuantity = function(index, delta) {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  if (!cart[index]) return;
-  cart[index].quantity = (cart[index].quantity || 1) + delta;
-  if (cart[index].quantity <= 0) {
-    cart.splice(index, 1);
-  }
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartUI();
-};
-
-window.removeFromCart = function(index) {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  cart.splice(index, 1);
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartUI();
-};
-
-// ================================================================
 // ✅ LOADING BUTTON
 // ================================================================
 export function setLoading(button, isLoading, originalText = null) {
@@ -692,11 +725,11 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (FIXED: Order created on confirm)
+// ✅ PAYMENT MODAL & CHECKOUT (existing)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
-let _pendingCheckoutData = null; // Stores cart, total, settings, user
+let _pendingCheckoutData = null;
 
 export function renderPaymentModal() {
   const existing = document.getElementById('paymentModal');
@@ -781,7 +814,7 @@ export function renderPaymentModal() {
     methodSelect.addEventListener('change', () => window.updatePaymentMethodUI());
   }
 
-  // ===== PAYMENT FORM SUBMIT (FIXED: Order created here) =====
+  // ===== PAYMENT FORM SUBMIT =====
   const paymentForm = document.getElementById('paymentForm');
   if (paymentForm && !paymentForm.dataset.bound) {
     paymentForm.dataset.bound = '1';
@@ -838,7 +871,6 @@ export function renderPaymentModal() {
       setLoading(btn, true, 'Confirm Payment');
 
       try {
-        // 1. Create the order NOW (only on confirm)
         const orderData = {
           userId: pending.user.uid,
           userEmail: pending.user.email,
@@ -862,18 +894,14 @@ export function renderPaymentModal() {
         const docRef = await addDoc(collection(db, 'orders'), orderData);
         const orderId = docRef.id;
 
-        // Optionally update with the order ID if needed, but it's already in the doc.
-        // Payment success
         showToast('✅ Payment confirmed! Order placed. Admin will verify soon.', 'success');
         window.closePaymentModal();
         localStorage.removeItem('cart');
-        window.updateCartUI();
+        updateCartPopupUI();
+        updateCartBadge();
         if (typeof window.toggleCart === 'function') window.toggleCart();
         
-        // Reset pending data
         window._pendingCheckoutData = null;
-        
-        // Redirect to My Orders
         setTimeout(() => {
           window.location.href = 'my-orders.html';
         }, 1500);
@@ -890,21 +918,19 @@ export function renderPaymentModal() {
   }
 }
 
-// ===== OPEN PAYMENT MODAL (UPDATED) =====
 export function openPaymentModal(data) {
   if (!document.getElementById('paymentModal')) {
     showToast('Payment system not ready. Please refresh.', 'error');
     return;
   }
 
-  // Store pending data globally so submit handler can use it
   window._pendingCheckoutData = data;
   _paymentSettings = data.settings || {};
   _paymentOrderTotalUSD = Number(data.total) || 0;
 
   if (!(_paymentSettings.usdRate > 0)) _paymentSettings.usdRate = 125;
 
-  document.getElementById('paymentOrderId').value = ''; // No order ID yet
+  document.getElementById('paymentOrderId').value = '';
   document.getElementById('paymentTotalUSD').textContent = '$' + _paymentOrderTotalUSD.toFixed(2);
   document.getElementById('paymentTotalBDTRow').classList.add('hidden');
   document.getElementById('paymentRateNote').classList.add('hidden');
@@ -924,7 +950,6 @@ window.openPaymentModal = openPaymentModal;
 window.closePaymentModal = function() {
   const el = document.getElementById('paymentModal');
   if (el) el.classList.add('hidden');
-  // Optionally clear pending data? No, let it be cleared on success or error.
 };
 
 window.updatePaymentMethodUI = function() {
@@ -1031,8 +1056,8 @@ window.checkout = async function() {
     return;
   }
 
-  const checkoutBtn = document.querySelector('#cartSidebar .btn-primary');
-  if (checkoutBtn) setLoading(checkoutBtn, true, 'Proceed to Checkout');
+  const checkoutBtn = document.querySelector('.cart-checkout-btn');
+  if (checkoutBtn) setLoading(checkoutBtn, true, 'Processing...');
 
   try {
     const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
@@ -1046,7 +1071,6 @@ window.checkout = async function() {
 
     const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
     
-    // Prepare data for modal
     const data = {
       cart: cart,
       total: total,
@@ -1054,7 +1078,6 @@ window.checkout = async function() {
       user: user
     };
 
-    // Open modal with data
     openPaymentModal(data);
     if (checkoutBtn) setLoading(checkoutBtn, false);
   } catch (err) {
@@ -1115,6 +1138,7 @@ export async function syncCart(userId) {
     } else if (serverCart.length > 0) {
       localStorage.setItem('cart', JSON.stringify(serverCart));
       updateCartBadge();
+      updateCartPopupUI();
     }
   } catch (err) {
     console.error('Cart sync error:', err);
@@ -1188,6 +1212,5 @@ export function updateNavbarAuth(user, displayName, role = null) {
 
     // ✅ Hide notifications when signed out
     if (authRequiredActions) authRequiredActions.style.display = 'none';
-    // Cart is now always visible (outside this container)
   }
 }
