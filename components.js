@@ -664,6 +664,44 @@ window.cartCheckout = function() {
 };
 
 // ================================================================
+// ✅ GLOBAL addToCart (for all pages)
+// ================================================================
+window.addToCart = async function(productId, productName, productPrice, productImage = '') {
+  if (!productId || !productName) {
+    window.showToast('⚠️ Product information missing.', 'error');
+    return;
+  }
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const existing = cart.find(item => item.id === productId);
+  if (existing) {
+    existing.quantity = (existing.quantity || 1) + 1;
+  } else {
+    cart.push({
+      id: productId,
+      name: productName,
+      price: productPrice || 0,
+      imageUrl: productImage || '',
+      quantity: 1
+    });
+  }
+
+  localStorage.setItem('cart', JSON.stringify(cart));
+
+  // Update badge & popup
+  updateCartBadge();
+  updateCartPopupUI();
+
+  // Sync with Firestore if logged in
+  const user = auth.currentUser;
+  if (user) {
+    await updateCartInFirestore(user.uid, cart);
+  }
+
+  window.showToast(`✅ "${productName}" added to cart`, 'success');
+};
+
+// ================================================================
 // ✅ FOOTER
 // ================================================================
 export function renderFooter() {
