@@ -739,6 +739,56 @@
     });
 
     // ================================================================
+    // CURRENCY & PRICE FORMATTING (shared with store page)
+    // ================================================================
+    let selectedCurrency = 'USD';
+    let usdRate = 125;
+
+    function getCurrencySymbol(currency) {
+      return currency === 'BDT' ? '৳' : '$';
+    }
+
+    function convertPrice(priceUSD) {
+      if (selectedCurrency === 'BDT') {
+        return priceUSD * usdRate;
+      }
+      return priceUSD;
+    }
+
+    function formatPrice(priceUSD) {
+      const converted = convertPrice(priceUSD);
+      const symbol = getCurrencySymbol(selectedCurrency);
+      if (selectedCurrency === 'BDT') {
+        return symbol + Math.round(converted).toLocaleString('en-BD');
+      }
+      return symbol + converted.toFixed(2);
+    }
+
+    // ─── LOAD SETTINGS & CURRENCY FROM LOCALSTORAGE ─────────────────
+    async function loadPaymentSettings() {
+      try {
+        const snap = await getDoc(doc(db, 'settings', 'payment'));
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.usdRate && Number(data.usdRate) > 0) {
+            usdRate = Number(data.usdRate);
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load payment settings, using default rate 125:', err);
+      }
+    }
+
+    function loadCurrencyPreference() {
+      const saved = localStorage.getItem('preferredCurrency');
+      if (saved === 'BDT' || saved === 'USD') {
+        selectedCurrency = saved;
+      } else {
+        selectedCurrency = 'USD';
+      }
+    }
+
+    // ================================================================
     // PRODUCT DETAIL LOGIC
     // ================================================================
     const container = document.getElementById('productDetailContainer');
@@ -760,6 +810,10 @@
       `;
     } else {
       currentProductId = productId;
+      // প্রথমে settings ও currency load করি
+      await loadPaymentSettings();
+      loadCurrencyPreference();
+
       getDocs(collection(db, 'discounts')).then(snap => {
         allDiscounts = [];
         snap.forEach(doc => allDiscounts.push({ id: doc.id, ...doc.data() }));
@@ -879,7 +933,7 @@
     window.submitRating = submitRating;
 
     // ================================================================
-    // RENDER PRODUCT DETAIL with STATIC PREVIEW (fixed)
+    // RENDER PRODUCT DETAIL with currency formatting
     // ================================================================
     function renderProductDetail(product) {
       const discount = getDiscountForProduct(product);
@@ -892,14 +946,17 @@
       if (discount) {
         const percent = Math.round(discount.discountPercent);
         const discounted = product.price * (1 - discount.discountPercent / 100);
+        const origFormatted = formatPrice(product.price);
+        const discFormatted = formatPrice(discounted);
         priceHtml = `
-          <span class="original-price">$${product.price.toFixed(2)}</span>
-          <span class="discount-price">$${discounted.toFixed(2)}</span>
+          <span class="original-price">${origFormatted}</span>
+          <span class="discount-price">${discFormatted}</span>
           <span class="discount-percent-tag">-${percent}%</span>
         `;
         badgeHtml = `<span class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</span>`;
       } else {
-        priceHtml = `<span class="discount-price" style="font-size:2rem;">$${product.price.toFixed(2)}</span>`;
+        const priceFormatted = formatPrice(product.price);
+        priceHtml = `<span class="discount-price" style="font-size:2rem;">${priceFormatted}</span>`;
       }
 
       const hasHtml = product.htmlContent && product.htmlContent.length > 0;
@@ -1088,7 +1145,7 @@
       }
     }
 
-    console.log('📄 Product detail page — static preview fixed, "Try Now" for full interaction.');
+    console.log('📄 Product detail page — currency sync with store (USD/BDT)');
   </script>
 </body>
 </html>
