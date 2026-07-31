@@ -208,7 +208,7 @@ document.head.appendChild(toastStyles);
 export function updateCartBadge() {
   const cartBadge = document.getElementById('cartCount');
   if (!cartBadge) {
-    console.warn('⚠️ cartCount element not found');
+    console.warn('⚠️ cartCount element not found in DOM');
     return;
   }
   try {
@@ -216,7 +216,7 @@ export function updateCartBadge() {
     const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
     cartBadge.textContent = totalQty;
     cartBadge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
-    console.log('✅ Badge updated:', totalQty);
+    console.log('✅ Badge updated to:', totalQty);
   } catch (e) {
     cartBadge.textContent = '0';
     cartBadge.style.display = 'none';
@@ -670,7 +670,7 @@ window.cartCheckout = function() {
 };
 
 // ================================================================
-// ✅ GLOBAL addToCart (রিয়েল-টাইম ব্যাজ আপডেট সহ)
+// ✅ GLOBAL addToCart (রিয়েল-টাইম ব্যাজ আপডেট সহ + ফোর্স আপডেট)
 // ================================================================
 window.addToCart = async function(productId, productName, productPrice, productImage = '') {
   console.log('🛒 addToCart called:', productId, productName, productPrice);
@@ -696,9 +696,15 @@ window.addToCart = async function(productId, productName, productPrice, productI
 
   localStorage.setItem('cart', JSON.stringify(cart));
 
-  // ✅ রিয়েল-টাইমে ব্যাজ ও পপআপ আপডেট
+  // ✅ রিয়েল-টাইমে ব্যাজ আপডেট (ফোর্সড)
   updateCartBadge();
   updateCartPopupUI();
+
+  // ✅ ফোর্স আপডেট: ১০০ms পরে আবার চেক করি (যদি DOM রেডি না থাকে)
+  setTimeout(() => {
+    updateCartBadge();
+    updateCartPopupUI();
+  }, 100);
 
   // Sync with Firestore if logged in
   const user = auth.currentUser;
