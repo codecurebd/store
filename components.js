@@ -203,7 +203,7 @@ toastStyles.textContent = `
 document.head.appendChild(toastStyles);
 
 // ================================================================
-// ✅ CART BADGE
+// ✅ CART BADGE (Realtime Update Fix)
 // ================================================================
 export function updateCartBadge() {
   const cartBadge = document.getElementById('cartCount');
@@ -533,7 +533,16 @@ export function renderNavbar() {
     });
   }
 
+  // Initial cart badge update
   updateCartBadge();
+
+  // Listen for cart changes from other tabs/windows? (optional, but we'll keep sync)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'cart') {
+      updateCartBadge();
+      updateCartPopupUI();
+    }
+  });
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -636,14 +645,17 @@ export function toggleCart() {
 window.toggleCart = toggleCart;
 
 // ================================================================
-// ✅ REMOVE FROM CART
+// ✅ REMOVE FROM CART (Realtime update)
 // ================================================================
 window.removeFromCart = function(index) {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   cart.splice(index, 1);
   localStorage.setItem('cart', JSON.stringify(cart));
+  
+  // Real-time update
   updateCartPopupUI();
   updateCartBadge();
+  
   const user = auth.currentUser;
   if (user) {
     updateCartInFirestore(user.uid, cart);
@@ -664,7 +676,7 @@ window.cartCheckout = function() {
 };
 
 // ================================================================
-// ✅ GLOBAL addToCart (for all pages)
+// ✅ GLOBAL addToCart (Realtime update fixed)
 // ================================================================
 window.addToCart = async function(productId, productName, productPrice, productImage = '') {
   if (!productId || !productName) {
@@ -688,7 +700,7 @@ window.addToCart = async function(productId, productName, productPrice, productI
 
   localStorage.setItem('cart', JSON.stringify(cart));
 
-  // Update badge & popup
+  // 🔥 Real-time update: badge + popup
   updateCartBadge();
   updateCartPopupUI();
 
@@ -734,12 +746,10 @@ export function renderFooter() {
 // ✅ BACKWARD COMPATIBILITY: renderCartSidebar & updateCartUI
 // ================================================================
 export function renderCartSidebar() {
-  // পুরোনো sidebar-এর বদলে popup রেন্ডার করা হচ্ছে
   if (!cartPopupRendered) renderCartPopup();
 }
 
 export function updateCartUI() {
-  // popup-এর UI আপডেট
   updateCartPopupUI();
 }
 
