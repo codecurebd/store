@@ -455,6 +455,38 @@
             }
         }
 
+        /* ── Currency Selector Styles ── */
+        .currency-toggle {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 40px;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+        }
+        .currency-toggle .curr-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            min-width: 52px;
+            font-family: 'Inter', sans-serif;
+        }
+        .currency-toggle .curr-btn.active {
+            background: #ffffff;
+            color: #1c1c1e;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+        .currency-toggle .curr-btn:hover:not(.active) {
+            color: #1c1c1e;
+        }
+
         /* ── responsive ── */
         @media (max-width: 768px) {
             .product-card .img-wrapper {
@@ -496,6 +528,11 @@
             .price-wrapper {
                 gap: 4px 8px;
             }
+            .currency-toggle .curr-btn {
+                font-size: 0.75rem;
+                padding: 4px 12px;
+                min-width: 44px;
+            }
         }
         @media (max-width: 480px) {
             .product-card .img-wrapper {
@@ -528,6 +565,11 @@
             .original-price {
                 font-size: 0.8rem;
             }
+            .currency-toggle .curr-btn {
+                font-size: 0.7rem;
+                padding: 3px 10px;
+                min-width: 38px;
+            }
         }
     </style>
 </head>
@@ -542,7 +584,7 @@
 
                     <h1 class="text-3xl font-bold text-gray-900 fade-up">Choose Your Website Package</h1>
 
-                    <!-- filters -->
+                    <!-- filters + currency selector -->
                     <div class="flex flex-wrap gap-4 mt-4 items-center fade-up">
                         <div class="relative flex-1 min-w-[200px]">
                             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -560,6 +602,16 @@
                             <option value="price-desc">Price: High to Low</option>
                             <option value="name">Name: A to Z</option>
                         </select>
+
+                        <!-- Currency Selector -->
+                        <div class="flex items-center gap-2 ml-auto">
+                            <span class="text-sm text-gray-500 font-medium hidden sm:inline">Currency:</span>
+                            <div class="currency-toggle" id="currencyToggle">
+                                <button class="curr-btn active" data-currency="USD">USD</button>
+                                <button class="curr-btn" data-currency="BDT">BDT</button>
+                            </div>
+                        </div>
+
                         <button onclick="resetFilters()" class="btn-outline text-sm py-2 px-4">
                             <i class="fas fa-undo"></i> Reset
                         </button>
@@ -772,6 +824,72 @@
             showToast('✅ Logged out', 'success');
         };
 
+        // ─── CURRENCY & PRICE FORMATTING ──────────────────────────────
+
+        let selectedCurrency = 'USD';
+        let usdRate = 125; // default, will be overridden by settings
+
+        function getCurrencySymbol(currency) {
+            return currency === 'BDT' ? '৳' : '$';
+        }
+
+        function convertPrice(priceUSD) {
+            if (selectedCurrency === 'BDT') {
+                return priceUSD * usdRate;
+            }
+            return priceUSD;
+        }
+
+        function formatPrice(priceUSD) {
+            const converted = convertPrice(priceUSD);
+            const symbol = getCurrencySymbol(selectedCurrency);
+            if (selectedCurrency === 'BDT') {
+                // BDT: integer with comma separators
+                return symbol + Math.round(converted).toLocaleString('en-BD');
+            }
+            return symbol + converted.toFixed(2);
+        }
+
+        // ─── LOAD SETTINGS FROM FIRESTORE ─────────────────────────────
+
+        async function loadPaymentSettings() {
+            try {
+                const snap = await getDoc(doc(db, 'settings', 'payment'));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.usdRate && Number(data.usdRate) > 0) {
+                        usdRate = Number(data.usdRate);
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not load payment settings, using default rate 125:', err);
+            }
+        }
+
+        // ─── CURRENCY SELECTOR UI ──────────────────────────────────────
+
+        function initCurrencySelector() {
+            const saved = localStorage.getItem('preferredCurrency');
+            if (saved === 'BDT' || saved === 'USD') {
+                selectedCurrency = saved;
+            } else {
+                selectedCurrency = 'USD';
+            }
+
+            const buttons = document.querySelectorAll('#currencyToggle .curr-btn');
+            buttons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.currency === selectedCurrency);
+                btn.addEventListener('click', function() {
+                    const curr = this.dataset.currency;
+                    if (curr === selectedCurrency) return;
+                    selectedCurrency = curr;
+                    localStorage.setItem('preferredCurrency', curr);
+                    buttons.forEach(b => b.classList.toggle('active', b.dataset.currency === curr));
+                    renderProducts();
+                });
+            });
+        }
+
         // ─── PRODUCT LOGIC ──────────────────────────────────────────────
 
         let allProducts = [];
@@ -877,14 +995,17 @@
                 if (discount) {
                     discountedPrice = originalPrice * (1 - discount.discountPercent / 100);
                     const percent = Math.round(discount.discountPercent);
+                    const origFormatted = formatPrice(originalPrice);
+                    const discFormatted = formatPrice(discountedPrice);
                     priceHtml = `
-                        <span class="original-price">$${originalPrice.toFixed(2)}</span>
-                        <span class="discount-price">$${discountedPrice.toFixed(2)}</span>
+                        <span class="original-price">${origFormatted}</span>
+                        <span class="discount-price">${discFormatted}</span>
                         <span class="discount-percent-tag"><i class="fas fa-tag"></i> -${percent}%</span>
                     `;
                     badgeHtml = `<div class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</div>`;
                 } else {
-                    priceHtml = `<span class="discount-price" style="font-size:1.4rem;">$${originalPrice.toFixed(2)}</span>`;
+                    const priceFormatted = formatPrice(originalPrice);
+                    priceHtml = `<span class="discount-price" style="font-size:1.4rem;">${priceFormatted}</span>`;
                 }
 
                 // ── HTML preview vs image ──
@@ -938,6 +1059,18 @@
         }
 
         // ── listen to products & discounts ──
+        // প্রথমে settings load করি, তারপর products ও discounts listen করি
+        // কিন্তু products ও discounts এর onSnapshot আগে থেকেই চালু আছে, renderProducts() কল করবে।
+        // আমরা settings load করে usdRate সেট করব, তারপর renderProducts() করব।
+        // যাতে products render হওয়ার সময় correct rate থাকে।
+
+        // Settings load
+        await loadPaymentSettings();
+
+        // Currency selector init
+        initCurrencySelector();
+
+        // Product and discount listeners
         onSnapshot(collection(db, 'products'), (snapshot) => {
             allProducts = [];
             snapshot.forEach(doc => { allProducts.push({ id: doc.id, ...doc.data() }); });
@@ -969,7 +1102,6 @@
 
         // ─── CART ───────────────────────────────────────────────────────
 
-        // ✅ FIX: added updateCartBadge import & call
         window.addToCart = async (productId) => {
             const product = allProducts.find(p => p.id === productId);
             if (!product) { showToast('Product not found', 'error'); return; }
@@ -994,14 +1126,13 @@
             const user = auth.currentUser;
             if (user) await updateCartInFirestore(user.uid, cart);
             
-            // ✅ Real‑time badge update
             updateCartBadge();
             window.updateCartUI?.();
             
             showToast(`✅ "${product.name}" added to cart`, 'success');
         };
 
-        console.log('🚀 Store page loaded — HTML previews are now shown as static, scroll‑free iframes.');
+        console.log('🚀 Store page loaded — Currency selector added (USD/BDT) with rate from admin settings.');
     </script>
 </body>
 </html>
