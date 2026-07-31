@@ -203,7 +203,7 @@ toastStyles.textContent = `
 document.head.appendChild(toastStyles);
 
 // ================================================================
-// ✅ CART BADGE (Realtime Update Fix)
+// ✅ CART BADGE (Real-time update from localStorage)
 // ================================================================
 export function updateCartBadge() {
   const cartBadge = document.getElementById('cartCount');
@@ -218,6 +218,133 @@ export function updateCartBadge() {
     cartBadge.style.display = 'none';
   }
 }
+
+// ================================================================
+// ✅ CART POPUP UI UPDATE (Real-time)
+// ================================================================
+function updateCartPopupUI() {
+  const itemsContainer = document.getElementById('cartPopupItems');
+  const totalEl = document.getElementById('cartPopupTotal');
+  if (!itemsContainer || !totalEl) return;
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  if (cart.length === 0) {
+    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
+    totalEl.textContent = '$0';
+    return;
+  }
+
+  let total = 0;
+  let html = '';
+  cart.forEach((item, index) => {
+    const qty = item.quantity || 1;
+    const price = item.price || 0;
+    const subtotal = qty * price;
+    total += subtotal;
+    html += `
+      <div class="cart-popup-item">
+        <div class="cart-item-info">
+          <span class="cart-item-name">${item.name}</span>
+          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
+        </div>
+        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+  });
+
+  itemsContainer.innerHTML = html;
+  totalEl.textContent = `$${total.toFixed(2)}`;
+}
+
+// ================================================================
+// ✅ GLOBAL addToCart (Real-time badge & popup update)
+// ================================================================
+window.addToCart = async function(productId, productName, productPrice, productImage = '') {
+  if (!productId || !productName) {
+    window.showToast('⚠️ Product information missing.', 'error');
+    return;
+  }
+
+  // 1. Update localStorage
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const existing = cart.find(item => item.id === productId);
+  if (existing) {
+    existing.quantity = (existing.quantity || 1) + 1;
+  } else {
+    cart.push({
+      id: productId,
+      name: productName,
+      price: productPrice || 0,
+      imageUrl: productImage || '',
+      quantity: 1
+    });
+  }
+  localStorage.setItem('cart', JSON.stringify(cart));
+
+  // 2. Update badge immediately
+  updateCartBadge();
+
+  // 3. Update popup UI if it's open
+  updateCartPopupUI();
+
+  // 4. Sync with Firestore (async)
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      await updateCartInFirestore(user.uid, cart);
+    } catch (err) {
+      console.warn('Firestore sync error:', err);
+    }
+  }
+
+  // 5. Show toast
+  window.showToast(`✅ "${productName}" added to cart`, 'success');
+};
+
+// ================================================================
+// ✅ REMOVE FROM CART (Real-time)
+// ================================================================
+window.removeFromCart = function(index) {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  cart.splice(index, 1);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  
+  updateCartBadge();
+  updateCartPopupUI();
+  
+  const user = auth.currentUser;
+  if (user) {
+    updateCartInFirestore(user.uid, cart);
+  }
+};
+
+// ================================================================
+// ✅ CART TOGGLE (popup)
+// ================================================================
+export function toggleCart() {
+  const popup = document.getElementById('cartPopup');
+  if (!popup) return;
+  popup.classList.toggle('hidden');
+  if (!popup.classList.contains('hidden')) {
+    updateCartPopupUI(); // Refresh items when opening
+  }
+}
+window.toggleCart = toggleCart;
+
+// ================================================================
+// ✅ CHECKOUT (closes popup and proceeds)
+// ================================================================
+window.cartCheckout = function() {
+  const popup = document.getElementById('cartPopup');
+  if (popup) popup.classList.add('hidden');
+  if (typeof window.checkout === 'function') {
+    window.checkout();
+  } else {
+    window.location.href = 'get-new-website.html?checkout=1';
+  }
+};
 
 // ================================================================
 // ✅ MOBILE MENU TOGGLE
@@ -533,16 +660,7 @@ export function renderNavbar() {
     });
   }
 
-  // Initial cart badge update
   updateCartBadge();
-
-  // Listen for cart changes from other tabs/windows? (optional, but we'll keep sync)
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'cart') {
-      updateCartBadge();
-      updateCartPopupUI();
-    }
-  });
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -554,7 +672,7 @@ export function renderNavbar() {
 }
 
 // ================================================================
-// ✅ CART POPUP (replaces sidebar)
+// ✅ CART POPUP RENDER
 // ================================================================
 let cartPopupRendered = false;
 
@@ -595,123 +713,34 @@ export function renderCartPopup() {
   updateCartPopupUI();
 }
 
-function updateCartPopupUI() {
-  const itemsContainer = document.getElementById('cartPopupItems');
-  const totalEl = document.getElementById('cartPopupTotal');
-  if (!itemsContainer || !totalEl) return;
+// ================================================================
+// ✅ BACKWARD COMPATIBILITY: renderCartSidebar & updateCartUI
+// ================================================================
+export function renderCartSidebar() {
+  if (!cartPopupRendered) renderCartPopup();
+}
 
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  if (cart.length === 0) {
-    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
-    totalEl.textContent = '$0';
-    return;
-  }
-
-  let total = 0;
-  let html = '';
-  cart.forEach((item, index) => {
-    const qty = item.quantity || 1;
-    const price = item.price || 0;
-    const subtotal = qty * price;
-    total += subtotal;
-    html += `
-      <div class="cart-popup-item">
-        <div class="cart-item-info">
-          <span class="cart-item-name">${item.name}</span>
-          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
-        </div>
-        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    `;
-  });
-
-  itemsContainer.innerHTML = html;
-  totalEl.textContent = `$${total.toFixed(2)}`;
+export function updateCartUI() {
+  updateCartPopupUI();
 }
 
 // ================================================================
-// ✅ CART TOGGLE (popup)
+// ✅ LOADING BUTTON
 // ================================================================
-export function toggleCart() {
-  const popup = document.getElementById('cartPopup');
-  if (!popup) return;
-  popup.classList.toggle('hidden');
-  if (!popup.classList.contains('hidden')) {
-    updateCartPopupUI();
+export function setLoading(button, isLoading, originalText = null) {
+  if (!button) return;
+  if (isLoading) {
+    button.disabled = true;
+    button._originalText = originalText || button.innerHTML;
+    button.innerHTML = `<span class="spinner"></span> Loading...`;
+  } else {
+    button.disabled = false;
+    if (button._originalText) {
+      button.innerHTML = button._originalText;
+      delete button._originalText;
+    }
   }
 }
-window.toggleCart = toggleCart;
-
-// ================================================================
-// ✅ REMOVE FROM CART (Realtime update)
-// ================================================================
-window.removeFromCart = function(index) {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  cart.splice(index, 1);
-  localStorage.setItem('cart', JSON.stringify(cart));
-  
-  // Real-time update
-  updateCartPopupUI();
-  updateCartBadge();
-  
-  const user = auth.currentUser;
-  if (user) {
-    updateCartInFirestore(user.uid, cart);
-  }
-};
-
-// ================================================================
-// ✅ CHECKOUT (closes popup and proceeds)
-// ================================================================
-window.cartCheckout = function() {
-  const popup = document.getElementById('cartPopup');
-  if (popup) popup.classList.add('hidden');
-  if (typeof window.checkout === 'function') {
-    window.checkout();
-  } else {
-    window.location.href = 'get-new-website.html?checkout=1';
-  }
-};
-
-// ================================================================
-// ✅ GLOBAL addToCart (Realtime update fixed)
-// ================================================================
-window.addToCart = async function(productId, productName, productPrice, productImage = '') {
-  if (!productId || !productName) {
-    window.showToast('⚠️ Product information missing.', 'error');
-    return;
-  }
-
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const existing = cart.find(item => item.id === productId);
-  if (existing) {
-    existing.quantity = (existing.quantity || 1) + 1;
-  } else {
-    cart.push({
-      id: productId,
-      name: productName,
-      price: productPrice || 0,
-      imageUrl: productImage || '',
-      quantity: 1
-    });
-  }
-
-  localStorage.setItem('cart', JSON.stringify(cart));
-
-  // 🔥 Real-time update: badge + popup
-  updateCartBadge();
-  updateCartPopupUI();
-
-  // Sync with Firestore if logged in
-  const user = auth.currentUser;
-  if (user) {
-    await updateCartInFirestore(user.uid, cart);
-  }
-
-  window.showToast(`✅ "${productName}" added to cart`, 'success');
-};
 
 // ================================================================
 // ✅ FOOTER
@@ -739,35 +768,6 @@ export function renderFooter() {
   const placeholder = document.getElementById('footer-placeholder');
   if (placeholder) {
     placeholder.innerHTML = footerHTML;
-  }
-}
-
-// ================================================================
-// ✅ BACKWARD COMPATIBILITY: renderCartSidebar & updateCartUI
-// ================================================================
-export function renderCartSidebar() {
-  if (!cartPopupRendered) renderCartPopup();
-}
-
-export function updateCartUI() {
-  updateCartPopupUI();
-}
-
-// ================================================================
-// ✅ LOADING BUTTON
-// ================================================================
-export function setLoading(button, isLoading, originalText = null) {
-  if (!button) return;
-  if (isLoading) {
-    button.disabled = true;
-    button._originalText = originalText || button.innerHTML;
-    button.innerHTML = `<span class="spinner"></span> Loading...`;
-  } else {
-    button.disabled = false;
-    if (button._originalText) {
-      button.innerHTML = button._originalText;
-      delete button._originalText;
-    }
   }
 }
 
