@@ -969,6 +969,7 @@
 
         // ─── CART ───────────────────────────────────────────────────────
 
+        // ✅ FIX: added updateCartBadge import & call
         window.addToCart = async (productId) => {
             const product = allProducts.find(p => p.id === productId);
             if (!product) { showToast('Product not found', 'error'); return; }
@@ -992,7 +993,11 @@
             localStorage.setItem('cart', JSON.stringify(cart));
             const user = auth.currentUser;
             if (user) await updateCartInFirestore(user.uid, cart);
+            
+            // ✅ Real‑time badge update
+            updateCartBadge();
             window.updateCartUI?.();
+            
             showToast(`✅ "${product.name}" added to cart`, 'success');
         };
 

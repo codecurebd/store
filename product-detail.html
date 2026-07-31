@@ -979,6 +979,7 @@
 
     window.selectedRating = 0;
 
+    // ✅ FIX: added updateCartBadge import & call
     async function addToCart() {
       if (!currentProductData) { showToast('Product not loaded', 'error'); return; }
       const product = currentProductData;
@@ -1005,7 +1006,11 @@
         const { updateCartInFirestore } = await import('./components.js');
         updateCartInFirestore(user.uid, cart);
       }
+      
+      // ✅ Real‑time badge update
+      updateCartBadge();
       window.updateCartUI?.();
+      
       showToast(`✅ "${product.name}" added to cart`, 'success');
     }
 
