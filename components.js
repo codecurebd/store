@@ -358,16 +358,13 @@ window.handleContactClick = function(e) {
                        window.location.pathname.endsWith('/');
   
   if (isIndexPage) {
-    // Scroll to contact section on index page
     const contactSection = document.getElementById('contact');
     if (contactSection) {
       contactSection.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // Fallback: if contact section not found (shouldn't happen), open modal
       window.openContactModal();
     }
   } else {
-    // Open modal on other pages
     window.openContactModal();
   }
 };
@@ -376,7 +373,6 @@ window.handleContactClick = function(e) {
 // ✅ NAVBAR (Contact লিংক smart behaviour সহ)
 // ================================================================
 export function renderNavbar() {
-  // First, render the contact modal (once)
   renderContactModal();
 
   const navbarHTML = `
@@ -393,7 +389,6 @@ export function renderNavbar() {
           <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
           <a href="get-new-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Store</a>
           <a href="fix-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Fix</a>
-          <!-- ✅ Smart Contact link -->
           <a href="#" onclick="window.handleContactClick(event)" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Contact</a>
         </div>
 
@@ -470,13 +465,12 @@ export function renderNavbar() {
       </div>
     </nav>
 
-    <!-- Mobile Menu (Contact smart link সহ) -->
+    <!-- Mobile Menu -->
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
         <a href="get-new-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Store</a>
         <a href="fix-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Fix</a>
-        <!-- ✅ Smart Contact link -->
         <a href="#" onclick="window.handleContactClick(event)" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Contact</a>
         <hr class="my-2 border-gray-100" />
         <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
@@ -506,14 +500,13 @@ export function renderNavbar() {
     });
   }
 
-  // ✅ Profile dropdown close on outside click
   document.addEventListener('click', (e) => {
     if (avatar && !avatar.contains(e.target) && !dropdown.contains(e.target)) {
       dropdown.classList.remove('show');
     }
   });
 
-  // ✅ NEW: Notification dropdown close on outside click
+  // Notification dropdown close on outside click
   const notifBtn = document.querySelector('[onclick="window.toggleNotifications()"]');
   const notifDropdown = document.getElementById('notificationDropdown');
   if (notifBtn && notifDropdown) {
@@ -527,7 +520,7 @@ export function renderNavbar() {
     });
   }
 
-  // ✅ Cart popup close on outside click
+  // Cart popup close on outside click
   const cartBtn = document.getElementById('cartBtn');
   const cartPopup = document.getElementById('cartPopupContainer')?.querySelector('.cart-popup');
   if (cartBtn && cartPopup) {
@@ -542,14 +535,12 @@ export function renderNavbar() {
 
   updateCartBadge();
 
-  // Cart sync
   onAuthStateChanged(auth, (user) => {
     if (user) {
       syncCart(user.uid);
     }
   });
   
-  // Render the cart popup (inside the container)
   renderCartPopup();
 }
 
@@ -562,7 +553,6 @@ export function renderCartPopup() {
   const container = document.getElementById('cartPopupContainer');
   if (!container) return;
   
-  // If already rendered, just update content
   if (cartPopupRendered) {
     updateCartPopupUI();
     return;
@@ -639,7 +629,6 @@ export function toggleCart() {
   const popup = document.getElementById('cartPopup');
   if (!popup) return;
   popup.classList.toggle('hidden');
-  // Update UI when opening
   if (!popup.classList.contains('hidden')) {
     updateCartPopupUI();
   }
@@ -665,14 +654,11 @@ window.removeFromCart = function(index) {
 // ✅ CHECKOUT (closes popup and proceeds)
 // ================================================================
 window.cartCheckout = function() {
-  // Close cart popup
   const popup = document.getElementById('cartPopup');
   if (popup) popup.classList.add('hidden');
-  // Call existing checkout
   if (typeof window.checkout === 'function') {
     window.checkout();
   } else {
-    // Fallback: redirect to store with checkout param
     window.location.href = 'get-new-website.html?checkout=1';
   }
 };
@@ -704,6 +690,19 @@ export function renderFooter() {
   if (placeholder) {
     placeholder.innerHTML = footerHTML;
   }
+}
+
+// ================================================================
+// ✅ BACKWARD COMPATIBILITY: renderCartSidebar & updateCartUI
+// ================================================================
+export function renderCartSidebar() {
+  // পুরোনো sidebar-এর বদলে popup রেন্ডার করা হচ্ছে
+  if (!cartPopupRendered) renderCartPopup();
+}
+
+export function updateCartUI() {
+  // popup-এর UI আপডেট
+  updateCartPopupUI();
 }
 
 // ================================================================
@@ -814,7 +813,6 @@ export function renderPaymentModal() {
     methodSelect.addEventListener('change', () => window.updatePaymentMethodUI());
   }
 
-  // ===== PAYMENT FORM SUBMIT =====
   const paymentForm = document.getElementById('paymentForm');
   if (paymentForm && !paymentForm.dataset.bound) {
     paymentForm.dataset.bound = '1';
@@ -1174,7 +1172,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
     
-    // ✅ Show notifications only when signed in
     if (authRequiredActions) authRequiredActions.style.display = 'flex';
 
     const isAdmin = (role === 'admin');
@@ -1210,7 +1207,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
     updateNotificationBadge(0);
     updateNotificationList([]);
 
-    // ✅ Hide notifications when signed out
     if (authRequiredActions) authRequiredActions.style.display = 'none';
   }
 }
