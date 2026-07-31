@@ -525,19 +525,6 @@ export function renderNavbar() {
     });
   }
 
-  // Cart popup close on outside click
-  const cartBtn = document.getElementById('cartBtn');
-  const cartPopup = document.getElementById('cartPopupContainer')?.querySelector('.cart-popup');
-  if (cartBtn && cartPopup) {
-    document.addEventListener('click', (e) => {
-      if (!cartBtn.contains(e.target) && !cartPopup.contains(e.target)) {
-        if (!cartPopup.classList.contains('hidden')) {
-          cartPopup.classList.add('hidden');
-        }
-      }
-    });
-  }
-
   // ✅ Badge আপডেট (পেজ লোড হলে)
   updateCartBadge();
 
@@ -568,9 +555,6 @@ export function renderCartPopup() {
     <div class="cart-popup hidden" id="cartPopup">
       <div class="cart-popup-header">
         <span class="cart-popup-title"><i class="fas fa-shopping-bag mr-2"></i> Your Cart</span>
-        <button onclick="window.toggleCart()" class="cart-popup-close" aria-label="Close cart">
-          <i class="fas fa-times"></i>
-        </button>
       </div>
       <div id="cartPopupItems" class="cart-popup-items">
         <div class="cart-empty">Your cart is empty.</div>
@@ -590,6 +574,21 @@ export function renderCartPopup() {
   container.innerHTML = popupHTML;
   cartPopupRendered = true;
   updateCartPopupUI();
+
+  // ✅ Outside click + cart button toggle close system (set up only once)
+  const cartBtn = document.getElementById('cartBtn');
+  const cartPopup = document.getElementById('cartPopup');
+
+  if (cartBtn && cartPopup) {
+    document.addEventListener('click', (e) => {
+      // Close only when click is outside both the cart button and the popup
+      if (!cartBtn.contains(e.target) && !cartPopup.contains(e.target)) {
+        if (!cartPopup.classList.contains('hidden')) {
+          cartPopup.classList.add('hidden');
+        }
+      }
+    });
+  }
 }
 
 function updateCartPopupUI() {
