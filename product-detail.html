@@ -5,15 +5,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>Product Detail – CodeCureBD</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
-  
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
-  
+
   <style>
     /* ===== BASE ===== */
     * { box-sizing: border-box; }
@@ -212,7 +212,7 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 6px 10px;
+      gap: 6px 12px;
       margin-top: 0.5rem;
     }
     .original-price {
@@ -233,6 +233,15 @@
       padding: 2px 14px;
       border-radius: 40px;
       border: 1px solid rgba(220, 38, 38, 0.12);
+    }
+    .price-bdt {
+      font-size: 1.1rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    .price-bdt span {
+      font-weight: 600;
+      color: #1c1c1e;
     }
     .action-buttons {
       display: flex;
@@ -764,6 +773,10 @@
       return symbol + converted.toFixed(2);
     }
 
+    function formatBDT(amountBDT) {
+      return '৳' + Math.round(amountBDT).toLocaleString('en-BD');
+    }
+
     // ─── LOAD SETTINGS & CURRENCY FROM LOCALSTORAGE ─────────────────
     async function loadPaymentSettings() {
       try {
@@ -810,9 +823,21 @@
       `;
     } else {
       currentProductId = productId;
-      // প্রথমে settings ও currency load করি
       await loadPaymentSettings();
       loadCurrencyPreference();
+
+      // Listen for settings changes
+      onSnapshot(doc(db, 'settings', 'payment'), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.usdRate && Number(data.usdRate) > 0) {
+            usdRate = Number(data.usdRate);
+            if (currentProductData) {
+              renderProductDetail(currentProductData);
+            }
+          }
+        }
+      });
 
       getDocs(collection(db, 'discounts')).then(snap => {
         allDiscounts = [];
@@ -933,7 +958,7 @@
     window.submitRating = submitRating;
 
     // ================================================================
-    // RENDER PRODUCT DETAIL with currency formatting
+    // RENDER PRODUCT DETAIL with both USD & BDT
     // ================================================================
     function renderProductDetail(product) {
       const discount = getDiscountForProduct(product);
@@ -948,15 +973,23 @@
         const discounted = product.price * (1 - discount.discountPercent / 100);
         const origFormatted = formatPrice(product.price);
         const discFormatted = formatPrice(discounted);
+        // BDT
+        const origBDT = product.price * usdRate;
+        const discBDT = discounted * usdRate;
         priceHtml = `
           <span class="original-price">${origFormatted}</span>
           <span class="discount-price">${discFormatted}</span>
           <span class="discount-percent-tag">-${percent}%</span>
+          <span class="price-bdt">(BDT <span>${formatBDT(discBDT)}</span>)</span>
         `;
         badgeHtml = `<span class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</span>`;
       } else {
         const priceFormatted = formatPrice(product.price);
-        priceHtml = `<span class="discount-price" style="font-size:2rem;">${priceFormatted}</span>`;
+        const bdtAmount = product.price * usdRate;
+        priceHtml = `
+          <span class="discount-price" style="font-size:2rem;">${priceFormatted}</span>
+          <span class="price-bdt">(BDT <span>${formatBDT(bdtAmount)}</span>)</span>
+        `;
       }
 
       const hasHtml = product.htmlContent && product.htmlContent.length > 0;
@@ -1036,7 +1069,6 @@
 
     window.selectedRating = 0;
 
-    // ✅ FIX: added updateCartBadge import & call
     async function addToCart() {
       if (!currentProductData) { showToast('Product not loaded', 'error'); return; }
       const product = currentProductData;
@@ -1063,11 +1095,8 @@
         const { updateCartInFirestore } = await import('./components.js');
         updateCartInFirestore(user.uid, cart);
       }
-      
-      // ✅ Real‑time badge update
       updateCartBadge();
       window.updateCartUI?.();
-      
       showToast(`✅ "${product.name}" added to cart`, 'success');
     }
 
@@ -1145,7 +1174,7 @@
       }
     }
 
-    console.log('📄 Product detail page — currency sync with store (USD/BDT)');
+    console.log('📄 Product detail page updated: both USD and BDT prices with admin rate.');
   </script>
 </body>
 </html>

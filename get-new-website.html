@@ -57,7 +57,6 @@
             background: #f0f2f5;
             height: 200px;
             pointer-events: none;
-            /* prevent interaction with iframe content */;
         }
         .product-card .img-wrapper iframe {
             width: 100%;
@@ -102,12 +101,12 @@
             opacity: 0.9;
         }
 
-        /* ── price section with discount % ── */
+        /* ── price section with both USD & BDT ── */
         .price-wrapper {
             display: flex;
-            align-items: center;
+            align-items: baseline;
             flex-wrap: wrap;
-            gap: 6px 10px;
+            gap: 6px 12px;
             margin-top: 0.5rem;
         }
         .original-price {
@@ -135,6 +134,15 @@
         }
         .discount-percent-tag i {
             font-size: 0.6rem;
+        }
+        .price-bdt {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .price-bdt span {
+            font-weight: 600;
+            color: #1c1c1e;
         }
 
         .product-desc {
@@ -533,6 +541,9 @@
                 padding: 4px 12px;
                 min-width: 44px;
             }
+            .price-bdt {
+                font-size: 0.8rem;
+            }
         }
         @media (max-width: 480px) {
             .product-card .img-wrapper {
@@ -570,6 +581,9 @@
                 padding: 3px 10px;
                 min-width: 38px;
             }
+            .price-bdt {
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
@@ -603,7 +617,7 @@
                             <option value="name">Name: A to Z</option>
                         </select>
 
-                        <!-- Currency Selector -->
+                        <!-- Currency Selector (kept for reference, but both currencies are now always shown) -->
                         <div class="flex items-center gap-2 ml-auto">
                             <span class="text-sm text-gray-500 font-medium hidden sm:inline">Currency:</span>
                             <div class="currency-toggle" id="currencyToggle">
@@ -850,6 +864,11 @@
             return symbol + converted.toFixed(2);
         }
 
+        // ─── FORMAT BDT (integer with commas) ─────────────────────────
+        function formatBDT(amountBDT) {
+            return '৳' + Math.round(amountBDT).toLocaleString('en-BD');
+        }
+
         // ─── LOAD SETTINGS FROM FIRESTORE ─────────────────────────────
 
         async function loadPaymentSettings() {
@@ -866,7 +885,7 @@
             }
         }
 
-        // ─── CURRENCY SELECTOR UI ──────────────────────────────────────
+        // ─── CURRENCY SELECTOR UI (kept for reference) ─────────────────
 
         function initCurrencySelector() {
             const saved = localStorage.getItem('preferredCurrency');
@@ -997,15 +1016,23 @@
                     const percent = Math.round(discount.discountPercent);
                     const origFormatted = formatPrice(originalPrice);
                     const discFormatted = formatPrice(discountedPrice);
+                    // BDT amounts
+                    const origBDT = originalPrice * usdRate;
+                    const discBDT = discountedPrice * usdRate;
                     priceHtml = `
                         <span class="original-price">${origFormatted}</span>
                         <span class="discount-price">${discFormatted}</span>
                         <span class="discount-percent-tag"><i class="fas fa-tag"></i> -${percent}%</span>
+                        <span class="price-bdt">(BDT <span>${formatBDT(discBDT)}</span>)</span>
                     `;
                     badgeHtml = `<div class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</div>`;
                 } else {
                     const priceFormatted = formatPrice(originalPrice);
-                    priceHtml = `<span class="discount-price" style="font-size:1.4rem;">${priceFormatted}</span>`;
+                    const bdtAmount = originalPrice * usdRate;
+                    priceHtml = `
+                        <span class="discount-price" style="font-size:1.4rem;">${priceFormatted}</span>
+                        <span class="price-bdt">(BDT <span>${formatBDT(bdtAmount)}</span>)</span>
+                    `;
                 }
 
                 // ── HTML preview vs image ──
@@ -1059,18 +1086,21 @@
         }
 
         // ── listen to products & discounts ──
-        // প্রথমে settings load করি, তারপর products ও discounts listen করি
-        // কিন্তু products ও discounts এর onSnapshot আগে থেকেই চালু আছে, renderProducts() কল করবে।
-        // আমরা settings load করে usdRate সেট করব, তারপর renderProducts() করব।
-        // যাতে products render হওয়ার সময় correct rate থাকে।
-
-        // Settings load
+        // First load settings, then attach listeners
         await loadPaymentSettings();
-
-        // Currency selector init
         initCurrencySelector();
 
-        // Product and discount listeners
+        // Real‑time listener for settings update (admin changes rate)
+        onSnapshot(doc(db, 'settings', 'payment'), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.usdRate && Number(data.usdRate) > 0) {
+                    usdRate = Number(data.usdRate);
+                    renderProducts(); // re-render with new rate
+                }
+            }
+        });
+
         onSnapshot(collection(db, 'products'), (snapshot) => {
             allProducts = [];
             snapshot.forEach(doc => { allProducts.push({ id: doc.id, ...doc.data() }); });
@@ -1125,14 +1155,14 @@
             localStorage.setItem('cart', JSON.stringify(cart));
             const user = auth.currentUser;
             if (user) await updateCartInFirestore(user.uid, cart);
-            
+
             updateCartBadge();
             window.updateCartUI?.();
-            
+
             showToast(`✅ "${product.name}" added to cart`, 'success');
         };
 
-        console.log('🚀 Store page loaded — Currency selector added (USD/BDT) with rate from admin settings.');
+        console.log('🚀 Store page updated: both USD and BDT prices shown with admin rate.');
     </script>
 </body>
 </html>
