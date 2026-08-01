@@ -250,6 +250,27 @@
       margin-top: 1rem;
     }
 
+    /* ===== RATE BANNER (inside detail) ===== */
+    .rate-banner {
+      background: rgba(0, 122, 255, 0.06);
+      border: 1px solid rgba(0, 122, 255, 0.12);
+      border-radius: 60px;
+      padding: 6px 18px;
+      font-size: 0.9rem;
+      color: #1c1c1e;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .rate-banner i {
+      color: #007AFF;
+    }
+    .rate-banner strong {
+      font-weight: 700;
+      color: #007AFF;
+    }
+
     /* ===== TRY NOW OVERLAY ===== */
     .trynow-overlay {
       position: fixed;
@@ -520,6 +541,12 @@
     <div id="navbar-placeholder"></div>
     <main class="main-content">
       <section class="pt-28 pb-16 px-6 max-w-4xl mx-auto">
+        <!-- Rate banner at top -->
+        <div id="detailRateBanner" class="rate-banner mb-4 fade-up">
+          <i class="fas fa-exchange-alt"></i>
+          1 USD = <strong id="detailDisplayRate">125</strong> BDT
+        </div>
+
         <div id="productDetailContainer">
           <!-- Skeleton -->
           <div class="fade-up">
@@ -748,36 +775,27 @@
     });
 
     // ================================================================
-    // CURRENCY & PRICE FORMATTING (shared with store page)
+    // CURRENCY & PRICE FORMATTING
     // ================================================================
-    let selectedCurrency = 'USD';
     let usdRate = 125;
 
-    function getCurrencySymbol(currency) {
-      return currency === 'BDT' ? '৳' : '$';
-    }
-
-    function convertPrice(priceUSD) {
-      if (selectedCurrency === 'BDT') {
-        return priceUSD * usdRate;
-      }
-      return priceUSD;
-    }
-
-    function formatPrice(priceUSD) {
-      const converted = convertPrice(priceUSD);
-      const symbol = getCurrencySymbol(selectedCurrency);
-      if (selectedCurrency === 'BDT') {
-        return symbol + Math.round(converted).toLocaleString('en-BD');
-      }
-      return symbol + converted.toFixed(2);
+    function formatPriceUSD(priceUSD) {
+      return '$' + priceUSD.toFixed(2);
     }
 
     function formatBDT(amountBDT) {
       return '৳' + Math.round(amountBDT).toLocaleString('en-BD');
     }
 
-    // ─── LOAD SETTINGS & CURRENCY FROM LOCALSTORAGE ─────────────────
+    function getBDT(priceUSD) {
+      return priceUSD * usdRate;
+    }
+
+    function updateDetailRateBanner() {
+      document.getElementById('detailDisplayRate').textContent = usdRate;
+    }
+
+    // ─── LOAD SETTINGS ─────────────────────────────────
     async function loadPaymentSettings() {
       try {
         const snap = await getDoc(doc(db, 'settings', 'payment'));
@@ -785,19 +803,11 @@
           const data = snap.data();
           if (data.usdRate && Number(data.usdRate) > 0) {
             usdRate = Number(data.usdRate);
+            updateDetailRateBanner();
           }
         }
       } catch (err) {
         console.warn('Could not load payment settings, using default rate 125:', err);
-      }
-    }
-
-    function loadCurrencyPreference() {
-      const saved = localStorage.getItem('preferredCurrency');
-      if (saved === 'BDT' || saved === 'USD') {
-        selectedCurrency = saved;
-      } else {
-        selectedCurrency = 'USD';
       }
     }
 
@@ -824,7 +834,6 @@
     } else {
       currentProductId = productId;
       await loadPaymentSettings();
-      loadCurrencyPreference();
 
       // Listen for settings changes
       onSnapshot(doc(db, 'settings', 'payment'), (docSnap) => {
@@ -832,6 +841,7 @@
           const data = docSnap.data();
           if (data.usdRate && Number(data.usdRate) > 0) {
             usdRate = Number(data.usdRate);
+            updateDetailRateBanner();
             if (currentProductData) {
               renderProductDetail(currentProductData);
             }
@@ -971,11 +981,10 @@
       if (discount) {
         const percent = Math.round(discount.discountPercent);
         const discounted = product.price * (1 - discount.discountPercent / 100);
-        const origFormatted = formatPrice(product.price);
-        const discFormatted = formatPrice(discounted);
-        // BDT
-        const origBDT = product.price * usdRate;
-        const discBDT = discounted * usdRate;
+        const origFormatted = formatPriceUSD(product.price);
+        const discFormatted = formatPriceUSD(discounted);
+        const origBDT = getBDT(product.price);
+        const discBDT = getBDT(discounted);
         priceHtml = `
           <span class="original-price">${origFormatted}</span>
           <span class="discount-price">${discFormatted}</span>
@@ -984,8 +993,8 @@
         `;
         badgeHtml = `<span class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</span>`;
       } else {
-        const priceFormatted = formatPrice(product.price);
-        const bdtAmount = product.price * usdRate;
+        const priceFormatted = formatPriceUSD(product.price);
+        const bdtAmount = getBDT(product.price);
         priceHtml = `
           <span class="discount-price" style="font-size:2rem;">${priceFormatted}</span>
           <span class="price-bdt">(BDT <span>${formatBDT(bdtAmount)}</span>)</span>
@@ -994,7 +1003,7 @@
 
       const hasHtml = product.htmlContent && product.htmlContent.length > 0;
 
-      // ─── STATIC PREVIEW (fixed sizing) ────────────────────────
+      // ─── STATIC PREVIEW ────────────────────────────────────────
       let previewHtml = '';
       if (hasHtml) {
         const escaped = product.htmlContent.replace(/"/g, '&quot;');
@@ -1174,7 +1183,7 @@
       }
     }
 
-    console.log('📄 Product detail page updated: both USD and BDT prices with admin rate.');
+    console.log('📄 Product detail: currency toggle removed, rate banner added.');
   </script>
 </body>
 </html>

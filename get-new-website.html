@@ -101,7 +101,7 @@
             opacity: 0.9;
         }
 
-        /* ── price section with both USD & BDT ── */
+        /* ── price section ── */
         .price-wrapper {
             display: flex;
             align-items: baseline;
@@ -463,36 +463,25 @@
             }
         }
 
-        /* ── Currency Selector Styles ── */
-        .currency-toggle {
-            display: inline-flex;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(4px);
-            border-radius: 40px;
-            padding: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
-        }
-        .currency-toggle .curr-btn {
-            background: transparent;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 30px;
+        /* ── exchange rate banner ── */
+        .rate-banner {
+            background: rgba(0, 122, 255, 0.06);
+            border: 1px solid rgba(0, 122, 255, 0.12);
+            border-radius: 60px;
+            padding: 6px 18px;
             font-size: 0.85rem;
-            font-weight: 600;
-            color: #6b7280;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            min-width: 52px;
-            font-family: 'Inter', sans-serif;
-        }
-        .currency-toggle .curr-btn.active {
-            background: #ffffff;
             color: #1c1c1e;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
         }
-        .currency-toggle .curr-btn:hover:not(.active) {
-            color: #1c1c1e;
+        .rate-banner i {
+            color: #007AFF;
+        }
+        .rate-banner strong {
+            font-weight: 700;
+            color: #007AFF;
         }
 
         /* ── responsive ── */
@@ -536,13 +525,12 @@
             .price-wrapper {
                 gap: 4px 8px;
             }
-            .currency-toggle .curr-btn {
-                font-size: 0.75rem;
-                padding: 4px 12px;
-                min-width: 44px;
-            }
             .price-bdt {
                 font-size: 0.8rem;
+            }
+            .rate-banner {
+                font-size: 0.75rem;
+                padding: 4px 12px;
             }
         }
         @media (max-width: 480px) {
@@ -576,13 +564,12 @@
             .original-price {
                 font-size: 0.8rem;
             }
-            .currency-toggle .curr-btn {
-                font-size: 0.7rem;
-                padding: 3px 10px;
-                min-width: 38px;
-            }
             .price-bdt {
                 font-size: 0.7rem;
+            }
+            .rate-banner {
+                font-size: 0.65rem;
+                padding: 2px 10px;
             }
         }
     </style>
@@ -596,9 +583,16 @@
             <section class="pt-24 pb-12 px-6">
                 <div class="max-w-7xl mx-auto">
 
-                    <h1 class="text-3xl font-bold text-gray-900 fade-up">Choose Your Website Package</h1>
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h1 class="text-3xl font-bold text-gray-900 fade-up">Choose Your Website Package</h1>
+                        <!-- Exchange Rate Banner -->
+                        <div id="rateBanner" class="rate-banner fade-up">
+                            <i class="fas fa-exchange-alt"></i>
+                            1 USD = <strong id="displayRate">125</strong> BDT
+                        </div>
+                    </div>
 
-                    <!-- filters + currency selector -->
+                    <!-- filters (currency toggle removed) -->
                     <div class="flex flex-wrap gap-4 mt-4 items-center fade-up">
                         <div class="relative flex-1 min-w-[200px]">
                             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -616,15 +610,6 @@
                             <option value="price-desc">Price: High to Low</option>
                             <option value="name">Name: A to Z</option>
                         </select>
-
-                        <!-- Currency Selector (kept for reference, but both currencies are now always shown) -->
-                        <div class="flex items-center gap-2 ml-auto">
-                            <span class="text-sm text-gray-500 font-medium hidden sm:inline">Currency:</span>
-                            <div class="currency-toggle" id="currencyToggle">
-                                <button class="curr-btn active" data-currency="USD">USD</button>
-                                <button class="curr-btn" data-currency="BDT">BDT</button>
-                            </div>
-                        </div>
 
                         <button onclick="resetFilters()" class="btn-outline text-sm py-2 px-4">
                             <i class="fas fa-undo"></i> Reset
@@ -840,33 +825,23 @@
 
         // ─── CURRENCY & PRICE FORMATTING ──────────────────────────────
 
-        let selectedCurrency = 'USD';
         let usdRate = 125; // default, will be overridden by settings
 
-        function getCurrencySymbol(currency) {
-            return currency === 'BDT' ? '৳' : '$';
+        function formatPriceUSD(priceUSD) {
+            return '$' + priceUSD.toFixed(2);
         }
 
-        function convertPrice(priceUSD) {
-            if (selectedCurrency === 'BDT') {
-                return priceUSD * usdRate;
-            }
-            return priceUSD;
-        }
-
-        function formatPrice(priceUSD) {
-            const converted = convertPrice(priceUSD);
-            const symbol = getCurrencySymbol(selectedCurrency);
-            if (selectedCurrency === 'BDT') {
-                // BDT: integer with comma separators
-                return symbol + Math.round(converted).toLocaleString('en-BD');
-            }
-            return symbol + converted.toFixed(2);
-        }
-
-        // ─── FORMAT BDT (integer with commas) ─────────────────────────
         function formatBDT(amountBDT) {
             return '৳' + Math.round(amountBDT).toLocaleString('en-BD');
+        }
+
+        function getBDT(priceUSD) {
+            return priceUSD * usdRate;
+        }
+
+        // ─── UPDATE RATE BANNER ──────────────────────────────────────
+        function updateRateBanner() {
+            document.getElementById('displayRate').textContent = usdRate;
         }
 
         // ─── LOAD SETTINGS FROM FIRESTORE ─────────────────────────────
@@ -878,35 +853,12 @@
                     const data = snap.data();
                     if (data.usdRate && Number(data.usdRate) > 0) {
                         usdRate = Number(data.usdRate);
+                        updateRateBanner();
                     }
                 }
             } catch (err) {
                 console.warn('Could not load payment settings, using default rate 125:', err);
             }
-        }
-
-        // ─── CURRENCY SELECTOR UI (kept for reference) ─────────────────
-
-        function initCurrencySelector() {
-            const saved = localStorage.getItem('preferredCurrency');
-            if (saved === 'BDT' || saved === 'USD') {
-                selectedCurrency = saved;
-            } else {
-                selectedCurrency = 'USD';
-            }
-
-            const buttons = document.querySelectorAll('#currencyToggle .curr-btn');
-            buttons.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.currency === selectedCurrency);
-                btn.addEventListener('click', function() {
-                    const curr = this.dataset.currency;
-                    if (curr === selectedCurrency) return;
-                    selectedCurrency = curr;
-                    localStorage.setItem('preferredCurrency', curr);
-                    buttons.forEach(b => b.classList.toggle('active', b.dataset.currency === curr));
-                    renderProducts();
-                });
-            });
         }
 
         // ─── PRODUCT LOGIC ──────────────────────────────────────────────
@@ -939,13 +891,11 @@
         function getDiscountForProduct(product) {
             if (!allDiscounts || allDiscounts.length === 0) return null;
 
-            // 1. Specific product discount
             const specific = allDiscounts.filter(d => d.type === 'specific' && d.productId === product.id);
             if (specific.length > 0) {
                 return specific.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, specific[0]);
             }
 
-            // 2. Category discount
             if (product.category) {
                 const catDiscounts = allDiscounts.filter(d => d.type === 'category' && d.category === product.category);
                 if (catDiscounts.length > 0) {
@@ -953,10 +903,9 @@
                 }
             }
 
-            // 3. All products discount
-            const allDiscount = allDiscounts.filter(d => d.type === 'all');
-            if (allDiscount.length > 0) {
-                return allDiscount.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, allDiscount[0]);
+            const all = allDiscounts.filter(d => d.type === 'all');
+            if (all.length > 0) {
+                return all.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, all[0]);
             }
 
             return null;
@@ -1014,11 +963,10 @@
                 if (discount) {
                     discountedPrice = originalPrice * (1 - discount.discountPercent / 100);
                     const percent = Math.round(discount.discountPercent);
-                    const origFormatted = formatPrice(originalPrice);
-                    const discFormatted = formatPrice(discountedPrice);
-                    // BDT amounts
-                    const origBDT = originalPrice * usdRate;
-                    const discBDT = discountedPrice * usdRate;
+                    const origFormatted = formatPriceUSD(originalPrice);
+                    const discFormatted = formatPriceUSD(discountedPrice);
+                    const origBDT = getBDT(originalPrice);
+                    const discBDT = getBDT(discountedPrice);
                     priceHtml = `
                         <span class="original-price">${origFormatted}</span>
                         <span class="discount-price">${discFormatted}</span>
@@ -1027,8 +975,8 @@
                     `;
                     badgeHtml = `<div class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</div>`;
                 } else {
-                    const priceFormatted = formatPrice(originalPrice);
-                    const bdtAmount = originalPrice * usdRate;
+                    const priceFormatted = formatPriceUSD(originalPrice);
+                    const bdtAmount = getBDT(originalPrice);
                     priceHtml = `
                         <span class="discount-price" style="font-size:1.4rem;">${priceFormatted}</span>
                         <span class="price-bdt">(BDT <span>${formatBDT(bdtAmount)}</span>)</span>
@@ -1086,9 +1034,7 @@
         }
 
         // ── listen to products & discounts ──
-        // First load settings, then attach listeners
         await loadPaymentSettings();
-        initCurrencySelector();
 
         // Real‑time listener for settings update (admin changes rate)
         onSnapshot(doc(db, 'settings', 'payment'), (docSnap) => {
@@ -1096,6 +1042,7 @@
                 const data = docSnap.data();
                 if (data.usdRate && Number(data.usdRate) > 0) {
                     usdRate = Number(data.usdRate);
+                    updateRateBanner();
                     renderProducts(); // re-render with new rate
                 }
             }
@@ -1162,7 +1109,7 @@
             showToast(`✅ "${product.name}" added to cart`, 'success');
         };
 
-        console.log('🚀 Store page updated: both USD and BDT prices shown with admin rate.');
+        console.log('🚀 Store page: currency toggle removed, rate banner added.');
     </script>
 </body>
 </html>
