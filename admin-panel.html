@@ -647,6 +647,25 @@
             background: rgba(220, 38, 38, 0.15);
         }
 
+        /* ===== RATINGS SECTION ===== */
+        .rating-stars-display {
+            color: #f59e0b;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        .rating-stars-select .star {
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #d1d5db;
+        }
+        .rating-stars-select .star.active {
+            color: #f59e0b;
+        }
+        .rating-stars-select .star:hover {
+            transform: scale(1.2);
+        }
+
         /* ===== MESSENGER ===== */
         .messenger-wrap {
             display: flex;
@@ -1750,6 +1769,9 @@
             .sidebar-overlay.open {
                 display: block;
             }
+            .rating-stars-select .star {
+                font-size: 1.5rem;
+            }
         }
         @media (max-width: 480px) {
             .dashboard-grid {
@@ -1800,6 +1822,9 @@
             .product-list-view .product-list-item .pl-price {
                 font-size: 0.9rem;
             }
+            .rating-stars-select .star {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
@@ -1823,6 +1848,7 @@
             <button class="nav-item" data-tab="users"><i class="fas fa-users"></i> Users</button>
             <button class="nav-item" data-tab="messages"><i class="fas fa-envelope"></i> Messages</button>
             <button class="nav-item" data-tab="fixrequests"><i class="fas fa-wrench"></i> Fix Requests</button>
+            <button class="nav-item" data-tab="ratings"><i class="fas fa-star"></i> Ratings</button>
             <button class="nav-item" data-tab="discounts"><i class="fas fa-tags"></i> Discounts</button>
             <button class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</button>
             <button class="nav-item" data-tab="supportchat"><i class="fas fa-comments"></i> Support Chat</button>
@@ -2082,6 +2108,66 @@
             <div id="tab-fixrequests" class="tab-content">
                 <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Fix Requests</h2>
                 <div id="fixRequestList" class="space-y-3 mt-4"></div>
+            </div>
+
+            <!-- ===== RATINGS (NEW) ===== -->
+            <div id="tab-ratings" class="tab-content">
+                <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Ratings &amp; Reviews</h2>
+                <p class="text-sm text-gray-500 mt-1">View and manage all product ratings. Admin can also add ratings.</p>
+
+                <!-- Add Rating Form -->
+                <div class="glass-card mt-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3"><i class="fas fa-plus-circle text-blue-500"></i> Add New Rating</h3>
+                    <form id="adminAddRatingForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Product *</label>
+                            <select id="adminRatingProduct" class="form-input" required>
+                                <option value="">Select a product</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Rating *</label>
+                            <div class="rating-stars-select flex gap-2" id="adminRatingStars">
+                                <span class="star" data-val="1">☆</span>
+                                <span class="star" data-val="2">☆</span>
+                                <span class="star" data-val="3">☆</span>
+                                <span class="star" data-val="4">☆</span>
+                                <span class="star" data-val="5">☆</span>
+                            </div>
+                            <input type="hidden" id="adminRatingValue" value="0" required />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Review / Comment</label>
+                            <textarea id="adminRatingReview" rows="2" class="form-input" placeholder="Write a review..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">User Email (optional)</label>
+                            <input type="email" id="adminRatingUserEmail" class="form-input" placeholder="Leave blank for 'Admin'" />
+                            <p class="text-xs text-gray-400 mt-1">If provided, this email will be shown as the reviewer.</p>
+                        </div>
+                        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Add Rating</button>
+                        <div id="adminRatingFeedback" class="text-sm hidden"></div>
+                    </form>
+                </div>
+
+                <!-- Ratings List -->
+                <div class="mt-6 overflow-x-auto">
+                    <table class="admin-table" id="ratingsTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>User</th>
+                                <th>Rating</th>
+                                <th>Review</th>
+                                <th>Date</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ratingsTableBody">
+                            <!-- Rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- DISCOUNTS -->
@@ -2493,7 +2579,9 @@
             // ===== PENDING ORDERS =====
             let allOrders = [],
                 allUsers = [],
-                allFixRequests = [];
+                allFixRequests = [],
+                allProducts = [],
+                allRatings = [];
 
             function updatePendingOrders(orders) {
                 const pending = orders.filter(o => (o.status || 'pending') === 'pending');
@@ -2619,6 +2707,16 @@
                 renderDashboardCharts(allOrders, allUsers, allFixRequests);
             });
 
+            // Products (for ratings and product dropdown)
+            onSnapshot(collection(db, 'products'), (snapshot) => {
+                document.getElementById('totalProducts').innerText = snapshot.size;
+                allProducts = [];
+                snapshot.forEach(doc => { allProducts.push({ id: doc.id, ...doc.data() }); });
+                renderProductView();
+                populateProductDropdown();
+                populateAdminRatingProductDropdown();
+            });
+
             // ==============================================================
             // PRODUCTS — REDESIGNED with Search + List/Grid toggle
             // ==============================================================
@@ -2646,26 +2744,15 @@
                 renderProductView();
             });
 
-            // Main product snapshot
-            onSnapshot(collection(db, 'products'), (snapshot) => {
-                document.getElementById('totalProducts').innerText = snapshot.size;
-                allProductsData = [];
-                snapshot.forEach(doc => {
-                    allProductsData.push({ id: doc.id, ...doc.data() });
-                });
-                renderProductView();
-                populateProductDropdown();
-            });
-
             function renderProductView() {
-                if (!allProductsData.length) {
+                if (!allProducts.length) {
                     productContainer.innerHTML =
                         `<div class="text-center py-12 text-gray-500"><i class="fas fa-box-open text-4xl opacity-30"></i><p class="mt-2">No products yet. Add your first product!</p></div>`;
                     return;
                 }
 
                 // Filter
-                let filtered = allProductsData;
+                let filtered = allProducts;
                 if (productSearchQuery) {
                     filtered = filtered.filter(p => {
                         const name = (p.name || '').toLowerCase();
@@ -2888,6 +2975,213 @@
                     showToast('✅ Product saved!', 'success');
                 } catch (err) { showToast(err.message, 'error'); } finally { setLoading(productSubmitBtn, false); }
             });
+
+            // ==============================================================
+            // RATINGS SECTION
+            // ==============================================================
+
+            // Populate product dropdown for admin add rating
+            function populateAdminRatingProductDropdown() {
+                const select = document.getElementById('adminRatingProduct');
+                if (!select) return;
+                select.innerHTML = '<option value="">Select a product</option>';
+                allProducts.forEach(p => {
+                    select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                });
+            }
+
+            // Rating stars for admin form
+            const adminRatingStars = document.querySelectorAll('#adminRatingStars .star');
+            let adminSelectedRating = 0;
+            adminRatingStars.forEach(el => {
+                el.addEventListener('click', () => {
+                    const val = parseInt(el.dataset.val);
+                    adminSelectedRating = val;
+                    document.getElementById('adminRatingValue').value = val;
+                    adminRatingStars.forEach(s => {
+                        s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+                    });
+                });
+            });
+
+            // Handle admin add rating form
+            const adminRatingForm = document.getElementById('adminAddRatingForm');
+            const adminRatingFeedback = document.getElementById('adminRatingFeedback');
+            adminRatingForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const productId = document.getElementById('adminRatingProduct').value;
+                const rating = parseInt(document.getElementById('adminRatingValue').value);
+                const review = document.getElementById('adminRatingReview').value.trim();
+                const userEmail = document.getElementById('adminRatingUserEmail').value.trim();
+
+                adminRatingFeedback.className = 'text-sm hidden';
+                if (!productId) {
+                    adminRatingFeedback.className = 'text-sm text-red-500 mt-2';
+                    adminRatingFeedback.textContent = '⚠️ Please select a product.';
+                    showToast('Select a product', 'error');
+                    return;
+                }
+                if (rating < 1 || rating > 5) {
+                    adminRatingFeedback.className = 'text-sm text-red-500 mt-2';
+                    adminRatingFeedback.textContent = '⚠️ Please select a rating (1-5).';
+                    showToast('Select a rating', 'error');
+                    return;
+                }
+
+                const btn = adminRatingForm.querySelector('button[type="submit"]');
+                setLoading(btn, true, 'Adding...');
+
+                try {
+                    // Add rating
+                    const ratingData = {
+                        productId,
+                        userId: 'admin', // admin added
+                        userEmail: userEmail || 'Admin',
+                        rating,
+                        review: review || '',
+                        timestamp: serverTimestamp(),
+                        adminAdded: true,
+                    };
+                    await addDoc(collection(db, 'ratings'), ratingData);
+
+                    // Update product stats (averageRating, ratingCount)
+                    const productRef = doc(db, 'products', productId);
+                    const snap = await getDoc(productRef);
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        const count = (data.ratingCount || 0) + 1;
+                        const avg = ((data.averageRating || 0) * (data.ratingCount || 0) + rating) / count;
+                        await updateDoc(productRef, { averageRating: avg, ratingCount: count });
+                    }
+
+                    showToast('✅ Rating added successfully!', 'success');
+                    adminRatingForm.reset();
+                    adminRatingStars.forEach(s => s.classList.remove('active'));
+                    adminSelectedRating = 0;
+                    document.getElementById('adminRatingValue').value = 0;
+                    adminRatingFeedback.className = 'text-sm text-green-600 mt-2';
+                    adminRatingFeedback.textContent = '✅ Rating added!';
+                    // Refresh ratings list automatically via snapshot
+                } catch (err) {
+                    showToast('⚠️ Error: ' + err.message, 'error');
+                    adminRatingFeedback.className = 'text-sm text-red-500 mt-2';
+                    adminRatingFeedback.textContent = '⚠️ ' + err.message;
+                } finally {
+                    setLoading(btn, false);
+                }
+            });
+
+            // Real-time ratings list
+            const ratingsTableBody = document.getElementById('ratingsTableBody');
+
+            function renderRatings(ratings) {
+                if (!ratings || ratings.length === 0) {
+                    ratingsTableBody.innerHTML =
+                        `<tr><td colspan="6" class="text-center py-6 text-gray-400">No ratings yet.</td></tr>`;
+                    return;
+                }
+
+                // Sort by timestamp descending
+                ratings.sort((a, b) => {
+                    const ta = a.timestamp?.toDate?.()?.getTime() || 0;
+                    const tb = b.timestamp?.toDate?.()?.getTime() || 0;
+                    return tb - ta;
+                });
+
+                let html = '';
+                ratings.forEach(r => {
+                    // Find product name
+                    const product = allProducts.find(p => p.id === r.productId);
+                    const productName = product ? product.name : 'Deleted Product';
+                    // Build rating stars
+                    const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                    const date = r.timestamp?.toDate?.() || new Date(r.timestamp);
+                    const dateStr = date.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    const userEmail = r.userEmail || 'Anonymous';
+                    const review = r.review || '';
+
+                    html += `
+                        <tr>
+                            <td><span class="font-medium">${productName}</span></td>
+                            <td>${userEmail}</td>
+                            <td><span class="rating-stars-display">${stars}</span></td>
+                            <td>${review}</td>
+                            <td>${dateStr}</td>
+                            <td class="text-center">
+                                <button onclick="deleteRating('${r.id}')" class="btn-delete text-xs">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                ratingsTableBody.innerHTML = html;
+            }
+
+            // Listen to ratings
+            onSnapshot(collection(db, 'ratings'), (snapshot) => {
+                allRatings = [];
+                snapshot.forEach(doc => {
+                    allRatings.push({ id: doc.id, ...doc.data() });
+                });
+                renderRatings(allRatings);
+            });
+
+            // Delete rating
+            window.deleteRating = async (ratingId) => {
+                const rating = allRatings.find(r => r.id === ratingId);
+                if (!rating) { showToast('Rating not found.', 'error'); return; }
+
+                const product = allProducts.find(p => p.id === rating.productId);
+                const productName = product ? product.name : 'Unknown product';
+
+                const confirmed = await openConfirmModal({
+                    title: 'Delete Rating',
+                    desc: `Delete rating from "${productName}" (${rating.rating}★) by ${rating.userEmail || 'Anonymous'}?`,
+                    icon: 'fa-star',
+                    itemId: ratingId,
+                    itemIdLabel: 'Rating ID',
+                    expectedValue: ratingId,
+                    inputPlaceholder: 'Paste or type the rating ID exactly as shown…',
+                    inputLabel: 'Type the rating ID below to confirm:'
+                });
+
+                if (!confirmed) { showToast('Deletion cancelled.', 'info'); return; }
+
+                try {
+                    // Delete from Firestore
+                    await deleteDoc(doc(db, 'ratings', ratingId));
+
+                    // Recalculate product stats
+                    const productId = rating.productId;
+                    const productRef = doc(db, 'products', productId);
+                    const snap = await getDoc(productRef);
+                    if (snap.exists()) {
+                        // Fetch all remaining ratings for this product
+                        const q = query(collection(db, 'ratings'), where('productId', '==', productId));
+                        const snapRatings = await getDocs(q);
+                        let totalRating = 0;
+                        let count = 0;
+                        snapRatings.forEach(doc => {
+                            const data = doc.data();
+                            totalRating += data.rating;
+                            count++;
+                        });
+                        const avg = count > 0 ? totalRating / count : 0;
+                        await updateDoc(productRef, { averageRating: avg, ratingCount: count });
+                    }
+
+                    showToast('✅ Rating deleted and product stats updated.', 'success');
+                } catch (err) {
+                    showToast('❌ Error: ' + err.message, 'error');
+                }
+            };
 
             // ==============================================================
             // USERS (unchanged)
@@ -4438,8 +4732,10 @@
                     if (tab === 'users') renderUsersPage(allUsers);
                     if (tab === 'orders') renderOrdersTable(allOrders);
                     if (tab === 'products') {
-                        // Re-render products when tab is clicked
                         renderProductView();
+                    }
+                    if (tab === 'ratings') {
+                        // re-render ratings (already live via snapshot)
                     }
                 });
             });
@@ -4453,7 +4749,7 @@
             });
 
             renderUsersPage(allUsers);
-            console.log('✅ Admin Panel loaded — Products redesigned with search + list/grid view.');
+            console.log('✅ Admin Panel loaded — Ratings section added.');
         }
     </script>
 </body>
