@@ -990,11 +990,14 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (existing)
+// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
 let _pendingCheckoutData = null;
+
+// ডিফল্ট USDT ঠিকানা (আপনার দেওয়া)
+const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
 
 export function renderPaymentModal() {
   const existing = document.getElementById('paymentModal');
@@ -1104,23 +1107,38 @@ export function renderPaymentModal() {
         methodSelect.classList.add('error');
         return;
       }
+
+      // USDT validation
       if (method === 'USDT') {
-        errorDiv.textContent = '⚠️ USDT payment is coming soon. Please use bKash or Nagad.';
-        errorDiv.classList.remove('hidden');
-        return;
+        if (!senderNumber || senderNumber.length < 10) {
+          errorDiv.textContent = '⚠️ Please enter your valid BEP20 sender address.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('paymentSenderNumber').classList.add('error');
+          return;
+        }
+        if (!txnId || txnId.length < 5) {
+          errorDiv.textContent = '⚠️ Please enter a valid USDT transaction ID.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('transactionId').classList.add('error');
+          return;
+        }
+        // Proceed to order creation
+      } else {
+        // bKash / Nagad validation
+        if (!senderNumber) {
+          errorDiv.textContent = '⚠️ Please enter the number you paid from.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('paymentSenderNumber').classList.add('error');
+          return;
+        }
+        if (!txnId) {
+          errorDiv.textContent = '⚠️ Please enter transaction ID.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('transactionId').classList.add('error');
+          return;
+        }
       }
-      if (!senderNumber) {
-        errorDiv.textContent = '⚠️ Please enter the number you paid from.';
-        errorDiv.classList.remove('hidden');
-        document.getElementById('paymentSenderNumber').classList.add('error');
-        return;
-      }
-      if (!txnId) {
-        errorDiv.textContent = '⚠️ Please enter transaction ID.';
-        errorDiv.classList.remove('hidden');
-        document.getElementById('transactionId').classList.add('error');
-        return;
-      }
+
       if (!auth.currentUser) {
         errorDiv.textContent = '⚠️ You are not logged in.';
         errorDiv.classList.remove('hidden');
@@ -1149,12 +1167,18 @@ export function renderPaymentModal() {
           status: 'pending',
           paymentMethod: method,
           transactionId: txnId,
-          senderNumber: senderNumber,
+          senderNumber: senderNumber, // For USDT this will be sender address
           amountUSD: totalUSD,
           amountBDT: totalBDT,
           usdRate: rate,
           createdAt: serverTimestamp()
         };
+
+        // USDT-তে সেন্ডার নম্বর হিসেবে অ্যাড্রেস রাখবো, ও স্পষ্ট করার জন্য `senderAddress` ফিল্ড আলাদা রাখা ভালো, কিন্তু আমরা senderNumber-ই ব্যবহার করি
+        if (method === 'USDT') {
+          orderData.senderAddress = senderNumber; // extra field
+        }
+
         const docRef = await addDoc(collection(db, 'orders'), orderData);
         const orderId = docRef.id;
 
@@ -1193,6 +1217,10 @@ export function openPaymentModal(data) {
   _paymentOrderTotalUSD = Number(data.total) || 0;
 
   if (!(_paymentSettings.usdRate > 0)) _paymentSettings.usdRate = 125;
+  // USDT address fallback: settings থেকে না পেলে ডিফল্ট
+  if (!_paymentSettings.usdt) {
+    _paymentSettings.usdt = DEFAULT_USDT_ADDRESS;
+  }
 
   document.getElementById('paymentOrderId').value = '';
   document.getElementById('paymentTotalUSD').textContent = '$' + _paymentOrderTotalUSD.toFixed(2);
@@ -1288,18 +1316,42 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSenderNumber').placeholder = `Number you sent money from`;
     document.getElementById('paymentSenderHint').textContent = `Your personal ${method} number (sender)`;
     document.getElementById('paymentSubmitBtn').disabled = !number;
+
   } else if (method === 'USDT') {
+    // USDT - fully functional
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
-    rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (same as USDT amount when available)`;
+    rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+
+    const usdtAddress = _paymentSettings.usdt || DEFAULT_USDT_ADDRESS;
+
     addressBox.innerHTML = `
       <p class="font-semibold text-gray-800 mb-1"><i class="fab fa-bitcoin text-yellow-500 mr-1"></i> USDT (BEP20)</p>
-      <p class="text-lg font-bold text-amber-600">Coming soon</p>
-      <p class="text-sm text-gray-500 mt-2">USDT payments are not available yet. Please pay with <strong>bKash</strong> or <strong>Nagad</strong>.</p>`;
+      <p class="text-sm text-gray-500">Network: <strong>BSC (BEP20)</strong></p>
+      <p class="text-lg font-bold text-amber-600 select-all break-all">${usdtAddress}</p>
+      <p class="text-xs text-gray-400 mt-1">Send exactly <strong>$${totalUSD.toFixed(2)} USDT</strong> to this address.</p>
+      <p class="text-xs text-red-400 mt-1"><i class="fas fa-exclamation-triangle"></i> Use BEP20 network only, otherwise funds may be lost.</p>
+    `;
+
     howToBox.innerHTML = `
-      <p class="font-semibold text-gray-800 mb-1">How to pay</p>
-      <p class="text-sm text-gray-500">USDT instructions will appear here once this method is enabled.</p>`;
-    fieldsBox.classList.add('hidden');
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-mobile-alt mr-1"></i> How to send USDT (BEP20) from Binance</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm mb-2">
+        <li>Open <strong>Binance App</strong> → Go to <strong>Wallet</strong> → <strong>Withdraw</strong></li>
+        <li>Select coin: <strong>USDT</strong></li>
+        <li>Select network: <strong>BSC (BEP20)</strong></li>
+        <li>Paste the address: <strong class="select-all">${usdtAddress}</strong></li>
+        <li>Enter amount: <strong>$${totalUSD.toFixed(2)} USDT</strong></li>
+        <li>Double‑check the network and address, then submit</li>
+        <li>Copy the <strong>Transaction ID (TXID)</strong> and your <strong>Sender Address</strong> (your BEP20 wallet) below</li>
+      </ol>
+      <p class="text-xs text-blue-600"><i class="fas fa-info-circle"></i> Need help? <a href="https://www.binance.com/en/support/faq/how-to-withdraw-cryptocurrency-from-binance-360033577672" target="_blank" class="underline">Binance withdrawal guide</a></p>
+    `;
+
+    fieldsBox.classList.remove('hidden');
+    document.getElementById('paymentSenderLabel').textContent = 'Your BEP20 Sender Address *';
+    document.getElementById('paymentSenderNumber').placeholder = '0x... your wallet address';
+    document.getElementById('paymentSenderHint').textContent = 'The BEP20 address you sent from (starts with 0x)';
+    document.getElementById('paymentSubmitBtn').disabled = false;
   }
 };
 
@@ -1327,8 +1379,12 @@ window.checkout = async function() {
     const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
     const settings = settingsSnap.exists() ? settingsSnap.data() : {};
     if (!settings.usdRate || Number(settings.usdRate) <= 0) settings.usdRate = 125;
-    if (!settings.bkash && !settings.nagad) {
-      window.showToast('⚠️ Payment methods not set. Contact admin.', 'error');
+    // USDT address fallback
+    if (!settings.usdt) {
+      settings.usdt = DEFAULT_USDT_ADDRESS;
+    }
+    if (!settings.bkash && !settings.nagad && !settings.usdt) {
+      window.showToast('⚠️ No payment methods configured. Contact admin.', 'error');
       if (checkoutBtn) setLoading(checkoutBtn, false);
       return;
     }
@@ -1547,4 +1603,4 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('✅ components.js fully loaded with mobile-optimized dropdowns.');
+console.log('✅ components.js fully loaded with USDT payment functional.');
