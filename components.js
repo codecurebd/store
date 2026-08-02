@@ -1584,7 +1584,7 @@ export function updateNavbarAuth(user, displayName, role = null, photoURL = null
     
     // ✅ প্রোফাইল ছবি দেখানো (যদি থাকে)
     if (avatar) {
-      if (photoURL) {
+      if (photoURL && photoURL.trim() !== '') {
         avatar.style.backgroundImage = `url('${photoURL}')`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
