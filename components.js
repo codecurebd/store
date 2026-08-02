@@ -990,7 +990,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE)
+// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + ZOOM)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
@@ -1001,7 +1001,77 @@ const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
 // QR কোড ছবির পাথ (রুট ডিরেক্টরি)
 const QR_IMAGE_PATH = './Deposit USDT.jpeg';
 
+// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন
+window.openQrZoom = function(imgSrc) {
+  const modal = document.getElementById('qrZoomModal');
+  const img = document.getElementById('qrZoomImage');
+  if (!modal || !img) return;
+  img.src = imgSrc || QR_IMAGE_PATH;
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  // স্কেল রিসেট
+  img.style.transform = 'scale(1)';
+  img.style.transition = 'transform 0.3s ease';
+  window._qrZoomScale = 1;
+};
+
+window.closeQrZoom = function() {
+  const modal = document.getElementById('qrZoomModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.toggleQrZoom = function() {
+  const img = document.getElementById('qrZoomImage');
+  if (!img) return;
+  if (!window._qrZoomScale) window._qrZoomScale = 1;
+  // টগল: 1 → 2 → 3 → 1
+  if (window._qrZoomScale >= 3) {
+    window._qrZoomScale = 1;
+  } else {
+    window._qrZoomScale += 0.5;
+  }
+  img.style.transform = `scale(${window._qrZoomScale})`;
+  // জুম লেভেল দেখানো
+  const label = document.getElementById('qrZoomLevel');
+  if (label) label.textContent = `${Math.round(window._qrZoomScale * 100)}%`;
+};
+
+// QR জুম মোডাল HTML তৈরি (একবার)
+function renderQrZoomModal() {
+  if (document.getElementById('qrZoomModal')) return;
+  const modalHTML = `
+    <div id="qrZoomModal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] hidden" style="display:none;" onclick="if(event.target===this) window.closeQrZoom()">
+      <div class="relative max-w-[95vw] max-h-[95vh] bg-white rounded-2xl p-4 shadow-2xl overflow-hidden">
+        <button onclick="window.closeQrZoom()" class="absolute top-3 right-3 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl transition-colors">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="flex flex-col items-center">
+          <div class="relative overflow-auto flex items-center justify-center" style="max-height:80vh; max-width:90vw;">
+            <img id="qrZoomImage" src="${QR_IMAGE_PATH}" alt="QR Code Zoom" class="object-contain transition-transform duration-300 ease-out" style="max-width:90vw; max-height:75vh; cursor:zoom-in;" />
+          </div>
+          <div class="mt-3 flex items-center gap-4">
+            <button onclick="window.toggleQrZoom()" class="btn-primary text-sm py-2 px-4">
+              <i class="fas fa-search-plus"></i> <span id="qrZoomLevel">100%</span>
+            </button>
+            <button onclick="window.closeQrZoom()" class="btn-outline text-sm py-2 px-4">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
 export function renderPaymentModal() {
+  // প্রথমে QR জুম মোডাল রেন্ডার
+  renderQrZoomModal();
+
   const existing = document.getElementById('paymentModal');
   if (existing) {
     if (existing.dataset.version === 'v2') return;
@@ -1320,24 +1390,29 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSubmitBtn').disabled = !number;
 
   } else if (method === 'USDT') {
-    // USDT - fully functional with QR code
+    // USDT - fully functional with QR code + zoom
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
     rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
 
     const usdtAddress = _paymentSettings.usdt || DEFAULT_USDT_ADDRESS;
 
-    // ✅ QR কোড দেখানো (ছবি রুট ডিরেক্টরি থেকে)
+    // ✅ QR কোড দেখানো (ছবি রুট ডিরেক্টরি থেকে) – width 95%
     addressBox.innerHTML = `
       <p class="font-semibold text-gray-800 mb-2"><i class="fab fa-bitcoin text-yellow-500 mr-1"></i> USDT (BEP20)</p>
       <p class="text-sm text-gray-500">Network: <strong>BSC (BEP20)</strong></p>
-      <div class="flex flex-col items-center my-3">
-        <img src="${QR_IMAGE_PATH}" 
-             alt="USDT Deposit QR Code" 
-             class="max-w-[200px] w-full rounded-xl border border-gray-200 shadow-sm"
-             onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='block';" />
-        <div id="qrFallback" style="display:none;" class="text-amber-600 text-sm mt-2">
-          <i class="fas fa-exclamation-triangle"></i> QR code not available. Please copy address below.
+      <div class="flex flex-col items-center my-2">
+        <div class="relative w-full max-w-[300px] mx-auto cursor-pointer" onclick="window.openQrZoom('${QR_IMAGE_PATH}')" title="Click to zoom">
+          <img src="${QR_IMAGE_PATH}" 
+               alt="USDT Deposit QR Code" 
+               class="w-[95%] mx-auto rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+               onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='block';" />
+          <div id="qrFallback" style="display:none;" class="text-amber-600 text-sm mt-2 text-center">
+            <i class="fas fa-exclamation-triangle"></i> QR code not available. Please copy address below.
+          </div>
+          <div class="text-center mt-1 text-xs text-blue-500">
+            <i class="fas fa-search-plus"></i> Click to zoom
+          </div>
         </div>
       </div>
       <div class="bg-gray-100 p-3 rounded-xl flex items-center justify-between gap-2 break-all">
@@ -1618,7 +1693,11 @@ document.addEventListener('keydown', (e) => {
       cartPopup.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
     }
+    // QR জুম মোডাল বন্ধ
+    if (document.getElementById('qrZoomModal') && !document.getElementById('qrZoomModal').classList.contains('hidden')) {
+      window.closeQrZoom();
+    }
   }
 });
 
-console.log('✅ components.js fully loaded with QR code for USDT payment.');
+console.log('✅ components.js fully loaded with QR code + Zoom feature for USDT payment.');
