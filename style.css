@@ -828,12 +828,13 @@ select.form-input {
   background: rgba(0, 0, 0, 0.04);
 }
 
-/* Scrolled (or any non-landing page) — glass bar */
+/* Scrolled (or any non-landing page) — glass bar (no bottom border line) */
 #mainNavbar.nav-solid {
   background: rgba(255, 255, 255, 0.55) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border: none !important;
+  border-bottom: none !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04) !important;
 }
 
