@@ -26,6 +26,11 @@
       min-height: 100vh;
     }
 
+    /* ✅ Fix: remove main-content top gap so hero goes under transparent navbar */
+    body.landing-page .main-content {
+      padding-top: 0 !important;
+    }
+
     /* ===== FONT DISPLAY SWAP ===== */
     @font-face {
       font-family: 'Inter';
@@ -35,8 +40,8 @@
     /* ===== SCROLL ANIMATION ===== */
     .fade-up {
       opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transform: translateY(28px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .fade-up.visible {
       opacity: 1;
@@ -70,26 +75,135 @@
     }
     .scroll-top-btn:hover { transform: scale(1.05); }
 
-    /* ===== HERO ===== */
-    .hero-gradient {
-      background: radial-gradient(ellipse at top, rgba(0,122,255,0.06), transparent 70%);
+    /* ===== HERO (full-bleed under transparent nav) ===== */
+    .hero-section {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      /* nav height space for content only — background still covers top */
+      padding: 6.5rem 1.5rem 4rem;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0, 102, 255, 0.12), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 90% 20%, rgba(139, 92, 246, 0.08), transparent 50%),
+        radial-gradient(ellipse 40% 35% at 10% 60%, rgba(52, 199, 89, 0.06), transparent 50%),
+        linear-gradient(180deg, #eef4ff 0%, #f2f4f7 45%, #f2f4f7 100%);
+    }
+    .hero-section .hero-orbs {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .hero-section .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.45;
+      animation: orbFloat 12s ease-in-out infinite;
+    }
+    .hero-section .hero-orb.o1 {
+      width: 320px; height: 320px;
+      background: rgba(0, 102, 255, 0.25);
+      top: -80px; left: -60px;
+      animation-delay: 0s;
+    }
+    .hero-section .hero-orb.o2 {
+      width: 260px; height: 260px;
+      background: rgba(139, 92, 246, 0.22);
+      top: 10%; right: -40px;
+      animation-delay: -4s;
+    }
+    .hero-section .hero-orb.o3 {
+      width: 200px; height: 200px;
+      background: rgba(245, 158, 11, 0.15);
+      bottom: 15%; left: 20%;
+      animation-delay: -7s;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(18px, -22px) scale(1.05); }
+      66% { transform: translate(-14px, 12px) scale(0.97); }
+    }
+    .hero-section .hero-inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 80rem;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-section .hero-title {
+      font-size: clamp(2.25rem, 5vw, 4.25rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.12;
+      color: #0f172a;
+    }
+    .hero-section .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: #64748b;
+      margin-top: 1.25rem;
+      max-width: 36rem;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+    .hero-section .hero-cta {
+      margin-top: 2.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.85rem;
+    }
+    /* subtle grid pattern overlay */
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 102, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 102, 255, 0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     /* ===== TRUST BADGE ===== */
     .trust-badge {
-      background: rgba(255,255,255,0.6);
-      backdrop-filter: blur(8px);
-      padding: 0.5rem 1.2rem;
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.55rem 1.25rem;
       border-radius: 60px;
-      border: 1px solid rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.9);
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
       font-size: 0.85rem;
       font-weight: 500;
       color: #374151;
+      box-shadow: 0 4px 16px rgba(0, 102, 255, 0.06);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
-    .trust-badge i { font-size: 1.2rem; }
+    .trust-badge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 102, 255, 0.1);
+    }
+    .trust-badge i { font-size: 1.15rem; }
+
+    /* floating label animation */
+    @keyframes softPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.15); }
+      50% { box-shadow: 0 0 0 8px rgba(0, 102, 255, 0); }
+    }
+    .trust-badge.pulse {
+      animation: softPulse 2.8s ease-in-out infinite;
+    }
 
     /* ===== GLASS CARD ===== */
     .glass-card {
@@ -471,29 +585,65 @@
       font-weight: 600;
       color: #1c1c1e;
     }
+
+    /* ===== HERO responsive ===== */
+    @media (max-width: 768px) {
+      .hero-section {
+        padding: 5.5rem 1rem 3rem;
+        min-height: auto;
+      }
+      .hero-section .hero-orb.o1 { width: 200px; height: 200px; }
+      .hero-section .hero-orb.o2 { width: 160px; height: 160px; }
+      .hero-section .hero-orb.o3 { width: 120px; height: 120px; }
+    }
+    @media (max-width: 480px) {
+      .hero-section { padding: 5rem 0.85rem 2.5rem; }
+      .trust-badge { font-size: 0.75rem; padding: 0.4rem 0.9rem; }
+    }
+
+    /* section soft entrance */
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #0066FF;
+      background: rgba(0, 102, 255, 0.08);
+      padding: 4px 14px;
+      border-radius: 40px;
+      margin-bottom: 0.75rem;
+    }
   </style>
 </head>
-<body>
+<body class="landing-page">
   <div class="page-wrapper">
     <div id="navbar-placeholder"></div>
 
     <main class="main-content">
-      <!-- ===== HERO (Trust Badges সহ) ===== -->
-      <section class="hero-gradient pt-32 pb-16 px-6 min-h-screen flex items-center">
-        <div class="max-w-7xl mx-auto text-center">
-          <div class="flex flex-wrap justify-center gap-3 mb-6 fade-up">
-            <span class="trust-badge"><i class="fas fa-shield-alt text-blue-500"></i> 100% Secure</span>
+      <!-- ===== HERO (full-bleed under transparent nav) ===== -->
+      <section class="hero-section">
+        <div class="hero-orbs" aria-hidden="true">
+          <div class="hero-orb o1"></div>
+          <div class="hero-orb o2"></div>
+          <div class="hero-orb o3"></div>
+        </div>
+        <div class="hero-inner">
+          <div class="flex flex-wrap justify-center gap-3 mb-7 fade-up">
+            <span class="trust-badge pulse"><i class="fas fa-shield-alt text-blue-500"></i> 100% Secure</span>
             <span class="trust-badge"><i class="fas fa-clock text-green-500"></i> 24/7 Support</span>
             <span class="trust-badge"><i class="fas fa-check-circle text-emerald-500"></i> 150+ Projects</span>
           </div>
 
-          <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold text-gray-900 leading-tight fade-up">
+          <h1 class="hero-title fade-up">
             Build Your <span class="gradient-text">Dream Website</span> Today
           </h1>
-          <p class="text-lg sm:text-xl text-gray-500 mt-4 max-w-2xl mx-auto fade-up" style="transition-delay:0.1s;">
+          <p class="hero-sub fade-up" style="transition-delay:0.1s;">
             Professional website development, fixing, and maintenance – tailored for your business.
           </p>
-          <div class="mt-10 flex flex-wrap justify-center gap-4 fade-up" style="transition-delay:0.2s;">
+          <div class="hero-cta fade-up" style="transition-delay:0.2s;">
             <a href="get-new-website.html" class="btn-primary"><i class="fas fa-shopping-cart"></i> Explore Store</a>
             <a href="fix-website.html" class="btn-outline"><i class="fas fa-wrench"></i> Fix My Site</a>
             <a href="#services" class="btn-outline"><i class="fas fa-info-circle"></i> Learn More</a>
@@ -510,6 +660,7 @@
       <section id="services" class="py-16 md:py-20 px-6 bg-gray-50/50">
         <div class="max-w-7xl mx-auto">
           <div class="text-center mb-12">
+            <span class="section-label fade-up"><i class="fas fa-sparkles"></i> Services</span>
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 fade-up">What We Offer</h2>
             <p class="text-gray-500 mt-2 max-w-2xl mx-auto fade-up">Complete web solutions from development to maintenance.</p>
           </div>
@@ -552,6 +703,7 @@
       <section id="how-it-works" class="py-16 md:py-20 px-6">
         <div class="max-w-5xl mx-auto">
           <div class="text-center mb-12">
+            <span class="section-label fade-up"><i class="fas fa-route"></i> Process</span>
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 fade-up">How It Works</h2>
             <p class="text-gray-500 mt-2 fade-up">Simple steps to get your website or fix your existing one.</p>
           </div>
