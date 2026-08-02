@@ -375,7 +375,136 @@ window.handleContactClick = function(e) {
 };
 
 // ================================================================
-// ✅ NAVBAR (সম্পূর্ণ নতুন, সার্চ বাটন ও ফুটার আপডেট)
+// ✅ SEARCH DROPDOWN (Products Search)
+// ================================================================
+let searchDropdownOpen = false;
+let searchProducts = [];
+let searchUnsubscribe = null;
+
+function toggleSearchDropdown() {
+  const dropdown = document.getElementById('searchDropdown');
+  if (!dropdown) return;
+  const isOpening = dropdown.classList.contains('hidden');
+  if (isOpening) {
+    dropdown.classList.remove('hidden');
+    dropdown.style.animation = 'dropdownFade 0.2s ease';
+    // Focus input after a tiny delay
+    setTimeout(() => {
+      const input = document.getElementById('searchInput');
+      if (input) input.focus();
+    }, 100);
+    // Load products if not loaded
+    if (searchProducts.length === 0) {
+      loadSearchProducts();
+    }
+  } else {
+    dropdown.classList.add('hidden');
+    // Clear results
+    const results = document.getElementById('searchResults');
+    if (results) results.innerHTML = '';
+    const input = document.getElementById('searchInput');
+    if (input) input.value = '';
+  }
+  searchDropdownOpen = !isOpening;
+}
+
+function loadSearchProducts() {
+  if (searchUnsubscribe) {
+    searchUnsubscribe();
+    searchUnsubscribe = null;
+  }
+  searchUnsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
+    searchProducts = [];
+    snapshot.forEach(doc => {
+      searchProducts.push({ id: doc.id, ...doc.data() });
+    });
+    // If dropdown is open and there's a query, re-render
+    const input = document.getElementById('searchInput');
+    if (input && input.value.trim().length > 0) {
+      performSearch(input.value.trim());
+    }
+  }, (error) => {
+    console.error('Search products listener error:', error);
+  });
+}
+
+function performSearch(query) {
+  const resultsContainer = document.getElementById('searchResults');
+  if (!resultsContainer) return;
+  if (!query || query.trim().length === 0) {
+    resultsContainer.innerHTML = `<div class="p-4 text-sm text-gray-400 text-center">Type to search products...</div>`;
+    return;
+  }
+  const q = query.trim().toLowerCase();
+  const filtered = searchProducts.filter(p => {
+    const name = (p.name || '').toLowerCase();
+    const desc = (p.desc || p.description || '').toLowerCase();
+    const category = (p.category || '').toLowerCase();
+    return name.includes(q) || desc.includes(q) || category.includes(q);
+  });
+
+  if (filtered.length === 0) {
+    resultsContainer.innerHTML = `<div class="p-4 text-sm text-gray-400 text-center">No products found matching "<strong>${query}</strong>"</div>`;
+    return;
+  }
+
+  let html = '';
+  filtered.slice(0, 8).forEach(p => {
+    const price = p.price ? '$' + p.price.toFixed(2) : '';
+    html += `
+      <a href="product-detail.html?id=${p.id}" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 transition-colors">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
+            <i class="fas fa-file-code"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-900 text-sm truncate">${p.name}</p>
+            <p class="text-xs text-gray-500 truncate">${p.category || 'Uncategorized'}</p>
+          </div>
+          ${price ? `<span class="text-sm font-semibold text-blue-600">${price}</span>` : ''}
+        </div>
+      </a>
+    `;
+  });
+  if (filtered.length > 8) {
+    html += `<a href="get-new-website.html" class="block px-4 py-2 text-center text-sm text-blue-600 hover:bg-gray-50">View all ${filtered.length} results →</a>`;
+  }
+  resultsContainer.innerHTML = html;
+}
+
+// Close search dropdown on outside click
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('searchDropdown');
+  const searchBtn = document.querySelector('[onclick="window.toggleSearchDropdown()"]');
+  if (dropdown && searchBtn && !dropdown.classList.contains('hidden')) {
+    if (!searchBtn.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.add('hidden');
+      searchDropdownOpen = false;
+      const input = document.getElementById('searchInput');
+      if (input) input.value = '';
+      const results = document.getElementById('searchResults');
+      if (results) results.innerHTML = '';
+    }
+  }
+});
+
+// Close on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const dropdown = document.getElementById('searchDropdown');
+    if (dropdown && !dropdown.classList.contains('hidden')) {
+      dropdown.classList.add('hidden');
+      searchDropdownOpen = false;
+      const input = document.getElementById('searchInput');
+      if (input) input.value = '';
+      const results = document.getElementById('searchResults');
+      if (results) results.innerHTML = '';
+    }
+  }
+});
+
+// ================================================================
+// ✅ NAVBAR (সম্পূর্ণ নতুন, সার্চ ড্রপডাউন সহ)
 // ================================================================
 export function renderNavbar() {
   renderContactModal();
@@ -400,11 +529,25 @@ export function renderNavbar() {
         <!-- Right Actions -->
         <div class="flex items-center gap-2 md:gap-3">
           
-          <!-- ===== SEARCH (always visible) ===== -->
+          <!-- ===== SEARCH DROPDOWN ===== -->
           <div class="relative">
-            <button onclick="window.goToSearch()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Search products">
+            <button onclick="window.toggleSearchDropdown()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Search products">
               <i class="fas fa-search"></i>
             </button>
+            <div id="searchDropdown" class="absolute right-0 mt-2 w-96 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 hidden z-50 overflow-hidden">
+              <div class="p-4 border-b border-gray-100">
+                <div class="relative">
+                  <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <input type="text" id="searchInput" placeholder="Search products..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm" autocomplete="off" />
+                </div>
+              </div>
+              <div id="searchResults" class="max-h-[350px] overflow-y-auto">
+                <div class="p-4 text-sm text-gray-400 text-center">Type to search products...</div>
+              </div>
+              <div class="p-2 border-t border-gray-100">
+                <a href="get-new-website.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">Browse all products →</a>
+              </div>
+            </div>
           </div>
 
           <!-- ===== CART (always visible) ===== -->
@@ -533,6 +676,31 @@ export function renderNavbar() {
     });
   }
 
+  // ✅ Search input listener
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      performSearch(this.value);
+    });
+    // Also trigger search on Enter key (though input event is enough)
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        // If there are results, first result click or redirect to store page with query
+        const firstResult = document.querySelector('#searchResults a');
+        if (firstResult) {
+          firstResult.click();
+        } else {
+          // Redirect to store page with search query
+          const query = this.value.trim();
+          if (query) {
+            window.location.href = `get-new-website.html?search=${encodeURIComponent(query)}`;
+          }
+        }
+      }
+    });
+  }
+
   // ✅ Badge আপডেট (পেজ লোড হলে)
   updateCartBadge();
 
@@ -544,10 +712,21 @@ export function renderNavbar() {
   
   renderCartPopup();
 
-  // ===== SEARCH GO TO FUNCTION =====
-  window.goToSearch = function() {
-    window.location.href = 'get-new-website.html';
-  };
+  // Load search products on first interaction
+  if (searchProducts.length === 0) {
+    // Lazy load: will load when dropdown opens
+  }
+
+  // ===== SEARCH TOGGLE FUNCTION (exposed globally) =====
+  window.toggleSearchDropdown = toggleSearchDropdown;
+
+  // Cleanup search listener on page unload
+  window.addEventListener('beforeunload', () => {
+    if (searchUnsubscribe) {
+      searchUnsubscribe();
+      searchUnsubscribe = null;
+    }
+  });
 }
 
 // ================================================================
@@ -728,20 +907,20 @@ window.addToCart = async function(productId, productName, productPrice, productI
 };
 
 // ================================================================
-// ✅ FOOTER (সম্পূর্ণ নতুন, পেশাদার)
+// ✅ FOOTER (সম্পূর্ণ নতুন, পেশাদার ও সঠিক লেআউট)
 // ================================================================
 export function renderFooter() {
   const footerHTML = `
     <footer class="glass border-t border-gray-200/30 py-12 px-6 sm:px-8 lg:px-12 mt-auto">
       <div class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
           <!-- Brand -->
           <div class="text-center md:text-left">
             <div class="flex items-center justify-center md:justify-start gap-2">
               <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
               <span class="font-bold text-xl text-gray-800">CodeCure<span class="gradient-text">BD</span></span>
             </div>
-            <p class="text-sm text-gray-500 mt-2 max-w-xs">Professional web development, fixing, and maintenance – tailored for your business.</p>
+            <p class="text-sm text-gray-500 mt-2 max-w-xs mx-auto md:mx-0">Professional web development, fixing, and maintenance – tailored for your business.</p>
           </div>
           <!-- Quick Links -->
           <div class="text-center">
@@ -753,20 +932,28 @@ export function renderFooter() {
               <a href="messages.html" class="block hover:text-blue-600 transition-colors">Support Chat</a>
             </div>
           </div>
-          <!-- Social & Contact -->
-          <div class="text-center md:text-right">
-            <h4 class="font-semibold text-gray-700 mb-3">Connect</h4>
-            <div class="flex flex-wrap justify-center md:justify-end gap-3 mb-3">
+          <!-- Contact Info -->
+          <div class="text-center">
+            <h4 class="font-semibold text-gray-700 mb-3">Contact</h4>
+            <div class="space-y-1 text-sm text-gray-500">
+              <a href="mailto:nopqrshov337@gmail.com" class="block hover:text-blue-600 transition-colors">
+                <i class="fas fa-envelope mr-2 w-4"></i> nopqrshov337@gmail.com
+              </a>
+              <a href="tel:+8801350141762" class="block hover:text-blue-600 transition-colors">
+                <i class="fas fa-phone mr-2 w-4"></i> +880 1350-141762
+              </a>
+              <span class="block"><i class="fas fa-map-marker-alt mr-2 w-4"></i> Dhaka, Bangladesh</span>
+            </div>
+          </div>
+          <!-- Social -->
+          <div class="text-center">
+            <h4 class="font-semibold text-gray-700 mb-3">Follow Us</h4>
+            <div class="flex flex-wrap justify-center gap-3">
               <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
               <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
               <a href="https://www.facebook.com/profile.php?id=61592614590327" target="_blank" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
               <a href="https://www.instagram.com/codecurebd/" target="_blank" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
               <a href="https://www.youtube.com/channel/UCstUaZ9xdqqjaAz3zkO6XJQ" target="_blank" class="social-icon" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-            </div>
-            <div class="text-sm text-gray-500">
-              <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
-              <br />
-              <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
             </div>
           </div>
         </div>
