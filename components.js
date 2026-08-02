@@ -1565,7 +1565,7 @@ export async function updateCartInFirestore(userId, cart) {
 }
 
 // ================================================================
-// ✅ NAVBAR AUTH UPDATE (with photoURL support)
+// ✅ NAVBAR AUTH UPDATE (with photoURL support - FIXED with <img>)
 // ================================================================
 export function updateNavbarAuth(user, displayName, role = null, photoURL = null) {
   const authBtns = document.getElementById('auth-buttons');
@@ -1582,14 +1582,17 @@ export function updateNavbarAuth(user, displayName, role = null, photoURL = null
     if (authBtns) authBtns.classList.add('hidden');
     if (profileSection) profileSection.classList.remove('hidden');
     
-    // ✅ প্রোফাইল ছবি দেখানো (যদি থাকে)
+    // ✅ FIX: photoURL থাকলে <img> বসান, না হলে টেক্সট
     if (avatar) {
       if (photoURL && photoURL.trim() !== '') {
-        avatar.style.backgroundImage = `url('${photoURL}')`;
-        avatar.style.backgroundSize = 'cover';
-        avatar.style.backgroundPosition = 'center';
+        // বাটনের ভেতরে img বসান – পুরনো কন্টেন্ট ক্লিয়ার করে
+        avatar.innerHTML = `<img src="${photoURL}" alt="Profile" class="w-full h-full rounded-full object-cover" />`;
+        avatar.style.backgroundImage = 'none';
+        avatar.style.backgroundSize = '';
+        avatar.style.backgroundPosition = '';
         avatar.textContent = '';
       } else {
+        avatar.innerHTML = '';
         avatar.style.backgroundImage = '';
         avatar.style.backgroundSize = '';
         avatar.style.backgroundPosition = '';
@@ -1631,7 +1634,6 @@ export function updateNavbarAuth(user, displayName, role = null, photoURL = null
     }
     updateNotificationBadge(0);
     updateNotificationList([]);
-
     if (authRequiredActions) authRequiredActions.style.display = 'none';
   }
 }
@@ -1710,4 +1712,4 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('✅ components.js fully loaded with navbar profile picture support.');
+console.log('✅ components.js fully loaded with navbar profile picture support (using <img>).');
