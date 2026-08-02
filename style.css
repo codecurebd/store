@@ -1059,7 +1059,7 @@ select.form-input {
     font-size: 0.85rem;
   }
   .cart-popup {
-    width: 300px;
+    width: 100%;
   }
   .messenger-wrap {
     flex-direction: column;
