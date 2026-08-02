@@ -907,7 +907,7 @@ window.addToCart = async function(productId, productName, productPrice, productI
 };
 
 // ================================================================
-// ✅ FOOTER (সম্পূর্ণ নতুন, পেশাদার ও সঠিক লেআউট)
+// ✅ FOOTER (সম্পূর্ণ নতুন, পেশাদার ও সঠিক লেআউট - টেক্সট অ্যালাইনমেন্ট ঠিক করা)
 // ================================================================
 export function renderFooter() {
   const footerHTML = `
@@ -922,8 +922,8 @@ export function renderFooter() {
             </div>
             <p class="text-sm text-gray-500 mt-2 max-w-xs mx-auto md:mx-0">Professional web development, fixing, and maintenance – tailored for your business.</p>
           </div>
-          <!-- Quick Links -->
-          <div class="text-center">
+          <!-- Quick Links (Text left aligned on desktop) -->
+          <div class="text-center md:text-left">
             <h4 class="font-semibold text-gray-700 mb-3">Quick Links</h4>
             <div class="space-y-1 text-sm">
               <a href="index.html" class="block hover:text-blue-600 transition-colors">Home</a>
@@ -932,8 +932,8 @@ export function renderFooter() {
               <a href="messages.html" class="block hover:text-blue-600 transition-colors">Support Chat</a>
             </div>
           </div>
-          <!-- Contact Info -->
-          <div class="text-center">
+          <!-- Contact Info (Text left aligned on desktop) -->
+          <div class="text-center md:text-left">
             <h4 class="font-semibold text-gray-700 mb-3">Contact</h4>
             <div class="space-y-1 text-sm text-gray-500">
               <a href="mailto:nopqrshov337@gmail.com" class="block hover:text-blue-600 transition-colors">
@@ -945,7 +945,7 @@ export function renderFooter() {
               <span class="block"><i class="fas fa-map-marker-alt mr-2 w-4"></i> Dhaka, Bangladesh</span>
             </div>
           </div>
-          <!-- Social -->
+          <!-- Social (Center aligned) -->
           <div class="text-center">
             <h4 class="font-semibold text-gray-700 mb-3">Follow Us</h4>
             <div class="flex flex-wrap justify-center gap-3">
