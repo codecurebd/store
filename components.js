@@ -113,23 +113,23 @@ async function markAllAdminMessagesRead() {
 }
 
 // ================================================================
-// ✅ NOTIFICATION TOGGLE
+// ✅ NOTIFICATION TOGGLE (Mobile-optimized)
 // ================================================================
 window.toggleNotifications = function() {
   const dropdown = document.getElementById('notificationDropdown');
   if (!dropdown) return;
-
   const isOpening = dropdown.classList.contains('hidden');
-
   if (isOpening) {
     displayMessages = [...unreadAdminMessages];
     updateNotificationList(displayMessages);
     dropdown.classList.remove('hidden');
+    document.body.classList.add('dropdown-open');
     dropdown.style.animation = 'dropdownFade 0.2s ease';
     markAllAdminMessagesRead();
   } else {
     displayMessages = [];
     dropdown.classList.add('hidden');
+    document.body.classList.remove('dropdown-open');
   }
 };
 
@@ -375,7 +375,7 @@ window.handleContactClick = function(e) {
 };
 
 // ================================================================
-// ✅ SEARCH DROPDOWN (Products Search)
+// ✅ SEARCH DROPDOWN (Products Search - Mobile-optimized)
 // ================================================================
 let searchDropdownOpen = false;
 let searchProducts = [];
@@ -387,19 +387,17 @@ function toggleSearchDropdown() {
   const isOpening = dropdown.classList.contains('hidden');
   if (isOpening) {
     dropdown.classList.remove('hidden');
-    dropdown.style.animation = 'dropdownFade 0.2s ease';
-    // Focus input after a tiny delay
+    document.body.classList.add('dropdown-open');
     setTimeout(() => {
       const input = document.getElementById('searchInput');
       if (input) input.focus();
     }, 100);
-    // Load products if not loaded
     if (searchProducts.length === 0) {
       loadSearchProducts();
     }
   } else {
     dropdown.classList.add('hidden');
-    // Clear results
+    document.body.classList.remove('dropdown-open');
     const results = document.getElementById('searchResults');
     if (results) results.innerHTML = '';
     const input = document.getElementById('searchInput');
@@ -471,37 +469,6 @@ function performSearch(query) {
   }
   resultsContainer.innerHTML = html;
 }
-
-// Close search dropdown on outside click
-document.addEventListener('click', (e) => {
-  const dropdown = document.getElementById('searchDropdown');
-  const searchBtn = document.querySelector('[onclick="window.toggleSearchDropdown()"]');
-  if (dropdown && searchBtn && !dropdown.classList.contains('hidden')) {
-    if (!searchBtn.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.classList.add('hidden');
-      searchDropdownOpen = false;
-      const input = document.getElementById('searchInput');
-      if (input) input.value = '';
-      const results = document.getElementById('searchResults');
-      if (results) results.innerHTML = '';
-    }
-  }
-});
-
-// Close on Escape key
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const dropdown = document.getElementById('searchDropdown');
-    if (dropdown && !dropdown.classList.contains('hidden')) {
-      dropdown.classList.add('hidden');
-      searchDropdownOpen = false;
-      const input = document.getElementById('searchInput');
-      if (input) input.value = '';
-      const results = document.getElementById('searchResults');
-      if (results) results.innerHTML = '';
-    }
-  }
-});
 
 // ================================================================
 // ✅ NAVBAR (সম্পূর্ণ নতুন, সার্চ ড্রপডাউন সহ)
@@ -662,20 +629,6 @@ export function renderNavbar() {
     }
   });
 
-  // Notification dropdown close on outside click
-  const notifBtn = document.querySelector('[onclick="window.toggleNotifications()"]');
-  const notifDropdown = document.getElementById('notificationDropdown');
-  if (notifBtn && notifDropdown) {
-    document.addEventListener('click', (e) => {
-      if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
-        if (!notifDropdown.classList.contains('hidden')) {
-          notifDropdown.classList.add('hidden');
-          displayMessages = [];
-        }
-      }
-    });
-  }
-
   // ✅ Search input listener
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
@@ -730,7 +683,7 @@ export function renderNavbar() {
 }
 
 // ================================================================
-// ✅ CART POPUP (replaces sidebar)
+// ✅ CART POPUP (replaces sidebar - Mobile-optimized)
 // ================================================================
 let cartPopupRendered = false;
 
@@ -767,67 +720,23 @@ export function renderCartPopup() {
   cartPopupRendered = true;
   updateCartPopupUI();
 
-  // ✅ Outside click + cart button toggle close system (set up only once)
-  const cartBtn = document.getElementById('cartBtn');
-  const cartPopup = document.getElementById('cartPopup');
-
-  if (cartBtn && cartPopup) {
-    document.addEventListener('click', (e) => {
-      // Close only when click is outside both the cart button and the popup
-      if (!cartBtn.contains(e.target) && !cartPopup.contains(e.target)) {
-        if (!cartPopup.classList.contains('hidden')) {
-          cartPopup.classList.add('hidden');
-        }
-      }
-    });
-  }
-}
-
-function updateCartPopupUI() {
-  const itemsContainer = document.getElementById('cartPopupItems');
-  const totalEl = document.getElementById('cartPopupTotal');
-  if (!itemsContainer || !totalEl) return;
-
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  if (cart.length === 0) {
-    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
-    totalEl.textContent = '$0';
-    return;
-  }
-
-  let total = 0;
-  let html = '';
-  cart.forEach((item, index) => {
-    const qty = item.quantity || 1;
-    const price = item.price || 0;
-    const subtotal = qty * price;
-    total += subtotal;
-    html += `
-      <div class="cart-popup-item">
-        <div class="cart-item-info">
-          <span class="cart-item-name">${item.name}</span>
-          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
-        </div>
-        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    `;
-  });
-
-  itemsContainer.innerHTML = html;
-  totalEl.textContent = `$${total.toFixed(2)}`;
+  // ✅ Outside click + cart button toggle close system (set up only once) - but now handled globally below
 }
 
 // ================================================================
-// ✅ CART TOGGLE (popup)
+// ✅ CART TOGGLE (popup - Mobile-optimized)
 // ================================================================
 export function toggleCart() {
   const popup = document.getElementById('cartPopup');
   if (!popup) return;
-  popup.classList.toggle('hidden');
-  if (!popup.classList.contains('hidden')) {
+  const isOpening = popup.classList.contains('hidden');
+  if (isOpening) {
+    popup.classList.remove('hidden');
+    document.body.classList.add('dropdown-open');
     updateCartPopupUI();
+  } else {
+    popup.classList.add('hidden');
+    document.body.classList.remove('dropdown-open');
   }
 }
 window.toggleCart = toggleCart;
@@ -853,6 +762,7 @@ window.removeFromCart = function(index) {
 window.cartCheckout = function() {
   const popup = document.getElementById('cartPopup');
   if (popup) popup.classList.add('hidden');
+  document.body.classList.remove('dropdown-open');
   if (typeof window.checkout === 'function') {
     window.checkout();
   } else {
@@ -980,6 +890,42 @@ export function renderCartSidebar() {
 export function updateCartUI() {
   // popup-এর UI আপডেট
   updateCartPopupUI();
+}
+
+function updateCartPopupUI() {
+  const itemsContainer = document.getElementById('cartPopupItems');
+  const totalEl = document.getElementById('cartPopupTotal');
+  if (!itemsContainer || !totalEl) return;
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  if (cart.length === 0) {
+    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
+    totalEl.textContent = '$0';
+    return;
+  }
+
+  let total = 0;
+  let html = '';
+  cart.forEach((item, index) => {
+    const qty = item.quantity || 1;
+    const price = item.price || 0;
+    const subtotal = qty * price;
+    total += subtotal;
+    html += `
+      <div class="cart-popup-item">
+        <div class="cart-item-info">
+          <span class="cart-item-name">${item.name}</span>
+          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
+        </div>
+        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+  });
+
+  itemsContainer.innerHTML = html;
+  totalEl.textContent = `$${total.toFixed(2)}`;
 }
 
 // ================================================================
@@ -1487,3 +1433,75 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (authRequiredActions) authRequiredActions.style.display = 'none';
   }
 }
+
+// ================================================================
+// ✅ GLOBAL CLOSE HANDLERS FOR DROPDOWNS (Mobile optimization)
+// ================================================================
+document.addEventListener('click', (e) => {
+  // Search
+  const searchDropdown = document.getElementById('searchDropdown');
+  const searchBtn = document.querySelector('[onclick="window.toggleSearchDropdown()"]');
+  if (searchDropdown && searchBtn && !searchDropdown.classList.contains('hidden')) {
+    if (!searchBtn.contains(e.target) && !searchDropdown.contains(e.target)) {
+      searchDropdown.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+      const input = document.getElementById('searchInput');
+      if (input) input.value = '';
+      const results = document.getElementById('searchResults');
+      if (results) results.innerHTML = '';
+      searchDropdownOpen = false;
+    }
+  }
+
+  // Notification
+  const notifDropdown = document.getElementById('notificationDropdown');
+  const notifBtn = document.querySelector('[onclick="window.toggleNotifications()"]');
+  if (notifBtn && notifDropdown && !notifDropdown.classList.contains('hidden')) {
+    if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+      notifDropdown.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+      displayMessages = [];
+    }
+  }
+
+  // Cart
+  const cartPopup = document.getElementById('cartPopup');
+  const cartBtn = document.getElementById('cartBtn');
+  if (cartBtn && cartPopup && !cartPopup.classList.contains('hidden')) {
+    if (!cartBtn.contains(e.target) && !cartPopup.contains(e.target)) {
+      cartPopup.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+    }
+  }
+});
+
+// ================================================================
+// ✅ ESC KEY HANDLER (Mobile optimization)
+// ================================================================
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const searchDropdown = document.getElementById('searchDropdown');
+    if (searchDropdown && !searchDropdown.classList.contains('hidden')) {
+      searchDropdown.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+      const input = document.getElementById('searchInput');
+      if (input) input.value = '';
+      const results = document.getElementById('searchResults');
+      if (results) results.innerHTML = '';
+      searchDropdownOpen = false;
+    }
+    const notifDropdown = document.getElementById('notificationDropdown');
+    if (notifDropdown && !notifDropdown.classList.contains('hidden')) {
+      notifDropdown.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+      displayMessages = [];
+    }
+    const cartPopup = document.getElementById('cartPopup');
+    if (cartPopup && !cartPopup.classList.contains('hidden')) {
+      cartPopup.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+    }
+  }
+});
+
+console.log('✅ components.js fully loaded with mobile-optimized dropdowns.');
