@@ -990,7 +990,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + ZOOM)
+// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + DOWNLOAD)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
@@ -1001,7 +1001,7 @@ const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
 // QR কোড ছবির পাথ (রুট ডিরেক্টরি)
 const QR_IMAGE_PATH = './Deposit USDT.jpeg';
 
-// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন
+// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন (শুধু Download বাটন সহ)
 window.openQrZoom = function(imgSrc) {
   const modal = document.getElementById('qrZoomModal');
   const img = document.getElementById('qrZoomImage');
@@ -1010,10 +1010,6 @@ window.openQrZoom = function(imgSrc) {
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  // স্কেল রিসেট
-  img.style.transform = 'scale(1)';
-  img.style.transition = 'transform 0.3s ease';
-  window._qrZoomScale = 1;
 };
 
 window.closeQrZoom = function() {
@@ -1024,20 +1020,17 @@ window.closeQrZoom = function() {
   document.body.style.overflow = '';
 };
 
-window.toggleQrZoom = function() {
+// ✅ ডাউনলোড ফাংশন
+window.downloadQrImage = function() {
   const img = document.getElementById('qrZoomImage');
   if (!img) return;
-  if (!window._qrZoomScale) window._qrZoomScale = 1;
-  // টগল: 1 → 2 → 3 → 1
-  if (window._qrZoomScale >= 3) {
-    window._qrZoomScale = 1;
-  } else {
-    window._qrZoomScale += 0.5;
-  }
-  img.style.transform = `scale(${window._qrZoomScale})`;
-  // জুম লেভেল দেখানো
-  const label = document.getElementById('qrZoomLevel');
-  if (label) label.textContent = `${Math.round(window._qrZoomScale * 100)}%`;
+  const link = document.createElement('a');
+  link.href = img.src;
+  link.download = 'USDT_Deposit_QR.png';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✅ QR code downloaded!', 'success');
 };
 
 // QR জুম মোডাল HTML তৈরি (একবার)
@@ -1051,11 +1044,11 @@ function renderQrZoomModal() {
         </button>
         <div class="flex flex-col items-center">
           <div class="relative overflow-auto flex items-center justify-center" style="max-height:80vh; max-width:90vw;">
-            <img id="qrZoomImage" src="${QR_IMAGE_PATH}" alt="QR Code Zoom" class="object-contain transition-transform duration-300 ease-out" style="max-width:90vw; max-height:75vh; cursor:zoom-in;" />
+            <img id="qrZoomImage" src="${QR_IMAGE_PATH}" alt="QR Code" class="object-contain" style="max-width:90vw; max-height:75vh;" />
           </div>
           <div class="mt-3 flex items-center gap-4">
-            <button onclick="window.toggleQrZoom()" class="btn-primary text-sm py-2 px-4">
-              <i class="fas fa-search-plus"></i> <span id="qrZoomLevel">100%</span>
+            <button onclick="window.downloadQrImage()" class="btn-primary text-sm py-2 px-4">
+              <i class="fas fa-download"></i> Download
             </button>
             <button onclick="window.closeQrZoom()" class="btn-outline text-sm py-2 px-4">
               <i class="fas fa-times"></i> Close
@@ -1390,7 +1383,7 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSubmitBtn').disabled = !number;
 
   } else if (method === 'USDT') {
-    // USDT - fully functional with QR code + zoom
+    // USDT - fully functional with QR code + Download
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
     rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
@@ -1700,4 +1693,4 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('✅ components.js fully loaded with QR code + Zoom feature for USDT payment.');
+console.log('✅ components.js fully loaded with QR code + Download feature for USDT payment.');
