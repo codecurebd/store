@@ -1,4 +1,4 @@
-// components.js
+// components.js (complete file with navbar profile picture support)
 import { 
   auth, onAuthStateChanged, signOut, db, doc, getDoc, setDoc,
   updateDoc, serverTimestamp, collection, addDoc, query, where, onSnapshot,
@@ -990,7 +990,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + DOWNLOAD)
+// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + ZOOM)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
@@ -1001,7 +1001,7 @@ const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
 // QR কোড ছবির পাথ (রুট ডিরেক্টরি)
 const QR_IMAGE_PATH = './Deposit USDT.jpeg';
 
-// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন (শুধু Download বাটন সহ)
+// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন
 window.openQrZoom = function(imgSrc) {
   const modal = document.getElementById('qrZoomModal');
   const img = document.getElementById('qrZoomImage');
@@ -1010,6 +1010,10 @@ window.openQrZoom = function(imgSrc) {
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+  // স্কেল রিসেট
+  img.style.transform = 'scale(1)';
+  img.style.transition = 'transform 0.3s ease';
+  window._qrZoomScale = 1;
 };
 
 window.closeQrZoom = function() {
@@ -1020,16 +1024,13 @@ window.closeQrZoom = function() {
   document.body.style.overflow = '';
 };
 
-// ✅ ডাউনলোড ফাংশন
-window.downloadQrImage = function() {
+window.downloadQr = function() {
   const img = document.getElementById('qrZoomImage');
   if (!img) return;
   const link = document.createElement('a');
-  link.href = img.src;
   link.download = 'USDT_Deposit_QR.png';
-  document.body.appendChild(link);
+  link.href = img.src;
   link.click();
-  document.body.removeChild(link);
   showToast('✅ QR code downloaded!', 'success');
 };
 
@@ -1044,10 +1045,10 @@ function renderQrZoomModal() {
         </button>
         <div class="flex flex-col items-center">
           <div class="relative overflow-auto flex items-center justify-center" style="max-height:80vh; max-width:90vw;">
-            <img id="qrZoomImage" src="${QR_IMAGE_PATH}" alt="QR Code" class="object-contain" style="max-width:90vw; max-height:75vh;" />
+            <img id="qrZoomImage" src="${QR_IMAGE_PATH}" alt="QR Code Zoom" class="object-contain transition-transform duration-300 ease-out" style="max-width:90vw; max-height:75vh; cursor:default;" />
           </div>
           <div class="mt-3 flex items-center gap-4">
-            <button onclick="window.downloadQrImage()" class="btn-primary text-sm py-2 px-4">
+            <button onclick="window.downloadQr()" class="btn-primary text-sm py-2 px-4">
               <i class="fas fa-download"></i> Download
             </button>
             <button onclick="window.closeQrZoom()" class="btn-outline text-sm py-2 px-4">
@@ -1383,7 +1384,7 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSubmitBtn').disabled = !number;
 
   } else if (method === 'USDT') {
-    // USDT - fully functional with QR code + Download
+    // USDT - fully functional with QR code + download
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
     rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
@@ -1395,7 +1396,7 @@ window.updatePaymentMethodUI = function() {
       <p class="font-semibold text-gray-800 mb-2"><i class="fab fa-bitcoin text-yellow-500 mr-1"></i> USDT (BEP20)</p>
       <p class="text-sm text-gray-500">Network: <strong>BSC (BEP20)</strong></p>
       <div class="flex flex-col items-center my-2">
-        <div class="relative w-full max-w-[300px] mx-auto cursor-pointer" onclick="window.openQrZoom('${QR_IMAGE_PATH}')" title="Click to zoom">
+        <div class="relative w-full max-w-[300px] mx-auto cursor-pointer" onclick="window.openQrZoom('${QR_IMAGE_PATH}')" title="Click to zoom & download">
           <img src="${QR_IMAGE_PATH}" 
                alt="USDT Deposit QR Code" 
                class="w-[95%] mx-auto rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
@@ -1404,7 +1405,7 @@ window.updatePaymentMethodUI = function() {
             <i class="fas fa-exclamation-triangle"></i> QR code not available. Please copy address below.
           </div>
           <div class="text-center mt-1 text-xs text-blue-500">
-            <i class="fas fa-search-plus"></i> Click to zoom
+            <i class="fas fa-search-plus"></i> Click to zoom & download
           </div>
         </div>
       </div>
@@ -1562,7 +1563,7 @@ export async function updateCartInFirestore(userId, cart) {
 }
 
 // ================================================================
-// ✅ NAVBAR AUTH UPDATE
+// ✅ NAVBAR AUTH UPDATE (WITH PROFILE PICTURE SUPPORT)
 // ================================================================
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
@@ -1578,7 +1579,18 @@ export function updateNavbarAuth(user, displayName, role = null) {
   if (user) {
     if (authBtns) authBtns.classList.add('hidden');
     if (profileSection) profileSection.classList.remove('hidden');
-    if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
+    
+    // ✅ Set profile picture or initial
+    if (avatar) {
+      const photoURL = user.photoURL || null;
+      if (photoURL) {
+        avatar.innerHTML = `<img src="${photoURL}" alt="Profile" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+      } else {
+        avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
+        avatar.style.background = 'linear-gradient(135deg, #0066FF, #8B5CF6)';
+        avatar.style.color = '#fff';
+      }
+    }
     
     if (authRequiredActions) authRequiredActions.style.display = 'flex';
 
@@ -1693,4 +1705,4 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('✅ components.js fully loaded with QR code + Download feature for USDT payment.');
+console.log('✅ components.js fully loaded with profile picture in navbar.');
