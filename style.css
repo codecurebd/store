@@ -1176,8 +1176,7 @@ select.form-input {
     right: -10px;
   }
   .cart-popup {
-    width: 280px;
-    right: -20px;
+    width: 100%;
   }
   .chat-msg {
     max-width: 92%;
