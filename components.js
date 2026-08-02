@@ -990,7 +990,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL)
+// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL WITH QR CODE)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
@@ -998,6 +998,8 @@ let _pendingCheckoutData = null;
 
 // ডিফল্ট USDT ঠিকানা (আপনার দেওয়া)
 const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
+// QR কোড ইমেজের পাথ (রুট ডিরেক্টরি)
+const USDT_QR_IMAGE = '/Deposit USDT.jpeg';
 
 export function renderPaymentModal() {
   const existing = document.getElementById('paymentModal');
@@ -1110,8 +1112,8 @@ export function renderPaymentModal() {
 
       // USDT validation
       if (method === 'USDT') {
-        if (!senderNumber || senderNumber.length < 10) {
-          errorDiv.textContent = '⚠️ Please enter your valid BEP20 sender address.';
+        if (!senderNumber || senderNumber.length < 10 || !senderNumber.startsWith('0x')) {
+          errorDiv.textContent = '⚠️ Please enter a valid BEP20 sender address (starts with 0x).';
           errorDiv.classList.remove('hidden');
           document.getElementById('paymentSenderNumber').classList.add('error');
           return;
@@ -1318,16 +1320,24 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSubmitBtn').disabled = !number;
 
   } else if (method === 'USDT') {
-    // USDT - fully functional
+    // USDT - fully functional with QR Code
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
     rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
 
     const usdtAddress = _paymentSettings.usdt || DEFAULT_USDT_ADDRESS;
 
+    // QR Code display
     addressBox.innerHTML = `
       <p class="font-semibold text-gray-800 mb-1"><i class="fab fa-bitcoin text-yellow-500 mr-1"></i> USDT (BEP20)</p>
       <p class="text-sm text-gray-500">Network: <strong>BSC (BEP20)</strong></p>
+      <div class="flex flex-col items-center my-2">
+        <img src="${USDT_QR_IMAGE}" alt="USDT BEP20 Deposit QR Code" 
+             class="w-48 h-48 object-contain rounded-lg border border-gray-200" 
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <p class="text-xs text-gray-400 mt-1 hidden">QR code not available. Please copy address below.</p>
+        <p class="text-sm text-gray-500 mt-2">Scan with Binance App or any BEP20 wallet</p>
+      </div>
       <p class="text-lg font-bold text-amber-600 select-all break-all">${usdtAddress}</p>
       <p class="text-xs text-gray-400 mt-1">Send exactly <strong>$${totalUSD.toFixed(2)} USDT</strong> to this address.</p>
       <p class="text-xs text-red-400 mt-1"><i class="fas fa-exclamation-triangle"></i> Use BEP20 network only, otherwise funds may be lost.</p>
@@ -1339,12 +1349,13 @@ window.updatePaymentMethodUI = function() {
         <li>Open <strong>Binance App</strong> → Go to <strong>Wallet</strong> → <strong>Withdraw</strong></li>
         <li>Select coin: <strong>USDT</strong></li>
         <li>Select network: <strong>BSC (BEP20)</strong></li>
-        <li>Paste the address: <strong class="select-all">${usdtAddress}</strong></li>
+        <li>Paste the address: <strong class="select-all">${usdtAddress}</strong> or scan the QR code above</li>
         <li>Enter amount: <strong>$${totalUSD.toFixed(2)} USDT</strong></li>
         <li>Double‑check the network and address, then submit</li>
         <li>Copy the <strong>Transaction ID (TXID)</strong> and your <strong>Sender Address</strong> (your BEP20 wallet) below</li>
       </ol>
       <p class="text-xs text-blue-600"><i class="fas fa-info-circle"></i> Need help? <a href="https://www.binance.com/en/support/faq/how-to-withdraw-cryptocurrency-from-binance-360033577672" target="_blank" class="underline">Binance withdrawal guide</a></p>
+      <p class="text-xs text-gray-500 mt-1"><i class="fas fa-qrcode"></i> You can also scan the QR code from your wallet app.</p>
     `;
 
     fieldsBox.classList.remove('hidden');
@@ -1603,4 +1614,4 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('✅ components.js fully loaded with USDT payment functional.');
+console.log('✅ components.js fully loaded with USDT payment + QR code.');
