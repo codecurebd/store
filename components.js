@@ -375,7 +375,7 @@ window.handleContactClick = function(e) {
 };
 
 // ================================================================
-// ✅ NAVBAR (Contact লিংক smart behaviour সহ)
+// ✅ NAVBAR (সম্পূর্ণ নতুন, সার্চ বাটন ও ফুটার আপডেট)
 // ================================================================
 export function renderNavbar() {
   renderContactModal();
@@ -399,6 +399,14 @@ export function renderNavbar() {
 
         <!-- Right Actions -->
         <div class="flex items-center gap-2 md:gap-3">
+          
+          <!-- ===== SEARCH (always visible) ===== -->
+          <div class="relative">
+            <button onclick="window.goToSearch()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Search products">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+
           <!-- ===== CART (always visible) ===== -->
           <div class="relative">
             <button id="cartBtn" onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
@@ -535,6 +543,11 @@ export function renderNavbar() {
   });
   
   renderCartPopup();
+
+  // ===== SEARCH GO TO FUNCTION =====
+  window.goToSearch = function() {
+    window.location.href = 'get-new-website.html';
+  };
 }
 
 // ================================================================
@@ -715,24 +728,50 @@ window.addToCart = async function(productId, productName, productPrice, productI
 };
 
 // ================================================================
-// ✅ FOOTER
+// ✅ FOOTER (সম্পূর্ণ নতুন, পেশাদার)
 // ================================================================
 export function renderFooter() {
   const footerHTML = `
-    <footer class="glass border-t border-gray-200/30 py-10 px-6 sm:px-8 lg:px-12 mt-auto">
-      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-        <div class="space-y-1 text-center sm:text-left">
-          <div class="font-medium text-gray-700">&copy; 2026 CodeCureBD. All rights reserved.</div>
-          <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
-            <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
-            <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
-            <a href="messages.html" class="hover:text-blue-600 transition-colors"><i class="fas fa-comment-dots mr-1"></i> Support Chat</a>
+    <footer class="glass border-t border-gray-200/30 py-12 px-6 sm:px-8 lg:px-12 mt-auto">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Brand -->
+          <div class="text-center md:text-left">
+            <div class="flex items-center justify-center md:justify-start gap-2">
+              <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
+              <span class="font-bold text-xl text-gray-800">CodeCure<span class="gradient-text">BD</span></span>
+            </div>
+            <p class="text-sm text-gray-500 mt-2 max-w-xs">Professional web development, fixing, and maintenance – tailored for your business.</p>
+          </div>
+          <!-- Quick Links -->
+          <div class="text-center">
+            <h4 class="font-semibold text-gray-700 mb-3">Quick Links</h4>
+            <div class="space-y-1 text-sm">
+              <a href="index.html" class="block hover:text-blue-600 transition-colors">Home</a>
+              <a href="get-new-website.html" class="block hover:text-blue-600 transition-colors">Store</a>
+              <a href="fix-website.html" class="block hover:text-blue-600 transition-colors">Fix</a>
+              <a href="messages.html" class="block hover:text-blue-600 transition-colors">Support Chat</a>
+            </div>
+          </div>
+          <!-- Social & Contact -->
+          <div class="text-center md:text-right">
+            <h4 class="font-semibold text-gray-700 mb-3">Connect</h4>
+            <div class="flex flex-wrap justify-center md:justify-end gap-3 mb-3">
+              <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
+              <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              <a href="https://www.facebook.com/profile.php?id=61592614590327" target="_blank" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a href="https://www.instagram.com/codecurebd/" target="_blank" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+              <a href="https://www.youtube.com/channel/UCstUaZ9xdqqjaAz3zkO6XJQ" target="_blank" class="social-icon" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            </div>
+            <div class="text-sm text-gray-500">
+              <a href="mailto:nopqrshov337@gmail.com" class="hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-1"></i> nopqrshov337@gmail.com</a>
+              <br />
+              <a href="tel:+8801350141762" class="hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-1"></i> +880 1350-141762</a>
+            </div>
           </div>
         </div>
-        <div class="flex items-center gap-4">
-          <a href="https://codecurebd.github.io/portfolio/" target="_blank" class="text-blue-600 hover:underline font-medium transition-colors">Portfolio</a>
-          <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
-          <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <div class="border-t border-gray-200/30 mt-8 pt-6 text-center text-sm text-gray-400">
+          &copy; 2026 CodeCureBD. All rights reserved.
         </div>
       </div>
     </footer>
