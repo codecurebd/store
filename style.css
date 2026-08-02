@@ -1060,7 +1060,6 @@ select.form-input {
   }
   .cart-popup {
     width: 300px;
-    right: -10px;
   }
   .messenger-wrap {
     flex-direction: column;
