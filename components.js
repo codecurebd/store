@@ -591,7 +591,7 @@ export function renderNavbar() {
             </div>
           </div>
           
-          // Auth Loading
+          <!-- Auth Loading -->
           <div id="auth-loading" class="flex items-center gap-2">
             <div class="w-16 h-8 bg-gray-200 rounded-full animate-pulse"></div>
             <div class="w-24 h-10 bg-gray-200 rounded-full animate-pulse hidden md:block"></div>
