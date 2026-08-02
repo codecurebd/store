@@ -799,6 +799,44 @@ select.form-input {
 }
 .fade-up.visible { opacity: 1; transform: translateY(0); }
 
+/* ── Navbar: transparent (landing top) vs solid glass (scrolled / other pages) ── */
+#mainNavbar {
+  transition:
+    background 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    backdrop-filter 0.35s ease,
+    -webkit-backdrop-filter 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+/* Top of landing page — no bar, buttons float over hero */
+#mainNavbar.nav-transparent {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* Soft hover on transparent state so controls still feel clickable */
+#mainNavbar.nav-transparent .nav-link:hover {
+  background: rgba(0, 102, 255, 0.06);
+}
+#mainNavbar.nav-transparent button:hover,
+#mainNavbar.nav-transparent .profile-avatar:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Scrolled (or any non-landing page) — glass bar */
+#mainNavbar.nav-solid {
+  background: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04) !important;
+}
+
 /* ── Page Layout ── */
 .page-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
 .main-content { flex: 1 0 auto; padding-top: 84px; }

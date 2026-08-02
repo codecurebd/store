@@ -471,13 +471,53 @@ function performSearch(query) {
 }
 
 // ================================================================
+// ✅ LANDING NAVBAR: transparent at top, glass on scroll
+// ================================================================
+function setupLandingNavbar() {
+  const nav = document.getElementById('mainNavbar');
+  if (!nav) return;
+
+  const isIndexPage =
+    window.location.pathname.endsWith('index.html') ||
+    window.location.pathname === '/' ||
+    window.location.pathname.endsWith('/') ||
+    window.location.pathname === '';
+
+  // Other pages always keep solid glass navbar
+  if (!isIndexPage) {
+    nav.classList.remove('nav-transparent');
+    nav.classList.add('nav-solid');
+    return;
+  }
+
+  const SCROLL_THRESHOLD = 40;
+
+  const updateNav = () => {
+    if (window.scrollY > SCROLL_THRESHOLD) {
+      nav.classList.remove('nav-transparent');
+      nav.classList.add('nav-solid');
+    } else {
+      nav.classList.remove('nav-solid');
+      nav.classList.add('nav-transparent');
+    }
+  };
+
+  // Initial state (top of page) — remove solid glass look
+  nav.classList.remove('nav-solid', 'glass', 'shadow-sm', 'border-b', 'border-gray-100/30');
+  nav.classList.add('nav-transparent');
+  updateNav();
+
+  window.addEventListener('scroll', updateNav, { passive: true });
+}
+
+// ================================================================
 // ✅ NAVBAR (সম্পূর্ণ নতুন, সার্চ ড্রপডাউন সহ)
 // ================================================================
 export function renderNavbar() {
   renderContactModal();
 
   const navbarHTML = `
-    <nav class="fixed top-0 left-0 w-full glass z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 shadow-sm border-b border-gray-100/30">
+    <nav id="mainNavbar" class="fixed top-0 left-0 w-full z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 transition-all duration-300 ease-out glass shadow-sm border-b border-gray-100/30">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
         <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
@@ -612,6 +652,9 @@ export function renderNavbar() {
   } else {
     console.error('❌ navbar-placeholder not found!');
   }
+
+  // ===== Landing page: transparent navbar at top, glass on scroll =====
+  setupLandingNavbar();
 
   // Profile dropdown toggle
   const avatar = document.getElementById('profileAvatar');
