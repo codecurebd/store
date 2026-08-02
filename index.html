@@ -136,6 +136,17 @@
       padding: 1rem 1.25rem 1.25rem;
     }
 
+    /* ✅ এক লাইনে টাইটেল */
+    .product-title {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+      max-height: 1.2em;
+    }
+
     /* ✅ এক লাইনে ডেসক্রিপশন */
     .product-desc {
       display: -webkit-box;
@@ -936,7 +947,7 @@
     }
 
     // ================================================================
-    // ✅ ফিচার্ড প্রোডাক্ট (HTML preview + DISCOUNT + BDT)
+    // ✅ ফিচার্ড প্রোডাক্ট (HTML preview + DISCOUNT + BDT + SINGLE-LINE TITLE)
     // ================================================================
     const packagesContainer = document.getElementById('featuredPackages');
 
@@ -1023,7 +1034,6 @@
           // ---- DISCOUNT & PRICE ----
           const discount = getDiscountForProduct(p);
           let priceHtml = '';
-          let badgeHtml = '';
           if (discount) {
             const percent = Math.round(discount.discountPercent);
             const discounted = p.price * (1 - discount.discountPercent / 100);
@@ -1056,7 +1066,7 @@
                 ${previewHtml}
               </div>
               <div class="card-body">
-                <h3 class="font-bold text-lg text-gray-900">${p.name}</h3>
+                <h3 class="font-bold text-lg text-gray-900 product-title">${p.name}</h3>
                 <p class="text-sm text-gray-500 product-desc">${p.desc || p.description || ''}</p>
                 ${priceHtml}
                 <a href="product-detail.html?id=${p.id}" class="btn-details text-sm py-2 px-4 mt-3 inline-block">
@@ -1238,7 +1248,7 @@
       }
     });
 
-    console.log('🏠 Landing page loaded with HTML previews + DISCOUNT & BDT in featured products!');
+    console.log('🏠 Landing page loaded with HTML previews + DISCOUNT & BDT + single-line title in featured products!');
   </script>
 </body>
 </html>
