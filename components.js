@@ -1,4 +1,4 @@
-// components.js (Fixed & Optimized)
+// components.js
 import { 
   auth, onAuthStateChanged, signOut, db, doc, getDoc, setDoc,
   updateDoc, serverTimestamp, collection, addDoc, query, where, onSnapshot,
@@ -6,55 +6,12 @@ import {
 } from './firebase-config.js';
 
 // ================================================================
-// ✅ স্টেট ম্যানেজমেন্ট
+// ✅ নোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা (Realtime)
 // ================================================================
 let unreadAdminMessages = [];
 let displayMessages = [];
 let adminMessageUnsubscribe = null;
-let searchDropdownOpen = false;
-let searchProducts = [];
-let searchUnsubscribe = null;
-let cartPopupRendered = false;
 
-let _paymentSettings = {};
-let _paymentOrderTotalUSD = 0;
-let _pendingCheckoutData = null;
-
-const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
-const QR_IMAGE_PATH = './Deposit USDT.jpeg';
-
-// গ্লোবাল স্টাইল ইনজেকশন
-const injectGlobalStyles = () => {
-  if (document.getElementById('optimized-global-styles')) return;
-  const style = document.createElement('style');
-  style.id = 'optimized-global-styles';
-  style.textContent = `
-    @keyframes slideIn { to { transform: translateX(0); } }
-    @keyframes slideOut { to { transform: translateX(calc(100% + 40px)); opacity: 0; } }
-    @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .animate-scaleIn { animation: scaleIn 0.25s ease forwards; }
-    
-    /* Landing Navbar Transition Fixes */
-    .nav-transparent {
-      background-color: transparent !important;
-      backdrop-filter: none !important;
-      box-shadow: none !important;
-      border-bottom-color: transparent !important;
-    }
-    .nav-solid {
-      background: rgba(255, 255, 255, 0.9) !important;
-      backdrop-filter: blur(12px) !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
-      border-bottom-color: rgba(229, 231, 235, 0.5) !important;
-    }
-  `;
-  document.head.appendChild(style);
-};
-injectGlobalStyles();
-
-// ================================================================
-// ✅ নোটিফিকেশন সিস্টেম
-// ================================================================
 function startAdminMessageListener(user) {
   if (adminMessageUnsubscribe) {
     adminMessageUnsubscribe();
@@ -80,7 +37,9 @@ function startAdminMessageListener(user) {
       unreadAdminMessages.push({ id: doc.id, ...doc.data() });
     });
     updateNotificationBadge(unreadAdminMessages.length);
-    if (displayMessages.length === 0) {
+    if (displayMessages.length > 0) {
+      // ড্রপডাউন খোলা থাকলে নতুন মেসেজ যোগ করি না (পরে দেখাবে)
+    } else {
       updateNotificationList(unreadAdminMessages);
     }
   }, (error) => {
@@ -91,8 +50,12 @@ function startAdminMessageListener(user) {
 function updateNotificationBadge(count) {
   const badge = document.getElementById('notificationBadge');
   if (!badge) return;
-  badge.textContent = count > 99 ? '99+' : count;
-  badge.classList.toggle('hidden', count <= 0);
+  if (count > 0) {
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
 }
 
 function updateNotificationList(messages) {
@@ -149,6 +112,9 @@ async function markAllAdminMessagesRead() {
   }
 }
 
+// ================================================================
+// ✅ NOTIFICATION TOGGLE (Mobile-optimized)
+// ================================================================
 window.toggleNotifications = function() {
   const dropdown = document.getElementById('notificationDropdown');
   if (!dropdown) return;
@@ -158,6 +124,7 @@ window.toggleNotifications = function() {
     updateNotificationList(displayMessages);
     dropdown.classList.remove('hidden');
     document.body.classList.add('dropdown-open');
+    dropdown.style.animation = 'dropdownFade 0.2s ease';
     markAllAdminMessagesRead();
   } else {
     displayMessages = [];
@@ -189,7 +156,12 @@ window.showToast = function(message, type = 'success') {
     warning: 'fa-exclamation-triangle',
     info: 'fa-info-circle'
   };
-  const colors = { success: '#34C759', error: '#FF3B30', warning: '#FF9500', info: '#007AFF' };
+  const colors = {
+    success: '#34C759',
+    error: '#FF3B30',
+    warning: '#FF9500',
+    info: '#007AFF'
+  };
 
   toast.className = `toast ${type}`;
   toast.style.cssText = `
@@ -219,41 +191,68 @@ window.showToast = function(message, type = 'success') {
   }, 4500);
 };
 
+const toastStyles = document.createElement('style');
+toastStyles.textContent = `
+  @keyframes slideIn {
+    to { transform: translateX(0); }
+  }
+  @keyframes slideOut {
+    to { transform: translateX(calc(100% + 40px)); opacity: 0; }
+  }
+`;
+document.head.appendChild(toastStyles);
+
 // ================================================================
-// ✅ CART & BADGE MANAGEMENT
+// ✅ CART BADGE (রিয়েল-টাইম আপডেটের জন্য পৃথক ফাংশন)
 // ================================================================
 export function updateCartBadge() {
   const cartBadge = document.getElementById('cartCount');
-  if (!cartBadge) return;
+  if (!cartBadge) {
+    console.warn('⚠️ cartCount element not found in DOM');
+    return;
+  }
   try {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
     cartBadge.textContent = totalQty;
     cartBadge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
+    console.log('✅ Badge updated to:', totalQty);
   } catch (e) {
     cartBadge.textContent = '0';
     cartBadge.style.display = 'none';
+    console.error('Badge update error:', e);
   }
 }
 
+// ================================================================
+// ✅ MOBILE MENU TOGGLE
+// ================================================================
 window.toggleMobileMenu = function() {
   const menu = document.getElementById('mobileMenu');
   const icon = document.getElementById('hamburgerIcon');
-  if (!menu) return;
-  
-  const isOpen = !menu.classList.contains('hidden');
-  menu.classList.toggle('hidden');
-  if (icon) {
-    icon.classList.toggle('fa-bars');
-    icon.classList.toggle('fa-times');
+  if (menu) {
+    const isOpen = !menu.classList.contains('hidden');
+    menu.classList.toggle('hidden');
+    if (icon) {
+      icon.classList.toggle('fa-bars');
+      icon.classList.toggle('fa-times');
+    }
+    if (!isOpen) {
+      menu.style.maxHeight = '0';
+      menu.style.opacity = '0';
+      setTimeout(() => {
+        menu.style.maxHeight = '500px';
+        menu.style.opacity = '1';
+      }, 10);
+    } else {
+      menu.style.maxHeight = '0';
+      menu.style.opacity = '0';
+    }
   }
-  
-  menu.style.maxHeight = isOpen ? '0' : '500px';
-  menu.style.opacity = isOpen ? '0' : '1';
 };
 
 // ================================================================
-// ✅ CONTACT MODAL
+// ✅ CONTACT MODAL (NEW)
 // ================================================================
 function renderContactModal() {
   if (document.getElementById('contactModal')) return;
@@ -289,15 +288,19 @@ function renderContactModal() {
       </div>
     </div>
   `;
+
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-  document.getElementById('contactModalForm').addEventListener('submit', async (e) => {
+  // Add form submit handler
+  const form = document.getElementById('contactModalForm');
+  const submitBtn = document.getElementById('contactModalSubmitBtn');
+  const errorDiv = document.getElementById('contactModalError');
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('contactModalName').value.trim();
     const email = document.getElementById('contactModalEmail').value.trim();
     const message = document.getElementById('contactModalMessage').value.trim();
-    const errorDiv = document.getElementById('contactModalError');
-    const submitBtn = document.getElementById('contactModalSubmitBtn');
 
     if (!name || !email || !message) {
       errorDiv.textContent = 'All fields are required.';
@@ -308,99 +311,159 @@ function renderContactModal() {
     setLoading(submitBtn, true, 'Sending...');
 
     try {
-      await addDoc(collection(db, 'contactMessages'), { name, email, message, timestamp: serverTimestamp() });
+      await addDoc(collection(db, 'contactMessages'), {
+        name,
+        email,
+        message,
+        timestamp: serverTimestamp(),
+      });
       window.showToast('✅ Message sent! We\'ll get back to you soon.', 'success');
-      e.target.reset();
+      form.reset();
       window.closeContactModal();
     } catch (err) {
       errorDiv.textContent = err.message;
       errorDiv.classList.remove('hidden');
-      window.showToast('⚠️ Failed to send message.', 'error');
+      window.showToast('⚠️ Failed to send message. Please try again.', 'error');
     } finally {
       setLoading(submitBtn, false);
     }
   });
+
+  // Close on overlay click
+  document.getElementById('contactModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) window.closeContactModal();
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') window.closeContactModal();
+  });
 }
 
-window.openContactModal = () => document.getElementById('contactModal')?.classList.remove('hidden');
-window.closeContactModal = () => document.getElementById('contactModal')?.classList.add('hidden');
+window.openContactModal = function() {
+  const modal = document.getElementById('contactModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.getElementById('contactModalName').focus();
+  }
+};
 
+window.closeContactModal = function() {
+  const modal = document.getElementById('contactModal');
+  if (modal) modal.classList.add('hidden');
+};
+
+// ================================================================
+// ✅ HANDLE CONTACT CLICK (Smart: scroll on index, modal elsewhere)
+// ================================================================
 window.handleContactClick = function(e) {
   e.preventDefault();
-  const isIndexPage = ['/', '', '/index.html'].some(path => window.location.pathname.endsWith(path));
-  if (isIndexPage && document.getElementById('contact')) {
-    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+  const isIndexPage = window.location.pathname.endsWith('index.html') || 
+                       window.location.pathname === '/' || 
+                       window.location.pathname.endsWith('/');
+  
+  if (isIndexPage) {
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.openContactModal();
+    }
   } else {
     window.openContactModal();
   }
 };
 
 // ================================================================
-// ✅ SEARCH SYSTEM
+// ✅ SEARCH DROPDOWN (Products Search - Mobile-optimized)
 // ================================================================
+let searchDropdownOpen = false;
+let searchProducts = [];
+let searchUnsubscribe = null;
+
 function toggleSearchDropdown() {
   const dropdown = document.getElementById('searchDropdown');
   if (!dropdown) return;
   const isOpening = dropdown.classList.contains('hidden');
-  
-  dropdown.classList.toggle('hidden', !isOpening);
-  document.body.classList.toggle('dropdown-open', isOpening);
-  
   if (isOpening) {
-    setTimeout(() => document.getElementById('searchInput')?.focus(), 100);
-    if (searchProducts.length === 0) loadSearchProducts();
+    dropdown.classList.remove('hidden');
+    document.body.classList.add('dropdown-open');
+    setTimeout(() => {
+      const input = document.getElementById('searchInput');
+      if (input) input.focus();
+    }, 100);
+    if (searchProducts.length === 0) {
+      loadSearchProducts();
+    }
   } else {
-    document.getElementById('searchResults').innerHTML = '';
-    document.getElementById('searchInput').value = '';
+    dropdown.classList.add('hidden');
+    document.body.classList.remove('dropdown-open');
+    const results = document.getElementById('searchResults');
+    if (results) results.innerHTML = '';
+    const input = document.getElementById('searchInput');
+    if (input) input.value = '';
   }
-  searchDropdownOpen = isOpening;
+  searchDropdownOpen = !isOpening;
 }
 
 function loadSearchProducts() {
-  if (searchUnsubscribe) searchUnsubscribe();
+  if (searchUnsubscribe) {
+    searchUnsubscribe();
+    searchUnsubscribe = null;
+  }
   searchUnsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
-    searchProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    searchProducts = [];
+    snapshot.forEach(doc => {
+      searchProducts.push({ id: doc.id, ...doc.data() });
+    });
+    // If dropdown is open and there's a query, re-render
     const input = document.getElementById('searchInput');
-    if (input?.value.trim()) performSearch(input.value.trim());
-  }, (error) => console.error('Search error:', error));
+    if (input && input.value.trim().length > 0) {
+      performSearch(input.value.trim());
+    }
+  }, (error) => {
+    console.error('Search products listener error:', error);
+  });
 }
 
-function performSearch(queryText) {
+function performSearch(query) {
   const resultsContainer = document.getElementById('searchResults');
   if (!resultsContainer) return;
-  
-  const q = queryText.trim().toLowerCase();
-  if (!q) {
+  if (!query || query.trim().length === 0) {
     resultsContainer.innerHTML = `<div class="p-4 text-sm text-gray-400 text-center">Type to search products...</div>`;
     return;
   }
-
-  const filtered = searchProducts.filter(p => 
-    (p.name || '').toLowerCase().includes(q) || 
-    (p.desc || p.description || '').toLowerCase().includes(q) || 
-    (p.category || '').toLowerCase().includes(q)
-  );
+  const q = query.trim().toLowerCase();
+  const filtered = searchProducts.filter(p => {
+    const name = (p.name || '').toLowerCase();
+    const desc = (p.desc || p.description || '').toLowerCase();
+    const category = (p.category || '').toLowerCase();
+    return name.includes(q) || desc.includes(q) || category.includes(q);
+  });
 
   if (filtered.length === 0) {
-    resultsContainer.innerHTML = `<div class="p-4 text-sm text-gray-400 text-center">No products found matching "<strong>${queryText}</strong>"</div>`;
+    resultsContainer.innerHTML = `<div class="p-4 text-sm text-gray-400 text-center">No products found matching "<strong>${query}</strong>"</div>`;
     return;
   }
 
-  let html = filtered.slice(0, 8).map(p => `
-    <a href="product-detail.html?id=${p.id}" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 transition-colors">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
-          <i class="fas fa-file-code"></i>
+  let html = '';
+  filtered.slice(0, 8).forEach(p => {
+    const price = p.price ? '$' + p.price.toFixed(2) : '';
+    html += `
+      <a href="product-detail.html?id=${p.id}" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 transition-colors">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
+            <i class="fas fa-file-code"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-900 text-sm truncate">${p.name}</p>
+            <p class="text-xs text-gray-500 truncate">${p.category || 'Uncategorized'}</p>
+          </div>
+          ${price ? `<span class="text-sm font-semibold text-blue-600">${price}</span>` : ''}
         </div>
-        <div class="flex-1 min-w-0">
-          <p class="font-medium text-gray-900 text-sm truncate">${p.name}</p>
-          <p class="text-xs text-gray-500 truncate">${p.category || 'Uncategorized'}</p>
-        </div>
-        ${p.price ? `<span class="text-sm font-semibold text-blue-600">$${p.price.toFixed(2)}</span>` : ''}
-      </div>
-    </a>
-  `).join('');
-
+      </a>
+    `;
+  });
   if (filtered.length > 8) {
     html += `<a href="get-new-website.html" class="block px-4 py-2 text-center text-sm text-blue-600 hover:bg-gray-50">View all ${filtered.length} results →</a>`;
   }
@@ -408,21 +471,29 @@ function performSearch(queryText) {
 }
 
 // ================================================================
-// ✅ NAVBAR SETUP (Fixed Landing Visibility Bug)
+// ✅ LANDING NAVBAR: transparent at top, glass on scroll
 // ================================================================
 function setupLandingNavbar() {
   const nav = document.getElementById('mainNavbar');
   if (!nav) return;
 
-  const isIndexPage = ['/', '', '/index.html'].some(path => window.location.pathname.endsWith(path));
+  const isIndexPage =
+    window.location.pathname.endsWith('index.html') ||
+    window.location.pathname === '/' ||
+    window.location.pathname.endsWith('/') ||
+    window.location.pathname === '';
+
+  // Other pages always keep solid glass navbar
   if (!isIndexPage) {
     nav.classList.remove('nav-transparent');
     nav.classList.add('nav-solid');
     return;
   }
 
+  const SCROLL_THRESHOLD = 40;
+
   const updateNav = () => {
-    if (window.scrollY > 40) {
+    if (window.scrollY > SCROLL_THRESHOLD) {
       nav.classList.remove('nav-transparent');
       nav.classList.add('nav-solid');
     } else {
@@ -431,15 +502,22 @@ function setupLandingNavbar() {
     }
   };
 
+  // Initial state (top of page) — remove solid glass look
+  nav.classList.remove('nav-solid', 'glass', 'shadow-sm', 'border-b', 'border-gray-100/30');
+  nav.classList.add('nav-transparent');
   updateNav();
+
   window.addEventListener('scroll', updateNav, { passive: true });
 }
 
+// ================================================================
+// ✅ NAVBAR (সম্পূর্ণ নতুন, সার্চ ড্রপডাউন সহ)
+// ================================================================
 export function renderNavbar() {
   renderContactModal();
 
   const navbarHTML = `
-    <nav id="mainNavbar" class="fixed top-0 left-0 w-full z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 transition-all duration-300 ease-out nav-transparent">
+    <nav id="mainNavbar" class="fixed top-0 left-0 w-full z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 transition-all duration-300 ease-out glass shadow-sm border-b border-gray-100/30">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
         <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
@@ -458,7 +536,7 @@ export function renderNavbar() {
         <!-- Right Actions -->
         <div class="flex items-center gap-2 md:gap-3">
           
-          <!-- SEARCH DROPDOWN -->
+          <!-- ===== SEARCH DROPDOWN ===== -->
           <div class="relative">
             <button onclick="window.toggleSearchDropdown()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Search products">
               <i class="fas fa-search"></i>
@@ -479,21 +557,24 @@ export function renderNavbar() {
             </div>
           </div>
 
-          <!-- CART -->
+          <!-- ===== CART (always visible) ===== -->
           <div class="relative">
             <button id="cartBtn" onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
               <i class="fas fa-shopping-cart"></i>
               <span id="cartCount" class="cart-badge" style="display:none;">0</span>
             </button>
+            <!-- Cart Popup (rendered by renderCartPopup) -->
             <div id="cartPopupContainer"></div>
           </div>
 
-          <!-- NOTIFICATIONS -->
+          <!-- ===== NOTIFICATIONS (only visible when signed in) ===== -->
           <div id="authRequiredActions" class="flex items-center gap-2 md:gap-3" style="display:none;">
             <div class="relative">
               <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" aria-label="Notifications">
                 <i class="fas fa-bell"></i>
-                <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden">0</span>
+                <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden">
+                  0
+                </span>
               </button>
               <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 hidden max-h-[70vh] overflow-y-auto z-50">
                 <div class="p-4 font-semibold border-b text-gray-900 flex items-center justify-between">
@@ -568,36 +649,87 @@ export function renderNavbar() {
   const placeholder = document.getElementById('navbar-placeholder');
   if (placeholder) {
     placeholder.innerHTML = navbarHTML;
+  } else {
+    console.error('❌ navbar-placeholder not found!');
   }
 
+  // ===== Landing page: transparent navbar at top, glass on scroll =====
   setupLandingNavbar();
 
+  // Profile dropdown toggle
   const avatar = document.getElementById('profileAvatar');
   const dropdown = document.getElementById('dropdownMenu');
-  if (avatar && dropdown) {
+  if (avatar) {
     avatar.addEventListener('click', (e) => {
       e.stopPropagation();
       dropdown.classList.toggle('show');
     });
   }
 
+  document.addEventListener('click', (e) => {
+    if (avatar && !avatar.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  // ✅ Search input listener
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
     searchInput.addEventListener('input', function() {
       performSearch(this.value);
     });
+    // Also trigger search on Enter key (though input event is enough)
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        // If there are results, first result click or redirect to store page with query
+        const firstResult = document.querySelector('#searchResults a');
+        if (firstResult) {
+          firstResult.click();
+        } else {
+          // Redirect to store page with search query
+          const query = this.value.trim();
+          if (query) {
+            window.location.href = `get-new-website.html?search=${encodeURIComponent(query)}`;
+          }
+        }
+      }
+    });
   }
 
+  // ✅ Badge আপডেট (পেজ লোড হলে)
   updateCartBadge();
-  onAuthStateChanged(auth, (user) => { if (user) syncCart(user.uid); });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      syncCart(user.uid);
+    }
+  });
+  
   renderCartPopup();
 
+  // Load search products on first interaction
+  if (searchProducts.length === 0) {
+    // Lazy load: will load when dropdown opens
+  }
+
+  // ===== SEARCH TOGGLE FUNCTION (exposed globally) =====
   window.toggleSearchDropdown = toggleSearchDropdown;
+
+  // Cleanup search listener on page unload
+  window.addEventListener('beforeunload', () => {
+    if (searchUnsubscribe) {
+      searchUnsubscribe();
+      searchUnsubscribe = null;
+    }
+  });
 }
 
 // ================================================================
-// ✅ CART POPUP & MANAGEMENT
+// ✅ CART POPUP (replaces sidebar - Mobile-optimized)
 // ================================================================
+let cartPopupRendered = false;
+
 export function renderCartPopup() {
   const container = document.getElementById('cartPopupContainer');
   if (!container) return;
@@ -607,47 +739,86 @@ export function renderCartPopup() {
     return;
   }
 
-  container.innerHTML = `
+  const popupHTML = `
     <div class="cart-popup hidden" id="cartPopup">
-      <div class="cart-popup-header"><span class="cart-popup-title"><i class="fas fa-shopping-bag mr-2"></i> Your Cart</span></div>
-      <div id="cartPopupItems" class="cart-popup-items"><div class="cart-empty">Your cart is empty.</div></div>
+      <div class="cart-popup-header">
+        <span class="cart-popup-title"><i class="fas fa-shopping-bag mr-2"></i> Your Cart</span>
+      </div>
+      <div id="cartPopupItems" class="cart-popup-items">
+        <div class="cart-empty">Your cart is empty.</div>
+      </div>
       <div class="cart-popup-footer">
-        <div class="cart-popup-total"><span>Total:</span><span id="cartPopupTotal">$0</span></div>
-        <button onclick="window.cartCheckout()" class="btn-primary w-full justify-center cart-checkout-btn"><i class="fas fa-lock"></i> Checkout</button>
+        <div class="cart-popup-total">
+          <span>Total:</span>
+          <span id="cartPopupTotal">$0</span>
+        </div>
+        <button onclick="window.cartCheckout()" class="btn-primary w-full justify-center cart-checkout-btn">
+          <i class="fas fa-lock"></i> Checkout
+        </button>
       </div>
     </div>
   `;
+
+  container.innerHTML = popupHTML;
   cartPopupRendered = true;
   updateCartPopupUI();
+
+  // ✅ Outside click + cart button toggle close system (set up only once) - but now handled globally below
 }
 
+// ================================================================
+// ✅ CART TOGGLE (popup - Mobile-optimized)
+// ================================================================
 export function toggleCart() {
   const popup = document.getElementById('cartPopup');
   if (!popup) return;
   const isOpening = popup.classList.contains('hidden');
-  popup.classList.toggle('hidden', !isOpening);
-  document.body.classList.toggle('dropdown-open', isOpening);
-  if (isOpening) updateCartPopupUI();
+  if (isOpening) {
+    popup.classList.remove('hidden');
+    document.body.classList.add('dropdown-open');
+    updateCartPopupUI();
+  } else {
+    popup.classList.add('hidden');
+    document.body.classList.remove('dropdown-open');
+  }
 }
 window.toggleCart = toggleCart;
 
+// ================================================================
+// ✅ REMOVE FROM CART
+// ================================================================
 window.removeFromCart = function(index) {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   cart.splice(index, 1);
   localStorage.setItem('cart', JSON.stringify(cart));
   updateCartPopupUI();
   updateCartBadge();
-  if (auth.currentUser) updateCartInFirestore(auth.currentUser.uid, cart);
+  const user = auth.currentUser;
+  if (user) {
+    updateCartInFirestore(user.uid, cart);
+  }
 };
 
+// ================================================================
+// ✅ CHECKOUT (closes popup and proceeds)
+// ================================================================
 window.cartCheckout = function() {
-  document.getElementById('cartPopup')?.classList.add('hidden');
+  const popup = document.getElementById('cartPopup');
+  if (popup) popup.classList.add('hidden');
   document.body.classList.remove('dropdown-open');
-  if (typeof window.checkout === 'function') window.checkout();
-  else window.location.href = 'get-new-website.html?checkout=1';
+  if (typeof window.checkout === 'function') {
+    window.checkout();
+  } else {
+    window.location.href = 'get-new-website.html?checkout=1';
+  }
 };
 
+// ================================================================
+// ✅ GLOBAL addToCart (রিয়েল-টাইম ব্যাজ আপডেট সহ + ফোর্স আপডেট)
+// ================================================================
 window.addToCart = async function(productId, productName, productPrice, productImage = '') {
+  console.log('🛒 addToCart called:', productId, productName, productPrice);
+  
   if (!productId || !productName) {
     window.showToast('⚠️ Product information missing.', 'error');
     return;
@@ -658,54 +829,45 @@ window.addToCart = async function(productId, productName, productPrice, productI
   if (existing) {
     existing.quantity = (existing.quantity || 1) + 1;
   } else {
-    cart.push({ id: productId, name: productName, price: productPrice || 0, imageUrl: productImage || '', quantity: 1 });
+    cart.push({
+      id: productId,
+      name: productName,
+      price: productPrice || 0,
+      imageUrl: productImage || '',
+      quantity: 1
+    });
   }
 
   localStorage.setItem('cart', JSON.stringify(cart));
+
+  // ✅ রিয়েল-টাইমে ব্যাজ আপডেট (ফোর্সড)
   updateCartBadge();
   updateCartPopupUI();
 
-  if (auth.currentUser) await updateCartInFirestore(auth.currentUser.uid, cart);
+  // ✅ ফোর্স আপডেট: ১০০ms পরে আবার চেক করি (যদি DOM রেডি না থাকে)
+  setTimeout(() => {
+    updateCartBadge();
+    updateCartPopupUI();
+  }, 100);
+
+  // Sync with Firestore if logged in
+  const user = auth.currentUser;
+  if (user) {
+    await updateCartInFirestore(user.uid, cart);
+  }
+
   window.showToast(`✅ "${productName}" added to cart`, 'success');
 };
 
-function updateCartPopupUI() {
-  const itemsContainer = document.getElementById('cartPopupItems');
-  const totalEl = document.getElementById('cartPopupTotal');
-  if (!itemsContainer || !totalEl) return;
-
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  if (cart.length === 0) {
-    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
-    totalEl.textContent = '$0';
-    return;
-  }
-
-  let total = 0;
-  itemsContainer.innerHTML = cart.map((item, index) => {
-    const subtotal = (item.quantity || 1) * (item.price || 0);
-    total += subtotal;
-    return `
-      <div class="cart-popup-item">
-        <div class="cart-item-info">
-          <span class="cart-item-name">${item.name}</span>
-          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
-        </div>
-        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove"><i class="fas fa-times"></i></button>
-      </div>
-    `;
-  }).join('');
-  totalEl.textContent = `$${total.toFixed(2)}`;
-}
-
 // ================================================================
-// ✅ FOOTER & UTILS
+// ✅ FOOTER (সম্পূর্ণ নতুন, পেশাদার ও সঠিক লেআউট - টেক্সট অ্যালাইনমেন্ট ঠিক করা)
 // ================================================================
 export function renderFooter() {
   const footerHTML = `
     <footer class="glass border-t border-gray-200/30 py-12 px-6 sm:px-8 lg:px-12 mt-auto">
       <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <!-- Brand -->
           <div class="text-center md:text-left">
             <div class="flex items-center justify-center md:justify-start gap-2">
               <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
@@ -713,6 +875,7 @@ export function renderFooter() {
             </div>
             <p class="text-sm text-gray-500 mt-2 max-w-xs mx-auto md:mx-0">Professional web development, fixing, and maintenance – tailored for your business.</p>
           </div>
+          <!-- Quick Links (Text left aligned on desktop) -->
           <div class="text-center md:text-left">
             <h4 class="font-semibold text-gray-700 mb-3">Quick Links</h4>
             <div class="space-y-1 text-sm">
@@ -722,14 +885,20 @@ export function renderFooter() {
               <a href="messages.html" class="block hover:text-blue-600 transition-colors">Support Chat</a>
             </div>
           </div>
+          <!-- Contact Info (Text left aligned on desktop) -->
           <div class="text-center md:text-left">
             <h4 class="font-semibold text-gray-700 mb-3">Contact</h4>
             <div class="space-y-1 text-sm text-gray-500">
-              <a href="mailto:nopqrshov337@gmail.com" class="block hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-2 w-4"></i> nopqrshov337@gmail.com</a>
-              <a href="tel:+8801350141762" class="block hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-2 w-4"></i> +880 1350-141762</a>
+              <a href="mailto:nopqrshov337@gmail.com" class="block hover:text-blue-600 transition-colors">
+                <i class="fas fa-envelope mr-2 w-4"></i> nopqrshov337@gmail.com
+              </a>
+              <a href="tel:+8801350141762" class="block hover:text-blue-600 transition-colors">
+                <i class="fas fa-phone mr-2 w-4"></i> +880 1350-141762
+              </a>
               <span class="block"><i class="fas fa-map-marker-alt mr-2 w-4"></i> Dhaka, Bangladesh</span>
             </div>
           </div>
+          <!-- Social (Center aligned) -->
           <div class="text-center">
             <h4 class="font-semibold text-gray-700 mb-3">Follow Us</h4>
             <div class="flex flex-wrap justify-center gap-3">
@@ -748,9 +917,63 @@ export function renderFooter() {
     </footer>
   `;
   const placeholder = document.getElementById('footer-placeholder');
-  if (placeholder) placeholder.innerHTML = footerHTML;
+  if (placeholder) {
+    placeholder.innerHTML = footerHTML;
+  }
 }
 
+// ================================================================
+// ✅ BACKWARD COMPATIBILITY: renderCartSidebar & updateCartUI
+// ================================================================
+export function renderCartSidebar() {
+  // পুরোনো sidebar-এর বদলে popup রেন্ডার করা হচ্ছে
+  if (!cartPopupRendered) renderCartPopup();
+}
+
+export function updateCartUI() {
+  // popup-এর UI আপডেট
+  updateCartPopupUI();
+}
+
+function updateCartPopupUI() {
+  const itemsContainer = document.getElementById('cartPopupItems');
+  const totalEl = document.getElementById('cartPopupTotal');
+  if (!itemsContainer || !totalEl) return;
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  if (cart.length === 0) {
+    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
+    totalEl.textContent = '$0';
+    return;
+  }
+
+  let total = 0;
+  let html = '';
+  cart.forEach((item, index) => {
+    const qty = item.quantity || 1;
+    const price = item.price || 0;
+    const subtotal = qty * price;
+    total += subtotal;
+    html += `
+      <div class="cart-popup-item">
+        <div class="cart-item-info">
+          <span class="cart-item-name">${item.name}</span>
+          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
+        </div>
+        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+  });
+
+  itemsContainer.innerHTML = html;
+  totalEl.textContent = `$${total.toFixed(2)}`;
+}
+
+// ================================================================
+// ✅ LOADING BUTTON
+// ================================================================
 export function setLoading(button, isLoading, originalText = null) {
   if (!button) return;
   if (isLoading) {
@@ -766,27 +989,556 @@ export function setLoading(button, isLoading, originalText = null) {
   }
 }
 
+// ================================================================
+// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + DOWNLOAD)
+// ================================================================
+let _paymentSettings = {};
+let _paymentOrderTotalUSD = 0;
+let _pendingCheckoutData = null;
+
+// ডিফল্ট USDT ঠিকানা (আপনার দেওয়া)
+const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
+// QR কোড ছবির পাথ (রুট ডিরেক্টরি)
+const QR_IMAGE_PATH = './Deposit USDT.jpeg';
+
+// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন (শুধু Download বাটন সহ)
+window.openQrZoom = function(imgSrc) {
+  const modal = document.getElementById('qrZoomModal');
+  const img = document.getElementById('qrZoomImage');
+  if (!modal || !img) return;
+  img.src = imgSrc || QR_IMAGE_PATH;
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeQrZoom = function() {
+  const modal = document.getElementById('qrZoomModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+// ✅ ডাউনলোড ফাংশন
+window.downloadQrImage = function() {
+  const img = document.getElementById('qrZoomImage');
+  if (!img) return;
+  const link = document.createElement('a');
+  link.href = img.src;
+  link.download = 'USDT_Deposit_QR.png';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✅ QR code downloaded!', 'success');
+};
+
+// QR জুম মোডাল HTML তৈরি (একবার)
+function renderQrZoomModal() {
+  if (document.getElementById('qrZoomModal')) return;
+  const modalHTML = `
+    <div id="qrZoomModal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] hidden" style="display:none;" onclick="if(event.target===this) window.closeQrZoom()">
+      <div class="relative max-w-[95vw] max-h-[95vh] bg-white rounded-2xl p-4 shadow-2xl overflow-hidden">
+        <button onclick="window.closeQrZoom()" class="absolute top-3 right-3 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl transition-colors">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="flex flex-col items-center">
+          <div class="relative overflow-auto flex items-center justify-center" style="max-height:80vh; max-width:90vw;">
+            <img id="qrZoomImage" src="${QR_IMAGE_PATH}" alt="QR Code" class="object-contain" style="max-width:90vw; max-height:75vh;" />
+          </div>
+          <div class="mt-3 flex items-center gap-4">
+            <button onclick="window.downloadQrImage()" class="btn-primary text-sm py-2 px-4">
+              <i class="fas fa-download"></i> Download
+            </button>
+            <button onclick="window.closeQrZoom()" class="btn-outline text-sm py-2 px-4">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+export function renderPaymentModal() {
+  // প্রথমে QR জুম মোডাল রেন্ডার
+  renderQrZoomModal();
+
+  const existing = document.getElementById('paymentModal');
+  if (existing) {
+    if (existing.dataset.version === 'v2') return;
+    existing.remove();
+    const oldForm = document.getElementById('paymentForm');
+    if (oldForm) oldForm.dataset.bound = '';
+  }
+
+  const modalHTML = `
+    <div id="paymentModal" data-version="v2" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
+      <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold text-gray-900">Complete Payment</h3>
+          <button type="button" onclick="window.closePaymentModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors" aria-label="Close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div id="paymentOrderSummary" class="mb-4 p-3 bg-blue-50 rounded-xl text-sm text-gray-700">
+          <div class="flex justify-between"><span>Order total</span><strong id="paymentTotalUSD">$0.00</strong></div>
+          <div id="paymentTotalBDTRow" class="flex justify-between mt-1 hidden"><span>Pay in BDT</span><strong id="paymentTotalBDT" class="text-green-700">৳0</strong></div>
+          <p id="paymentRateNote" class="text-xs text-gray-400 mt-1 hidden"></p>
+        </div>
+
+        <form id="paymentForm" class="space-y-4">
+          <input type="hidden" id="paymentOrderId" />
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Method *</label>
+            <select id="paymentMethodSelect" required class="form-input">
+              <option value="">Select method</option>
+              <option value="bKash">bKash</option>
+              <option value="Nagad">Nagad</option>
+              <option value="USDT">USDT (BEP20)</option>
+            </select>
+          </div>
+
+          <div id="paymentMethodDetails" class="hidden space-y-4">
+            <div id="paymentAddressBox" class="text-sm bg-gray-50 p-4 rounded-xl border border-gray-100"></div>
+            <div id="paymentHowToBox" class="text-sm bg-amber-50 p-4 rounded-xl border border-amber-100"></div>
+
+            <div id="paymentFieldsBox" class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5" id="paymentSenderLabel">Sender Number *</label>
+                <input type="text" id="paymentSenderNumber" placeholder="Number you paid from" class="form-input" />
+                <p class="text-xs text-gray-400 mt-1" id="paymentSenderHint">Your bKash/Nagad personal number</p>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Transaction ID *</label>
+                <input type="text" id="transactionId" placeholder="Enter transaction ID from the app" class="form-input" />
+              </div>
+              <button type="submit" id="paymentSubmitBtn" class="btn-primary w-full justify-center">
+                <i class="fas fa-check"></i> Confirm Payment
+              </button>
+            </div>
+          </div>
+
+          <div id="paymentError" class="text-red-500 text-sm hidden text-center p-3 bg-red-50 rounded-xl border border-red-200"></div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+  if (!document.getElementById('paymentModalStyle')) {
+    const style = document.createElement('style');
+    style.id = 'paymentModalStyle';
+    style.textContent = `
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .animate-scaleIn { animation: scaleIn 0.25s ease forwards; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const methodSelect = document.getElementById('paymentMethodSelect');
+  if (methodSelect && !methodSelect.dataset.bound) {
+    methodSelect.dataset.bound = '1';
+    methodSelect.addEventListener('change', () => window.updatePaymentMethodUI());
+  }
+
+  const paymentForm = document.getElementById('paymentForm');
+  if (paymentForm && !paymentForm.dataset.bound) {
+    paymentForm.dataset.bound = '1';
+    paymentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const pending = window._pendingCheckoutData;
+      if (!pending) {
+        showToast('Checkout data missing. Please try again.', 'error');
+        return;
+      }
+
+      const method = document.getElementById('paymentMethodSelect').value;
+      const txnId = document.getElementById('transactionId').value.trim();
+      const senderNumber = document.getElementById('paymentSenderNumber').value.trim();
+      const errorDiv = document.getElementById('paymentError');
+      errorDiv.classList.add('hidden');
+      document.querySelectorAll('#paymentForm .form-input').forEach(el => el.classList.remove('error'));
+
+      if (!method) {
+        errorDiv.textContent = '⚠️ Please select a payment method.';
+        errorDiv.classList.remove('hidden');
+        methodSelect.classList.add('error');
+        return;
+      }
+
+      // USDT validation
+      if (method === 'USDT') {
+        if (!senderNumber || senderNumber.length < 10) {
+          errorDiv.textContent = '⚠️ Please enter your valid BEP20 sender address.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('paymentSenderNumber').classList.add('error');
+          return;
+        }
+        if (!txnId || txnId.length < 5) {
+          errorDiv.textContent = '⚠️ Please enter a valid USDT transaction ID.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('transactionId').classList.add('error');
+          return;
+        }
+        // Proceed to order creation
+      } else {
+        // bKash / Nagad validation
+        if (!senderNumber) {
+          errorDiv.textContent = '⚠️ Please enter the number you paid from.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('paymentSenderNumber').classList.add('error');
+          return;
+        }
+        if (!txnId) {
+          errorDiv.textContent = '⚠️ Please enter transaction ID.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('transactionId').classList.add('error');
+          return;
+        }
+      }
+
+      if (!auth.currentUser) {
+        errorDiv.textContent = '⚠️ You are not logged in.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
+      const totalUSD = Number(_paymentOrderTotalUSD) || 0;
+      const totalBDT = Math.round(totalUSD * rate);
+
+      const btn = document.getElementById('paymentSubmitBtn');
+      setLoading(btn, true, 'Confirm Payment');
+
+      try {
+        const orderData = {
+          userId: pending.user.uid,
+          userEmail: pending.user.email,
+          items: pending.cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity || 1,
+            imageUrl: item.imageUrl || ''
+          })),
+          total: pending.total,
+          status: 'pending',
+          paymentMethod: method,
+          transactionId: txnId,
+          senderNumber: senderNumber, // For USDT this will be sender address
+          amountUSD: totalUSD,
+          amountBDT: totalBDT,
+          usdRate: rate,
+          createdAt: serverTimestamp()
+        };
+
+        // USDT-তে সেন্ডার নম্বর হিসেবে অ্যাড্রেস রাখবো, ও স্পষ্ট করার জন্য `senderAddress` ফিল্ড আলাদা রাখা ভালো, কিন্তু আমরা senderNumber-ই ব্যবহার করি
+        if (method === 'USDT') {
+          orderData.senderAddress = senderNumber; // extra field
+        }
+
+        const docRef = await addDoc(collection(db, 'orders'), orderData);
+        const orderId = docRef.id;
+
+        showToast('✅ Payment confirmed! Order placed. Admin will verify soon.', 'success');
+        window.closePaymentModal();
+        localStorage.removeItem('cart');
+        updateCartPopupUI();
+        updateCartBadge();
+        if (typeof window.toggleCart === 'function') window.toggleCart();
+        
+        window._pendingCheckoutData = null;
+        setTimeout(() => {
+          window.location.href = 'my-orders.html';
+        }, 1500);
+
+      } catch (err) {
+        console.error('Payment/Order error:', err);
+        errorDiv.textContent = '⚠️ ' + err.message;
+        errorDiv.classList.remove('hidden');
+        showToast('⚠️ ' + err.message, 'error');
+      } finally {
+        setLoading(btn, false);
+      }
+    });
+  }
+}
+
+export function openPaymentModal(data) {
+  if (!document.getElementById('paymentModal')) {
+    showToast('Payment system not ready. Please refresh.', 'error');
+    return;
+  }
+
+  window._pendingCheckoutData = data;
+  _paymentSettings = data.settings || {};
+  _paymentOrderTotalUSD = Number(data.total) || 0;
+
+  if (!(_paymentSettings.usdRate > 0)) _paymentSettings.usdRate = 125;
+  // USDT address fallback: settings থেকে না পেলে ডিফল্ট
+  if (!_paymentSettings.usdt) {
+    _paymentSettings.usdt = DEFAULT_USDT_ADDRESS;
+  }
+
+  document.getElementById('paymentOrderId').value = '';
+  document.getElementById('paymentTotalUSD').textContent = '$' + _paymentOrderTotalUSD.toFixed(2);
+  document.getElementById('paymentTotalBDTRow').classList.add('hidden');
+  document.getElementById('paymentRateNote').classList.add('hidden');
+  document.getElementById('paymentMethodDetails').classList.add('hidden');
+  document.getElementById('paymentError').classList.add('hidden');
+
+  const methodSelect = document.getElementById('paymentMethodSelect');
+  methodSelect.value = '';
+  methodSelect.classList.remove('error');
+  document.getElementById('paymentSenderNumber').value = '';
+  document.getElementById('transactionId').value = '';
+
+  document.getElementById('paymentModal').classList.remove('hidden');
+}
+window.openPaymentModal = openPaymentModal;
+
+window.closePaymentModal = function() {
+  const el = document.getElementById('paymentModal');
+  if (el) el.classList.add('hidden');
+};
+
+window.updatePaymentMethodUI = function() {
+  const method = document.getElementById('paymentMethodSelect')?.value || '';
+  const details = document.getElementById('paymentMethodDetails');
+  const addressBox = document.getElementById('paymentAddressBox');
+  const howToBox = document.getElementById('paymentHowToBox');
+  const fieldsBox = document.getElementById('paymentFieldsBox');
+  const bdtRow = document.getElementById('paymentTotalBDTRow');
+  const rateNote = document.getElementById('paymentRateNote');
+  const errorDiv = document.getElementById('paymentError');
+  if (errorDiv) errorDiv.classList.add('hidden');
+
+  if (!method) {
+    details.classList.add('hidden');
+    bdtRow.classList.add('hidden');
+    rateNote.classList.add('hidden');
+    return;
+  }
+
+  details.classList.remove('hidden');
+  const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
+  const totalUSD = Number(_paymentOrderTotalUSD) || 0;
+  const totalBDT = Math.round(totalUSD * rate);
+
+  if (method === 'bKash' || method === 'Nagad') {
+    bdtRow.classList.remove('hidden');
+    document.getElementById('paymentTotalBDT').textContent = '৳' + totalBDT.toLocaleString('en-BD');
+    rateNote.classList.remove('hidden');
+    rateNote.textContent = `Rate: 1 USD = ৳${rate} · Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
+
+    const number = method === 'bKash' ? (_paymentSettings.bkash || '') : (_paymentSettings.nagad || '');
+    const color = method === 'bKash' ? 'text-pink-600' : 'text-orange-600';
+    addressBox.innerHTML = number
+      ? `<p class="font-semibold text-gray-800 mb-1">Send money to this ${method} number:</p>
+         <p class="text-xl font-bold ${color} tracking-wide select-all">${number}</p>
+         <p class="text-xs text-gray-400 mt-1">Amount: <strong>৳${totalBDT.toLocaleString('en-BD')}</strong></p>`
+      : `<p class="text-red-500">${method} number not set. Contact admin.</p>`;
+
+    const appName = method === 'bKash' ? 'bKash' : 'Nagad';
+    const dialCode = method === 'bKash' ? '*247#' : '*167#';
+    const dialSendOption = method === 'bKash' ? '1' : '2';
+    const user = auth.currentUser;
+    const username = (user?.displayName || (user?.email ? user.email.split('@')[0] : '') || 'your username');
+    const numDisplay = number || '—';
+    const amountDisplay = '৳' + totalBDT.toLocaleString('en-BD');
+
+    howToBox.innerHTML = `
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-mobile-alt mr-1"></i> How to pay — ${appName} App</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm mb-4">
+        <li>Open the <strong>${appName}</strong> app and log in</li>
+        <li>Go to <strong>Send Money</strong></li>
+        <li>Enter number: <strong class="select-all">${numDisplay}</strong></li>
+        <li>Enter amount: <strong>${amountDisplay}</strong></li>
+        <li>In <strong>Reference</strong>, enter your username: <strong class="select-all">${username}</strong></li>
+        <li>Enter your PIN and <strong>Confirm</strong></li>
+        <li>Copy the <strong>Transaction ID</strong> and paste it below</li>
+      </ol>
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-phone-alt mr-1"></i> How to pay — Dial (USSD)</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm">
+        <li>Dial <strong class="select-all">${dialCode}</strong></li>
+        <li>Select option <strong>${dialSendOption}. Send Money</strong></li>
+        <li>Enter number: <strong class="select-all">${numDisplay}</strong></li>
+        <li>Enter amount: <strong>${amountDisplay}</strong></li>
+        <li>Enter username in reference: <strong class="select-all">${username}</strong></li>
+        <li>Enter PIN and confirm</li>
+        <li>Copy the <strong>Transaction ID</strong> and paste it below</li>
+      </ol>`;
+
+    fieldsBox.classList.remove('hidden');
+    document.getElementById('paymentSenderLabel').textContent = `Your ${method} Number *`;
+    document.getElementById('paymentSenderNumber').placeholder = `Number you sent money from`;
+    document.getElementById('paymentSenderHint').textContent = `Your personal ${method} number (sender)`;
+    document.getElementById('paymentSubmitBtn').disabled = !number;
+
+  } else if (method === 'USDT') {
+    // USDT - fully functional with QR code + Download
+    bdtRow.classList.add('hidden');
+    rateNote.classList.remove('hidden');
+    rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+
+    const usdtAddress = _paymentSettings.usdt || DEFAULT_USDT_ADDRESS;
+
+    // ✅ QR কোড দেখানো (ছবি রুট ডিরেক্টরি থেকে) – width 95%
+    addressBox.innerHTML = `
+      <p class="font-semibold text-gray-800 mb-2"><i class="fab fa-bitcoin text-yellow-500 mr-1"></i> USDT (BEP20)</p>
+      <p class="text-sm text-gray-500">Network: <strong>BSC (BEP20)</strong></p>
+      <div class="flex flex-col items-center my-2">
+        <div class="relative w-full max-w-[300px] mx-auto cursor-pointer" onclick="window.openQrZoom('${QR_IMAGE_PATH}')" title="Click to zoom">
+          <img src="${QR_IMAGE_PATH}" 
+               alt="USDT Deposit QR Code" 
+               class="w-[95%] mx-auto rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+               onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='block';" />
+          <div id="qrFallback" style="display:none;" class="text-amber-600 text-sm mt-2 text-center">
+            <i class="fas fa-exclamation-triangle"></i> QR code not available. Please copy address below.
+          </div>
+          <div class="text-center mt-1 text-xs text-blue-500">
+            <i class="fas fa-search-plus"></i> Click to zoom
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-100 p-3 rounded-xl flex items-center justify-between gap-2 break-all">
+        <code class="text-xs font-mono text-gray-800 select-all">${usdtAddress}</code>
+        <button onclick="navigator.clipboard.writeText('${usdtAddress}').then(()=>showToast('✅ Address copied!','success'))" 
+                class="text-blue-600 hover:text-blue-800 text-sm flex-shrink-0" title="Copy address">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+      </div>
+      <p class="text-xs text-gray-400 mt-2">Send exactly <strong>$${totalUSD.toFixed(2)} USDT</strong> to this address.</p>
+      <p class="text-xs text-red-400 mt-1"><i class="fas fa-exclamation-triangle"></i> Use BEP20 network only, otherwise funds may be lost.</p>
+    `;
+
+    howToBox.innerHTML = `
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-mobile-alt mr-1"></i> How to send USDT (BEP20) from Binance</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm mb-2">
+        <li>Open <strong>Binance App</strong> → Go to <strong>Wallet</strong> → <strong>Withdraw</strong></li>
+        <li>Select coin: <strong>USDT</strong></li>
+        <li>Select network: <strong>BSC (BEP20)</strong></li>
+        <li>Paste the address: <strong class="select-all">${usdtAddress}</strong></li>
+        <li>Enter amount: <strong>$${totalUSD.toFixed(2)} USDT</strong></li>
+        <li>Double‑check the network and address, then submit</li>
+        <li>Copy the <strong>Transaction ID (TXID)</strong> and your <strong>Sender Address</strong> (your BEP20 wallet) below</li>
+      </ol>
+      <p class="text-xs text-blue-600"><i class="fas fa-info-circle"></i> Need help? <a href="https://www.binance.com/en/support/faq/how-to-withdraw-cryptocurrency-from-binance-360033577672" target="_blank" class="underline">Binance withdrawal guide</a></p>
+    `;
+
+    fieldsBox.classList.remove('hidden');
+    document.getElementById('paymentSenderLabel').textContent = 'Your BEP20 Sender Address *';
+    document.getElementById('paymentSenderNumber').placeholder = '0x... your wallet address';
+    document.getElementById('paymentSenderHint').textContent = 'The BEP20 address you sent from (starts with 0x)';
+    document.getElementById('paymentSubmitBtn').disabled = false;
+  }
+};
+
+// ================================================================
+// ✅ CHECKOUT (UPDATED: No order creation, just opens modal)
+// ================================================================
+window.checkout = async function() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  if (cart.length === 0) {
+    window.showToast('🛒 Your cart is empty', 'warning');
+    return;
+  }
+
+  const user = auth.currentUser;
+  if (!user) {
+    window.showToast('⚠️ Please sign in to checkout', 'error');
+    if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
+    return;
+  }
+
+  const checkoutBtn = document.querySelector('.cart-checkout-btn');
+  if (checkoutBtn) setLoading(checkoutBtn, true, 'Processing...');
+
+  try {
+    const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
+    const settings = settingsSnap.exists() ? settingsSnap.data() : {};
+    if (!settings.usdRate || Number(settings.usdRate) <= 0) settings.usdRate = 125;
+    // USDT address fallback
+    if (!settings.usdt) {
+      settings.usdt = DEFAULT_USDT_ADDRESS;
+    }
+    if (!settings.bkash && !settings.nagad && !settings.usdt) {
+      window.showToast('⚠️ No payment methods configured. Contact admin.', 'error');
+      if (checkoutBtn) setLoading(checkoutBtn, false);
+      return;
+    }
+
+    const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    
+    const data = {
+      cart: cart,
+      total: total,
+      settings: settings,
+      user: user
+    };
+
+    openPaymentModal(data);
+    if (checkoutBtn) setLoading(checkoutBtn, false);
+  } catch (err) {
+    window.showToast('⚠️ ' + err.message, 'error');
+    if (checkoutBtn) setLoading(checkoutBtn, false);
+  }
+};
+
+// ================================================================
+// ✅ CLOUDINARY ইমেজ আপলোড
+// ================================================================
+const CLOUDINARY_CLOUD_NAME = 'zmoyykj7';
+const CLOUDINARY_UPLOAD_PRESET = 'codecurebd';
+
 export async function uploadImage(file) {
   if (!file) throw new Error('No file selected.');
-  if (file.size > 10 * 1024 * 1024) throw new Error('Image must be less than 10MB.');
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error('Image must be less than 10MB.');
+  }
 
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('upload_preset', 'codecurebd');
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
-  const response = await fetch(`https://api.cloudinary.com/v1_1/zmoyykj7/image/upload`, { method: 'POST', body: formData });
-  const data = await response.json();
-  if (data.error) throw new Error(data.error.message || 'Upload failed.');
-  return data.secure_url;
+  try {
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: formData }
+    );
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(data.error.message || 'Upload failed.');
+    }
+
+    return data.secure_url;
+  } catch (err) {
+    console.error('❌ Cloudinary Upload Error:', err);
+    throw err;
+  }
 }
 
+// ================================================================
+// ✅ SYNC CART & UPDATE CART IN FIRESTORE
+// ================================================================
 export async function syncCart(userId) {
   if (!userId) return;
   const cartRef = doc(db, 'carts', userId);
   try {
     const localCart = JSON.parse(localStorage.getItem('cart')) || [];
     const docSnap = await getDoc(cartRef);
-    let serverCart = docSnap.exists() ? (docSnap.data().items || []) : [];
+    let serverCart = [];
+    if (docSnap.exists()) {
+      serverCart = docSnap.data().items || [];
+    }
     if (localCart.length > 0) {
       await setDoc(cartRef, { items: localCart, updatedAt: new Date().toISOString() });
     } else if (serverCart.length > 0) {
@@ -801,13 +1553,17 @@ export async function syncCart(userId) {
 
 export async function updateCartInFirestore(userId, cart) {
   if (!userId) return;
+  const cartRef = doc(db, 'carts', userId);
   try {
-    await setDoc(doc(db, 'carts', userId), { items: cart, updatedAt: new Date().toISOString() });
+    await setDoc(cartRef, { items: cart, updatedAt: new Date().toISOString() });
   } catch (err) {
     console.error('Firestore cart update error:', err);
   }
 }
 
+// ================================================================
+// ✅ NAVBAR AUTH UPDATE
+// ================================================================
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
   const profileSection = document.getElementById('profile-section');
@@ -823,48 +1579,118 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (authBtns) authBtns.classList.add('hidden');
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
+    
     if (authRequiredActions) authRequiredActions.style.display = 'flex';
 
     const isAdmin = (role === 'admin');
-    if (adminLink) { adminLink.style.display = isAdmin ? '' : 'none'; adminLink.classList.toggle('hidden', !isAdmin); }
-    if (mobileAdminLink) { mobileAdminLink.style.display = isAdmin ? '' : 'none'; mobileAdminLink.classList.toggle('hidden', !isAdmin); }
+    if (adminLink) {
+      adminLink.style.display = isAdmin ? '' : 'none';
+      adminLink.classList.toggle('hidden', !isAdmin);
+    }
+    if (mobileAdminLink) {
+      mobileAdminLink.style.display = isAdmin ? '' : 'none';
+      mobileAdminLink.classList.toggle('hidden', !isAdmin);
+    }
 
-    if (!isAdmin) startAdminMessageListener(user);
-    else {
-      if (adminMessageUnsubscribe) { adminMessageUnsubscribe(); adminMessageUnsubscribe = null; }
+    if (!isAdmin) {
+      startAdminMessageListener(user);
+    } else {
+      if (adminMessageUnsubscribe) {
+        adminMessageUnsubscribe();
+        adminMessageUnsubscribe = null;
+      }
       updateNotificationBadge(0);
       updateNotificationList([]);
     }
+
   } else {
     if (authBtns) authBtns.classList.remove('hidden');
     if (profileSection) profileSection.classList.add('hidden');
     if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
     if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
-    if (adminMessageUnsubscribe) { adminMessageUnsubscribe(); adminMessageUnsubscribe = null; }
+    if (adminMessageUnsubscribe) {
+      adminMessageUnsubscribe();
+      adminMessageUnsubscribe = null;
+    }
     updateNotificationBadge(0);
     updateNotificationList([]);
+
     if (authRequiredActions) authRequiredActions.style.display = 'none';
   }
 }
 
-// Global Click & Escape Handlers
+// ================================================================
+// ✅ GLOBAL CLOSE HANDLERS FOR DROPDOWNS (Mobile optimization)
+// ================================================================
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('#searchDropdown') && !e.target.closest('[onclick*="toggleSearchDropdown"]')) {
-    document.getElementById('searchDropdown')?.classList.add('hidden');
+  // Search
+  const searchDropdown = document.getElementById('searchDropdown');
+  const searchBtn = document.querySelector('[onclick="window.toggleSearchDropdown()"]');
+  if (searchDropdown && searchBtn && !searchDropdown.classList.contains('hidden')) {
+    if (!searchBtn.contains(e.target) && !searchDropdown.contains(e.target)) {
+      searchDropdown.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+      const input = document.getElementById('searchInput');
+      if (input) input.value = '';
+      const results = document.getElementById('searchResults');
+      if (results) results.innerHTML = '';
+      searchDropdownOpen = false;
+    }
   }
-  if (!e.target.closest('#notificationDropdown') && !e.target.closest('[onclick*="toggleNotifications"]')) {
-    document.getElementById('notificationDropdown')?.classList.add('hidden');
+
+  // Notification
+  const notifDropdown = document.getElementById('notificationDropdown');
+  const notifBtn = document.querySelector('[onclick="window.toggleNotifications()"]');
+  if (notifBtn && notifDropdown && !notifDropdown.classList.contains('hidden')) {
+    if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+      notifDropdown.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+      displayMessages = [];
+    }
   }
-  if (!e.target.closest('#cartPopup') && !e.target.closest('#cartBtn')) {
-    document.getElementById('cartPopup')?.classList.add('hidden');
+
+  // Cart
+  const cartPopup = document.getElementById('cartPopup');
+  const cartBtn = document.getElementById('cartBtn');
+  if (cartBtn && cartPopup && !cartPopup.classList.contains('hidden')) {
+    if (!cartBtn.contains(e.target) && !cartPopup.contains(e.target)) {
+      cartPopup.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+    }
   }
 });
 
+// ================================================================
+// ✅ ESC KEY HANDLER (Mobile optimization)
+// ================================================================
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    document.getElementById('searchDropdown')?.classList.add('hidden');
-    document.getElementById('notificationDropdown')?.classList.add('hidden');
-    document.getElementById('cartPopup')?.classList.add('hidden');
-    document.body.classList.remove('dropdown-open');
+    const searchDropdown = document.getElementById('searchDropdown');
+    if (searchDropdown && !searchDropdown.classList.contains('hidden')) {
+      searchDropdown.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+      const input = document.getElementById('searchInput');
+      if (input) input.value = '';
+      const results = document.getElementById('searchResults');
+      if (results) results.innerHTML = '';
+      searchDropdownOpen = false;
+    }
+    const notifDropdown = document.getElementById('notificationDropdown');
+    if (notifDropdown && !notifDropdown.classList.contains('hidden')) {
+      notifDropdown.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+      displayMessages = [];
+    }
+    const cartPopup = document.getElementById('cartPopup');
+    if (cartPopup && !cartPopup.classList.contains('hidden')) {
+      cartPopup.classList.add('hidden');
+      document.body.classList.remove('dropdown-open');
+    }
+    // QR জুম মোডাল বন্ধ
+    if (document.getElementById('qrZoomModal') && !document.getElementById('qrZoomModal').classList.contains('hidden')) {
+      window.closeQrZoom();
+    }
   }
 });
+
+console.log('✅ components.js fully loaded with QR code + Download feature for USDT payment.');
