@@ -607,9 +607,7 @@ export function renderNavbar() {
 
           <!-- Profile -->
           <div id="profile-section" class="relative hidden">
-            <button class="profile-avatar w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center hover:scale-105 transition-transform shadow-md shadow-blue-500/20" id="profileAvatar">
-              U
-            </button>
+            <button class="profile-avatar w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center hover:scale-105 transition-transform shadow-md shadow-blue-500/20" id="profileAvatar">U</button>
             <div class="dropdown-menu" id="dropdownMenu">
               <a href="my-profile.html" class="hover:bg-blue-50/50"><i class="fas fa-user mr-3 text-gray-400"></i> My Profile</a>
               <a href="my-orders.html" class="hover:bg-blue-50/50"><i class="fas fa-box mr-3 text-gray-400"></i> My Orders</a>
@@ -992,7 +990,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + ZOOM)
+// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + DOWNLOAD)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
@@ -1003,7 +1001,7 @@ const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
 // QR কোড ছবির পাথ (রুট ডিরেক্টরি)
 const QR_IMAGE_PATH = './Deposit USDT.jpeg';
 
-// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন
+// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন (শুধু Download বাটন সহ)
 window.openQrZoom = function(imgSrc) {
   const modal = document.getElementById('qrZoomModal');
   const img = document.getElementById('qrZoomImage');
@@ -1012,10 +1010,6 @@ window.openQrZoom = function(imgSrc) {
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  // স্কেল রিসেট
-  img.style.transform = 'scale(1)';
-  img.style.transition = 'transform 0.3s ease';
-  window._qrZoomScale = 1;
 };
 
 window.closeQrZoom = function() {
@@ -1024,6 +1018,19 @@ window.closeQrZoom = function() {
   modal.classList.add('hidden');
   modal.style.display = 'none';
   document.body.style.overflow = '';
+};
+
+// ✅ ডাউনলোড ফাংশন
+window.downloadQrImage = function() {
+  const img = document.getElementById('qrZoomImage');
+  if (!img) return;
+  const link = document.createElement('a');
+  link.href = img.src;
+  link.download = 'USDT_Deposit_QR.png';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✅ QR code downloaded!', 'success');
 };
 
 // QR জুম মোডাল HTML তৈরি (একবার)
@@ -1037,7 +1044,7 @@ function renderQrZoomModal() {
         </button>
         <div class="flex flex-col items-center">
           <div class="relative overflow-auto flex items-center justify-center" style="max-height:80vh; max-width:90vw;">
-            <img id="qrZoomImage" src="${QR_IMAGE_PATH}" alt="QR Code Zoom" class="object-contain transition-transform duration-300 ease-out" style="max-width:90vw; max-height:75vh; cursor:zoom-in;" />
+            <img id="qrZoomImage" src="${QR_IMAGE_PATH}" alt="QR Code" class="object-contain" style="max-width:90vw; max-height:75vh;" />
           </div>
           <div class="mt-3 flex items-center gap-4">
             <button onclick="window.downloadQrImage()" class="btn-primary text-sm py-2 px-4">
@@ -1053,16 +1060,6 @@ function renderQrZoomModal() {
   `;
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
-
-// ডাউনলোড ফাংশন
-window.downloadQrImage = function() {
-  const img = document.getElementById('qrZoomImage');
-  if (!img) return;
-  const link = document.createElement('a');
-  link.download = 'USDT_Deposit_QR.png';
-  link.href = img.src;
-  link.click();
-};
 
 export function renderPaymentModal() {
   // প্রথমে QR জুম মোডাল রেন্ডার
@@ -1386,7 +1383,7 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSubmitBtn').disabled = !number;
 
   } else if (method === 'USDT') {
-    // USDT - fully functional with QR code + zoom
+    // USDT - fully functional with QR code + Download
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
     rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
@@ -1565,9 +1562,9 @@ export async function updateCartInFirestore(userId, cart) {
 }
 
 // ================================================================
-// ✅ NAVBAR AUTH UPDATE (with photoURL support - FIXED with <img>)
+// ✅ NAVBAR AUTH UPDATE
 // ================================================================
-export function updateNavbarAuth(user, displayName, role = null, photoURL = null) {
+export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
   const profileSection = document.getElementById('profile-section');
   const loadingEl = document.getElementById('auth-loading');
@@ -1581,24 +1578,7 @@ export function updateNavbarAuth(user, displayName, role = null, photoURL = null
   if (user) {
     if (authBtns) authBtns.classList.add('hidden');
     if (profileSection) profileSection.classList.remove('hidden');
-    
-    // ✅ FIX: photoURL থাকলে <img> বসান, না হলে টেক্সট
-    if (avatar) {
-      if (photoURL && photoURL.trim() !== '') {
-        // বাটনের ভেতরে img বসান – পুরনো কন্টেন্ট ক্লিয়ার করে
-        avatar.innerHTML = `<img src="${photoURL}" alt="Profile" class="w-full h-full rounded-full object-cover" />`;
-        avatar.style.backgroundImage = 'none';
-        avatar.style.backgroundSize = '';
-        avatar.style.backgroundPosition = '';
-        avatar.textContent = '';
-      } else {
-        avatar.innerHTML = '';
-        avatar.style.backgroundImage = '';
-        avatar.style.backgroundSize = '';
-        avatar.style.backgroundPosition = '';
-        avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
-      }
-    }
+    if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
     
     if (authRequiredActions) authRequiredActions.style.display = 'flex';
 
@@ -1634,6 +1614,7 @@ export function updateNavbarAuth(user, displayName, role = null, photoURL = null
     }
     updateNotificationBadge(0);
     updateNotificationList([]);
+
     if (authRequiredActions) authRequiredActions.style.display = 'none';
   }
 }
@@ -1712,4 +1693,4 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('✅ components.js fully loaded with navbar profile picture support (using <img>).');
+console.log('✅ components.js fully loaded with QR code + Download feature for USDT payment.');
