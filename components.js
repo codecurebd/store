@@ -1,13 +1,322 @@
 // components.js
-import { 
-  auth, onAuthStateChanged, signOut, db, doc, getDoc, setDoc,
-  updateDoc, serverTimestamp, collection, addDoc, query, where, onSnapshot,
-  deleteDoc, getDocs
+// ================================================================
+// 🚀 OPTIMIZED: Code splitting, lazy loading, cached DOM refs
+// ================================================================
+
+import {
+  auth,
+  onAuthStateChanged,
+  signOut,
+  db,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
+  collection,
+  addDoc,
+  query,
+  where,
+  onSnapshot,
+  deleteDoc,
+  getDocs,
 } from './firebase-config.js';
 
-// ================================================================
-// ✅ নোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা (Realtime)
-// ================================================================
+// ─── CACHED DOM REFS ─────────────────────────────────────────────
+let _toastContainer = null;
+let _cartBadge = null;
+let _searchDropdown = null;
+let _searchInput = null;
+let _searchResults = null;
+let _notificationBadge = null;
+let _notificationList = null;
+let _notificationDropdown = null;
+
+function getToastContainer() {
+  if (!_toastContainer) _toastContainer = document.getElementById('toast-container');
+  return _toastContainer;
+}
+function getCartBadge() {
+  if (!_cartBadge) _cartBadge = document.getElementById('cartCount');
+  return _cartBadge;
+}
+function getSearchDropdown() {
+  if (!_searchDropdown) _searchDropdown = document.getElementById('searchDropdown');
+  return _searchDropdown;
+}
+function getSearchInput() {
+  if (!_searchInput) _searchInput = document.getElementById('searchInput');
+  return _searchInput;
+}
+function getSearchResults() {
+  if (!_searchResults) _searchResults = document.getElementById('searchResults');
+  return _searchResults;
+}
+function getNotificationBadge() {
+  if (!_notificationBadge) _notificationBadge = document.getElementById('notificationBadge');
+  return _notificationBadge;
+}
+function getNotificationList() {
+  if (!_notificationList) _notificationList = document.getElementById('notificationList');
+  return _notificationList;
+}
+function getNotificationDropdown() {
+  if (!_notificationDropdown) _notificationDropdown = document.getElementById('notificationDropdown');
+  return _notificationDropdown;
+}
+
+// ─── TOAST SYSTEM ──────────────────────────────────────────────────
+export function showToast(message, type = 'success') {
+  const container = getToastContainer();
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  const icons = {
+    success: 'fa-check-circle',
+    error: 'fa-exclamation-circle',
+    warning: 'fa-exclamation-triangle',
+    info: 'fa-info-circle',
+  };
+  const colors = {
+    success: '#34C759',
+    error: '#FF3B30',
+    warning: '#FF9500',
+    info: '#007AFF',
+  };
+
+  toast.className = `toast ${type}`;
+  toast.style.cssText = `
+    padding: 14px 20px; border-radius: 16px;
+    background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.8);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    font-size: 0.9rem; font-weight: 500; color: #1c1c1e;
+    transform: translateX(calc(100% + 30px));
+    animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    display: flex; align-items: center; gap: 12px;
+    pointer-events: auto; border-left: 4px solid ${colors[type] || '#007AFF'};
+    width: 100%;
+  `;
+  toast.innerHTML = `
+    <i class="fas ${icons[type] || icons.success}" style="font-size:1.2rem; color:${colors[type] || '#007AFF'}; flex-shrink:0;"></i>
+    <span style="flex:1;">${message}</span>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8e8e93;cursor:pointer;font-size:1rem;">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = 'slideOut 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+    setTimeout(() => toast.remove(), 400);
+  }, 4500);
+}
+window.showToast = showToast;
+
+// ─── LOADING BUTTON ───────────────────────────────────────────────
+export function setLoading(button, isLoading, originalText = null) {
+  if (!button) return;
+  if (isLoading) {
+    button.disabled = true;
+    button._originalText = originalText || button.innerHTML;
+    button.innerHTML = `<span class="spinner"></span> Loading...`;
+  } else {
+    button.disabled = false;
+    if (button._originalText) {
+      button.innerHTML = button._originalText;
+      delete button._originalText;
+    }
+  }
+}
+
+// ─── CART BADGE UPDATE ────────────────────────────────────────────
+export function updateCartBadge() {
+  const badge = getCartBadge();
+  if (!badge) return;
+  try {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    badge.textContent = totalQty;
+    badge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
+  } catch (e) {
+    badge.textContent = '0';
+    badge.style.display = 'none';
+  }
+}
+
+// ─── CART POPUP UI ────────────────────────────────────────────────
+let _cartPopupRendered = false;
+
+export function renderCartPopup() {
+  const container = document.getElementById('cartPopupContainer');
+  if (!container) return;
+  if (_cartPopupRendered) {
+    updateCartPopupUI();
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="cart-popup hidden" id="cartPopup">
+      <div class="cart-popup-header">
+        <span class="cart-popup-title"><i class="fas fa-shopping-bag mr-2"></i> Your Cart</span>
+      </div>
+      <div id="cartPopupItems" class="cart-popup-items">
+        <div class="cart-empty">Your cart is empty.</div>
+      </div>
+      <div class="cart-popup-footer">
+        <div class="cart-popup-total">
+          <span>Total:</span>
+          <span id="cartPopupTotal">$0</span>
+        </div>
+        <button onclick="window.cartCheckout()" class="btn-primary w-full justify-center cart-checkout-btn">
+          <i class="fas fa-lock"></i> Checkout
+        </button>
+      </div>
+    </div>
+  `;
+  _cartPopupRendered = true;
+  updateCartPopupUI();
+}
+
+function updateCartPopupUI() {
+  const itemsContainer = document.getElementById('cartPopupItems');
+  const totalEl = document.getElementById('cartPopupTotal');
+  if (!itemsContainer || !totalEl) return;
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  if (cart.length === 0) {
+    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
+    totalEl.textContent = '$0';
+    return;
+  }
+
+  let total = 0;
+  let html = '';
+  cart.forEach((item, index) => {
+    const qty = item.quantity || 1;
+    const price = item.price || 0;
+    const subtotal = qty * price;
+    total += subtotal;
+    html += `
+      <div class="cart-popup-item">
+        <div class="cart-item-info">
+          <span class="cart-item-name">${item.name}</span>
+          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
+        </div>
+        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+  });
+  itemsContainer.innerHTML = html;
+  totalEl.textContent = `$${total.toFixed(2)}`;
+}
+
+export function toggleCart() {
+  const popup = document.getElementById('cartPopup');
+  if (!popup) return;
+  const isOpening = popup.classList.contains('hidden');
+  if (isOpening) {
+    popup.classList.remove('hidden');
+    document.body.classList.add('dropdown-open');
+    updateCartPopupUI();
+  } else {
+    popup.classList.add('hidden');
+    document.body.classList.remove('dropdown-open');
+  }
+}
+window.toggleCart = toggleCart;
+
+window.removeFromCart = function(index) {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  cart.splice(index, 1);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartPopupUI();
+  updateCartBadge();
+  const user = auth.currentUser;
+  if (user) {
+    updateCartInFirestore(user.uid, cart);
+  }
+};
+
+window.cartCheckout = function() {
+  const popup = document.getElementById('cartPopup');
+  if (popup) popup.classList.add('hidden');
+  document.body.classList.remove('dropdown-open');
+  if (typeof window.checkout === 'function') {
+    window.checkout();
+  } else {
+    window.location.href = 'get-new-website.html?checkout=1';
+  }
+};
+
+// ─── ADD TO CART (global) ────────────────────────────────────────
+window.addToCart = async function(productId, productName, productPrice, productImage = '') {
+  if (!productId || !productName) {
+    showToast('⚠️ Product information missing.', 'error');
+    return;
+  }
+
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const existing = cart.find(item => item.id === productId);
+  if (existing) {
+    existing.quantity = (existing.quantity || 1) + 1;
+  } else {
+    cart.push({
+      id: productId,
+      name: productName,
+      price: productPrice || 0,
+      imageUrl: productImage || '',
+      quantity: 1,
+    });
+  }
+
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartBadge();
+  updateCartPopupUI();
+
+  const user = auth.currentUser;
+  if (user) {
+    await updateCartInFirestore(user.uid, cart);
+  }
+  showToast(`✅ "${productName}" added to cart`, 'success');
+};
+
+// ─── SYNC CART WITH FIRESTORE ────────────────────────────────────
+export async function syncCart(userId) {
+  if (!userId) return;
+  const cartRef = doc(db, 'carts', userId);
+  try {
+    const localCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const docSnap = await getDoc(cartRef);
+    let serverCart = [];
+    if (docSnap.exists()) {
+      serverCart = docSnap.data().items || [];
+    }
+    if (localCart.length > 0) {
+      await setDoc(cartRef, { items: localCart, updatedAt: new Date().toISOString() });
+    } else if (serverCart.length > 0) {
+      localStorage.setItem('cart', JSON.stringify(serverCart));
+      updateCartBadge();
+      updateCartPopupUI();
+    }
+  } catch (err) {
+    console.error('Cart sync error:', err);
+  }
+}
+
+export async function updateCartInFirestore(userId, cart) {
+  if (!userId) return;
+  const cartRef = doc(db, 'carts', userId);
+  try {
+    await setDoc(cartRef, { items: cart, updatedAt: new Date().toISOString() });
+  } catch (err) {
+    console.error('Firestore cart update error:', err);
+  }
+}
+
+// ─── NOTIFICATIONS (Admin messages) ──────────────────────────────
 let unreadAdminMessages = [];
 let displayMessages = [];
 let adminMessageUnsubscribe = null;
@@ -17,7 +326,6 @@ function startAdminMessageListener(user) {
     adminMessageUnsubscribe();
     adminMessageUnsubscribe = null;
   }
-
   if (!user) {
     updateNotificationBadge(0);
     updateNotificationList([]);
@@ -38,7 +346,7 @@ function startAdminMessageListener(user) {
     });
     updateNotificationBadge(unreadAdminMessages.length);
     if (displayMessages.length > 0) {
-      // ড্রপডাউন খোলা থাকলে নতুন মেসেজ যোগ করি না (পরে দেখাবে)
+      // already showing
     } else {
       updateNotificationList(unreadAdminMessages);
     }
@@ -48,7 +356,7 @@ function startAdminMessageListener(user) {
 }
 
 function updateNotificationBadge(count) {
-  const badge = document.getElementById('notificationBadge');
+  const badge = getNotificationBadge();
   if (!badge) return;
   if (count > 0) {
     badge.textContent = count > 99 ? '99+' : count;
@@ -59,7 +367,7 @@ function updateNotificationBadge(count) {
 }
 
 function updateNotificationList(messages) {
-  const list = document.getElementById('notificationList');
+  const list = getNotificationList();
   if (!list) return;
 
   if (!messages || messages.length === 0) {
@@ -91,20 +399,15 @@ function updateNotificationList(messages) {
   if (messages.length > 10) {
     html += `<a href="messages.html" class="block px-4 py-2 text-center text-sm text-blue-600 hover:bg-gray-50">View all ${messages.length} messages</a>`;
   }
-
   list.innerHTML = html;
 }
 
 async function markAllAdminMessagesRead() {
   const user = auth.currentUser;
   if (!user || unreadAdminMessages.length === 0) return;
-
   try {
     const promises = unreadAdminMessages.map((msg) =>
-      updateDoc(doc(db, 'messages', msg.id), {
-        read: true,
-        readAt: serverTimestamp(),
-      })
+      updateDoc(doc(db, 'messages', msg.id), { read: true, readAt: serverTimestamp() })
     );
     await Promise.all(promises);
   } catch (err) {
@@ -112,11 +415,8 @@ async function markAllAdminMessagesRead() {
   }
 }
 
-// ================================================================
-// ✅ NOTIFICATION TOGGLE (Mobile-optimized)
-// ================================================================
 window.toggleNotifications = function() {
-  const dropdown = document.getElementById('notificationDropdown');
+  const dropdown = getNotificationDropdown();
   if (!dropdown) return;
   const isOpening = dropdown.classList.contains('hidden');
   if (isOpening) {
@@ -133,128 +433,64 @@ window.toggleNotifications = function() {
   }
 };
 
-// ================================================================
-// ✅ TOAST NOTIFICATION
-// ================================================================
-window.showToast = function(message, type = 'success') {
-  let container = document.getElementById('toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toast-container';
-    container.style.cssText = `
-      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-      display: flex; flex-direction: column; gap: 12px;
-      max-width: 420px; width: 100%; pointer-events: none;
-    `;
-    document.body.appendChild(container);
-  }
+// ─── NAVBAR AUTH UPDATE ───────────────────────────────────────────
+export function updateNavbarAuth(user, displayName, role = null) {
+  const authBtns = document.getElementById('auth-buttons');
+  const profileSection = document.getElementById('profile-section');
+  const loadingEl = document.getElementById('auth-loading');
+  const avatar = document.getElementById('profileAvatar');
+  const adminLink = document.getElementById('adminPanelLink');
+  const mobileAdminLink = document.getElementById('mobileAdminPanelLink');
+  const authRequiredActions = document.getElementById('authRequiredActions');
 
-  const toast = document.createElement('div');
-  const icons = { 
-    success: 'fa-check-circle', 
-    error: 'fa-exclamation-circle', 
-    warning: 'fa-exclamation-triangle',
-    info: 'fa-info-circle'
-  };
-  const colors = {
-    success: '#34C759',
-    error: '#FF3B30',
-    warning: '#FF9500',
-    info: '#007AFF'
-  };
+  if (loadingEl) loadingEl.style.display = 'none';
 
-  toast.className = `toast ${type}`;
-  toast.style.cssText = `
-    padding: 16px 20px; border-radius: 16px;
-    background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.8);
-    box-shadow: 0 12px 48px rgba(0,0,0,0.12);
-    font-size: 0.95rem; font-weight: 500; color: #1c1c1e;
-    transform: translateX(calc(100% + 40px));
-    animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    display: flex; align-items: center; gap: 14px;
-    pointer-events: auto; border-left: 4px solid ${colors[type] || '#007AFF'};
-    width: 100%;
-  `;
-  toast.innerHTML = `
-    <i class="fas ${icons[type] || icons.success}" style="font-size:1.3rem; color:${colors[type] || '#007AFF'}; flex-shrink:0;"></i>
-    <span style="flex:1;">${message}</span>
-    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8e8e93;cursor:pointer;font-size:1.1rem;">
-      <i class="fas fa-times"></i>
-    </button>
-  `;
-  container.appendChild(toast);
+  if (user) {
+    if (authBtns) authBtns.classList.add('hidden');
+    if (profileSection) profileSection.classList.remove('hidden');
+    if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
+    if (authRequiredActions) authRequiredActions.style.display = 'flex';
 
-  setTimeout(() => {
-    toast.style.animation = 'slideOut 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
-    setTimeout(() => toast.remove(), 450);
-  }, 4500);
-};
+    const isAdmin = (role === 'admin');
+    if (adminLink) {
+      adminLink.style.display = isAdmin ? '' : 'none';
+      adminLink.classList.toggle('hidden', !isAdmin);
+    }
+    if (mobileAdminLink) {
+      mobileAdminLink.style.display = isAdmin ? '' : 'none';
+      mobileAdminLink.classList.toggle('hidden', !isAdmin);
+    }
 
-const toastStyles = document.createElement('style');
-toastStyles.textContent = `
-  @keyframes slideIn {
-    to { transform: translateX(0); }
-  }
-  @keyframes slideOut {
-    to { transform: translateX(calc(100% + 40px)); opacity: 0; }
-  }
-`;
-document.head.appendChild(toastStyles);
-
-// ================================================================
-// ✅ CART BADGE (রিয়েল-টাইম আপডেটের জন্য পৃথক ফাংশন)
-// ================================================================
-export function updateCartBadge() {
-  const cartBadge = document.getElementById('cartCount');
-  if (!cartBadge) {
-    console.warn('⚠️ cartCount element not found in DOM');
-    return;
-  }
-  try {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-    cartBadge.textContent = totalQty;
-    cartBadge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
-    console.log('✅ Badge updated to:', totalQty);
-  } catch (e) {
-    cartBadge.textContent = '0';
-    cartBadge.style.display = 'none';
-    console.error('Badge update error:', e);
+    if (!isAdmin) {
+      startAdminMessageListener(user);
+    } else {
+      if (adminMessageUnsubscribe) {
+        adminMessageUnsubscribe();
+        adminMessageUnsubscribe = null;
+      }
+      updateNotificationBadge(0);
+      updateNotificationList([]);
+    }
+  } else {
+    if (authBtns) authBtns.classList.remove('hidden');
+    if (profileSection) profileSection.classList.add('hidden');
+    if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
+    if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
+    if (adminMessageUnsubscribe) {
+      adminMessageUnsubscribe();
+      adminMessageUnsubscribe = null;
+    }
+    updateNotificationBadge(0);
+    updateNotificationList([]);
+    if (authRequiredActions) authRequiredActions.style.display = 'none';
   }
 }
 
-// ================================================================
-// ✅ MOBILE MENU TOGGLE
-// ================================================================
-window.toggleMobileMenu = function() {
-  const menu = document.getElementById('mobileMenu');
-  const icon = document.getElementById('hamburgerIcon');
-  if (menu) {
-    const isOpen = !menu.classList.contains('hidden');
-    menu.classList.toggle('hidden');
-    if (icon) {
-      icon.classList.toggle('fa-bars');
-      icon.classList.toggle('fa-times');
-    }
-    if (!isOpen) {
-      menu.style.maxHeight = '0';
-      menu.style.opacity = '0';
-      setTimeout(() => {
-        menu.style.maxHeight = '500px';
-        menu.style.opacity = '1';
-      }, 10);
-    } else {
-      menu.style.maxHeight = '0';
-      menu.style.opacity = '0';
-    }
-  }
-};
+// ─── CONTACT MODAL (lazy rendered) ──────────────────────────────
+let _contactModalRendered = false;
 
-// ================================================================
-// ✅ CONTACT MODAL (NEW)
-// ================================================================
 function renderContactModal() {
+  if (_contactModalRendered) return;
   if (document.getElementById('contactModal')) return;
 
   const modalHTML = `
@@ -288,10 +524,9 @@ function renderContactModal() {
       </div>
     </div>
   `;
-
   document.body.insertAdjacentHTML('beforeend', modalHTML);
+  _contactModalRendered = true;
 
-  // Add form submit handler
   const form = document.getElementById('contactModalForm');
   const submitBtn = document.getElementById('contactModalSubmitBtn');
   const errorDiv = document.getElementById('contactModalError');
@@ -311,36 +546,29 @@ function renderContactModal() {
     setLoading(submitBtn, true, 'Sending...');
 
     try {
-      await addDoc(collection(db, 'contactMessages'), {
-        name,
-        email,
-        message,
-        timestamp: serverTimestamp(),
-      });
-      window.showToast('✅ Message sent! We\'ll get back to you soon.', 'success');
+      await addDoc(collection(db, 'contactMessages'), { name, email, message, timestamp: serverTimestamp() });
+      showToast('✅ Message sent! We\'ll get back to you soon.', 'success');
       form.reset();
       window.closeContactModal();
     } catch (err) {
       errorDiv.textContent = err.message;
       errorDiv.classList.remove('hidden');
-      window.showToast('⚠️ Failed to send message. Please try again.', 'error');
+      showToast('⚠️ Failed to send message. Please try again.', 'error');
     } finally {
       setLoading(submitBtn, false);
     }
   });
 
-  // Close on overlay click
   document.getElementById('contactModal').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) window.closeContactModal();
   });
-
-  // Close on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') window.closeContactModal();
   });
 }
 
 window.openContactModal = function() {
+  renderContactModal();
   const modal = document.getElementById('contactModal');
   if (modal) {
     modal.classList.remove('hidden');
@@ -353,15 +581,11 @@ window.closeContactModal = function() {
   if (modal) modal.classList.add('hidden');
 };
 
-// ================================================================
-// ✅ HANDLE CONTACT CLICK (Smart: scroll on index, modal elsewhere)
-// ================================================================
 window.handleContactClick = function(e) {
   e.preventDefault();
-  const isIndexPage = window.location.pathname.endsWith('index.html') || 
-                       window.location.pathname === '/' || 
-                       window.location.pathname.endsWith('/');
-  
+  const isIndexPage = window.location.pathname.endsWith('index.html') ||
+    window.location.pathname === '/' ||
+    window.location.pathname.endsWith('/');
   if (isIndexPage) {
     const contactSection = document.getElementById('contact');
     if (contactSection) {
@@ -374,37 +598,10 @@ window.handleContactClick = function(e) {
   }
 };
 
-// ================================================================
-// ✅ SEARCH DROPDOWN (Products Search - Mobile-optimized)
-// ================================================================
-let searchDropdownOpen = false;
+// ─── SEARCH DROPDOWN (lazy load products) ────────────────────────
 let searchProducts = [];
 let searchUnsubscribe = null;
-
-function toggleSearchDropdown() {
-  const dropdown = document.getElementById('searchDropdown');
-  if (!dropdown) return;
-  const isOpening = dropdown.classList.contains('hidden');
-  if (isOpening) {
-    dropdown.classList.remove('hidden');
-    document.body.classList.add('dropdown-open');
-    setTimeout(() => {
-      const input = document.getElementById('searchInput');
-      if (input) input.focus();
-    }, 100);
-    if (searchProducts.length === 0) {
-      loadSearchProducts();
-    }
-  } else {
-    dropdown.classList.add('hidden');
-    document.body.classList.remove('dropdown-open');
-    const results = document.getElementById('searchResults');
-    if (results) results.innerHTML = '';
-    const input = document.getElementById('searchInput');
-    if (input) input.value = '';
-  }
-  searchDropdownOpen = !isOpening;
-}
+let searchDropdownOpen = false;
 
 function loadSearchProducts() {
   if (searchUnsubscribe) {
@@ -416,8 +613,7 @@ function loadSearchProducts() {
     snapshot.forEach(doc => {
       searchProducts.push({ id: doc.id, ...doc.data() });
     });
-    // If dropdown is open and there's a query, re-render
-    const input = document.getElementById('searchInput');
+    const input = getSearchInput();
     if (input && input.value.trim().length > 0) {
       performSearch(input.value.trim());
     }
@@ -427,7 +623,7 @@ function loadSearchProducts() {
 }
 
 function performSearch(query) {
-  const resultsContainer = document.getElementById('searchResults');
+  const resultsContainer = getSearchResults();
   if (!resultsContainer) return;
   if (!query || query.trim().length === 0) {
     resultsContainer.innerHTML = `<div class="p-4 text-sm text-gray-400 text-center">Type to search products...</div>`;
@@ -470,9 +666,32 @@ function performSearch(query) {
   resultsContainer.innerHTML = html;
 }
 
-// ================================================================
-// ✅ LANDING NAVBAR: transparent at top, glass on scroll
-// ================================================================
+window.toggleSearchDropdown = function() {
+  const dropdown = getSearchDropdown();
+  if (!dropdown) return;
+  const isOpening = dropdown.classList.contains('hidden');
+  if (isOpening) {
+    dropdown.classList.remove('hidden');
+    document.body.classList.add('dropdown-open');
+    setTimeout(() => {
+      const input = getSearchInput();
+      if (input) input.focus();
+    }, 100);
+    if (searchProducts.length === 0) {
+      loadSearchProducts();
+    }
+  } else {
+    dropdown.classList.add('hidden');
+    document.body.classList.remove('dropdown-open');
+    const results = getSearchResults();
+    if (results) results.innerHTML = '';
+    const input = getSearchInput();
+    if (input) input.value = '';
+  }
+  searchDropdownOpen = !isOpening;
+};
+
+// ─── NAVBAR SETUP (Landing transparent + scroll) ─────────────────
 function setupLandingNavbar() {
   const nav = document.getElementById('mainNavbar');
   if (!nav) return;
@@ -483,7 +702,6 @@ function setupLandingNavbar() {
     window.location.pathname.endsWith('/') ||
     window.location.pathname === '';
 
-  // Other pages always keep solid glass navbar
   if (!isIndexPage) {
     nav.classList.remove('nav-transparent');
     nav.classList.add('nav-solid');
@@ -491,7 +709,6 @@ function setupLandingNavbar() {
   }
 
   const SCROLL_THRESHOLD = 40;
-
   const updateNav = () => {
     if (window.scrollY > SCROLL_THRESHOLD) {
       nav.classList.remove('nav-transparent');
@@ -502,17 +719,13 @@ function setupLandingNavbar() {
     }
   };
 
-  // Initial state (top of page) — remove solid glass look
   nav.classList.remove('nav-solid', 'glass', 'shadow-sm', 'border-b', 'border-gray-100/30');
   nav.classList.add('nav-transparent');
   updateNav();
-
   window.addEventListener('scroll', updateNav, { passive: true });
 }
 
-// ================================================================
-// ✅ NAVBAR (সম্পূর্ণ নতুন, সার্চ ড্রপডাউন সহ)
-// ================================================================
+// ─── RENDER NAVBAR ─────────────────────────────────────────────────
 export function renderNavbar() {
   renderContactModal();
 
@@ -524,7 +737,7 @@ export function renderNavbar() {
           <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
           <span class="logo-text tracking-tight">CodeCure<span class="gradient-text">BD</span></span>
         </a>
-        
+
         <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-1 lg:gap-2">
           <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
@@ -535,8 +748,8 @@ export function renderNavbar() {
 
         <!-- Right Actions -->
         <div class="flex items-center gap-2 md:gap-3">
-          
-          <!-- ===== SEARCH DROPDOWN ===== -->
+
+          <!-- Search -->
           <div class="relative">
             <button onclick="window.toggleSearchDropdown()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Search products">
               <i class="fas fa-search"></i>
@@ -557,24 +770,21 @@ export function renderNavbar() {
             </div>
           </div>
 
-          <!-- ===== CART (always visible) ===== -->
+          <!-- Cart -->
           <div class="relative">
             <button id="cartBtn" onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
               <i class="fas fa-shopping-cart"></i>
               <span id="cartCount" class="cart-badge" style="display:none;">0</span>
             </button>
-            <!-- Cart Popup (rendered by renderCartPopup) -->
             <div id="cartPopupContainer"></div>
           </div>
 
-          <!-- ===== NOTIFICATIONS (only visible when signed in) ===== -->
+          <!-- Notifications (signed in) -->
           <div id="authRequiredActions" class="flex items-center gap-2 md:gap-3" style="display:none;">
             <div class="relative">
               <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" aria-label="Notifications">
                 <i class="fas fa-bell"></i>
-                <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden">
-                  0
-                </span>
+                <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden">0</span>
               </button>
               <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 hidden max-h-[70vh] overflow-y-auto z-50">
                 <div class="p-4 font-semibold border-b text-gray-900 flex items-center justify-between">
@@ -590,7 +800,7 @@ export function renderNavbar() {
               </div>
             </div>
           </div>
-          
+
           <!-- Auth Loading -->
           <div id="auth-loading" class="flex items-center gap-2">
             <div class="w-16 h-8 bg-gray-200 rounded-full animate-pulse"></div>
@@ -609,11 +819,11 @@ export function renderNavbar() {
           <div id="profile-section" class="relative hidden">
             <button class="profile-avatar w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center hover:scale-105 transition-transform shadow-md shadow-blue-500/20" id="profileAvatar">U</button>
             <div class="dropdown-menu" id="dropdownMenu">
-              <a href="my-profile.html" class="hover:bg-blue-50/50"><i class="fas fa-user mr-3 text-gray-400"></i> My Profile</a>
-              <a href="my-orders.html" class="hover:bg-blue-50/50"><i class="fas fa-box mr-3 text-gray-400"></i> My Orders</a>
-              <a href="my-fix-requests.html" class="hover:bg-blue-50/50"><i class="fas fa-tools mr-3 text-gray-400"></i> Fix Requests</a>
-              <a href="messages.html" class="hover:bg-blue-50/50"><i class="fas fa-comment-dots mr-3 text-gray-400"></i> Support Chat</a>
-              <a href="settings.html" class="hover:bg-blue-50/50"><i class="fas fa-cog mr-3 text-gray-400"></i> Settings</a>
+              <a href="my-profile.html"><i class="fas fa-user mr-3 text-gray-400"></i> My Profile</a>
+              <a href="my-orders.html"><i class="fas fa-box mr-3 text-gray-400"></i> My Orders</a>
+              <a href="my-fix-requests.html"><i class="fas fa-tools mr-3 text-gray-400"></i> Fix Requests</a>
+              <a href="messages.html"><i class="fas fa-comment-dots mr-3 text-gray-400"></i> Support Chat</a>
+              <a href="settings.html"><i class="fas fa-cog mr-3 text-gray-400"></i> Settings</a>
               <a href="admin-panel.html" id="adminPanelLink" class="hidden hover:bg-blue-50/50"><i class="fas fa-shield-alt mr-3 text-blue-500"></i> Admin Panel</a>
               <hr class="my-1 border-gray-100" />
               <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50/50"><i class="fas fa-sign-out-alt mr-3 text-red-400"></i> Logout</a>
@@ -645,7 +855,7 @@ export function renderNavbar() {
       </div>
     </div>
   `;
-  
+
   const placeholder = document.getElementById('navbar-placeholder');
   if (placeholder) {
     placeholder.innerHTML = navbarHTML;
@@ -653,7 +863,6 @@ export function renderNavbar() {
     console.error('❌ navbar-placeholder not found!');
   }
 
-  // ===== Landing page: transparent navbar at top, glass on scroll =====
   setupLandingNavbar();
 
   // Profile dropdown toggle
@@ -665,29 +874,25 @@ export function renderNavbar() {
       dropdown.classList.toggle('show');
     });
   }
-
   document.addEventListener('click', (e) => {
     if (avatar && !avatar.contains(e.target) && !dropdown.contains(e.target)) {
       dropdown.classList.remove('show');
     }
   });
 
-  // ✅ Search input listener
-  const searchInput = document.getElementById('searchInput');
+  // Search input listener
+  const searchInput = getSearchInput();
   if (searchInput) {
     searchInput.addEventListener('input', function() {
       performSearch(this.value);
     });
-    // Also trigger search on Enter key (though input event is enough)
     searchInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
-        // If there are results, first result click or redirect to store page with query
         const firstResult = document.querySelector('#searchResults a');
         if (firstResult) {
           firstResult.click();
         } else {
-          // Redirect to store page with search query
           const query = this.value.trim();
           if (query) {
             window.location.href = `get-new-website.html?search=${encodeURIComponent(query)}`;
@@ -697,177 +902,52 @@ export function renderNavbar() {
     });
   }
 
-  // ✅ Badge আপডেট (পেজ লোড হলে)
   updateCartBadge();
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      syncCart(user.uid);
-    }
-  });
-  
   renderCartPopup();
 
-  // Load search products on first interaction
-  if (searchProducts.length === 0) {
-    // Lazy load: will load when dropdown opens
-  }
-
-  // ===== SEARCH TOGGLE FUNCTION (exposed globally) =====
-  window.toggleSearchDropdown = toggleSearchDropdown;
-
-  // Cleanup search listener on page unload
+  // Cleanup search listener on unload
   window.addEventListener('beforeunload', () => {
     if (searchUnsubscribe) {
       searchUnsubscribe();
       searchUnsubscribe = null;
     }
   });
+
+  // Expose toggleSearchDropdown globally
+  window.toggleSearchDropdown = window.toggleSearchDropdown || function() {};
 }
 
-// ================================================================
-// ✅ CART POPUP (replaces sidebar - Mobile-optimized)
-// ================================================================
-let cartPopupRendered = false;
-
-export function renderCartPopup() {
-  const container = document.getElementById('cartPopupContainer');
-  if (!container) return;
-  
-  if (cartPopupRendered) {
-    updateCartPopupUI();
-    return;
-  }
-
-  const popupHTML = `
-    <div class="cart-popup hidden" id="cartPopup">
-      <div class="cart-popup-header">
-        <span class="cart-popup-title"><i class="fas fa-shopping-bag mr-2"></i> Your Cart</span>
-      </div>
-      <div id="cartPopupItems" class="cart-popup-items">
-        <div class="cart-empty">Your cart is empty.</div>
-      </div>
-      <div class="cart-popup-footer">
-        <div class="cart-popup-total">
-          <span>Total:</span>
-          <span id="cartPopupTotal">$0</span>
-        </div>
-        <button onclick="window.cartCheckout()" class="btn-primary w-full justify-center cart-checkout-btn">
-          <i class="fas fa-lock"></i> Checkout
-        </button>
-      </div>
-    </div>
-  `;
-
-  container.innerHTML = popupHTML;
-  cartPopupRendered = true;
-  updateCartPopupUI();
-
-  // ✅ Outside click + cart button toggle close system (set up only once) - but now handled globally below
-}
-
-// ================================================================
-// ✅ CART TOGGLE (popup - Mobile-optimized)
-// ================================================================
-export function toggleCart() {
-  const popup = document.getElementById('cartPopup');
-  if (!popup) return;
-  const isOpening = popup.classList.contains('hidden');
-  if (isOpening) {
-    popup.classList.remove('hidden');
-    document.body.classList.add('dropdown-open');
-    updateCartPopupUI();
-  } else {
-    popup.classList.add('hidden');
-    document.body.classList.remove('dropdown-open');
-  }
-}
-window.toggleCart = toggleCart;
-
-// ================================================================
-// ✅ REMOVE FROM CART
-// ================================================================
-window.removeFromCart = function(index) {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  cart.splice(index, 1);
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartPopupUI();
-  updateCartBadge();
-  const user = auth.currentUser;
-  if (user) {
-    updateCartInFirestore(user.uid, cart);
+// ─── MOBILE MENU ───────────────────────────────────────────────────
+window.toggleMobileMenu = function() {
+  const menu = document.getElementById('mobileMenu');
+  const icon = document.getElementById('hamburgerIcon');
+  if (menu) {
+    const isOpen = !menu.classList.contains('hidden');
+    menu.classList.toggle('hidden');
+    if (icon) {
+      icon.classList.toggle('fa-bars');
+      icon.classList.toggle('fa-times');
+    }
+    if (!isOpen) {
+      menu.style.maxHeight = '0';
+      menu.style.opacity = '0';
+      setTimeout(() => {
+        menu.style.maxHeight = '500px';
+        menu.style.opacity = '1';
+      }, 10);
+    } else {
+      menu.style.maxHeight = '0';
+      menu.style.opacity = '0';
+    }
   }
 };
 
-// ================================================================
-// ✅ CHECKOUT (closes popup and proceeds)
-// ================================================================
-window.cartCheckout = function() {
-  const popup = document.getElementById('cartPopup');
-  if (popup) popup.classList.add('hidden');
-  document.body.classList.remove('dropdown-open');
-  if (typeof window.checkout === 'function') {
-    window.checkout();
-  } else {
-    window.location.href = 'get-new-website.html?checkout=1';
-  }
-};
-
-// ================================================================
-// ✅ GLOBAL addToCart (রিয়েল-টাইম ব্যাজ আপডেট সহ + ফোর্স আপডেট)
-// ================================================================
-window.addToCart = async function(productId, productName, productPrice, productImage = '') {
-  console.log('🛒 addToCart called:', productId, productName, productPrice);
-  
-  if (!productId || !productName) {
-    window.showToast('⚠️ Product information missing.', 'error');
-    return;
-  }
-
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const existing = cart.find(item => item.id === productId);
-  if (existing) {
-    existing.quantity = (existing.quantity || 1) + 1;
-  } else {
-    cart.push({
-      id: productId,
-      name: productName,
-      price: productPrice || 0,
-      imageUrl: productImage || '',
-      quantity: 1
-    });
-  }
-
-  localStorage.setItem('cart', JSON.stringify(cart));
-
-  // ✅ রিয়েল-টাইমে ব্যাজ আপডেট (ফোর্সড)
-  updateCartBadge();
-  updateCartPopupUI();
-
-  // ✅ ফোর্স আপডেট: ১০০ms পরে আবার চেক করি (যদি DOM রেডি না থাকে)
-  setTimeout(() => {
-    updateCartBadge();
-    updateCartPopupUI();
-  }, 100);
-
-  // Sync with Firestore if logged in
-  const user = auth.currentUser;
-  if (user) {
-    await updateCartInFirestore(user.uid, cart);
-  }
-
-  window.showToast(`✅ "${productName}" added to cart`, 'success');
-};
-
-// ================================================================
-// ✅ FOOTER (সম্পূর্ণ নতুন, পেশাদার ও সঠিক লেআউট - টেক্সট অ্যালাইনমেন্ট ঠিক করা)
-// ================================================================
+// ─── FOOTER ────────────────────────────────────────────────────────
 export function renderFooter() {
   const footerHTML = `
     <footer class="glass border-t border-gray-200/30 py-12 px-6 sm:px-8 lg:px-12 mt-auto">
       <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <!-- Brand -->
           <div class="text-center md:text-left">
             <div class="flex items-center justify-center md:justify-start gap-2">
               <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
@@ -875,7 +955,6 @@ export function renderFooter() {
             </div>
             <p class="text-sm text-gray-500 mt-2 max-w-xs mx-auto md:mx-0">Professional web development, fixing, and maintenance – tailored for your business.</p>
           </div>
-          <!-- Quick Links (Text left aligned on desktop) -->
           <div class="text-center md:text-left">
             <h4 class="font-semibold text-gray-700 mb-3">Quick Links</h4>
             <div class="space-y-1 text-sm">
@@ -885,7 +964,6 @@ export function renderFooter() {
               <a href="messages.html" class="block hover:text-blue-600 transition-colors">Support Chat</a>
             </div>
           </div>
-          <!-- Contact Info (Text left aligned on desktop) -->
           <div class="text-center md:text-left">
             <h4 class="font-semibold text-gray-700 mb-3">Contact</h4>
             <div class="space-y-1 text-sm text-gray-500">
@@ -898,7 +976,6 @@ export function renderFooter() {
               <span class="block"><i class="fas fa-map-marker-alt mr-2 w-4"></i> Dhaka, Bangladesh</span>
             </div>
           </div>
-          <!-- Social (Center aligned) -->
           <div class="text-center">
             <h4 class="font-semibold text-gray-700 mb-3">Follow Us</h4>
             <div class="flex flex-wrap justify-center gap-3">
@@ -922,118 +999,14 @@ export function renderFooter() {
   }
 }
 
-// ================================================================
-// ✅ BACKWARD COMPATIBILITY: renderCartSidebar & updateCartUI
-// ================================================================
-export function renderCartSidebar() {
-  // পুরোনো sidebar-এর বদলে popup রেন্ডার করা হচ্ছে
-  if (!cartPopupRendered) renderCartPopup();
-}
-
-export function updateCartUI() {
-  // popup-এর UI আপডেট
-  updateCartPopupUI();
-}
-
-function updateCartPopupUI() {
-  const itemsContainer = document.getElementById('cartPopupItems');
-  const totalEl = document.getElementById('cartPopupTotal');
-  if (!itemsContainer || !totalEl) return;
-
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  if (cart.length === 0) {
-    itemsContainer.innerHTML = `<div class="cart-empty">Your cart is empty.</div>`;
-    totalEl.textContent = '$0';
-    return;
-  }
-
-  let total = 0;
-  let html = '';
-  cart.forEach((item, index) => {
-    const qty = item.quantity || 1;
-    const price = item.price || 0;
-    const subtotal = qty * price;
-    total += subtotal;
-    html += `
-      <div class="cart-popup-item">
-        <div class="cart-item-info">
-          <span class="cart-item-name">${item.name}</span>
-          <span class="cart-item-price">$${subtotal.toFixed(2)}</span>
-        </div>
-        <button onclick="window.removeFromCart(${index})" class="cart-item-remove" title="Remove item">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    `;
-  });
-
-  itemsContainer.innerHTML = html;
-  totalEl.textContent = `$${total.toFixed(2)}`;
-}
-
-// ================================================================
-// ✅ LOADING BUTTON
-// ================================================================
-export function setLoading(button, isLoading, originalText = null) {
-  if (!button) return;
-  if (isLoading) {
-    button.disabled = true;
-    button._originalText = originalText || button.innerHTML;
-    button.innerHTML = `<span class="spinner"></span> Loading...`;
-  } else {
-    button.disabled = false;
-    if (button._originalText) {
-      button.innerHTML = button._originalText;
-      delete button._originalText;
-    }
-  }
-}
-
-// ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + DOWNLOAD)
-// ================================================================
+// ─── PAYMENT MODAL (Lazy loaded – only when needed) ──────────────
+let _paymentModalRendered = false;
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
 let _pendingCheckoutData = null;
-
-// ডিফল্ট USDT ঠিকানা (আপনার দেওয়া)
 const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
-// QR কোড ছবির পাথ (রুট ডিরেক্টরি)
 const QR_IMAGE_PATH = './Deposit USDT.jpeg';
 
-// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন (শুধু Download বাটন সহ)
-window.openQrZoom = function(imgSrc) {
-  const modal = document.getElementById('qrZoomModal');
-  const img = document.getElementById('qrZoomImage');
-  if (!modal || !img) return;
-  img.src = imgSrc || QR_IMAGE_PATH;
-  modal.classList.remove('hidden');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-};
-
-window.closeQrZoom = function() {
-  const modal = document.getElementById('qrZoomModal');
-  if (!modal) return;
-  modal.classList.add('hidden');
-  modal.style.display = 'none';
-  document.body.style.overflow = '';
-};
-
-// ✅ ডাউনলোড ফাংশন
-window.downloadQrImage = function() {
-  const img = document.getElementById('qrZoomImage');
-  if (!img) return;
-  const link = document.createElement('a');
-  link.href = img.src;
-  link.download = 'USDT_Deposit_QR.png';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showToast('✅ QR code downloaded!', 'success');
-};
-
-// QR জুম মোডাল HTML তৈরি (একবার)
 function renderQrZoomModal() {
   if (document.getElementById('qrZoomModal')) return;
   const modalHTML = `
@@ -1061,8 +1034,36 @@ function renderQrZoomModal() {
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
+window.openQrZoom = function(imgSrc) {
+  const modal = document.getElementById('qrZoomModal');
+  const img = document.getElementById('qrZoomImage');
+  if (!modal || !img) return;
+  img.src = imgSrc || QR_IMAGE_PATH;
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+window.closeQrZoom = function() {
+  const modal = document.getElementById('qrZoomModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+};
+window.downloadQrImage = function() {
+  const img = document.getElementById('qrZoomImage');
+  if (!img) return;
+  const link = document.createElement('a');
+  link.href = img.src;
+  link.download = 'USDT_Deposit_QR.png';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✅ QR code downloaded!', 'success');
+};
+
 export function renderPaymentModal() {
-  // প্রথমে QR জুম মোডাল রেন্ডার
+  if (_paymentModalRendered) return;
   renderQrZoomModal();
 
   const existing = document.getElementById('paymentModal');
@@ -1127,6 +1128,7 @@ export function renderPaymentModal() {
     </div>
   `;
   document.body.insertAdjacentHTML('beforeend', modalHTML);
+  _paymentModalRendered = true;
 
   if (!document.getElementById('paymentModalStyle')) {
     const style = document.createElement('style');
@@ -1152,7 +1154,7 @@ export function renderPaymentModal() {
     paymentForm.dataset.bound = '1';
     paymentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const pending = window._pendingCheckoutData;
       if (!pending) {
         showToast('Checkout data missing. Please try again.', 'error');
@@ -1173,7 +1175,6 @@ export function renderPaymentModal() {
         return;
       }
 
-      // USDT validation
       if (method === 'USDT') {
         if (!senderNumber || senderNumber.length < 10) {
           errorDiv.textContent = '⚠️ Please enter your valid BEP20 sender address.';
@@ -1187,9 +1188,7 @@ export function renderPaymentModal() {
           document.getElementById('transactionId').classList.add('error');
           return;
         }
-        // Proceed to order creation
       } else {
-        // bKash / Nagad validation
         if (!senderNumber) {
           errorDiv.textContent = '⚠️ Please enter the number you paid from.';
           errorDiv.classList.remove('hidden');
@@ -1232,16 +1231,15 @@ export function renderPaymentModal() {
           status: 'pending',
           paymentMethod: method,
           transactionId: txnId,
-          senderNumber: senderNumber, // For USDT this will be sender address
+          senderNumber: senderNumber,
           amountUSD: totalUSD,
           amountBDT: totalBDT,
           usdRate: rate,
           createdAt: serverTimestamp()
         };
 
-        // USDT-তে সেন্ডার নম্বর হিসেবে অ্যাড্রেস রাখবো, ও স্পষ্ট করার জন্য `senderAddress` ফিল্ড আলাদা রাখা ভালো, কিন্তু আমরা senderNumber-ই ব্যবহার করি
         if (method === 'USDT') {
-          orderData.senderAddress = senderNumber; // extra field
+          orderData.senderAddress = senderNumber;
         }
 
         const docRef = await addDoc(collection(db, 'orders'), orderData);
@@ -1253,7 +1251,7 @@ export function renderPaymentModal() {
         updateCartPopupUI();
         updateCartBadge();
         if (typeof window.toggleCart === 'function') window.toggleCart();
-        
+
         window._pendingCheckoutData = null;
         setTimeout(() => {
           window.location.href = 'my-orders.html';
@@ -1271,7 +1269,7 @@ export function renderPaymentModal() {
   }
 }
 
-export function openPaymentModal(data) {
+window.openPaymentModal = function(data) {
   if (!document.getElementById('paymentModal')) {
     showToast('Payment system not ready. Please refresh.', 'error');
     return;
@@ -1282,7 +1280,6 @@ export function openPaymentModal(data) {
   _paymentOrderTotalUSD = Number(data.total) || 0;
 
   if (!(_paymentSettings.usdRate > 0)) _paymentSettings.usdRate = 125;
-  // USDT address fallback: settings থেকে না পেলে ডিফল্ট
   if (!_paymentSettings.usdt) {
     _paymentSettings.usdt = DEFAULT_USDT_ADDRESS;
   }
@@ -1301,8 +1298,7 @@ export function openPaymentModal(data) {
   document.getElementById('transactionId').value = '';
 
   document.getElementById('paymentModal').classList.remove('hidden');
-}
-window.openPaymentModal = openPaymentModal;
+};
 
 window.closePaymentModal = function() {
   const el = document.getElementById('paymentModal');
@@ -1383,14 +1379,12 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSubmitBtn').disabled = !number;
 
   } else if (method === 'USDT') {
-    // USDT - fully functional with QR code + Download
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
     rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
 
     const usdtAddress = _paymentSettings.usdt || DEFAULT_USDT_ADDRESS;
 
-    // ✅ QR কোড দেখানো (ছবি রুট ডিরেক্টরি থেকে) – width 95%
     addressBox.innerHTML = `
       <p class="font-semibold text-gray-800 mb-2"><i class="fab fa-bitcoin text-yellow-500 mr-1"></i> USDT (BEP20)</p>
       <p class="text-sm text-gray-500">Network: <strong>BSC (BEP20)</strong></p>
@@ -1441,19 +1435,17 @@ window.updatePaymentMethodUI = function() {
   }
 };
 
-// ================================================================
-// ✅ CHECKOUT (UPDATED: No order creation, just opens modal)
-// ================================================================
+// ─── CHECKOUT (opens payment modal) ──────────────────────────────
 window.checkout = async function() {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   if (cart.length === 0) {
-    window.showToast('🛒 Your cart is empty', 'warning');
+    showToast('🛒 Your cart is empty', 'warning');
     return;
   }
 
   const user = auth.currentUser;
   if (!user) {
-    window.showToast('⚠️ Please sign in to checkout', 'error');
+    showToast('⚠️ Please sign in to checkout', 'error');
     if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
     return;
   }
@@ -1465,18 +1457,17 @@ window.checkout = async function() {
     const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
     const settings = settingsSnap.exists() ? settingsSnap.data() : {};
     if (!settings.usdRate || Number(settings.usdRate) <= 0) settings.usdRate = 125;
-    // USDT address fallback
     if (!settings.usdt) {
       settings.usdt = DEFAULT_USDT_ADDRESS;
     }
     if (!settings.bkash && !settings.nagad && !settings.usdt) {
-      window.showToast('⚠️ No payment methods configured. Contact admin.', 'error');
+      showToast('⚠️ No payment methods configured. Contact admin.', 'error');
       if (checkoutBtn) setLoading(checkoutBtn, false);
       return;
     }
 
     const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    
+
     const data = {
       cart: cart,
       total: total,
@@ -1484,17 +1475,15 @@ window.checkout = async function() {
       user: user
     };
 
-    openPaymentModal(data);
+    window.openPaymentModal(data);
     if (checkoutBtn) setLoading(checkoutBtn, false);
   } catch (err) {
-    window.showToast('⚠️ ' + err.message, 'error');
+    showToast('⚠️ ' + err.message, 'error');
     if (checkoutBtn) setLoading(checkoutBtn, false);
   }
 };
 
-// ================================================================
-// ✅ CLOUDINARY ইমেজ আপলোড
-// ================================================================
+// ─── CLOUDINARY IMAGE UPLOAD ──────────────────────────────────────
 const CLOUDINARY_CLOUD_NAME = 'zmoyykj7';
 const CLOUDINARY_UPLOAD_PRESET = 'codecurebd';
 
@@ -1518,7 +1507,6 @@ export async function uploadImage(file) {
     if (data.error) {
       throw new Error(data.error.message || 'Upload failed.');
     }
-
     return data.secure_url;
   } catch (err) {
     console.error('❌ Cloudinary Upload Error:', err);
@@ -1526,120 +1514,25 @@ export async function uploadImage(file) {
   }
 }
 
-// ================================================================
-// ✅ SYNC CART & UPDATE CART IN FIRESTORE
-// ================================================================
-export async function syncCart(userId) {
-  if (!userId) return;
-  const cartRef = doc(db, 'carts', userId);
-  try {
-    const localCart = JSON.parse(localStorage.getItem('cart')) || [];
-    const docSnap = await getDoc(cartRef);
-    let serverCart = [];
-    if (docSnap.exists()) {
-      serverCart = docSnap.data().items || [];
-    }
-    if (localCart.length > 0) {
-      await setDoc(cartRef, { items: localCart, updatedAt: new Date().toISOString() });
-    } else if (serverCart.length > 0) {
-      localStorage.setItem('cart', JSON.stringify(serverCart));
-      updateCartBadge();
-      updateCartPopupUI();
-    }
-  } catch (err) {
-    console.error('Cart sync error:', err);
-  }
-}
-
-export async function updateCartInFirestore(userId, cart) {
-  if (!userId) return;
-  const cartRef = doc(db, 'carts', userId);
-  try {
-    await setDoc(cartRef, { items: cart, updatedAt: new Date().toISOString() });
-  } catch (err) {
-    console.error('Firestore cart update error:', err);
-  }
-}
-
-// ================================================================
-// ✅ NAVBAR AUTH UPDATE
-// ================================================================
-export function updateNavbarAuth(user, displayName, role = null) {
-  const authBtns = document.getElementById('auth-buttons');
-  const profileSection = document.getElementById('profile-section');
-  const loadingEl = document.getElementById('auth-loading');
-  const avatar = document.getElementById('profileAvatar');
-  const adminLink = document.getElementById('adminPanelLink');
-  const mobileAdminLink = document.getElementById('mobileAdminPanelLink');
-  const authRequiredActions = document.getElementById('authRequiredActions');
-
-  if (loadingEl) loadingEl.style.display = 'none';
-
-  if (user) {
-    if (authBtns) authBtns.classList.add('hidden');
-    if (profileSection) profileSection.classList.remove('hidden');
-    if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
-    
-    if (authRequiredActions) authRequiredActions.style.display = 'flex';
-
-    const isAdmin = (role === 'admin');
-    if (adminLink) {
-      adminLink.style.display = isAdmin ? '' : 'none';
-      adminLink.classList.toggle('hidden', !isAdmin);
-    }
-    if (mobileAdminLink) {
-      mobileAdminLink.style.display = isAdmin ? '' : 'none';
-      mobileAdminLink.classList.toggle('hidden', !isAdmin);
-    }
-
-    if (!isAdmin) {
-      startAdminMessageListener(user);
-    } else {
-      if (adminMessageUnsubscribe) {
-        adminMessageUnsubscribe();
-        adminMessageUnsubscribe = null;
-      }
-      updateNotificationBadge(0);
-      updateNotificationList([]);
-    }
-
-  } else {
-    if (authBtns) authBtns.classList.remove('hidden');
-    if (profileSection) profileSection.classList.add('hidden');
-    if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
-    if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
-    if (adminMessageUnsubscribe) {
-      adminMessageUnsubscribe();
-      adminMessageUnsubscribe = null;
-    }
-    updateNotificationBadge(0);
-    updateNotificationList([]);
-
-    if (authRequiredActions) authRequiredActions.style.display = 'none';
-  }
-}
-
-// ================================================================
-// ✅ GLOBAL CLOSE HANDLERS FOR DROPDOWNS (Mobile optimization)
-// ================================================================
+// ─── GLOBAL CLOSE HANDLERS ────────────────────────────────────────
 document.addEventListener('click', (e) => {
   // Search
-  const searchDropdown = document.getElementById('searchDropdown');
+  const searchDropdown = getSearchDropdown();
   const searchBtn = document.querySelector('[onclick="window.toggleSearchDropdown()"]');
   if (searchDropdown && searchBtn && !searchDropdown.classList.contains('hidden')) {
     if (!searchBtn.contains(e.target) && !searchDropdown.contains(e.target)) {
       searchDropdown.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
-      const input = document.getElementById('searchInput');
+      const input = getSearchInput();
       if (input) input.value = '';
-      const results = document.getElementById('searchResults');
+      const results = getSearchResults();
       if (results) results.innerHTML = '';
       searchDropdownOpen = false;
     }
   }
 
   // Notification
-  const notifDropdown = document.getElementById('notificationDropdown');
+  const notifDropdown = getNotificationDropdown();
   const notifBtn = document.querySelector('[onclick="window.toggleNotifications()"]');
   if (notifBtn && notifDropdown && !notifDropdown.classList.contains('hidden')) {
     if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
@@ -1660,22 +1553,19 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ================================================================
-// ✅ ESC KEY HANDLER (Mobile optimization)
-// ================================================================
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    const searchDropdown = document.getElementById('searchDropdown');
+    const searchDropdown = getSearchDropdown();
     if (searchDropdown && !searchDropdown.classList.contains('hidden')) {
       searchDropdown.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
-      const input = document.getElementById('searchInput');
+      const input = getSearchInput();
       if (input) input.value = '';
-      const results = document.getElementById('searchResults');
+      const results = getSearchResults();
       if (results) results.innerHTML = '';
       searchDropdownOpen = false;
     }
-    const notifDropdown = document.getElementById('notificationDropdown');
+    const notifDropdown = getNotificationDropdown();
     if (notifDropdown && !notifDropdown.classList.contains('hidden')) {
       notifDropdown.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
@@ -1686,11 +1576,18 @@ document.addEventListener('keydown', (e) => {
       cartPopup.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
     }
-    // QR জুম মোডাল বন্ধ
     if (document.getElementById('qrZoomModal') && !document.getElementById('qrZoomModal').classList.contains('hidden')) {
       window.closeQrZoom();
     }
   }
 });
 
-console.log('✅ components.js fully loaded with QR code + Download feature for USDT payment.');
+// ─── BACKWARD COMPATIBILITY ───────────────────────────────────────
+export function renderCartSidebar() {
+  if (!_cartPopupRendered) renderCartPopup();
+}
+export function updateCartUI() {
+  updateCartPopupUI();
+}
+
+console.log('✅ components.js optimized and loaded');
