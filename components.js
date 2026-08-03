@@ -1,4 +1,4 @@
-// components.js (Optimized)
+// components.js (Fixed & Optimized)
 import { 
   auth, onAuthStateChanged, signOut, db, doc, getDoc, setDoc,
   updateDoc, serverTimestamp, collection, addDoc, query, where, onSnapshot,
@@ -23,7 +23,7 @@ let _pendingCheckoutData = null;
 const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
 const QR_IMAGE_PATH = './Deposit USDT.jpeg';
 
-// স্টাইল ডাইনামিক ইনজেকশন একবার করার জন্য
+// গ্লোবাল স্টাইল ইনজেকশন
 const injectGlobalStyles = () => {
   if (document.getElementById('optimized-global-styles')) return;
   const style = document.createElement('style');
@@ -33,6 +33,20 @@ const injectGlobalStyles = () => {
     @keyframes slideOut { to { transform: translateX(calc(100% + 40px)); opacity: 0; } }
     @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     .animate-scaleIn { animation: scaleIn 0.25s ease forwards; }
+    
+    /* Landing Navbar Transition Fixes */
+    .nav-transparent {
+      background-color: transparent !important;
+      backdrop-filter: none !important;
+      box-shadow: none !important;
+      border-bottom-color: transparent !important;
+    }
+    .nav-solid {
+      background: rgba(255, 255, 255, 0.9) !important;
+      backdrop-filter: blur(12px) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+      border-bottom-color: rgba(229, 231, 235, 0.5) !important;
+    }
   `;
   document.head.appendChild(style);
 };
@@ -394,7 +408,7 @@ function performSearch(queryText) {
 }
 
 // ================================================================
-// ✅ NAVBAR SETUP
+// ✅ NAVBAR SETUP (Fixed Landing Visibility Bug)
 // ================================================================
 function setupLandingNavbar() {
   const nav = document.getElementById('mainNavbar');
@@ -402,34 +416,181 @@ function setupLandingNavbar() {
 
   const isIndexPage = ['/', '', '/index.html'].some(path => window.location.pathname.endsWith(path));
   if (!isIndexPage) {
-    nav.classList.replace('nav-transparent', 'nav-solid');
+    nav.classList.remove('nav-transparent');
+    nav.classList.add('nav-solid');
     return;
   }
 
   const updateNav = () => {
-    const scrolled = window.scrollY > 40;
-    nav.classList.toggle('nav-solid', scrolled);
-    nav.classList.toggle('nav-transparent', !scrolled);
+    if (window.scrollY > 40) {
+      nav.classList.remove('nav-transparent');
+      nav.classList.add('nav-solid');
+    } else {
+      nav.classList.remove('nav-solid');
+      nav.classList.add('nav-transparent');
+    }
   };
 
-  nav.classList.remove('nav-solid', 'glass', 'shadow-sm', 'border-b', 'border-gray-100/30');
-  nav.classList.add('nav-transparent');
   updateNav();
-
   window.addEventListener('scroll', updateNav, { passive: true });
 }
 
 export function renderNavbar() {
   renderContactModal();
-  // Navbar HTML structure remains robust as designed
-  // (Omitted full template string here for brevity, keep original renderNavbar HTML)
-  setupLandingNavbar();
-  updateCartBadge();
-  renderCartPopup();
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) syncCart(user.uid);
-  });
+  const navbarHTML = `
+    <nav id="mainNavbar" class="fixed top-0 left-0 w-full z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 transition-all duration-300 ease-out nav-transparent">
+      <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
+          <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
+          <span class="logo-text tracking-tight">CodeCure<span class="gradient-text">BD</span></span>
+        </a>
+        
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-center gap-1 lg:gap-2">
+          <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
+          <a href="get-new-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Store</a>
+          <a href="fix-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Fix</a>
+          <a href="#" onclick="window.handleContactClick(event)" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Contact</a>
+        </div>
+
+        <!-- Right Actions -->
+        <div class="flex items-center gap-2 md:gap-3">
+          
+          <!-- SEARCH DROPDOWN -->
+          <div class="relative">
+            <button onclick="window.toggleSearchDropdown()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Search products">
+              <i class="fas fa-search"></i>
+            </button>
+            <div id="searchDropdown" class="absolute right-0 mt-2 w-96 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 hidden z-50 overflow-hidden">
+              <div class="p-4 border-b border-gray-100">
+                <div class="relative">
+                  <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <input type="text" id="searchInput" placeholder="Search products..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm" autocomplete="off" />
+                </div>
+              </div>
+              <div id="searchResults" class="max-h-[350px] overflow-y-auto">
+                <div class="p-4 text-sm text-gray-400 text-center">Type to search products...</div>
+              </div>
+              <div class="p-2 border-t border-gray-100">
+                <a href="get-new-website.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">Browse all products →</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- CART -->
+          <div class="relative">
+            <button id="cartBtn" onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
+              <i class="fas fa-shopping-cart"></i>
+              <span id="cartCount" class="cart-badge" style="display:none;">0</span>
+            </button>
+            <div id="cartPopupContainer"></div>
+          </div>
+
+          <!-- NOTIFICATIONS -->
+          <div id="authRequiredActions" class="flex items-center gap-2 md:gap-3" style="display:none;">
+            <div class="relative">
+              <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+                <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden">0</span>
+              </button>
+              <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 hidden max-h-[70vh] overflow-y-auto z-50">
+                <div class="p-4 font-semibold border-b text-gray-900 flex items-center justify-between">
+                  <span><i class="fas fa-bell mr-2 text-blue-500"></i>Notifications</span>
+                  <span class="text-xs font-normal text-gray-400" id="notifCountLabel">0 new</span>
+                </div>
+                <div id="notificationList" class="divide-y divide-gray-50">
+                  <div class="p-4 text-sm text-gray-500 text-center">Loading...</div>
+                </div>
+                <div class="p-2 border-t">
+                  <a href="messages.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">View all messages</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Auth Loading -->
+          <div id="auth-loading" class="flex items-center gap-2">
+            <div class="w-16 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+            <div class="w-24 h-10 bg-gray-200 rounded-full animate-pulse hidden md:block"></div>
+          </div>
+
+          <!-- Auth Buttons -->
+          <div id="auth-buttons" class="hidden flex items-center gap-2">
+            <button onclick="window.openAuthModal('signin')" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-blue-50/50">Sign In</button>
+            <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30">
+              <i class="fas fa-rocket text-xs"></i> Get Started
+            </button>
+          </div>
+
+          <!-- Profile -->
+          <div id="profile-section" class="relative hidden">
+            <button class="profile-avatar w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center hover:scale-105 transition-transform shadow-md shadow-blue-500/20" id="profileAvatar">U</button>
+            <div class="dropdown-menu" id="dropdownMenu">
+              <a href="my-profile.html" class="hover:bg-blue-50/50"><i class="fas fa-user mr-3 text-gray-400"></i> My Profile</a>
+              <a href="my-orders.html" class="hover:bg-blue-50/50"><i class="fas fa-box mr-3 text-gray-400"></i> My Orders</a>
+              <a href="my-fix-requests.html" class="hover:bg-blue-50/50"><i class="fas fa-tools mr-3 text-gray-400"></i> Fix Requests</a>
+              <a href="messages.html" class="hover:bg-blue-50/50"><i class="fas fa-comment-dots mr-3 text-gray-400"></i> Support Chat</a>
+              <a href="settings.html" class="hover:bg-blue-50/50"><i class="fas fa-cog mr-3 text-gray-400"></i> Settings</a>
+              <a href="admin-panel.html" id="adminPanelLink" class="hidden hover:bg-blue-50/50"><i class="fas fa-shield-alt mr-3 text-blue-500"></i> Admin Panel</a>
+              <hr class="my-1 border-gray-100" />
+              <a href="#" onclick="window.handleLogout()" class="text-red-500 hover:bg-red-50/50"><i class="fas fa-sign-out-alt mr-3 text-red-400"></i> Logout</a>
+            </div>
+          </div>
+
+          <!-- Hamburger -->
+          <button onclick="window.toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-700 text-2xl transition-colors" aria-label="Toggle menu">
+            <i class="fas fa-bars" id="hamburgerIcon"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
+      <div class="flex flex-col p-4 gap-1">
+        <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
+        <a href="get-new-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Store</a>
+        <a href="fix-website.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Fix</a>
+        <a href="#" onclick="window.handleContactClick(event)" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Contact</a>
+        <hr class="my-2 border-gray-100" />
+        <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
+        <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
+        <a href="my-fix-requests.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-tools mr-3"></i> Fix Requests</a>
+        <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-comment-dots mr-3"></i> Support Chat</a>
+        <a href="admin-panel.html" id="mobileAdminPanelLink" class="hidden nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-blue-600 transition-colors"><i class="fas fa-shield-alt mr-3"></i> Admin Panel</a>
+        <a href="#" onclick="window.handleLogout()" class="nav-link py-3 px-4 rounded-xl hover:bg-red-50/50 font-medium text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
+      </div>
+    </div>
+  `;
+  
+  const placeholder = document.getElementById('navbar-placeholder');
+  if (placeholder) {
+    placeholder.innerHTML = navbarHTML;
+  }
+
+  setupLandingNavbar();
+
+  const avatar = document.getElementById('profileAvatar');
+  const dropdown = document.getElementById('dropdownMenu');
+  if (avatar && dropdown) {
+    avatar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
+  }
+
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      performSearch(this.value);
+    });
+  }
+
+  updateCartBadge();
+  onAuthStateChanged(auth, (user) => { if (user) syncCart(user.uid); });
+  renderCartPopup();
 
   window.toggleSearchDropdown = toggleSearchDropdown;
 }
@@ -541,9 +702,53 @@ function updateCartPopupUI() {
 // ✅ FOOTER & UTILS
 // ================================================================
 export function renderFooter() {
+  const footerHTML = `
+    <footer class="glass border-t border-gray-200/30 py-12 px-6 sm:px-8 lg:px-12 mt-auto">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div class="text-center md:text-left">
+            <div class="flex items-center justify-center md:justify-start gap-2">
+              <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
+              <span class="font-bold text-xl text-gray-800">CodeCure<span class="gradient-text">BD</span></span>
+            </div>
+            <p class="text-sm text-gray-500 mt-2 max-w-xs mx-auto md:mx-0">Professional web development, fixing, and maintenance – tailored for your business.</p>
+          </div>
+          <div class="text-center md:text-left">
+            <h4 class="font-semibold text-gray-700 mb-3">Quick Links</h4>
+            <div class="space-y-1 text-sm">
+              <a href="index.html" class="block hover:text-blue-600 transition-colors">Home</a>
+              <a href="get-new-website.html" class="block hover:text-blue-600 transition-colors">Store</a>
+              <a href="fix-website.html" class="block hover:text-blue-600 transition-colors">Fix</a>
+              <a href="messages.html" class="block hover:text-blue-600 transition-colors">Support Chat</a>
+            </div>
+          </div>
+          <div class="text-center md:text-left">
+            <h4 class="font-semibold text-gray-700 mb-3">Contact</h4>
+            <div class="space-y-1 text-sm text-gray-500">
+              <a href="mailto:nopqrshov337@gmail.com" class="block hover:text-blue-600 transition-colors"><i class="fas fa-envelope mr-2 w-4"></i> nopqrshov337@gmail.com</a>
+              <a href="tel:+8801350141762" class="block hover:text-blue-600 transition-colors"><i class="fas fa-phone mr-2 w-4"></i> +880 1350-141762</a>
+              <span class="block"><i class="fas fa-map-marker-alt mr-2 w-4"></i> Dhaka, Bangladesh</span>
+            </div>
+          </div>
+          <div class="text-center">
+            <h4 class="font-semibold text-gray-700 mb-3">Follow Us</h4>
+            <div class="flex flex-wrap justify-center gap-3">
+              <a href="https://github.com/shovon337" target="_blank" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
+              <a href="https://www.linkedin.com/in/shovon-s-mind-67aa4b260/" target="_blank" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              <a href="https://www.facebook.com/profile.php?id=61592614590327" target="_blank" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a href="https://www.instagram.com/codecurebd/" target="_blank" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+              <a href="https://www.youtube.com/channel/UCstUaZ9xdqqjaAz3zkO6XJQ" target="_blank" class="social-icon" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-gray-200/30 mt-8 pt-6 text-center text-sm text-gray-400">
+          &copy; 2026 CodeCureBD. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  `;
   const placeholder = document.getElementById('footer-placeholder');
-  if (!placeholder) return;
-  // Standard Footer HTML
+  if (placeholder) placeholder.innerHTML = footerHTML;
 }
 
 export function setLoading(button, isLoading, originalText = null) {
@@ -561,11 +766,89 @@ export function setLoading(button, isLoading, originalText = null) {
   }
 }
 
-// ================================================================
-// ✅ GLOBAL EVENT LISTENERS (Optimized Single Delegation)
-// ================================================================
+export async function uploadImage(file) {
+  if (!file) throw new Error('No file selected.');
+  if (file.size > 10 * 1024 * 1024) throw new Error('Image must be less than 10MB.');
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'codecurebd');
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/zmoyykj7/image/upload`, { method: 'POST', body: formData });
+  const data = await response.json();
+  if (data.error) throw new Error(data.error.message || 'Upload failed.');
+  return data.secure_url;
+}
+
+export async function syncCart(userId) {
+  if (!userId) return;
+  const cartRef = doc(db, 'carts', userId);
+  try {
+    const localCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const docSnap = await getDoc(cartRef);
+    let serverCart = docSnap.exists() ? (docSnap.data().items || []) : [];
+    if (localCart.length > 0) {
+      await setDoc(cartRef, { items: localCart, updatedAt: new Date().toISOString() });
+    } else if (serverCart.length > 0) {
+      localStorage.setItem('cart', JSON.stringify(serverCart));
+      updateCartBadge();
+      updateCartPopupUI();
+    }
+  } catch (err) {
+    console.error('Cart sync error:', err);
+  }
+}
+
+export async function updateCartInFirestore(userId, cart) {
+  if (!userId) return;
+  try {
+    await setDoc(doc(db, 'carts', userId), { items: cart, updatedAt: new Date().toISOString() });
+  } catch (err) {
+    console.error('Firestore cart update error:', err);
+  }
+}
+
+export function updateNavbarAuth(user, displayName, role = null) {
+  const authBtns = document.getElementById('auth-buttons');
+  const profileSection = document.getElementById('profile-section');
+  const loadingEl = document.getElementById('auth-loading');
+  const avatar = document.getElementById('profileAvatar');
+  const adminLink = document.getElementById('adminPanelLink');
+  const mobileAdminLink = document.getElementById('mobileAdminPanelLink');
+  const authRequiredActions = document.getElementById('authRequiredActions');
+
+  if (loadingEl) loadingEl.style.display = 'none';
+
+  if (user) {
+    if (authBtns) authBtns.classList.add('hidden');
+    if (profileSection) profileSection.classList.remove('hidden');
+    if (avatar) avatar.textContent = (displayName || user.email).charAt(0).toUpperCase();
+    if (authRequiredActions) authRequiredActions.style.display = 'flex';
+
+    const isAdmin = (role === 'admin');
+    if (adminLink) { adminLink.style.display = isAdmin ? '' : 'none'; adminLink.classList.toggle('hidden', !isAdmin); }
+    if (mobileAdminLink) { mobileAdminLink.style.display = isAdmin ? '' : 'none'; mobileAdminLink.classList.toggle('hidden', !isAdmin); }
+
+    if (!isAdmin) startAdminMessageListener(user);
+    else {
+      if (adminMessageUnsubscribe) { adminMessageUnsubscribe(); adminMessageUnsubscribe = null; }
+      updateNotificationBadge(0);
+      updateNotificationList([]);
+    }
+  } else {
+    if (authBtns) authBtns.classList.remove('hidden');
+    if (profileSection) profileSection.classList.add('hidden');
+    if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
+    if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
+    if (adminMessageUnsubscribe) { adminMessageUnsubscribe(); adminMessageUnsubscribe = null; }
+    updateNotificationBadge(0);
+    updateNotificationList([]);
+    if (authRequiredActions) authRequiredActions.style.display = 'none';
+  }
+}
+
+// Global Click & Escape Handlers
 document.addEventListener('click', (e) => {
-  // Close Dropdowns on outside click
   if (!e.target.closest('#searchDropdown') && !e.target.closest('[onclick*="toggleSearchDropdown"]')) {
     document.getElementById('searchDropdown')?.classList.add('hidden');
   }
