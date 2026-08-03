@@ -1,6 +1,4 @@
 // firebase-config.js
-// Firebase v9 Modular SDK — Optimized for performance
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getAuth,
@@ -43,7 +41,6 @@ import {
   persistentSingleTabManager,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// ─── Firebase Config ──────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyB15-BRCf0ejIYCDb4Wx-N70gXGx9-R29I",
   authDomain: "simple-store-4175f.firebaseapp.com",
@@ -53,35 +50,29 @@ const firebaseConfig = {
   appId: "1:708569270600:web:c5e647d52de75fdf194b7d",
 };
 
-// ─── Initialize App ──────────────────────────────────────────────
 const app = initializeApp(firebaseConfig);
 
-// ─── Firestore with Persistent Cache (optimized) ─────────────────
 const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentSingleTabManager(),
   }),
 });
 
-// ─── Auth ─────────────────────────────────────────────────────────
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 googleProvider.addScope('profile');
 googleProvider.addScope('email');
+const githubProvider = new GithubAuthProvider(); // kept for compatibility; UI no longer uses GitHub
 
-// GitHub provider kept for compatibility (not used in UI)
-const githubProvider = new GithubAuthProvider();
+// ========== নতুন ফাংশন (অ্যাডমিন প্যানেলের জন্য) ==========
 
-// ─── Admin Helper Functions (with lazy loading for Functions) ────
-
-/**
- * অ্যাডমিন প্যানেল থেকে নতুন ইউজার তৈরি করে (Auth + Firestore)
- */
+// ✅ অ্যাডমিন প্যানেল থেকে ইউজার তৈরি (Authentication + Firestore)
 export async function adminCreateUser(email, password, displayName, role, adminEmail, adminPassword) {
   try {
-    // অ্যাডমিনকে রি-অথেন্টিকেট করি
+    // অ্যাডমিনকে সাইন ইন করি (বর্তমান ইউজার যাই হোক)
     await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+    // ইউজার তৈরি
     const userCred = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCred.user;
     await setDoc(doc(db, 'users', user.uid), {
@@ -93,7 +84,7 @@ export async function adminCreateUser(email, password, displayName, role, adminE
       emailVerified: false,
     });
     await sendEmailVerification(user);
-    // আবার অ্যাডমিন সেশনে ফিরি
+    // আবার অ্যাডমিনকে সাইন ইন করি
     await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
     return { success: true, uid: user.uid };
   } catch (error) {
@@ -101,12 +92,10 @@ export async function adminCreateUser(email, password, displayName, role, adminE
   }
 }
 
-/**
- * অ্যাডমিন: ইউজার ডিলিট + অর্ডার আর্কাইভ (Auth ডিলিটের জন্য Cloud Function)
- * লেজি লোডিং: ফাংশনস মডিউল শুধুমাত্র তখনই ইম্পোর্ট হয় যখন কল করা হয়।
- */
+// ✅ অ্যাডমিন: ইউজার ডিলিট + অর্ডার আর্কাইভ (Auth ডিলিট = Cloud Function লাগে)
 export async function adminDeleteUser(uid, adminEmail, adminPassword) {
   try {
+    // Verify admin password (re-auth)
     await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
 
     const userRef = doc(db, 'users', uid);
@@ -119,7 +108,7 @@ export async function adminDeleteUser(uid, adminEmail, adminPassword) {
       return { success: false, error: 'Cannot delete an admin account from panel' };
     }
 
-    // Archive orders
+    // Archive all orders of this user
     const ordersQ = query(collection(db, 'orders'), where('userId', '==', uid));
     const ordersSnap = await getDocs(ordersQ);
     let archivedCount = 0;
@@ -150,9 +139,11 @@ export async function adminDeleteUser(uid, adminEmail, adminPassword) {
       deletedByEmail: adminEmail,
       archivedOrdersCount: archivedCount,
     });
+
+    // Remove from active users collection
     await deleteDoc(userRef);
 
-    // ─── Lazy load Firebase Functions module ─────────────────────
+    // Try Cloud Function to delete Firebase Auth user (needed for same-email re-registration)
     let authDeleted = false;
     let authDeleteError = null;
     try {
@@ -180,9 +171,7 @@ export async function adminDeleteUser(uid, adminEmail, adminPassword) {
   }
 }
 
-/**
- * Google Sign‑in helper (creates user doc if new)
- */
+// ✅ Google Sign-In helper (creates Firestore user doc if new)
 export async function loginWithGoogle() {
   const result = await signInWithPopup(auth, googleProvider);
   const user = result.user;
@@ -202,10 +191,9 @@ export async function loginWithGoogle() {
   return user;
 }
 
-// ─── Export everything ────────────────────────────────────────────
+// ========== সব export ==========
 export {
-  auth,
-  db,
+  auth, db,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -223,23 +211,7 @@ export {
   googleProvider,
   githubProvider,
   updateEmail,
-  collection,
-  doc,
-  setDoc,
-  getDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  addDoc,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  serverTimestamp,
-  arrayUnion,
-  arrayRemove,
-  increment,
-  initializeFirestore,
-  persistentLocalCache,
-  persistentSingleTabManager,
+  collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, addDoc,
+  query, where, orderBy, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, increment,
+  initializeFirestore, persistentLocalCache, persistentSingleTabManager,
 };

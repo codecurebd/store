@@ -5,17 +5,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>My Fix Requests – CodeCureBD</title>
-
+  
+  <!-- ✅ Preconnect & Preload for faster font loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
-
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
-
+  
   <style>
-    /* ===== PAGE-SPECIFIC STYLES (My Fix Requests) ===== */
+    /* ===== BASE ===== */
     * { box-sizing: border-box; }
     body {
       background: #f2f4f7;
@@ -25,7 +26,33 @@
       min-height: 100vh;
     }
 
-    /* ── Status Badge ── */
+    /* ===== FONT DISPLAY SWAP ===== */
+    @font-face {
+      font-family: 'Inter';
+      font-display: swap;
+    }
+
+    /* ===== GLASS CARD ===== */
+    .glass-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+      transform: translateY(-3px);
+    }
+
+    /* ===== REQUEST CARD ===== */
+    .request-card {
+      transition: all 0.3s ease;
+    }
+
+    /* ===== STATUS BADGE ===== */
     .status-badge {
       padding: 4px 14px;
       border-radius: 60px;
@@ -38,7 +65,7 @@
     .status-badge.resolved { background: #d1fae5; color: #059669; }
     .status-badge.closed { background: #e5e7eb; color: #6b7280; }
 
-    /* ── Priority Badge ── */
+    /* ===== PRIORITY BADGE ===== */
     .priority-badge {
       padding: 2px 12px;
       border-radius: 60px;
@@ -50,7 +77,7 @@
     .priority-badge.medium { background: #fef3c7; color: #d97706; }
     .priority-badge.low { background: #d1fae5; color: #059669; }
 
-    /* ── Ticket Code ── */
+    /* ===== TICKET NUMBER ===== */
     .ticket-code {
       font-family: 'Courier New', monospace;
       font-weight: 700;
@@ -61,7 +88,7 @@
       font-size: 0.85rem;
     }
 
-    /* ── Reply Box ── */
+    /* ===== REPLY BOX ===== */
     .reply-box {
       background: #f0fdf4;
       border-left: 4px solid #22c55e;
@@ -70,9 +97,24 @@
       margin-top: 12px;
       animation: fadeSlideUp 0.4s ease forwards;
     }
-    .reply-box .reply-label { font-size: 0.75rem; font-weight: 600; color: #16a34a; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-    .reply-box .reply-text { font-size: 0.95rem; color: #1c1c1e; }
-    .reply-box .reply-time { font-size: 0.7rem; color: #8e8e93; margin-top: 6px; }
+    .reply-box .reply-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #16a34a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .reply-box .reply-text {
+      font-size: 0.95rem;
+      color: #1c1c1e;
+    }
+    .reply-box .reply-time {
+      font-size: 0.7rem;
+      color: #8e8e93;
+      margin-top: 6px;
+    }
 
     .no-reply-box {
       background: #f9fafb;
@@ -81,9 +123,15 @@
       border-radius: 10px;
       margin-top: 12px;
     }
-    .no-reply-box .no-reply-text { font-size: 0.85rem; color: #6b7280; display: flex; align-items: center; gap: 8px; }
+    .no-reply-box .no-reply-text {
+      font-size: 0.85rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-    /* ── Stats Cards ── */
+    /* ===== STATS CARDS ===== */
     .stat-card {
       background: rgba(255,255,255,0.72);
       backdrop-filter: blur(12px);
@@ -93,22 +141,213 @@
       text-align: center;
       transition: all 0.3s ease;
     }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.04); }
-    .stat-card .stat-number { font-size: 2rem; font-weight: 700; color: #1c1c1e; }
-    .stat-card .stat-label { font-size: 0.75rem; color: #8e8e93; margin-top: 2px; }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
+    .stat-card .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1c1c1e;
+    }
+    .stat-card .stat-label {
+      font-size: 0.75rem;
+      color: #8e8e93;
+      margin-top: 2px;
+    }
     .stat-card .stat-number.pending { color: #d97706; }
     .stat-card .stat-number.resolved { color: #059669; }
     .stat-card .stat-number.closed { color: #6b7280; }
 
+    /* ===== FORM INPUTS ===== */
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid rgba(60, 60, 67, 0.08);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.8);
+      transition: all 0.3s ease;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      color: #1c1c1e;
+    }
+    .form-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
+      background: #ffffff;
+    }
+    .form-input::placeholder {
+      color: #8e8e93;
+      opacity: 0.7;
+    }
+    select.form-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238e8e93' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      text-decoration: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
+    }
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #1c1c1e;
+      padding: 10px 22px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1.5px solid rgba(60,60,67,0.08);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.5);
+      min-height: 48px;
+      text-decoration: none;
+    }
+    .btn-outline:hover {
+      background: rgba(0,122,255,0.04);
+      border-color: #007AFF;
+      color: #007AFF;
+      transform: translateY(-2px);
+    }
+
+    /* ===== SKELETON ===== */
+    .skeleton-card {
+      background: #f3f4f6;
+      border-radius: 16px;
+      padding: 1.25rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .skeleton-card .skeleton-line {
+      height: 16px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+    }
+    .skeleton-card .skeleton-line.short { width: 40%; }
+    .skeleton-card .skeleton-line.medium { width: 70%; }
+    .skeleton-card .skeleton-line.long { width: 90%; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+    .empty-state i {
+      font-size: 4rem;
+      opacity: 0.3;
+      color: #8e8e93;
+    }
+    .empty-state h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1c1c1e;
+      margin-top: 1rem;
+    }
+    .empty-state p {
+      color: #8e8e93;
+      margin-top: 0.5rem;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== FADE-UP ===== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== BACK TO TOP ===== */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(0,122,255,0.35);
+      z-index: 999;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .scroll-top-btn.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    .scroll-top-btn:hover { transform: scale(1.05); }
+
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      .stat-card .stat-number { font-size: 1.5rem; }
       .glass-card { padding: 1rem; border-radius: 12px; }
+      .stat-card .stat-number { font-size: 1.5rem; }
+      .btn-primary, .btn-outline { font-size: 0.85rem; min-height: 42px; padding: 8px 16px; }
+      .ticket-code { font-size: 0.75rem; }
+      .reply-box { padding: 12px; }
     }
     @media (max-width: 480px) {
-      .stat-card .stat-number { font-size: 1.2rem; }
       .stat-card { padding: 0.75rem; }
-      .ticket-code { font-size: 0.75rem; }
+      .stat-card .stat-number { font-size: 1.2rem; }
     }
+
+    /* ===== TOAST (ওভাররাইড) ===== */
+    .toast {
+      border-left: 4px solid #007AFF;
+    }
+    .toast.success { border-left-color: #34C759; }
+    .toast.error { border-left-color: #FF3B30; }
+    .toast.warning { border-left-color: #FF9500; }
   </style>
 </head>
 <body>
@@ -126,7 +365,7 @@
         </div>
         <p class="text-gray-500 mb-6 fade-up">Track all your website fix requests and replies from admin.</p>
 
-        <!-- Filters -->
+        <!-- ===== FILTERS ===== -->
         <div class="flex flex-wrap gap-3 items-center mb-6 fade-up">
           <div class="relative flex-1 min-w-[200px]">
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -144,62 +383,149 @@
             <option value="medium">🟡 Medium</option>
             <option value="low">🟢 Low</option>
           </select>
-          <button onclick="resetFilters()" class="btn-outline text-sm py-2 px-4"><i class="fas fa-undo"></i> Reset</button>
-          <a href="fix-website.html" class="btn-primary text-sm py-2 px-4"><i class="fas fa-plus"></i> New Request</a>
+          <button onclick="resetFilters()" class="btn-outline text-sm py-2 px-4">
+            <i class="fas fa-undo"></i> Reset
+          </button>
+          <a href="fix-website.html" class="btn-primary text-sm py-2 px-4">
+            <i class="fas fa-plus"></i> New Request
+          </a>
         </div>
 
-        <!-- Stats -->
+        <!-- ===== STATS ===== -->
         <div id="statsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 fade-up">
-          <div class="stat-card"><div class="stat-number" id="totalCount">0</div><div class="stat-label">Total</div></div>
-          <div class="stat-card"><div class="stat-number pending" id="pendingCount">0</div><div class="stat-label">Pending</div></div>
-          <div class="stat-card"><div class="stat-number resolved" id="resolvedCount">0</div><div class="stat-label">Resolved</div></div>
-          <div class="stat-card"><div class="stat-number closed" id="closedCount">0</div><div class="stat-label">Closed</div></div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalCount">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number pending" id="pendingCount">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number resolved" id="resolvedCount">0</div>
+            <div class="stat-label">Resolved</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number closed" id="closedCount">0</div>
+            <div class="stat-label">Closed</div>
+          </div>
         </div>
 
-        <!-- Request List -->
-        <div id="requestList" class="space-y-4"></div>
+        <!-- ===== REQUEST LIST ===== -->
+        <div id="requestList" class="space-y-4">
+          <!-- Skeleton will be rendered by JS -->
+        </div>
       </section>
     </main>
 
     <div id="footer-placeholder"></div>
   </div>
 
-  <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
+  <!-- ===== BACK TO TOP ===== -->
+  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
 
-  <!-- Auth Modal -->
+  <!-- ===== AUTH MODAL ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-      <div class="flex justify-between items-center mb-4"><h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3><button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div>
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3>
+        <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+      </div>
       <form id="authForm" class="space-y-4">
         <input type="email" id="authEmail" placeholder="Email" required class="form-input" />
-        <div class="relative"><input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" /><button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button></div>
+        <div class="relative">
+          <input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" />
+          <button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button>
+        </div>
         <button type="submit" class="btn-primary w-full justify-center">Continue</button>
       </form>
-      <div class="mt-4 flex flex-col gap-2"><button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button></div>
-      <p class="mt-4 text-sm text-gray-500 text-center"><span id="authToggleText">Don't have an account?</span><a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a></p>
+      <div class="mt-4 flex flex-col gap-2">
+        <button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button>
+      </div>
+      <p class="mt-4 text-sm text-gray-500 text-center">
+        <span id="authToggleText">Don't have an account?</span>
+        <a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a>
+      </p>
       <div id="authError" class="text-red-500 text-sm mt-2 hidden"></div>
     </div>
   </div>
+
   <div id="toast-container"></div>
 
   <script type="module">
     // ================================================================
-    // IMPORTS
+    // ইমপোর্ট
     // ================================================================
-    import {
-      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
+    import { 
+      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
       renderCartSidebar, setLoading, renderPaymentModal
     } from './components.js';
-    import {
+    import { 
       auth, db, collection, doc, getDoc, setDoc, addDoc, getDocs,
       query, where, serverTimestamp, signOut, onAuthStateChanged,
       signInWithEmailAndPassword, createUserWithEmailAndPassword, updateDoc,
       signInWithPopup, googleProvider, onSnapshot
     } from './firebase-config.js';
 
-    renderNavbar(); renderPaymentModal(); renderFooter(); renderCartSidebar(); updateCartBadge();
+    // ===== রেন্ডার =====
+    renderNavbar();
+    renderPaymentModal();
+    renderFooter();
+    renderCartSidebar();
+    updateCartBadge();
 
-    // ===== AUTH MODAL =====
+    // ===== টোস্ট =====
+    window.showToast = (message, type = 'success') => {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
+    };
+
+    // ===== SCROLL ANIMATION =====
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    });
+
+    // ===== BACK TO TOP =====
+    const scrollBtn = document.getElementById('scrollTopBtn');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        scrollBtn.classList.add('show');
+      } else {
+        scrollBtn.classList.remove('show');
+      }
+    });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ===== DEBOUNCE =====
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    // ================================================================
+    // AUTH MODAL (আগের মতো)
+    // ================================================================
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -210,41 +536,54 @@
       document.getElementById('authModal').classList.remove('hidden');
     };
     window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
+
     document.getElementById('authToggleLink').addEventListener('click', (e) => {
       e.preventDefault();
       currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
       window.openAuthModal(currentAuthMode);
     });
+
     window.togglePasswordVisibility = (id) => {
       const input = document.getElementById(id);
-      if (input) input.type = input.type === 'password' ? 'text' : 'password';
+      input.type = input.type === 'password' ? 'text' : 'password';
     };
-    window.socialLogin = async (provider) => {
-      if (provider !== 'google') { showToast('Only Google sign-in is supported', 'warning'); return; }
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, 'users', user.uid), {
-            email: user.email || '', displayName: user.displayName || user.email?.split('@')[0] || 'User',
-            photoURL: user.photoURL || '', role: 'user', createdAt: new Date().toISOString(),
-            isActive: true, emailVerified: !!user.emailVerified
-          });
-        }
-        showToast('✅ Signed in with Google', 'success');
-        closeAuthModal();
-      } catch (error) {
-        let msg = error.message || 'Sign-in failed';
-        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups.';
-        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized.';
-        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in not enabled.';
-        showToast('⚠️ ' + msg, 'error');
-        const errEl = document.getElementById('authError');
-        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
-      }
-    };
+
+        window.socialLogin = async (provider) => {
+          if (provider !== 'google') {
+            showToast('Only Google sign-in is supported', 'warning');
+            return;
+          }
+          try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (!userDoc.exists()) {
+              await setDoc(doc(db, 'users', user.uid), {
+                email: user.email || '',
+                displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+                photoURL: user.photoURL || '',
+                role: 'user',
+                createdAt: new Date().toISOString(),
+                isActive: true,
+                emailVerified: !!user.emailVerified,
+              });
+            }
+            showToast('✅ Signed in with Google', 'success');
+            if (typeof closeAuthModal === 'function') closeAuthModal();
+            else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+          } catch (error) {
+            console.error('Google sign-in error:', error);
+            let msg = error.message || 'Sign-in failed';
+            if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+            else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
+            else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
+            else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
+            showToast('⚠️ ' + msg, 'error');
+            const errEl = document.getElementById('authError');
+            if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+          }
+        };
+
     const authForm = document.getElementById('authForm');
     const authSubmitBtn = authForm.querySelector('button[type="submit"]');
     authForm.addEventListener('submit', async (e) => {
@@ -272,7 +611,9 @@
         errorDiv.textContent = error.message;
         errorDiv.classList.remove('hidden');
         showToast('⚠️ ' + error.message, 'error');
-      } finally { setLoading(authSubmitBtn, false); }
+      } finally {
+        setLoading(authSubmitBtn, false);
+      }
     });
 
     window.handleLogout = async () => {
@@ -282,8 +623,9 @@
     };
 
     // ================================================================
-    // FIX REQUESTS LOGIC
+    // ✅ রিকোয়েস্ট লজিক (onSnapshot দিয়ে রিয়েল-টাইম, orderBy বাদ)
     // ================================================================
+
     const requestList = document.getElementById('requestList');
     const searchInput = document.getElementById('searchRequests');
     const statusFilter = document.getElementById('statusFilter');
@@ -291,8 +633,10 @@
 
     let allRequests = [];
     let filteredRequests = [];
+    let currentUser = null;
     let unsubRequests = null;
 
+    // ===== SKELETON RENDER =====
     function renderSkeletons(count = 3) {
       let html = '';
       for (let i = 0; i < count; i++) {
@@ -309,25 +653,30 @@
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
 
+    // ===== UPDATE STATS =====
     function updateStats(requests) {
       const total = requests.length;
       const pending = requests.filter(r => r.status === 'pending').length;
       const resolved = requests.filter(r => r.status === 'resolved').length;
       const closed = requests.filter(r => r.status === 'closed').length;
+
       document.getElementById('totalCount').textContent = total;
       document.getElementById('pendingCount').textContent = pending;
       document.getElementById('resolvedCount').textContent = resolved;
       document.getElementById('closedCount').textContent = closed;
     }
 
+    // ===== RENDER REQUESTS =====
     function renderRequests(requests) {
-      if (!requests || !requests.length) {
+      if (!requests || requests.length === 0) {
         requestList.innerHTML = `
           <div class="empty-state fade-up">
             <i class="fas fa-inbox"></i>
             <h3>No fix requests found</h3>
             <p>Submit a fix request to get help from our team.</p>
-            <a href="fix-website.html" class="btn-primary mt-4 inline-block"><i class="fas fa-plus"></i> Submit Request</a>
+            <a href="fix-website.html" class="btn-primary mt-4 inline-block">
+              <i class="fas fa-plus"></i> Submit Request
+            </a>
           </div>
         `;
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
@@ -340,15 +689,23 @@
         const status = r.status || 'pending';
         const priority = r.priority || 'medium';
         const date = r.timestamp?.toDate?.() || new Date(r.timestamp);
-        const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = date.toLocaleDateString('en-US', { 
+          year: 'numeric', month: 'short', day: 'numeric' 
+        });
+        const timeStr = date.toLocaleTimeString('en-US', { 
+          hour: '2-digit', minute: '2-digit' 
+        });
 
+        // ✅ ফিক্স: reply timestamp সঠিকভাবে দেখানো
         let replyHtml = '';
         if (r.reply && r.reply.trim()) {
           let replyTimeStr = '';
           if (r.replyTimestamp) {
             const replyDate = r.replyTimestamp.toDate ? r.replyTimestamp.toDate() : new Date(r.replyTimestamp);
-            replyTimeStr = replyDate.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            replyTimeStr = replyDate.toLocaleString('en-US', { 
+              year: 'numeric', month: 'short', day: 'numeric', 
+              hour: '2-digit', minute: '2-digit' 
+            });
           }
           replyHtml = `
             <div class="reply-box">
@@ -360,12 +717,17 @@
         } else if (status === 'pending') {
           replyHtml = `
             <div class="no-reply-box">
-              <div class="no-reply-text"><i class="fas fa-clock"></i> No reply yet. Our team is reviewing your request.</div>
+              <div class="no-reply-text">
+                <i class="fas fa-clock"></i> No reply yet. Our team is reviewing your request.
+              </div>
             </div>
           `;
         }
 
-        const categoryIcons = { speed: '🚀', error: '🐛', design: '🎨', hacking: '🔒', hosting: '☁️', other: '📌' };
+        const categoryIcons = {
+          speed: '🚀', error: '🐛', design: '🎨',
+          hacking: '🔒', hosting: '☁️', other: '📌'
+        };
         const categoryIcon = categoryIcons[r.category] || '📌';
 
         html += `
@@ -381,7 +743,9 @@
                   <span class="text-gray-500">${categoryIcon}</span>
                   ${r.problem?.substring(0, 80) || 'No description'}${r.problem?.length > 80 ? '...' : ''}
                 </p>
-                <p class="text-xs text-gray-400 mt-1"><i class="far fa-calendar-alt mr-1"></i> ${dateStr} at ${timeStr}</p>
+                <p class="text-xs text-gray-400 mt-1">
+                  <i class="far fa-calendar-alt mr-1"></i> ${dateStr} at ${timeStr}
+                </p>
                 ${r.category ? `<p class="text-xs text-gray-400">Category: ${r.category}</p>` : ''}
               </div>
               <div class="text-right flex flex-col items-end gap-1">
@@ -400,6 +764,7 @@
       updateStats(requests);
     }
 
+    // ===== APPLY FILTERS =====
     function applyFilters() {
       const search = searchInput.value.toLowerCase().trim();
       const status = statusFilter.value;
@@ -419,12 +784,9 @@
       renderRequests(filteredRequests);
     }
 
-    function debounce(fn, wait) {
-      let t;
-      return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); };
-    }
     const debouncedApplyFilters = debounce(applyFilters, 300);
 
+    // ===== RESET FILTERS =====
     window.resetFilters = () => {
       searchInput.value = '';
       statusFilter.value = 'all';
@@ -432,59 +794,91 @@
       applyFilters();
     };
 
-    searchInput.addEventListener('input', debouncedApplyFilters);
-    statusFilter.addEventListener('change', applyFilters);
-    priorityFilter.addEventListener('change', applyFilters);
-
     // ===== LOAD REQUESTS (onSnapshot) =====
     function loadRequests(userId) {
       if (!userId) {
-        requestList.innerHTML = `<div class="empty-state fade-up"><i class="fas fa-exclamation-triangle text-yellow-500"></i><h3>Please sign in</h3><p>Sign in to view your fix requests.</p></div>`;
+        requestList.innerHTML = `
+          <div class="empty-state fade-up">
+            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+            <h3>Please sign in</h3>
+            <p>Sign in to view your fix requests.</p>
+          </div>
+        `;
         return;
       }
 
+      // Show skeletons initially
       renderSkeletons(3);
 
+      // Unsubscribe previous listener
       if (unsubRequests) unsubRequests();
 
-      const q = query(collection(db, 'fixRequests'), where('userId', '==', userId));
+      // ✅ Real-time listener without orderBy (manual sort in JS)
+      const q = query(
+        collection(db, 'fixRequests'),
+        where('userId', '==', userId)
+      );
 
       unsubRequests = onSnapshot(q, (snapshot) => {
-        allRequests = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        allRequests = [];
+        snapshot.forEach(doc => {
+          allRequests.push({ id: doc.id, ...doc.data() });
+        });
+
+        // ✅ Manual sorting (newest first)
         allRequests.sort((a, b) => {
           const ta = a.timestamp?.toDate?.()?.getTime() || new Date(a.timestamp).getTime() || 0;
           const tb = b.timestamp?.toDate?.()?.getTime() || new Date(b.timestamp).getTime() || 0;
           return tb - ta;
         });
+
         applyFilters();
+
       }, (error) => {
-        console.error('Error loading fix requests:', error);
-        requestList.innerHTML = `<div class="empty-state fade-up"><i class="fas fa-exclamation-circle text-red-500"></i><h3>Error loading requests</h3><p class="text-sm text-gray-400">${error.message}</p><button onclick="window.location.reload()" class="btn-primary mt-4 inline-block"><i class="fas fa-sync"></i> Retry</button></div>`;
+        console.error('🔥 Error loading fix requests:', error);
+        requestList.innerHTML = `
+          <div class="empty-state fade-up">
+            <i class="fas fa-exclamation-circle text-red-500"></i>
+            <h3>Error loading requests</h3>
+            <p class="text-sm text-gray-400">${error.message}</p>
+            <button onclick="window.location.reload()" class="btn-primary mt-4 inline-block">
+              <i class="fas fa-sync"></i> Retry
+            </button>
+          </div>
+        `;
         showToast('⚠️ Error loading fix requests: ' + error.message, 'error');
       });
     }
 
+    // ===== FILTER EVENT LISTENERS =====
+    searchInput.addEventListener('input', debouncedApplyFilters);
+    statusFilter.addEventListener('change', applyFilters);
+    priorityFilter.addEventListener('change', applyFilters);
+
     // ================================================================
     // AUTH STATE
     // ================================================================
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-    });
-
     onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = 'index.html'; return; }
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      currentUser = user;
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
       updateNavbarAuth(user, displayName);
+
+      // Load fix requests
       loadRequests(user.uid);
     });
 
-    window.addEventListener('beforeunload', () => { if (unsubRequests) unsubRequests(); });
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (unsubRequests) unsubRequests();
+    });
 
-    console.log('🔧 My Fix Requests page loaded successfully.');
+    console.log('🔧 My Fix Requests page loaded successfully!');
   </script>
 </body>
 </html>

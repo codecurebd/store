@@ -5,18 +5,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>Fix My Website – CodeCureBD</title>
-
-  <!-- Preconnect for faster font loading -->
+  
+  <!-- ✅ Preconnect for faster font loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-
+  
   <style>
-    /* ===== PAGE-SPECIFIC STYLES (Fix Website) ===== */
+    /* ===== BASE ===== */
     * { box-sizing: border-box; }
     body {
       background: #f2f4f7;
@@ -26,7 +26,7 @@
       min-height: 100vh;
     }
 
-    /* ── Ticket Badge ── */
+    /* ===== TICKET BADGE ===== */
     .ticket-badge {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
@@ -41,7 +41,7 @@
       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
 
-    /* ── Priority Badge ── */
+    /* ===== PRIORITY BADGE ===== */
     .priority-badge {
       padding: 4px 14px;
       border-radius: 60px;
@@ -53,7 +53,88 @@
     .priority-medium { background: #fef3c7; color: #d97706; }
     .priority-low { background: #d1fae5; color: #059669; }
 
-    /* ── Feedback Box ── */
+    /* ===== GLASS CARD ===== */
+    .glass-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      box-shadow: 0 12px 48px rgba(0,0,0,0.06);
+    }
+
+    /* ===== FORM INPUT ===== */
+    .form-input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1.5px solid rgba(60, 60, 67, 0.08);
+      border-radius: 14px;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.8);
+      transition: all 0.3s ease;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      color: #1c1c1e;
+    }
+    .form-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
+      background: #ffffff;
+    }
+    .form-input::placeholder {
+      color: #8e8e93;
+      opacity: 0.7;
+    }
+    .form-input.error {
+      border-color: #FF3B30;
+      box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.08);
+    }
+    select.form-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238e8e93' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+    textarea.form-input {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn-primary {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 54px;
+      width: 100%;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
+    }
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ===== SUCCESS / TICKET BOX ===== */
     .feedback-box {
       padding: 16px 20px;
       border-radius: 14px;
@@ -86,7 +167,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Responsive tweaks ── */
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 640px) {
       .glass-card { padding: 1.5rem; border-radius: 16px; }
       .form-input { padding: 12px 16px; font-size: 0.95rem; border-radius: 12px; }
@@ -176,11 +257,11 @@
               <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                 Describe the problem <span class="text-red-500">*</span>
               </label>
-              <textarea id="fixProblem" rows="5" required class="form-input resize-y"
+              <textarea id="fixProblem" rows="5" required class="form-input resize-y" 
                         placeholder="What's broken? Slow speed? Error messages? Please be as detailed as possible."></textarea>
             </div>
 
-            <!-- ===== Cloudinary Image Upload ===== -->
+            <!-- ===== Cloudinary Image Upload (Updated) ===== -->
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                 Screenshot / Image (Upload)
@@ -189,7 +270,7 @@
               <input type="file" id="fixImageFile" accept="image/*" class="form-input" onchange="window.handleFixImageUpload(event)" />
               <input type="text" id="fixImageLink" class="form-input mt-2" placeholder="Image URL will appear here automatically" readonly />
               <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-                <i class="fas fa-cloud-upload-alt text-blue-500"></i>
+                <i class="fas fa-cloud-upload-alt text-blue-500"></i> 
                 Select a screenshot to upload directly to Cloudinary.
               </p>
             </div>
@@ -209,8 +290,8 @@
         <div class="mt-6 p-4 bg-blue-50/70 backdrop-blur-sm rounded-xl border border-blue-200/50 flex items-start gap-3">
           <i class="fas fa-info-circle text-blue-500 text-xl mt-0.5"></i>
           <p class="text-sm text-blue-700">
-            After submitting, you'll receive a <strong>Ticket Number</strong>.
-            Use it to track your request in
+            After submitting, you'll receive a <strong>Ticket Number</strong>. 
+            Use it to track your request in 
             <a href="my-fix-requests.html" class="font-semibold underline hover:text-blue-900 transition-colors">My Fix Requests</a>.
           </p>
         </div>
@@ -220,7 +301,7 @@
     <div id="footer-placeholder"></div>
   </div>
 
-  <!-- ===== AUTH MODAL ===== -->
+  <!-- ===== Auth Modal ===== -->
   <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
       <div class="flex justify-between items-center mb-4">
@@ -250,31 +331,40 @@
 
   <script type="module">
     // ================================================================
-    // IMPORTS
+    // ইমপোর্ট
     // ================================================================
-    import {
-      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
-      renderCartSidebar, setLoading, renderPaymentModal, uploadImage
+    import { 
+      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
+      renderCartSidebar, setLoading, renderPaymentModal
     } from './components.js';
-    import {
-      auth, db, collection, addDoc, serverTimestamp,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    import { uploadImage } from './components.js'; // ✅ যোগ করেছি
+    import { 
+      auth, db, collection, addDoc, serverTimestamp, 
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, 
       onAuthStateChanged, signOut, doc, setDoc, getDoc,
       signInWithPopup, googleProvider
     } from './firebase-config.js';
 
-    // ===== RENDER COMMON =====
+    // ===== রেন্ডার =====
     renderNavbar();
     renderFooter();
     renderCartSidebar();
     renderPaymentModal();
     updateCartBadge();
 
-    // `window.showToast` is globally available from components.js
+    // ===== টোস্ট =====
+    window.showToast = (message, type = 'success') => {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
+    };
 
-    // ================================================================
-    // AUTH MODAL LOGIC
-    // ================================================================
+    // ===== Auth Modal =====
     let currentAuthMode = 'signin';
     window.openAuthModal = (mode) => {
       currentAuthMode = mode;
@@ -294,40 +384,44 @@
 
     window.togglePasswordVisibility = (id) => {
       const input = document.getElementById(id);
-      if (input) input.type = input.type === 'password' ? 'text' : 'password';
+      input.type = input.type === 'password' ? 'text' : 'password';
     };
 
-    window.socialLogin = async (provider) => {
-      if (provider !== 'google') { showToast('Only Google sign-in is supported', 'warning'); return; }
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, 'users', user.uid), {
-            email: user.email || '',
-            displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
-            photoURL: user.photoURL || '',
-            role: 'user',
-            createdAt: new Date().toISOString(),
-            isActive: true,
-            emailVerified: !!user.emailVerified,
-          });
-        }
-        showToast('✅ Signed in with Google', 'success');
-        closeAuthModal();
-      } catch (error) {
-        console.error('Google sign-in error:', error);
-        let msg = error.message || 'Sign-in failed';
-        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
-        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
-        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
-        showToast('⚠️ ' + msg, 'error');
-        const errEl = document.getElementById('authError');
-        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
-      }
-    };
+        window.socialLogin = async (provider) => {
+          if (provider !== 'google') {
+            showToast('Only Google sign-in is supported', 'warning');
+            return;
+          }
+          try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (!userDoc.exists()) {
+              await setDoc(doc(db, 'users', user.uid), {
+                email: user.email || '',
+                displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+                photoURL: user.photoURL || '',
+                role: 'user',
+                createdAt: new Date().toISOString(),
+                isActive: true,
+                emailVerified: !!user.emailVerified,
+              });
+            }
+            showToast('✅ Signed in with Google', 'success');
+            if (typeof closeAuthModal === 'function') closeAuthModal();
+            else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+          } catch (error) {
+            console.error('Google sign-in error:', error);
+            let msg = error.message || 'Sign-in failed';
+            if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+            else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
+            else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
+            else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
+            showToast('⚠️ ' + msg, 'error');
+            const errEl = document.getElementById('authError');
+            if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+          }
+        };
 
     const authForm = document.getElementById('authForm');
     const authSubmitBtn = authForm.querySelector('button[type="submit"]');
@@ -356,7 +450,9 @@
         errorDiv.textContent = error.message;
         errorDiv.classList.remove('hidden');
         showToast('⚠️ ' + error.message, 'error');
-      } finally { setLoading(authSubmitBtn, false); }
+      } finally {
+        setLoading(authSubmitBtn, false);
+      }
     });
 
     onAuthStateChanged(auth, async (user) => {
@@ -364,16 +460,6 @@
       if (user) {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
-        // Auto-fill form data
-        const nameInput = document.getElementById('fixName');
-        const emailInput = document.getElementById('fixEmail');
-        const phoneInput = document.getElementById('fixPhone');
-        if (!nameInput.value && userDoc.exists()) {
-          const data = userDoc.data();
-          if (data.displayName) nameInput.value = data.displayName;
-          if (data.phone) phoneInput.value = data.phone;
-        }
-        if (!emailInput.value) emailInput.value = user.email;
       }
       updateNavbarAuth(user, name);
     });
@@ -381,11 +467,10 @@
     window.handleLogout = async () => {
       await signOut(auth);
       showToast('✅ Logged out', 'success');
-      window.location.href = 'index.html';
     };
 
     // ================================================================
-    // CLOUDINARY IMAGE UPLOAD HANDLER
+    // ===== Cloudinary Upload Handler for Fix Request =====
     // ================================================================
     window.handleFixImageUpload = async (e) => {
       const file = e.target.files[0];
@@ -413,7 +498,7 @@
     };
 
     // ================================================================
-    // FIX FORM SUBMISSION
+    // ✅ ফিক্স ফর্ম লজিক (UI ইমপ্রুভ সহ)
     // ================================================================
     const fixForm = document.getElementById('fixForm');
     const fixBtn = fixForm.querySelector('button[type="submit"]');
@@ -442,11 +527,23 @@
       feedback.className = 'hidden feedback-box';
       ticketDiv.className = 'hidden feedback-box ticket';
 
+      // Validation
       let hasError = false;
-      if (!name) { document.getElementById('fixName').classList.add('error'); hasError = true; }
-      if (!email) { document.getElementById('fixEmail').classList.add('error'); hasError = true; }
-      else if (!email.includes('@')) { document.getElementById('fixEmail').classList.add('error'); hasError = true; }
-      if (!problem) { document.getElementById('fixProblem').classList.add('error'); hasError = true; }
+      if (!name) {
+        document.getElementById('fixName').classList.add('error');
+        hasError = true;
+      }
+      if (!email) {
+        document.getElementById('fixEmail').classList.add('error');
+        hasError = true;
+      } else if (!email.includes('@')) {
+        document.getElementById('fixEmail').classList.add('error');
+        hasError = true;
+      }
+      if (!problem) {
+        document.getElementById('fixProblem').classList.add('error');
+        hasError = true;
+      }
 
       if (hasError) {
         feedback.className = 'feedback-box error';
@@ -500,7 +597,7 @@
         showToast('✅ Request submitted! Ticket: ' + ticketNumber, 'success');
         fixForm.reset();
 
-        // Auto hide after 12s
+        // Auto hide after 10s
         setTimeout(() => {
           feedback.className = 'hidden feedback-box';
           ticketDiv.className = 'hidden feedback-box ticket';
@@ -516,7 +613,24 @@
       }
     });
 
-    console.log('🔧 Fix Website page loaded successfully (optimized).');
+    // ===== Auto-fill user data =====
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const nameInput = document.getElementById('fixName');
+        const emailInput = document.getElementById('fixEmail');
+        if (!nameInput.value) {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data.displayName) nameInput.value = data.displayName;
+            if (data.phone) document.getElementById('fixPhone').value = data.phone;
+          }
+          if (!emailInput.value) emailInput.value = user.email;
+        }
+      }
+    });
+
+    console.log('🔧 Fix Website page loaded successfully!');
   </script>
 </body>
 </html>
