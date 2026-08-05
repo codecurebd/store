@@ -1029,7 +1029,7 @@ export function renderPaymentModal() {
               </label>
               <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
                 <input type="radio" name="paymentType" value="advance" class="text-blue-600 focus:ring-blue-500" />
-                <span class="text-sm font-medium text-gray-800">Advance (500 TK)</span>
+                <span class="text-sm font-medium text-gray-800">Pay Later</span>
               </label>
             </div>
           </div>
