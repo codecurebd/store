@@ -216,7 +216,6 @@ export function updateCartBadge() {
     const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
     cartBadge.textContent = totalQty;
     cartBadge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
-    console.log('✅ Badge updated to:', totalQty);
   } catch (e) {
     cartBadge.textContent = '0';
     cartBadge.style.display = 'none';
@@ -291,7 +290,6 @@ function renderContactModal() {
 
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-  // Add form submit handler
   const form = document.getElementById('contactModalForm');
   const submitBtn = document.getElementById('contactModalSubmitBtn');
   const errorDiv = document.getElementById('contactModalError');
@@ -329,12 +327,10 @@ function renderContactModal() {
     }
   });
 
-  // Close on overlay click
   document.getElementById('contactModal').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) window.closeContactModal();
   });
 
-  // Close on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') window.closeContactModal();
   });
@@ -354,7 +350,7 @@ window.closeContactModal = function() {
 };
 
 // ================================================================
-// ✅ HANDLE CONTACT CLICK (Smart: scroll on index, modal elsewhere)
+// ✅ HANDLE CONTACT CLICK
 // ================================================================
 window.handleContactClick = function(e) {
   e.preventDefault();
@@ -375,7 +371,7 @@ window.handleContactClick = function(e) {
 };
 
 // ================================================================
-// ✅ SEARCH DROPDOWN (Products Search - Mobile-optimized)
+// ✅ SEARCH DROPDOWN
 // ================================================================
 let searchDropdownOpen = false;
 let searchProducts = [];
@@ -416,7 +412,6 @@ function loadSearchProducts() {
     snapshot.forEach(doc => {
       searchProducts.push({ id: doc.id, ...doc.data() });
     });
-    // If dropdown is open and there's a query, re-render
     const input = document.getElementById('searchInput');
     if (input && input.value.trim().length > 0) {
       performSearch(input.value.trim());
@@ -471,7 +466,7 @@ function performSearch(query) {
 }
 
 // ================================================================
-// ✅ LANDING NAVBAR: transparent at top, glass on scroll
+// ✅ LANDING NAVBAR
 // ================================================================
 function setupLandingNavbar() {
   const nav = document.getElementById('mainNavbar');
@@ -483,7 +478,6 @@ function setupLandingNavbar() {
     window.location.pathname.endsWith('/') ||
     window.location.pathname === '';
 
-  // Other pages always keep solid glass navbar
   if (!isIndexPage) {
     nav.classList.remove('nav-transparent');
     nav.classList.add('nav-solid');
@@ -502,7 +496,6 @@ function setupLandingNavbar() {
     }
   };
 
-  // Initial state (top of page) — remove solid glass look
   nav.classList.remove('nav-solid', 'glass', 'shadow-sm', 'border-b', 'border-gray-100/30');
   nav.classList.add('nav-transparent');
   updateNav();
@@ -511,7 +504,7 @@ function setupLandingNavbar() {
 }
 
 // ================================================================
-// ✅ NAVBAR (সম্পূর্ণ নতুন, সার্চ ড্রপডাউন সহ)
+// ✅ NAVBAR
 // ================================================================
 export function renderNavbar() {
   renderContactModal();
@@ -519,13 +512,11 @@ export function renderNavbar() {
   const navbarHTML = `
     <nav id="mainNavbar" class="fixed top-0 left-0 w-full z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 transition-all duration-300 ease-out glass shadow-sm border-b border-gray-100/30">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
-        <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 text-2xl font-bold text-gray-900 hover:opacity-80 transition-opacity">
           <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
           <span class="logo-text tracking-tight">CodeCure<span class="gradient-text">BD</span></span>
         </a>
         
-        <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-1 lg:gap-2">
           <a href="index.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Home</a>
           <a href="get-new-website.html" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Store</a>
@@ -533,10 +524,7 @@ export function renderNavbar() {
           <a href="#" onclick="window.handleContactClick(event)" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">Contact</a>
         </div>
 
-        <!-- Right Actions -->
         <div class="flex items-center gap-2 md:gap-3">
-          
-          <!-- ===== SEARCH DROPDOWN ===== -->
           <div class="relative">
             <button onclick="window.toggleSearchDropdown()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg" title="Search products">
               <i class="fas fa-search"></i>
@@ -557,17 +545,14 @@ export function renderNavbar() {
             </div>
           </div>
 
-          <!-- ===== CART (always visible) ===== -->
           <div class="relative">
             <button id="cartBtn" onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
               <i class="fas fa-shopping-cart"></i>
               <span id="cartCount" class="cart-badge" style="display:none;">0</span>
             </button>
-            <!-- Cart Popup (rendered by renderCartPopup) -->
             <div id="cartPopupContainer"></div>
           </div>
 
-          <!-- ===== NOTIFICATIONS (only visible when signed in) ===== -->
           <div id="authRequiredActions" class="flex items-center gap-2 md:gap-3" style="display:none;">
             <div class="relative">
               <button onclick="window.toggleNotifications()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" aria-label="Notifications">
@@ -591,13 +576,11 @@ export function renderNavbar() {
             </div>
           </div>
           
-          <!-- Auth Loading -->
           <div id="auth-loading" class="flex items-center gap-2">
             <div class="w-16 h-8 bg-gray-200 rounded-full animate-pulse"></div>
             <div class="w-24 h-10 bg-gray-200 rounded-full animate-pulse hidden md:block"></div>
           </div>
 
-          <!-- Auth Buttons -->
           <div id="auth-buttons" class="hidden flex items-center gap-2">
             <button onclick="window.openAuthModal('signin')" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-blue-50/50">Sign In</button>
             <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30">
@@ -605,7 +588,6 @@ export function renderNavbar() {
             </button>
           </div>
 
-          <!-- Profile -->
           <div id="profile-section" class="relative hidden">
             <button class="profile-avatar w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center hover:scale-105 transition-transform shadow-md shadow-blue-500/20" id="profileAvatar">U</button>
             <div class="dropdown-menu" id="dropdownMenu">
@@ -620,7 +602,6 @@ export function renderNavbar() {
             </div>
           </div>
 
-          <!-- Hamburger -->
           <button onclick="window.toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-700 text-2xl transition-colors" aria-label="Toggle menu">
             <i class="fas fa-bars" id="hamburgerIcon"></i>
           </button>
@@ -628,7 +609,6 @@ export function renderNavbar() {
       </div>
     </nav>
 
-    <!-- Mobile Menu -->
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors">Home</a>
@@ -649,14 +629,10 @@ export function renderNavbar() {
   const placeholder = document.getElementById('navbar-placeholder');
   if (placeholder) {
     placeholder.innerHTML = navbarHTML;
-  } else {
-    console.error('❌ navbar-placeholder not found!');
   }
 
-  // ===== Landing page: transparent navbar at top, glass on scroll =====
   setupLandingNavbar();
 
-  // Profile dropdown toggle
   const avatar = document.getElementById('profileAvatar');
   const dropdown = document.getElementById('dropdownMenu');
   if (avatar) {
@@ -672,22 +648,18 @@ export function renderNavbar() {
     }
   });
 
-  // ✅ Search input listener
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
     searchInput.addEventListener('input', function() {
       performSearch(this.value);
     });
-    // Also trigger search on Enter key (though input event is enough)
     searchInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
-        // If there are results, first result click or redirect to store page with query
         const firstResult = document.querySelector('#searchResults a');
         if (firstResult) {
           firstResult.click();
         } else {
-          // Redirect to store page with search query
           const query = this.value.trim();
           if (query) {
             window.location.href = `get-new-website.html?search=${encodeURIComponent(query)}`;
@@ -697,7 +669,6 @@ export function renderNavbar() {
     });
   }
 
-  // ✅ Badge আপডেট (পেজ লোড হলে)
   updateCartBadge();
 
   onAuthStateChanged(auth, (user) => {
@@ -708,15 +679,8 @@ export function renderNavbar() {
   
   renderCartPopup();
 
-  // Load search products on first interaction
-  if (searchProducts.length === 0) {
-    // Lazy load: will load when dropdown opens
-  }
-
-  // ===== SEARCH TOGGLE FUNCTION (exposed globally) =====
   window.toggleSearchDropdown = toggleSearchDropdown;
 
-  // Cleanup search listener on page unload
   window.addEventListener('beforeunload', () => {
     if (searchUnsubscribe) {
       searchUnsubscribe();
@@ -726,7 +690,7 @@ export function renderNavbar() {
 }
 
 // ================================================================
-// ✅ CART POPUP (replaces sidebar - Mobile-optimized)
+// ✅ CART POPUP
 // ================================================================
 let cartPopupRendered = false;
 
@@ -762,13 +726,8 @@ export function renderCartPopup() {
   container.innerHTML = popupHTML;
   cartPopupRendered = true;
   updateCartPopupUI();
-
-  // ✅ Outside click + cart button toggle close system (set up only once) - but now handled globally below
 }
 
-// ================================================================
-// ✅ CART TOGGLE (popup - Mobile-optimized)
-// ================================================================
 export function toggleCart() {
   const popup = document.getElementById('cartPopup');
   if (!popup) return;
@@ -784,9 +743,6 @@ export function toggleCart() {
 }
 window.toggleCart = toggleCart;
 
-// ================================================================
-// ✅ REMOVE FROM CART
-// ================================================================
 window.removeFromCart = function(index) {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   cart.splice(index, 1);
@@ -799,9 +755,6 @@ window.removeFromCart = function(index) {
   }
 };
 
-// ================================================================
-// ✅ CHECKOUT (closes popup and proceeds)
-// ================================================================
 window.cartCheckout = function() {
   const popup = document.getElementById('cartPopup');
   if (popup) popup.classList.add('hidden');
@@ -813,12 +766,7 @@ window.cartCheckout = function() {
   }
 };
 
-// ================================================================
-// ✅ GLOBAL addToCart (রিয়েল-টাইম ব্যাজ আপডেট সহ + ফোর্স আপডেট)
-// ================================================================
 window.addToCart = async function(productId, productName, productPrice, productImage = '') {
-  console.log('🛒 addToCart called:', productId, productName, productPrice);
-  
   if (!productId || !productName) {
     window.showToast('⚠️ Product information missing.', 'error');
     return;
@@ -840,17 +788,14 @@ window.addToCart = async function(productId, productName, productPrice, productI
 
   localStorage.setItem('cart', JSON.stringify(cart));
 
-  // ✅ রিয়েল-টাইমে ব্যাজ আপডেট (ফোর্সড)
   updateCartBadge();
   updateCartPopupUI();
 
-  // ✅ ফোর্স আপডেট: ১০০ms পরে আবার চেক করি (যদি DOM রেডি না থাকে)
   setTimeout(() => {
     updateCartBadge();
     updateCartPopupUI();
   }, 100);
 
-  // Sync with Firestore if logged in
   const user = auth.currentUser;
   if (user) {
     await updateCartInFirestore(user.uid, cart);
@@ -860,14 +805,13 @@ window.addToCart = async function(productId, productName, productPrice, productI
 };
 
 // ================================================================
-// ✅ FOOTER (সম্পূর্ণ নতুন, পেশাদার ও সঠিক লেআউট - টেক্সট অ্যালাইনমেন্ট ঠিক করা)
+// ✅ FOOTER
 // ================================================================
 export function renderFooter() {
   const footerHTML = `
     <footer class="glass border-t border-gray-200/30 py-12 px-6 sm:px-8 lg:px-12 mt-auto">
       <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <!-- Brand -->
           <div class="text-center md:text-left">
             <div class="flex items-center justify-center md:justify-start gap-2">
               <img src="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" alt="CodeCureBD Logo" class="logo-img h-8 w-auto" />
@@ -875,7 +819,6 @@ export function renderFooter() {
             </div>
             <p class="text-sm text-gray-500 mt-2 max-w-xs mx-auto md:mx-0">Professional web development, fixing, and maintenance – tailored for your business.</p>
           </div>
-          <!-- Quick Links (Text left aligned on desktop) -->
           <div class="text-center md:text-left">
             <h4 class="font-semibold text-gray-700 mb-3">Quick Links</h4>
             <div class="space-y-1 text-sm">
@@ -885,7 +828,6 @@ export function renderFooter() {
               <a href="messages.html" class="block hover:text-blue-600 transition-colors">Support Chat</a>
             </div>
           </div>
-          <!-- Contact Info (Text left aligned on desktop) -->
           <div class="text-center md:text-left">
             <h4 class="font-semibold text-gray-700 mb-3">Contact</h4>
             <div class="space-y-1 text-sm text-gray-500">
@@ -898,7 +840,6 @@ export function renderFooter() {
               <span class="block"><i class="fas fa-map-marker-alt mr-2 w-4"></i> Dhaka, Bangladesh</span>
             </div>
           </div>
-          <!-- Social (Center aligned) -->
           <div class="text-center">
             <h4 class="font-semibold text-gray-700 mb-3">Follow Us</h4>
             <div class="flex flex-wrap justify-center gap-3">
@@ -922,16 +863,11 @@ export function renderFooter() {
   }
 }
 
-// ================================================================
-// ✅ BACKWARD COMPATIBILITY: renderCartSidebar & updateCartUI
-// ================================================================
 export function renderCartSidebar() {
-  // পুরোনো sidebar-এর বদলে popup রেন্ডার করা হচ্ছে
   if (!cartPopupRendered) renderCartPopup();
 }
 
 export function updateCartUI() {
-  // popup-এর UI আপডেট
   updateCartPopupUI();
 }
 
@@ -971,9 +907,6 @@ function updateCartPopupUI() {
   totalEl.textContent = `$${total.toFixed(2)}`;
 }
 
-// ================================================================
-// ✅ LOADING BUTTON
-// ================================================================
 export function setLoading(button, isLoading, originalText = null) {
   if (!button) return;
   if (isLoading) {
@@ -990,18 +923,15 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (USDT FULLY FUNCTIONAL + QR CODE + DOWNLOAD)
+// ✅ PAYMENT MODAL & CHECKOUT (ADVANCE & FULL PAYMENT SYSTEM ADDED)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
 let _pendingCheckoutData = null;
 
-// ডিফল্ট USDT ঠিকানা (আপনার দেওয়া)
 const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
-// QR কোড ছবির পাথ (রুট ডিরেক্টরি)
 const QR_IMAGE_PATH = './Deposit USDT.jpeg';
 
-// ✅ QR জুম মোডালের জন্য গ্লোবাল ফাংশন (শুধু Download বাটন সহ)
 window.openQrZoom = function(imgSrc) {
   const modal = document.getElementById('qrZoomModal');
   const img = document.getElementById('qrZoomImage');
@@ -1020,7 +950,6 @@ window.closeQrZoom = function() {
   document.body.style.overflow = '';
 };
 
-// ✅ ডাউনলোড ফাংশন
 window.downloadQrImage = function() {
   const img = document.getElementById('qrZoomImage');
   if (!img) return;
@@ -1033,7 +962,6 @@ window.downloadQrImage = function() {
   showToast('✅ QR code downloaded!', 'success');
 };
 
-// QR জুম মোডাল HTML তৈরি (একবার)
 function renderQrZoomModal() {
   if (document.getElementById('qrZoomModal')) return;
   const modalHTML = `
@@ -1062,19 +990,18 @@ function renderQrZoomModal() {
 }
 
 export function renderPaymentModal() {
-  // প্রথমে QR জুম মোডাল রেন্ডার
   renderQrZoomModal();
 
   const existing = document.getElementById('paymentModal');
   if (existing) {
-    if (existing.dataset.version === 'v2') return;
+    if (existing.dataset.version === 'v3') return;
     existing.remove();
     const oldForm = document.getElementById('paymentForm');
     if (oldForm) oldForm.dataset.bound = '';
   }
 
   const modalHTML = `
-    <div id="paymentModal" data-version="v2" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
+    <div id="paymentModal" data-version="v3" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
       <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-2xl font-bold text-gray-900">Complete Payment</h3>
@@ -1084,13 +1011,29 @@ export function renderPaymentModal() {
         </div>
 
         <div id="paymentOrderSummary" class="mb-4 p-3 bg-blue-50 rounded-xl text-sm text-gray-700">
-          <div class="flex justify-between"><span>Order total</span><strong id="paymentTotalUSD">$0.00</strong></div>
-          <div id="paymentTotalBDTRow" class="flex justify-between mt-1 hidden"><span>Pay in BDT</span><strong id="paymentTotalBDT" class="text-green-700">৳0</strong></div>
+          <div class="flex justify-between"><span>Order Total</span><strong id="paymentTotalUSD">$0.00</strong></div>
+          <div id="paymentTotalBDTRow" class="flex justify-between mt-1 hidden"><span>Total in BDT</span><strong id="paymentTotalBDT" class="text-green-700">৳0</strong></div>
           <p id="paymentRateNote" class="text-xs text-gray-400 mt-1 hidden"></p>
         </div>
 
         <form id="paymentForm" class="space-y-4">
           <input type="hidden" id="paymentOrderId" />
+          
+          <!-- Payment Type Option: Full vs Advance (500 TK) -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Type *</label>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                <input type="radio" name="paymentType" value="full" checked class="text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm font-medium text-gray-800">Full Payment</span>
+              </label>
+              <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                <input type="radio" name="paymentType" value="advance" class="text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm font-medium text-gray-800">Advance (500 TK)</span>
+              </label>
+            </div>
+          </div>
+
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Method *</label>
             <select id="paymentMethodSelect" required class="form-input">
@@ -1147,6 +1090,14 @@ export function renderPaymentModal() {
     methodSelect.addEventListener('change', () => window.updatePaymentMethodUI());
   }
 
+  // Radio button change listener to recalculate amounts
+  document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
+    if (!radio.dataset.bound) {
+      radio.dataset.bound = '1';
+      radio.addEventListener('change', () => window.updatePaymentMethodUI());
+    }
+  });
+
   const paymentForm = document.getElementById('paymentForm');
   if (paymentForm && !paymentForm.dataset.bound) {
     paymentForm.dataset.bound = '1';
@@ -1160,6 +1111,7 @@ export function renderPaymentModal() {
       }
 
       const method = document.getElementById('paymentMethodSelect').value;
+      const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
       const txnId = document.getElementById('transactionId').value.trim();
       const senderNumber = document.getElementById('paymentSenderNumber').value.trim();
       const errorDiv = document.getElementById('paymentError');
@@ -1173,7 +1125,6 @@ export function renderPaymentModal() {
         return;
       }
 
-      // USDT validation
       if (method === 'USDT') {
         if (!senderNumber || senderNumber.length < 10) {
           errorDiv.textContent = '⚠️ Please enter your valid BEP20 sender address.';
@@ -1187,9 +1138,7 @@ export function renderPaymentModal() {
           document.getElementById('transactionId').classList.add('error');
           return;
         }
-        // Proceed to order creation
       } else {
-        // bKash / Nagad validation
         if (!senderNumber) {
           errorDiv.textContent = '⚠️ Please enter the number you paid from.';
           errorDiv.classList.remove('hidden');
@@ -1214,6 +1163,19 @@ export function renderPaymentModal() {
       const totalUSD = Number(_paymentOrderTotalUSD) || 0;
       const totalBDT = Math.round(totalUSD * rate);
 
+      // Calculations for Advance vs Full
+      let paidAmountBDT = totalBDT;
+      let dueAmountBDT = 0;
+      let paidAmountUSD = totalUSD;
+      let dueAmountUSD = 0;
+
+      if (paymentType === 'advance') {
+        paidAmountBDT = 500;
+        dueAmountBDT = Math.max(0, totalBDT - 500);
+        paidAmountUSD = Number((500 / rate).toFixed(2));
+        dueAmountUSD = Math.max(0, Number((totalUSD - paidAmountUSD).toFixed(2)));
+      }
+
       const btn = document.getElementById('paymentSubmitBtn');
       setLoading(btn, true, 'Confirm Payment');
 
@@ -1231,17 +1193,19 @@ export function renderPaymentModal() {
           total: pending.total,
           status: 'pending',
           paymentMethod: method,
+          paymentType: paymentType, // 'full' or 'advance'
           transactionId: txnId,
-          senderNumber: senderNumber, // For USDT this will be sender address
-          amountUSD: totalUSD,
-          amountBDT: totalBDT,
+          senderNumber: senderNumber,
+          amountUSD: paidAmountUSD,
+          amountBDT: paidAmountBDT,
+          dueAmountUSD: dueAmountUSD,
+          dueAmountBDT: dueAmountBDT,
           usdRate: rate,
           createdAt: serverTimestamp()
         };
 
-        // USDT-তে সেন্ডার নম্বর হিসেবে অ্যাড্রেস রাখবো, ও স্পষ্ট করার জন্য `senderAddress` ফিল্ড আলাদা রাখা ভালো, কিন্তু আমরা senderNumber-ই ব্যবহার করি
         if (method === 'USDT') {
-          orderData.senderAddress = senderNumber; // extra field
+          orderData.senderAddress = senderNumber;
         }
 
         const docRef = await addDoc(collection(db, 'orders'), orderData);
@@ -1282,10 +1246,13 @@ export function openPaymentModal(data) {
   _paymentOrderTotalUSD = Number(data.total) || 0;
 
   if (!(_paymentSettings.usdRate > 0)) _paymentSettings.usdRate = 125;
-  // USDT address fallback: settings থেকে না পেলে ডিফল্ট
   if (!_paymentSettings.usdt) {
     _paymentSettings.usdt = DEFAULT_USDT_ADDRESS;
   }
+
+  // Default radio to full payment
+  const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
+  if (fullRadio) fullRadio.checked = true;
 
   document.getElementById('paymentOrderId').value = '';
   document.getElementById('paymentTotalUSD').textContent = '$' + _paymentOrderTotalUSD.toFixed(2);
@@ -1311,6 +1278,7 @@ window.closePaymentModal = function() {
 
 window.updatePaymentMethodUI = function() {
   const method = document.getElementById('paymentMethodSelect')?.value || '';
+  const paymentType = document.querySelector('input[name="paymentType"]:checked')?.value || 'full';
   const details = document.getElementById('paymentMethodDetails');
   const addressBox = document.getElementById('paymentAddressBox');
   const howToBox = document.getElementById('paymentHowToBox');
@@ -1332,18 +1300,33 @@ window.updatePaymentMethodUI = function() {
   const totalUSD = Number(_paymentOrderTotalUSD) || 0;
   const totalBDT = Math.round(totalUSD * rate);
 
+  let payableBDT = totalBDT;
+  let payableUSD = totalUSD;
+
+  if (paymentType === 'advance') {
+    payableBDT = 500;
+    payableUSD = Number((500 / rate).toFixed(2));
+  }
+
   if (method === 'bKash' || method === 'Nagad') {
     bdtRow.classList.remove('hidden');
-    document.getElementById('paymentTotalBDT').textContent = '৳' + totalBDT.toLocaleString('en-BD');
+    const bdtText = paymentType === 'advance' ? '৳500 (Advance)' : '৳' + totalBDT.toLocaleString('en-BD');
+    document.getElementById('paymentTotalBDT').textContent = bdtText;
+    
     rateNote.classList.remove('hidden');
-    rateNote.textContent = `Rate: 1 USD = ৳${rate} · Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
+    if (paymentType === 'advance') {
+      const dueBDT = Math.max(0, totalBDT - 500);
+      rateNote.textContent = `Advance Payment: ৳500 · Remaining Due: ৳${dueBDT.toLocaleString('en-BD')} (Pay after work)`;
+    } else {
+      rateNote.textContent = `Rate: 1 USD = ৳${rate} · Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
+    }
 
     const number = method === 'bKash' ? (_paymentSettings.bkash || '') : (_paymentSettings.nagad || '');
     const color = method === 'bKash' ? 'text-pink-600' : 'text-orange-600';
     addressBox.innerHTML = number
       ? `<p class="font-semibold text-gray-800 mb-1">Send money to this ${method} number:</p>
          <p class="text-xl font-bold ${color} tracking-wide select-all">${number}</p>
-         <p class="text-xs text-gray-400 mt-1">Amount: <strong>৳${totalBDT.toLocaleString('en-BD')}</strong></p>`
+         <p class="text-xs text-gray-400 mt-1">Amount to send: <strong>৳${payableBDT.toLocaleString('en-BD')}</strong></p>`
       : `<p class="text-red-500">${method} number not set. Contact admin.</p>`;
 
     const appName = method === 'bKash' ? 'bKash' : 'Nagad';
@@ -1352,7 +1335,7 @@ window.updatePaymentMethodUI = function() {
     const user = auth.currentUser;
     const username = (user?.displayName || (user?.email ? user.email.split('@')[0] : '') || 'your username');
     const numDisplay = number || '—';
-    const amountDisplay = '৳' + totalBDT.toLocaleString('en-BD');
+    const amountDisplay = '৳' + payableBDT.toLocaleString('en-BD');
 
     howToBox.innerHTML = `
       <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-mobile-alt mr-1"></i> How to pay — ${appName} App</p>
@@ -1383,14 +1366,17 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSubmitBtn').disabled = !number;
 
   } else if (method === 'USDT') {
-    // USDT - fully functional with QR code + Download
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
-    rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+    if (paymentType === 'advance') {
+      const dueUSD = Math.max(0, Number((totalUSD - payableUSD).toFixed(2)));
+      rateNote.textContent = `Advance Payment: $${payableUSD.toFixed(2)} USD · Remaining Due: $${dueUSD.toFixed(2)} USD`;
+    } else {
+      rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+    }
 
     const usdtAddress = _paymentSettings.usdt || DEFAULT_USDT_ADDRESS;
 
-    // ✅ QR কোড দেখানো (ছবি রুট ডিরেক্টরি থেকে) – width 95%
     addressBox.innerHTML = `
       <p class="font-semibold text-gray-800 mb-2"><i class="fab fa-bitcoin text-yellow-500 mr-1"></i> USDT (BEP20)</p>
       <p class="text-sm text-gray-500">Network: <strong>BSC (BEP20)</strong></p>
@@ -1415,7 +1401,7 @@ window.updatePaymentMethodUI = function() {
           <i class="fas fa-copy"></i> Copy
         </button>
       </div>
-      <p class="text-xs text-gray-400 mt-2">Send exactly <strong>$${totalUSD.toFixed(2)} USDT</strong> to this address.</p>
+      <p class="text-xs text-gray-400 mt-2">Send exactly <strong>$${payableUSD.toFixed(2)} USDT</strong> to this address.</p>
       <p class="text-xs text-red-400 mt-1"><i class="fas fa-exclamation-triangle"></i> Use BEP20 network only, otherwise funds may be lost.</p>
     `;
 
@@ -1426,9 +1412,9 @@ window.updatePaymentMethodUI = function() {
         <li>Select coin: <strong>USDT</strong></li>
         <li>Select network: <strong>BSC (BEP20)</strong></li>
         <li>Paste the address: <strong class="select-all">${usdtAddress}</strong></li>
-        <li>Enter amount: <strong>$${totalUSD.toFixed(2)} USDT</strong></li>
+        <li>Enter amount: <strong>$${payableUSD.toFixed(2)} USDT</strong></li>
         <li>Double‑check the network and address, then submit</li>
-        <li>Copy the <strong>Transaction ID (TXID)</strong> and your <strong>Sender Address</strong> (your BEP20 wallet) below</li>
+        <li>Copy the <strong>Transaction ID (TXID)</strong> and your <strong>Sender Address</strong> below</li>
       </ol>
       <p class="text-xs text-blue-600"><i class="fas fa-info-circle"></i> Need help? <a href="https://www.binance.com/en/support/faq/how-to-withdraw-cryptocurrency-from-binance-360033577672" target="_blank" class="underline">Binance withdrawal guide</a></p>
     `;
@@ -1441,9 +1427,6 @@ window.updatePaymentMethodUI = function() {
   }
 };
 
-// ================================================================
-// ✅ CHECKOUT (UPDATED: No order creation, just opens modal)
-// ================================================================
 window.checkout = async function() {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   if (cart.length === 0) {
@@ -1465,7 +1448,6 @@ window.checkout = async function() {
     const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
     const settings = settingsSnap.exists() ? settingsSnap.data() : {};
     if (!settings.usdRate || Number(settings.usdRate) <= 0) settings.usdRate = 125;
-    // USDT address fallback
     if (!settings.usdt) {
       settings.usdt = DEFAULT_USDT_ADDRESS;
     }
@@ -1493,7 +1475,7 @@ window.checkout = async function() {
 };
 
 // ================================================================
-// ✅ CLOUDINARY ইমেজ আপলোড
+// ✅ CLOUDINARY UPLOAD
 // ================================================================
 const CLOUDINARY_CLOUD_NAME = 'zmoyykj7';
 const CLOUDINARY_UPLOAD_PRESET = 'codecurebd';
@@ -1526,9 +1508,6 @@ export async function uploadImage(file) {
   }
 }
 
-// ================================================================
-// ✅ SYNC CART & UPDATE CART IN FIRESTORE
-// ================================================================
 export async function syncCart(userId) {
   if (!userId) return;
   const cartRef = doc(db, 'carts', userId);
@@ -1561,9 +1540,6 @@ export async function updateCartInFirestore(userId, cart) {
   }
 }
 
-// ================================================================
-// ✅ NAVBAR AUTH UPDATE
-// ================================================================
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
   const profileSection = document.getElementById('profile-section');
@@ -1619,11 +1595,7 @@ export function updateNavbarAuth(user, displayName, role = null) {
   }
 }
 
-// ================================================================
-// ✅ GLOBAL CLOSE HANDLERS FOR DROPDOWNS (Mobile optimization)
-// ================================================================
 document.addEventListener('click', (e) => {
-  // Search
   const searchDropdown = document.getElementById('searchDropdown');
   const searchBtn = document.querySelector('[onclick="window.toggleSearchDropdown()"]');
   if (searchDropdown && searchBtn && !searchDropdown.classList.contains('hidden')) {
@@ -1638,7 +1610,6 @@ document.addEventListener('click', (e) => {
     }
   }
 
-  // Notification
   const notifDropdown = document.getElementById('notificationDropdown');
   const notifBtn = document.querySelector('[onclick="window.toggleNotifications()"]');
   if (notifBtn && notifDropdown && !notifDropdown.classList.contains('hidden')) {
@@ -1649,7 +1620,6 @@ document.addEventListener('click', (e) => {
     }
   }
 
-  // Cart
   const cartPopup = document.getElementById('cartPopup');
   const cartBtn = document.getElementById('cartBtn');
   if (cartBtn && cartPopup && !cartPopup.classList.contains('hidden')) {
@@ -1660,9 +1630,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ================================================================
-// ✅ ESC KEY HANDLER (Mobile optimization)
-// ================================================================
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const searchDropdown = document.getElementById('searchDropdown');
@@ -1686,11 +1653,10 @@ document.addEventListener('keydown', (e) => {
       cartPopup.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
     }
-    // QR জুম মোডাল বন্ধ
     if (document.getElementById('qrZoomModal') && !document.getElementById('qrZoomModal').classList.contains('hidden')) {
       window.closeQrZoom();
     }
   }
 });
 
-console.log('✅ components.js fully loaded with QR code + Download feature for USDT payment.');
+console.log('✅ components.js fully updated with Advance (500 TK) and Full Payment system.');
