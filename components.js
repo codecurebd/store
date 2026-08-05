@@ -1019,7 +1019,7 @@ export function renderPaymentModal() {
         <form id="paymentForm" class="space-y-4">
           <input type="hidden" id="paymentOrderId" />
           
-          <!-- Payment Type Option: Full vs Advance (500 TK) -->
+          <!-- Payment Type Option: Full vs Pay later (500 TK) -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Type *</label>
             <div class="grid grid-cols-2 gap-3">
@@ -1659,4 +1659,4 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('✅ components.js fully updated with Advance (500 TK) and Full Payment system.');
+console.log('✅ components.js fully updated with Pay later and Full Payment system.');
