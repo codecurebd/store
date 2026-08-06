@@ -872,30 +872,8 @@
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- ===== AUTH MODAL ===== -->
-  <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3>
-        <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
-      </div>
-      <form id="authForm" class="space-y-4">
-        <input type="email" id="authEmail" placeholder="Email" required class="form-input" />
-        <div class="relative">
-          <input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" />
-          <button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button>
-        </div>
-        <button type="submit" class="btn-primary w-full justify-center">Continue</button>
-      </form>
-      <div class="mt-4 flex flex-col gap-2">
-        <button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button>
-      </div>
-      <p class="mt-4 text-sm text-gray-500 text-center">
-        <span id="authToggleText">Don't have an account?</span>
-        <a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a>
-      </p>
-      <div id="authError" class="text-red-500 text-sm mt-2 hidden"></div>
-    </div>
+  <!-- Auth Modal is now rendered by components.js (renderAuthModal) -->
+
   </div>
 
   <div id="toast-container"></div>
@@ -910,13 +888,15 @@
       onAuthStateChanged, signOut, setDoc, 
       signInWithPopup, googleProvider, serverTimestamp, addDoc
     } from './firebase-config.js';
-    import { 
-      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, 
-      renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore
-    } from './components.js';
+    import {
+renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
+      renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore,
+  renderAuthModal
+} from './components.js';
 
     // ===== রেন্ডার =====
     renderNavbar();
+    renderAuthModal();
     renderFooter();
     renderCartSidebar();
     renderPaymentModal();
@@ -961,97 +941,11 @@
     });
 
     // ===== AUTH MODAL =====
-    let currentAuthMode = 'signin';
-    window.openAuthModal = (mode) => {
-      currentAuthMode = mode;
-      document.getElementById('authModalTitle').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
-      document.getElementById('authToggleText').textContent = mode === 'signin' ? "Don't have an account?" : "Already have an account?";
-      document.getElementById('authToggleLink').textContent = mode === 'signin' ? 'Sign Up' : 'Sign In';
-      document.getElementById('authError').classList.add('hidden');
-      document.getElementById('authModal').classList.remove('hidden');
-    };
-    window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
-
-    document.getElementById('authToggleLink').addEventListener('click', (e) => {
-      e.preventDefault();
-      currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
-      window.openAuthModal(currentAuthMode);
-    });
-
-    window.togglePasswordVisibility = (id) => {
-      const input = document.getElementById(id);
-      input.type = input.type === 'password' ? 'text' : 'password';
-    };
-
-    window.socialLogin = async (provider) => {
-      if (provider !== 'google') {
-        showToast('Only Google sign-in is supported', 'warning');
-        return;
-      }
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, 'users', user.uid), {
-            email: user.email || '',
-            displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
-            photoURL: user.photoURL || '',
-            role: 'user',
-            createdAt: new Date().toISOString(),
-            isActive: true,
-            emailVerified: !!user.emailVerified,
-          });
-        }
-        showToast('✅ Signed in with Google', 'success');
-        if (typeof closeAuthModal === 'function') closeAuthModal();
-        else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
-      } catch (error) {
-        console.error('Google sign-in error:', error);
-        let msg = error.message || 'Sign-in failed';
-        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
-        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
-        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
-        showToast('⚠️ ' + msg, 'error');
-        const errEl = document.getElementById('authError');
-        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
-      }
-    };
-
-    const authForm = document.getElementById('authForm');
-    const authSubmitBtn = authForm.querySelector('button[type="submit"]');
-    authForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('authEmail').value.trim();
-      const password = document.getElementById('authPassword').value.trim();
-      const errorDiv = document.getElementById('authError');
-      errorDiv.classList.add('hidden');
-      setLoading(authSubmitBtn, true, 'Continue');
-      try {
-        let userCred;
-        if (currentAuthMode === 'signin') {
-          userCred = await signInWithEmailAndPassword(auth, email, password);
-          showToast('✅ Signed in!', 'success');
-        } else {
-          userCred = await createUserWithEmailAndPassword(auth, email, password);
-          await setDoc(doc(db, 'users', userCred.user.uid), {
-            email, displayName: email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
-          });
-          showToast('✅ Account created!', 'success');
-        }
-        closeAuthModal();
-        authForm.reset();
-      } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.remove('hidden');
-        showToast('⚠️ ' + error.message, 'error');
-      } finally {
-        setLoading(authSubmitBtn, false);
-      }
-    });
-
-    onAuthStateChanged(auth, async (user) => {
+    // Auth handled by components.js (renderAuthModal / openAuthModal)
+// togglePasswordVisibility moved to components.js as toggleAuthPassword
+// socialLogin handled by components.js
+// Auth form handled by components.js
+onAuthStateChanged(auth, async (user) => {
       let name = null;
       if (user) {
         await syncCart(user.uid);
@@ -1061,12 +955,8 @@
       updateNavbarAuth(user, name);
     });
 
-    window.handleLogout = async () => {
-      await signOut(auth);
-      showToast('✅ Logged out', 'success');
-    };
-
-    // ================================================================
+    // handleLogout handled by components.js
+// ================================================================
     // ✅ PRICE & DISCOUNT HELPERS (for featured products)
     // ================================================================
 

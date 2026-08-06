@@ -2,7 +2,10 @@
 import { 
   auth, onAuthStateChanged, signOut, db, doc, getDoc, setDoc,
   updateDoc, serverTimestamp, collection, addDoc, query, where, onSnapshot,
-  deleteDoc, getDocs
+  deleteDoc, getDocs,
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  sendPasswordResetEmail, sendEmailVerification,
+  signInWithPopup, googleProvider
 } from './firebase-config.js';
 
 // ================================================================
@@ -1859,5 +1862,377 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('✅ components.js fully updated with Pay later, Full Payment, and Due Payment system.');
-console.log('✅ Fixed: Firestore cart cleared after payment.');
+// ================================================================
+// ✅ COMMON AUTH MODAL SYSTEM (Advanced - Shared across all pages)
+// ================================================================
+
+let currentAuthMode = 'signin'; // signin | signup | forgot
+
+export function renderAuthModal() {
+  if (document.getElementById('authModal')) return;
+
+  const modalHTML = `
+    <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[600] hidden p-4">
+      <div class="bg-white rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto" style="animation: scaleIn 0.3s ease forwards;">
+        
+        <div class="flex justify-between items-center mb-5">
+          <h3 id="authModalTitle" class="text-2xl font-bold text-gray-900">Sign In</h3>
+          <button onclick="window.closeAuthModal()" class="text-gray-400 hover:text-gray-600 text-xl transition-colors" aria-label="Close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <form id="authForm" class="space-y-4">
+          <div id="nameField" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
+            <input type="text" id="authName" class="form-input" placeholder="Your full name" autocomplete="name" />
+          </div>
+
+          <div id="phoneField" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
+            <input type="tel" id="authPhone" class="form-input" placeholder="+880 1XXX-XXXXXX" autocomplete="tel" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Email *</label>
+            <input type="email" id="authEmail" placeholder="your@email.com" required class="form-input" autocomplete="email" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Password *</label>
+            <div class="relative">
+              <input type="password" id="authPassword" placeholder="••••••••" required class="form-input pr-12" autocomplete="current-password" />
+              <button type="button" onclick="window.toggleAuthPassword('authPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600">
+                <i class="fas fa-eye" id="authPassIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="confirmPasswordField" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password *</label>
+            <div class="relative">
+              <input type="password" id="authConfirmPassword" placeholder="••••••••" class="form-input pr-12" autocomplete="new-password" />
+              <button type="button" onclick="window.toggleAuthPassword('authConfirmPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="forgotPasswordLink" class="text-right">
+            <a href="#" onclick="window.openForgotPassword(event)" class="text-sm text-blue-600 hover:underline font-medium">
+              Forgot Password?
+            </a>
+          </div>
+
+          <button type="submit" class="btn-primary w-full justify-center" id="authSubmitBtn">
+            Sign In
+          </button>
+        </form>
+
+        <form id="forgotPasswordForm" class="space-y-4 hidden">
+          <p class="text-sm text-gray-500">
+            Enter your email address and we will send you a link to reset your password.
+          </p>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Email Address *</label>
+            <input type="email" id="forgotEmail" placeholder="your@email.com" required class="form-input" />
+          </div>
+          <button type="submit" class="btn-primary w-full justify-center" id="forgotSubmitBtn">
+            <i class="fas fa-paper-plane"></i> Send Reset Link
+          </button>
+          <button type="button" onclick="window.backToSignIn()" class="btn-outline w-full justify-center text-sm">
+            ← Back to Sign In
+          </button>
+        </form>
+
+        <div id="socialLoginSection" class="mt-5">
+          <div class="relative my-4">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-3 bg-white text-gray-400">or continue with</span>
+            </div>
+          </div>
+          <button type="button" onclick="window.socialLogin('google')" class="btn-outline w-full justify-center">
+            <i class="fab fa-google text-red-500"></i> Continue with Google
+          </button>
+        </div>
+
+        <p id="authToggleSection" class="mt-5 text-sm text-gray-500 text-center">
+          <span id="authToggleText">Don't have an account?</span>
+          <a href="#" id="authToggleLink" class="text-blue-600 font-medium hover:underline">Sign Up</a>
+        </p>
+
+        <div id="authError" class="text-red-500 text-sm mt-3 hidden text-center p-2 bg-red-50 rounded-lg"></div>
+        <div id="authSuccess" class="text-green-600 text-sm mt-3 hidden text-center p-2 bg-green-50 rounded-lg"></div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  initAuthModalEvents();
+}
+
+function updateAuthUI() {
+  const title = document.getElementById('authModalTitle');
+  const nameField = document.getElementById('nameField');
+  const phoneField = document.getElementById('phoneField');
+  const confirmField = document.getElementById('confirmPasswordField');
+  const forgotLink = document.getElementById('forgotPasswordLink');
+  const authForm = document.getElementById('authForm');
+  const forgotForm = document.getElementById('forgotPasswordForm');
+  const socialSection = document.getElementById('socialLoginSection');
+  const toggleSection = document.getElementById('authToggleSection');
+  const toggleText = document.getElementById('authToggleText');
+  const toggleLink = document.getElementById('authToggleLink');
+  const submitBtn = document.getElementById('authSubmitBtn');
+
+  [nameField, phoneField, confirmField, forgotLink, authForm, forgotForm, socialSection, toggleSection].forEach(el => {
+    if (el) el.classList.add('hidden');
+  });
+
+  if (currentAuthMode === 'signin') {
+    title.textContent = 'Sign In';
+    authForm.classList.remove('hidden');
+    forgotLink.classList.remove('hidden');
+    socialSection.classList.remove('hidden');
+    toggleSection.classList.remove('hidden');
+    toggleText.textContent = "Don't have an account?";
+    toggleLink.textContent = 'Sign Up';
+    submitBtn.innerHTML = 'Sign In';
+  } else if (currentAuthMode === 'signup') {
+    title.textContent = 'Create Account';
+    authForm.classList.remove('hidden');
+    nameField.classList.remove('hidden');
+    phoneField.classList.remove('hidden');
+    confirmField.classList.remove('hidden');
+    socialSection.classList.remove('hidden');
+    toggleSection.classList.remove('hidden');
+    toggleText.textContent = 'Already have an account?';
+    toggleLink.textContent = 'Sign In';
+    submitBtn.innerHTML = 'Create Account';
+  } else if (currentAuthMode === 'forgot') {
+    title.textContent = 'Reset Password';
+    forgotForm.classList.remove('hidden');
+  }
+}
+
+function initAuthModalEvents() {
+  document.getElementById('authToggleLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
+    updateAuthUI();
+    clearAuthMessages();
+  });
+
+  const authForm = document.getElementById('authForm');
+  if (authForm) authForm.addEventListener('submit', handleAuthSubmit);
+
+  const forgotForm = document.getElementById('forgotPasswordForm');
+  if (forgotForm) forgotForm.addEventListener('submit', handleForgotPassword);
+
+  document.getElementById('authModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'authModal') window.closeAuthModal();
+  });
+}
+
+function clearAuthMessages() {
+  document.getElementById('authError')?.classList.add('hidden');
+  document.getElementById('authSuccess')?.classList.add('hidden');
+}
+
+async function handleAuthSubmit(e) {
+  e.preventDefault();
+  clearAuthMessages();
+
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const name = document.getElementById('authName')?.value.trim() || '';
+  const phone = document.getElementById('authPhone')?.value.trim() || '';
+  const confirmPassword = document.getElementById('authConfirmPassword')?.value || '';
+  const submitBtn = document.getElementById('authSubmitBtn');
+
+  setLoading(submitBtn, true);
+
+  try {
+    if (currentAuthMode === 'signin') {
+      await signInWithEmailAndPassword(auth, email, password);
+      showToast('✅ Signed in successfully!', 'success');
+      window.closeAuthModal();
+    } else if (currentAuthMode === 'signup') {
+      if (!name) throw new Error('Please enter your full name');
+      if (password.length < 6) throw new Error('Password must be at least 6 characters');
+      if (password !== confirmPassword) throw new Error('Passwords do not match');
+
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCred.user;
+
+      await setDoc(doc(db, 'users', user.uid), {
+        email,
+        displayName: name,
+        phone: phone || '',
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        isActive: true,
+        emailVerified: false
+      });
+
+      try { await sendEmailVerification(user); } catch (ve) { console.warn('Verification email failed:', ve); }
+
+      showToast('✅ Account created successfully!', 'success');
+      window.closeAuthModal();
+    }
+  } catch (error) {
+    console.error(error);
+    let msg = error.message;
+    if (error.code === 'auth/email-already-in-use') msg = 'This email is already registered';
+    else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') msg = 'Incorrect email or password';
+    else if (error.code === 'auth/user-not-found') msg = 'No account found with this email';
+    else if (error.code === 'auth/weak-password') msg = 'Password is too weak (min 6 characters)';
+    else if (error.code === 'auth/invalid-email') msg = 'Invalid email address';
+    else if (error.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later';
+
+    const errorDiv = document.getElementById('authError');
+    if (errorDiv) {
+      errorDiv.textContent = '⚠️ ' + msg;
+      errorDiv.classList.remove('hidden');
+    }
+  } finally {
+    setLoading(submitBtn, false);
+  }
+}
+
+async function handleForgotPassword(e) {
+  e.preventDefault();
+  clearAuthMessages();
+
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) {
+    const err = document.getElementById('authError');
+    if (err) { err.textContent = 'Please enter your email'; err.classList.remove('hidden'); }
+    return;
+  }
+
+  const btn = document.getElementById('forgotSubmitBtn');
+  setLoading(btn, true, 'Sending...');
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    const successDiv = document.getElementById('authSuccess');
+    if (successDiv) {
+      successDiv.innerHTML = '✅ Password reset link sent!<br>Check your inbox and spam folder.';
+      successDiv.classList.remove('hidden');
+    }
+    showToast('✅ Reset link sent to your email', 'success');
+  } catch (error) {
+    let msg = error.message;
+    if (error.code === 'auth/user-not-found') msg = 'No account found with this email';
+    else if (error.code === 'auth/invalid-email') msg = 'Invalid email address';
+    const err = document.getElementById('authError');
+    if (err) { err.textContent = '⚠️ ' + msg; err.classList.remove('hidden'); }
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+window.openAuthModal = function(mode = 'signin') {
+  currentAuthMode = mode;
+  renderAuthModal();
+  updateAuthUI();
+  clearAuthMessages();
+  document.getElementById('authModal').classList.remove('hidden');
+  setTimeout(() => {
+    const firstInput = currentAuthMode === 'forgot'
+      ? document.getElementById('forgotEmail')
+      : document.getElementById('authEmail');
+    firstInput?.focus();
+  }, 100);
+};
+
+window.closeAuthModal = function() {
+  document.getElementById('authModal')?.classList.add('hidden');
+};
+
+window.openForgotPassword = function(e) {
+  if (e) e.preventDefault();
+  currentAuthMode = 'forgot';
+  updateAuthUI();
+  clearAuthMessages();
+};
+
+window.backToSignIn = function() {
+  currentAuthMode = 'signin';
+  updateAuthUI();
+  clearAuthMessages();
+};
+
+window.toggleAuthPassword = function(id) {
+  const input = document.getElementById(id);
+  if (!input) return;
+  const icon = input.parentElement.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (icon) icon.className = 'fas fa-eye-slash';
+  } else {
+    input.type = 'password';
+    if (icon) icon.className = 'fas fa-eye';
+  }
+};
+
+window.socialLogin = async function(provider) {
+  if (provider !== 'google') {
+    showToast('Only Google sign-in is supported', 'warning');
+    return;
+  }
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (!userDoc.exists()) {
+      await setDoc(doc(db, 'users', user.uid), {
+        email: user.email || '',
+        displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+        photoURL: user.photoURL || '',
+        phone: '',
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        isActive: true,
+        emailVerified: !!user.emailVerified,
+      });
+    }
+    showToast('✅ Signed in with Google', 'success');
+    window.closeAuthModal();
+  } catch (error) {
+    console.error('Google sign-in error:', error);
+    let msg = error.message || 'Sign-in failed';
+    if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
+    else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Please allow popups.';
+    else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase.';
+    else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled.';
+    showToast('⚠️ ' + msg, 'error');
+  }
+};
+
+window.handleLogout = async function() {
+  try {
+    await signOut(auth);
+    showToast('✅ Logged out', 'success');
+    // Stay on page or redirect if needed - pages can override
+    if (window.location.pathname.includes('my-') || window.location.pathname.includes('messages') || window.location.pathname.includes('settings')) {
+      window.location.href = 'index.html';
+    }
+  } catch (err) {
+    showToast('⚠️ ' + err.message, 'error');
+  }
+};
+
+// Also close auth modal on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const authModal = document.getElementById('authModal');
+    if (authModal && !authModal.classList.contains('hidden')) {
+      window.closeAuthModal();
+    }
+  }
+});
+
+console.log('✅ components.js: Common Auth Modal system loaded (Sign In / Sign Up / Forgot Password / Google).');
