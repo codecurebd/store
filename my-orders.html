@@ -181,6 +181,61 @@
     }
     .btn-delete:hover { background: #fecaca; }
 
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+    }
+    .btn-danger:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+    }
+    .btn-danger:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .cancel-checkbox-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      text-align: left;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .cancel-checkbox-wrap input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: #dc2626;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .cancel-checkbox-wrap span {
+      font-size: 0.85rem;
+      color: #7f1d1d;
+      line-height: 1.4;
+    }
+
     .pay-due-btn {
       background: linear-gradient(135deg, #f59e0b, #d97706);
       color: #fff;
@@ -520,8 +575,9 @@
       <div class="modal-header" style="justify-content:center; margin-bottom:0.5rem;">
         <h3 id="confirmModalTitle" class="text-xl font-bold text-gray-900 text-center">Confirm</h3>
       </div>
-      <div id="confirmModalBody" class="text-center text-gray-600 text-sm leading-relaxed mb-4"></div>
-      <div class="mt-2 flex gap-3">
+      <div id="confirmModalBody" class="text-center text-gray-600 text-sm leading-relaxed mb-2"></div>
+      <div id="confirmModalCheckboxArea" class="hidden"></div>
+      <div class="mt-4 flex gap-3">
         <button type="button" id="confirmModalYes" class="btn-danger flex-1 justify-center">Yes, Cancel</button>
         <button type="button" id="confirmModalNo" class="btn-outline flex-1 justify-center">Keep Order</button>
       </div>
@@ -648,23 +704,67 @@
     }
 
     // ================================================================
-    // CUSTOM CONFIRM MODAL
+    // CUSTOM CONFIRM MODAL (supports optional required checkbox)
     // ================================================================
     let confirmModalResolve = null;
+    let confirmRequiresCheckbox = false;
 
-    window.showConfirmModal = function(title, bodyHtml, yesText, noText) {
+    window.showConfirmModal = function(title, bodyHtml, yesText, noText, options = {}) {
       return new Promise((resolve) => {
+        confirmRequiresCheckbox = !!options.requireCheckbox;
         document.getElementById('confirmModalTitle').textContent = title || 'Confirm';
         document.getElementById('confirmModalBody').innerHTML = bodyHtml || '';
         document.getElementById('confirmModalYes').textContent = yesText || 'Yes';
         document.getElementById('confirmModalNo').textContent = noText || 'Cancel';
+
+        const checkboxArea = document.getElementById('confirmModalCheckboxArea');
+        const yesBtn = document.getElementById('confirmModalYes');
+
+        if (confirmRequiresCheckbox) {
+          const checkboxLabel = options.checkboxLabel || 'I understand and want to cancel this order';
+          checkboxArea.innerHTML = `
+            <label class="cancel-checkbox-wrap">
+              <input type="checkbox" id="confirmCancelCheckbox" />
+              <span>${checkboxLabel}</span>
+            </label>
+          `;
+          checkboxArea.classList.remove('hidden');
+          yesBtn.disabled = true;
+
+          const cb = document.getElementById('confirmCancelCheckbox');
+          if (cb) {
+            cb.addEventListener('change', () => {
+              yesBtn.disabled = !cb.checked;
+            });
+          }
+        } else {
+          checkboxArea.innerHTML = '';
+          checkboxArea.classList.add('hidden');
+          yesBtn.disabled = false;
+        }
+
         document.getElementById('confirmModal').classList.add('open');
         confirmModalResolve = resolve;
       });
     };
 
     function finishConfirmModal(result) {
+      if (result && confirmRequiresCheckbox) {
+        const cb = document.getElementById('confirmCancelCheckbox');
+        if (!cb || !cb.checked) {
+          showToast('Please check the confirmation box to proceed.', 'warning');
+          return;
+        }
+      }
       document.getElementById('confirmModal').classList.remove('open');
+      const checkboxArea = document.getElementById('confirmModalCheckboxArea');
+      if (checkboxArea) {
+        checkboxArea.innerHTML = '';
+        checkboxArea.classList.add('hidden');
+      }
+      confirmRequiresCheckbox = false;
+      const yesBtn = document.getElementById('confirmModalYes');
+      if (yesBtn) yesBtn.disabled = false;
       if (confirmModalResolve) {
         confirmModalResolve(result);
         confirmModalResolve = null;
@@ -1273,7 +1373,7 @@
     };
 
     // ================================================================
-    // ✅ ORDER CANCEL
+    // ✅ ORDER CANCEL (simple description + checkbox, no re-auth)
     // ================================================================
 
     window.deleteOrder = async (orderId) => {
@@ -1287,115 +1387,42 @@
       const user = auth.currentUser;
       if (!user) { showToast('Not logged in', 'error'); return; }
 
-      const providers = (user.providerData || []).map(p => p.providerId);
-      const hasPassword = providers.includes('password');
-      const hasGoogle = providers.includes('google.com');
+      const shortId = (orderId || '').slice(0, 8).toUpperCase();
+      const paymentType = order.paymentType || 'full';
+      const isAdvance = paymentType === 'advance';
+
+      const bodyHtml = `
+        <p class="text-left">You are about to cancel order <strong>#${shortId}</strong>.</p>
+        <ul class="text-left mt-3 space-y-2 text-sm text-gray-600 list-disc list-inside">
+          <li>If you have already made a <strong>full payment</strong>, you will receive a refund according to our rules after admin verification (usually within 3–7 business days).</li>
+          <li>If you selected the <strong>Pay Later</strong> (advance) option, you will receive a <strong>৳300 refund</strong>, and the remaining <strong>৳200</strong> will be retained as a maintenance fee for the order.</li>
+        </ul>
+        <p class="mt-3 text-red-600 font-semibold text-left">This action cannot be undone.</p>
+        ${isAdvance ? '<p class="mt-2 text-amber-700 text-sm text-left bg-amber-50 rounded-lg px-3 py-2">This order used <strong>Pay Later</strong> — the ৳300 refund / ৳200 fee rule above applies.</p>' : ''}
+      `;
 
       const confirmed = await window.showConfirmModal(
         'Cancel this order?',
-        `<p>You are about to cancel order <strong>#${(orderId || '').slice(0, 8).toUpperCase()}</strong>.</p>
-         <p class="mt-2">If payment was received, you may get a <strong>95% refund</strong> after admin verification (usually 3–7 business days).</p>
-         <p class="mt-2 text-red-600"><strong>This cannot be undone.</strong></p>
-         <p class="mt-2 text-sm text-gray-500">${hasPassword ? 'Next step: enter your password.' : hasGoogle ? 'Next step: confirm with your Google account.' : 'Next step: verify your identity.'}</p>`,
-        'Yes, Cancel Order',
-        'Keep Order'
+        bodyHtml,
+        'Confirm Cancel',
+        'Keep Order',
+        {
+          requireCheckbox: true,
+          checkboxLabel: 'I understand the refund policy and want to cancel this order'
+        }
       );
+
       if (!confirmed) {
         showToast('Order kept — nothing was cancelled', 'warning');
         return;
       }
 
-      if (hasGoogle && !hasPassword) {
-        try {
-          showToast('Confirm with Google…', 'warning');
-          await reauthenticateWithCredential(user, googleProvider);
-          await deleteDoc(doc(db, 'orders', orderId));
-          showToast('✅ Order cancelled. Admin will process 95% refund if payment was received.', 'success');
-        } catch (err) {
-          console.error('Google reauth cancel error:', err);
-          if (err.code === 'auth/popup-closed-by-user') {
-            showToast('Cancellation cancelled', 'warning');
-          } else if (err.code === 'auth/popup-blocked') {
-            showToast('⚠️ Popup blocked. Allow popups and try again.', 'error');
-          } else {
-            showToast('⚠️ ' + (err.message || 'Cancellation failed'), 'error');
-          }
-        }
-        return;
-      }
-
-      if (!user.email) {
-        showToast('Account email missing. Cannot verify.', 'error');
-        return;
-      }
-
-      let done = false;
-      let showErrorOnOpen = false;
-
-      while (!done) {
-        const password = await new Promise((resolve) => {
-          document.getElementById('passwordModalTitle').textContent = 'Confirm with password';
-          document.getElementById('passwordModalDesc').textContent =
-            'Enter your account password to cancel this pending order (95% refund policy applies).';
-          const input = document.getElementById('passwordInput');
-          input.value = '';
-          input.type = 'password';
-          const errEl = document.getElementById('passwordError');
-          if (showErrorOnOpen) {
-            errEl.textContent = '❌ Incorrect password. Please try again.';
-            errEl.classList.remove('hidden');
-          } else {
-            errEl.textContent = '';
-            errEl.classList.add('hidden');
-          }
-          document.getElementById('passwordModal').classList.add('open');
-          passwordModalResolve = resolve;
-          setTimeout(() => input.focus(), 50);
-        });
-
-        if (!password) {
-          showToast('Cancellation cancelled', 'warning');
-          return;
-        }
-
-        if (password.length < 6) {
-          showErrorOnOpen = true;
-          continue;
-        }
-
-        const btn = document.getElementById('passwordConfirmBtn');
-        try {
-          if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-          }
-          const credential = EmailAuthProvider.credential(user.email, password);
-          await reauthenticateWithCredential(user, credential);
-          await deleteDoc(doc(db, 'orders', orderId));
-          showToast('✅ Order cancelled. Admin will process 95% refund if payment was received.', 'success');
-          done = true;
-        } catch (err) {
-          console.error('Cancel order error:', err);
-          const code = err.code || '';
-          if (
-            code === 'auth/wrong-password' ||
-            code === 'auth/invalid-credential' ||
-            code === 'auth/invalid-login-credentials'
-          ) {
-            showErrorOnOpen = true;
-          } else if (code === 'auth/too-many-requests') {
-            showToast('⚠️ Too many attempts. Please wait and try again later.', 'error');
-            done = true;
-          } else {
-            showToast('⚠️ ' + (err.message || 'Cancellation failed'), 'error');
-            done = true;
-          }
-        } finally {
-          if (btn) {
-            btn.disabled = false;
-            btn.textContent = 'Confirm';
-          }
-        }
+      try {
+        await deleteDoc(doc(db, 'orders', orderId));
+        showToast('✅ Order cancelled. Admin will process the refund according to the policy.', 'success');
+      } catch (err) {
+        console.error('Cancel order error:', err);
+        showToast('⚠️ ' + (err.message || 'Cancellation failed'), 'error');
       }
     };
 
