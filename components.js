@@ -1314,11 +1314,17 @@ export function renderPaymentModal() {
 
         showToast('✅ Payment confirmed! Order placed. Admin will verify soon.', 'success');
         window.closePaymentModal();
+        
+        // --- CLEAR CART (LOCAL + FIRESTORE) ---
         localStorage.removeItem('cart');
         updateCartPopupUI();
         updateCartBadge();
+
+        // 🔥 CRITICAL FIX: Clear Firestore cart to prevent sync from restoring it
+        await updateCartInFirestore(pending.user.uid, []);
+
         if (typeof window.toggleCart === 'function') window.toggleCart();
-        
+
         window._pendingCheckoutData = null;
         setTimeout(() => {
           window.location.href = 'my-orders.html';
@@ -1854,3 +1860,4 @@ document.addEventListener('keydown', (e) => {
 });
 
 console.log('✅ components.js fully updated with Pay later, Full Payment, and Due Payment system.');
+console.log('✅ Fixed: Firestore cart cleared after payment.');
