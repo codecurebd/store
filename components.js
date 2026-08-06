@@ -928,6 +928,7 @@ export function setLoading(button, isLoading, originalText = null) {
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
 let _pendingCheckoutData = null;
+let _duePaymentData = null; // For due payment
 
 const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
 const QR_IMAGE_PATH = './Deposit USDT.jpeg';
@@ -1001,7 +1002,7 @@ export function renderPaymentModal() {
   }
 
   const modalHTML = `
-    <div id="paymentModal" data-version="v3" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
+    <div id="paymentModal" data-version="v3" data-duemode="false" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
       <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-2xl font-bold text-gray-900">Complete Payment</h3>
@@ -1020,7 +1021,7 @@ export function renderPaymentModal() {
           <input type="hidden" id="paymentOrderId" />
           
           <!-- Payment Type Option: Full vs Pay later (500 TK) -->
-          <div>
+          <div id="paymentTypeGroup">
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Type *</label>
             <div class="grid grid-cols-2 gap-3">
               <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
@@ -1104,6 +1105,106 @@ export function renderPaymentModal() {
     paymentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
+      const isDueMode = document.getElementById('paymentModal').dataset.duemode === 'true';
+      const dueData = window._duePaymentData;
+      const orderId = document.getElementById('paymentOrderId').value;
+
+      // If due mode, handle due payment update
+      if (isDueMode && dueData) {
+        const method = document.getElementById('paymentMethodSelect').value;
+        const txnId = document.getElementById('transactionId').value.trim();
+        const senderNumber = document.getElementById('paymentSenderNumber').value.trim();
+        const errorDiv = document.getElementById('paymentError');
+        errorDiv.classList.add('hidden');
+        document.querySelectorAll('#paymentForm .form-input').forEach(el => el.classList.remove('error'));
+
+        if (!method) {
+          errorDiv.textContent = '⚠️ Please select a payment method.';
+          errorDiv.classList.remove('hidden');
+          methodSelect.classList.add('error');
+          return;
+        }
+
+        if (method === 'USDT') {
+          if (!senderNumber || senderNumber.length < 10) {
+            errorDiv.textContent = '⚠️ Please enter your valid BEP20 sender address.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('paymentSenderNumber').classList.add('error');
+            return;
+          }
+          if (!txnId || txnId.length < 5) {
+            errorDiv.textContent = '⚠️ Please enter a valid USDT transaction ID.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('transactionId').classList.add('error');
+            return;
+          }
+        } else {
+          if (!senderNumber) {
+            errorDiv.textContent = '⚠️ Please enter the number you paid from.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('paymentSenderNumber').classList.add('error');
+            return;
+          }
+          if (!txnId) {
+            errorDiv.textContent = '⚠️ Please enter transaction ID.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('transactionId').classList.add('error');
+            return;
+          }
+        }
+
+        if (!auth.currentUser) {
+          errorDiv.textContent = '⚠️ You are not logged in.';
+          errorDiv.classList.remove('hidden');
+          return;
+        }
+
+        const btn = document.getElementById('paymentSubmitBtn');
+        setLoading(btn, true, 'Processing...');
+
+        try {
+          const orderRef = doc(db, 'orders', dueData.orderId);
+          const orderSnap = await getDoc(orderRef);
+          if (!orderSnap.exists()) {
+            throw new Error('Order not found.');
+          }
+
+          const currentOrder = orderSnap.data();
+          const newPaidBDT = (currentOrder.amountBDT || 0) + dueData.dueBDT;
+          const newPaidUSD = (currentOrder.amountUSD || 0) + dueData.dueUSD;
+          const newDueBDT = Math.max(0, (currentOrder.dueAmountBDT || 0) - dueData.dueBDT);
+          const newDueUSD = Math.max(0, (currentOrder.dueAmountUSD || 0) - dueData.dueUSD);
+
+          await updateDoc(orderRef, {
+            amountBDT: newPaidBDT,
+            amountUSD: newPaidUSD,
+            dueAmountBDT: newDueBDT,
+            dueAmountUSD: newDueUSD,
+            transactionId: txnId,
+            senderNumber: senderNumber,
+            paymentMethod: method,
+            updatedAt: serverTimestamp(),
+            ...(newDueBDT === 0 ? { duePaidAt: serverTimestamp() } : {})
+          });
+
+          window.showToast('✅ Due payment successful! Order updated.', 'success');
+          window.closePaymentModal();
+          window._duePaymentData = null;
+          // Refresh the page to update order list
+          setTimeout(() => window.location.reload(), 1500);
+
+        } catch (err) {
+          console.error('Due payment error:', err);
+          errorDiv.textContent = '⚠️ ' + err.message;
+          errorDiv.classList.remove('hidden');
+          window.showToast('⚠️ ' + err.message, 'error');
+        } finally {
+          setLoading(btn, false);
+        }
+        return;
+      }
+
+      // Normal checkout (full or advance) - existing logic
       const pending = window._pendingCheckoutData;
       if (!pending) {
         showToast('Checkout data missing. Please try again.', 'error');
@@ -1250,6 +1351,16 @@ export function openPaymentModal(data) {
     _paymentSettings.usdt = DEFAULT_USDT_ADDRESS;
   }
 
+  // Reset due mode
+  document.getElementById('paymentModal').dataset.duemode = 'false';
+  // Enable advance radio
+  document.querySelectorAll('input[name="paymentType"]').forEach(el => {
+    if (el.value === 'advance') {
+      el.disabled = false;
+      el.closest('label').style.display = '';
+    }
+  });
+
   // Default radio to full payment
   const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
   if (fullRadio) fullRadio.checked = true;
@@ -1271,14 +1382,81 @@ export function openPaymentModal(data) {
 }
 window.openPaymentModal = openPaymentModal;
 
+// ================================================================
+// ✅ DUE PAYMENT MODAL (Pay remaining due)
+// ================================================================
+window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderData) {
+  if (!document.getElementById('paymentModal')) {
+    showToast('Payment system not ready. Please refresh.', 'error');
+    return;
+  }
+
+  // Store due info globally
+  window._duePaymentData = {
+    orderId: orderId,
+    dueUSD: dueUSD,
+    dueBDT: dueBDT,
+    settings: settings,
+    orderData: orderData
+  };
+
+  // Set total to due amount
+  _paymentOrderTotalUSD = dueUSD;
+  _paymentSettings = settings || {};
+  if (!_paymentSettings.usdRate || _paymentSettings.usdRate <= 0) _paymentSettings.usdRate = 125;
+
+  // Override payment type radio to force "full" (since it's due payment)
+  const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
+  if (fullRadio) fullRadio.checked = true;
+  const advanceRadio = document.querySelector('input[name="paymentType"][value="advance"]');
+  if (advanceRadio) {
+    advanceRadio.disabled = true; // disable pay later option for due
+    advanceRadio.closest('label').style.display = 'none';
+  }
+
+  // Set due mode flag
+  document.getElementById('paymentModal').dataset.duemode = 'true';
+
+  // Update UI
+  document.getElementById('paymentOrderId').value = orderId;
+  document.getElementById('paymentTotalUSD').textContent = '$' + dueUSD.toFixed(2);
+  document.getElementById('paymentTotalBDTRow').classList.remove('hidden');
+  document.getElementById('paymentTotalBDT').textContent = '৳' + dueBDT.toFixed(0);
+  document.getElementById('paymentRateNote').classList.remove('hidden');
+  document.getElementById('paymentRateNote').textContent = `Due payment: $${dueUSD.toFixed(2)} USD = ৳${dueBDT.toFixed(0)} (Rate: 1 USD = ৳${_paymentSettings.usdRate})`;
+
+  // Reset form fields
+  document.getElementById('paymentMethodSelect').value = '';
+  document.getElementById('paymentSenderNumber').value = '';
+  document.getElementById('transactionId').value = '';
+  document.getElementById('paymentError').classList.add('hidden');
+  document.getElementById('paymentMethodDetails').classList.add('hidden');
+
+  // Show modal
+  document.getElementById('paymentModal').classList.remove('hidden');
+};
+
 window.closePaymentModal = function() {
   const el = document.getElementById('paymentModal');
-  if (el) el.classList.add('hidden');
+  if (el) {
+    el.classList.add('hidden');
+    el.dataset.duemode = 'false';
+  }
+  // Re-enable advance radio if disabled
+  document.querySelectorAll('input[name="paymentType"]').forEach(el => {
+    if (el.value === 'advance') {
+      el.disabled = false;
+      el.closest('label').style.display = '';
+    }
+  });
+  // Clear due data
+  window._duePaymentData = null;
 };
 
 window.updatePaymentMethodUI = function() {
   const method = document.getElementById('paymentMethodSelect')?.value || '';
   const paymentType = document.querySelector('input[name="paymentType"]:checked')?.value || 'full';
+  const isDueMode = document.getElementById('paymentModal').dataset.duemode === 'true';
   const details = document.getElementById('paymentMethodDetails');
   const addressBox = document.getElementById('paymentAddressBox');
   const howToBox = document.getElementById('paymentHowToBox');
@@ -1303,18 +1481,27 @@ window.updatePaymentMethodUI = function() {
   let payableBDT = totalBDT;
   let payableUSD = totalUSD;
 
-  if (paymentType === 'advance') {
+  if (paymentType === 'advance' && !isDueMode) {
     payableBDT = 500;
     payableUSD = Number((500 / rate).toFixed(2));
   }
 
   if (method === 'bKash' || method === 'Nagad') {
     bdtRow.classList.remove('hidden');
-    const bdtText = paymentType === 'advance' ? '৳500 (Advance)' : '৳' + totalBDT.toLocaleString('en-BD');
+    let bdtText;
+    if (isDueMode) {
+      bdtText = '৳' + totalBDT.toLocaleString('en-BD') + ' (Due)';
+    } else if (paymentType === 'advance') {
+      bdtText = '৳500 (Advance)';
+    } else {
+      bdtText = '৳' + totalBDT.toLocaleString('en-BD');
+    }
     document.getElementById('paymentTotalBDT').textContent = bdtText;
     
     rateNote.classList.remove('hidden');
-    if (paymentType === 'advance') {
+    if (isDueMode) {
+      rateNote.textContent = `Due Payment: Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
+    } else if (paymentType === 'advance') {
       const dueBDT = Math.max(0, totalBDT - 500);
       rateNote.textContent = `Advance Payment: ৳500 · Remaining Due: ৳${dueBDT.toLocaleString('en-BD')} (Pay after work)`;
     } else {
@@ -1368,7 +1555,9 @@ window.updatePaymentMethodUI = function() {
   } else if (method === 'USDT') {
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
-    if (paymentType === 'advance') {
+    if (isDueMode) {
+      rateNote.textContent = `Due payment: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+    } else if (paymentType === 'advance') {
       const dueUSD = Math.max(0, Number((totalUSD - payableUSD).toFixed(2)));
       rateNote.textContent = `Advance Payment: $${payableUSD.toFixed(2)} USD · Remaining Due: $${dueUSD.toFixed(2)} USD`;
     } else {
@@ -1656,7 +1845,12 @@ document.addEventListener('keydown', (e) => {
     if (document.getElementById('qrZoomModal') && !document.getElementById('qrZoomModal').classList.contains('hidden')) {
       window.closeQrZoom();
     }
+    // Close payment modal on escape
+    const paymentModal = document.getElementById('paymentModal');
+    if (paymentModal && !paymentModal.classList.contains('hidden')) {
+      window.closePaymentModal();
+    }
   }
 });
 
-console.log('✅ components.js fully updated with Pay later and Full Payment system.');
+console.log('✅ components.js fully updated with Pay later, Full Payment, and Due Payment system.');
