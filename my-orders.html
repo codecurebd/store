@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>My Orders – CodeCureBD</title>
   
-  <!-- ✅ Preconnect & Preload for faster font loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
@@ -76,7 +75,6 @@
     }
     .payment-badge.full { background: #d1fae5; color: #059669; }
     .payment-badge.advance { background: #fef3c7; color: #d97706; }
-    .payment-badge.due-paid { background: #dbeafe; color: #2563eb; }
 
     /* ===== STATS CARDS ===== */
     .stat-card {
@@ -159,34 +157,6 @@
       box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
     }
     .btn-primary:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    .btn-success {
-      background: linear-gradient(135deg, #34C759, #28a745);
-      color: #fff;
-      padding: 10px 22px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 48px;
-      text-decoration: none;
-    }
-    .btn-success:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(52, 199, 89, 0.35);
-    }
-    .btn-success:disabled {
       opacity: 0.7;
       cursor: not-allowed;
       transform: none !important;
@@ -664,17 +634,11 @@
 
   <script type="module">
     // ================================================================
-    // ডিবাগ: পেজ লোড হচ্ছে কিনা চেক
-    // ================================================================
-    console.log('🔥 my-orders.html loaded successfully');
-
-    // ================================================================
-    // ইমপোর্ট
+    // ইমপোর্ট (শুধু প্রয়োজনীয় ফাংশনগুলো)
     // ================================================================
     import {
       renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
-      renderCartSidebar, setLoading, renderPaymentModal,
-      openPaymentModal, closePaymentModal
+      renderCartSidebar, setLoading, renderPaymentModal
     } from './components.js';
     import {
       auth, db, collection, doc, getDoc, setDoc, addDoc, onSnapshot,
@@ -684,7 +648,7 @@
       EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup
     } from './firebase-config.js';
 
-    console.log('✅ Imports successful');
+    console.log('✅ my-orders.html loaded');
 
     // ===== রেন্ডার =====
     renderNavbar();
@@ -741,7 +705,7 @@
     }
 
     // ================================================================
-    // CUSTOM CONFIRM MODAL (replaces browser confirm)
+    // CUSTOM CONFIRM MODAL
     // ================================================================
     let confirmModalResolve = null;
 
@@ -1002,7 +966,7 @@
       document.getElementById('completedCount').textContent = completed;
     }
 
-    // ===== RENDER ORDERS =====
+    // ===== RENDER ORDERS (পেমেন্ট টাইপ ও ডিউ ব্যাজ সহ) =====
     function renderOrders(orders) {
       if (!orders || orders.length === 0) {
         orderList.innerHTML = `
@@ -1024,12 +988,8 @@
       orders.forEach((o, index) => {
         const status = o.status || 'pending';
         const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
-        const dateStr = date.toLocaleDateString('en-US', { 
-          year: 'numeric', month: 'short', day: 'numeric' 
-        });
-        const timeStr = date.toLocaleTimeString('en-US', { 
-          hour: '2-digit', minute: '2-digit' 
-        });
+        const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
         const paymentType = o.paymentType || 'full';
         const paymentBadgeClass = paymentType === 'full' ? 'full' : 'advance';
@@ -1098,70 +1058,17 @@
 
     const debouncedApplyFilters = debounce(applyFilters, 300);
 
-    // ===== RESET FILTERS =====
     window.resetFilters = () => {
       searchInput.value = '';
       statusFilter.value = 'all';
       applyFilters();
     };
 
-    // ===== LOAD ORDERS (onSnapshot) =====
-    function loadOrders(userId) {
-      if (!userId) {
-        orderList.innerHTML = `
-          <div class="empty-state fade-up">
-            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
-            <h3>Please sign in</h3>
-            <p>Sign in to view your orders.</p>
-          </div>
-        `;
-        return;
-      }
-
-      renderSkeletons(3);
-
-      if (unsubOrders) unsubOrders();
-
-      const q = query(
-        collection(db, 'orders'),
-        where('userId', '==', userId)
-      );
-
-      unsubOrders = onSnapshot(q, (snapshot) => {
-        allOrders = [];
-        snapshot.forEach(doc => {
-          allOrders.push({ id: doc.id, ...doc.data() });
-        });
-
-        allOrders.sort((a, b) => {
-          const ta = a.createdAt?.toDate?.()?.getTime() || 0;
-          const tb = b.createdAt?.toDate?.()?.getTime() || 0;
-          return tb - ta;
-        });
-
-        applyFilters();
-
-      }, (error) => {
-        console.error('🔥 Error loading orders:', error);
-        orderList.innerHTML = `
-          <div class="empty-state fade-up">
-            <i class="fas fa-exclamation-circle text-red-500"></i>
-            <h3>Error loading orders</h3>
-            <p class="text-sm text-gray-400">${error.message}</p>
-            <button onclick="window.location.reload()" class="btn-primary mt-4 inline-block">
-              <i class="fas fa-sync"></i> Retry
-            </button>
-          </div>
-        `;
-        showToast('⚠️ Error loading orders: ' + error.message, 'error');
-      });
-    }
-
     searchInput.addEventListener('input', debouncedApplyFilters);
     statusFilter.addEventListener('change', applyFilters);
 
     // ================================================================
-    // ✅ অর্ডার ডিটেইল (Pay Later + Due তথ্য সহ)
+    // ✅ অর্ডার ডিটেইল (পেমেন্ট টাইপ, পরিশোধিত ও ডিউ টাকা সহ)
     // ================================================================
 
     let currentOrderId = null;
@@ -1186,12 +1093,8 @@
     function renderOrderDetail(o) {
       const content = document.getElementById('orderDetailContent');
       const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
-      const dateStr = date.toLocaleDateString('en-US', { 
-        year: 'numeric', month: 'long', day: 'numeric' 
-      });
-      const timeStr = date.toLocaleTimeString('en-US', { 
-        hour: '2-digit', minute: '2-digit' 
-      });
+      const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
       let itemsHtml = '';
       if (o.items && o.items.length > 0) {
@@ -1212,14 +1115,13 @@
       const statusDisplay = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
 
       const paymentType = o.paymentType || 'full';
-      const paymentTypeLabel = paymentType === 'full' ? '💳 Full Payment' : '⏳ Pay Later (Advance)';
-
       const amountPaidBDT = Number(o.amountBDT) || 0;
       const amountPaidUSD = Number(o.amountUSD) || 0;
       const dueBDT = Number(o.dueAmountBDT) || 0;
       const dueUSD = Number(o.dueAmountUSD) || 0;
       const hasDue = dueBDT > 0;
 
+      // Build due info HTML
       let dueHtml = '';
       if (paymentType === 'advance') {
         dueHtml = `
@@ -1338,7 +1240,7 @@
     });
 
     // ================================================================
-    // ✅ PAY DUE — Open payment modal with due amount
+    // ✅ PAY DUE — `window.openDuePaymentModal` কল (components.js থেকে)
     // ================================================================
 
     window.payDue = async (orderId) => {
@@ -1360,7 +1262,7 @@
         return;
       }
 
-      // Close detail modal first
+      // Close detail modal
       closeOrderDetail();
 
       try {
@@ -1516,9 +1418,7 @@
       if (!o) { showToast('No order selected', 'error'); return; }
 
       const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
-      const dateStr = date.toLocaleDateString('en-US', { 
-        year: 'numeric', month: 'long', day: 'numeric' 
-      });
+      const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
       let itemsText = '';
       if (o.items && o.items.length > 0) {
@@ -1635,7 +1535,7 @@ Thank you for shopping with CodeCureBD!
       if (unsubOrders) unsubOrders();
     });
 
-    console.log('📦 My Orders page loaded successfully with Pay Later + Due Payment!');
+    console.log('📦 My Orders page ready – Pay Later & Due payment integrated.');
   </script>
 </body>
 </html>
