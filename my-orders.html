@@ -25,13 +25,8 @@
       min-height: 100vh;
     }
 
-    /* ===== FONT DISPLAY SWAP ===== */
-    @font-face {
-      font-family: 'Inter';
-      font-display: swap;
-    }
+    @font-face { font-family: 'Inter'; font-display: swap; }
 
-    /* ===== GLASS CARD ===== */
     .glass-card {
       background: rgba(255,255,255,0.72);
       backdrop-filter: blur(12px);
@@ -46,12 +41,6 @@
       transform: translateY(-3px);
     }
 
-    /* ===== ORDER CARD ===== */
-    .order-card {
-      transition: all 0.3s ease;
-    }
-
-    /* ===== STATUS BADGE ===== */
     .status-badge {
       padding: 4px 14px;
       border-radius: 60px;
@@ -65,7 +54,6 @@
     .status-badge.completed { background: #d1fae5; color: #059669; }
     .status-badge.cancelled { background: #fee2e2; color: #dc2626; }
 
-    /* ===== PAYMENT TYPE BADGE ===== */
     .payment-badge {
       padding: 3px 12px;
       border-radius: 30px;
@@ -76,7 +64,6 @@
     .payment-badge.full { background: #d1fae5; color: #059669; }
     .payment-badge.advance { background: #fef3c7; color: #d97706; }
 
-    /* ===== STATS CARDS ===== */
     .stat-card {
       background: rgba(255,255,255,0.72);
       backdrop-filter: blur(12px);
@@ -104,7 +91,6 @@
     .stat-card .stat-number.processing { color: #2563eb; }
     .stat-card .stat-number.completed { color: #059669; }
 
-    /* ===== FORM INPUTS ===== */
     .form-input {
       width: 100%;
       padding: 12px 16px;
@@ -122,10 +108,7 @@
       box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
       background: #ffffff;
     }
-    .form-input::placeholder {
-      color: #8e8e93;
-      opacity: 0.7;
-    }
+    .form-input::placeholder { color: #8e8e93; opacity: 0.7; }
     select.form-input {
       appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238e8e93' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
@@ -134,7 +117,6 @@
       padding-right: 40px;
     }
 
-    /* ===== BUTTONS ===== */
     .btn-primary {
       background: linear-gradient(135deg, #007AFF, #5856D6);
       color: #fff;
@@ -187,24 +169,6 @@
       transform: translateY(-2px);
     }
 
-    .btn-danger {
-      background: #fee2e2;
-      color: #dc2626;
-      border: none;
-      padding: 10px 22px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: 0.3s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 48px;
-    }
-    .btn-danger:hover { background: #fecaca; }
-
     .btn-delete {
       background: #fee2e2;
       color: #dc2626;
@@ -236,7 +200,6 @@
       box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
     }
 
-    /* ===== SKELETON ===== */
     .skeleton-card {
       background: #f3f4f6;
       border-radius: 16px;
@@ -257,7 +220,6 @@
       50% { opacity: 0.5; }
     }
 
-    /* ===== EMPTY STATE ===== */
     .empty-state {
       text-align: center;
       padding: 3rem 1.5rem;
@@ -278,7 +240,6 @@
       margin-top: 0.5rem;
     }
 
-    /* ===== MODAL ===== */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -334,17 +295,6 @@
     }
     .detail-item:last-child { border-bottom: none; }
 
-    .payment-detail-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      font-size: 0.95rem;
-    }
-    .payment-detail-row .label { color: #6b7280; }
-    .payment-detail-row .value { font-weight: 600; color: #1f2937; }
-    .payment-detail-row .value.due { color: #dc2626; }
-    .payment-detail-row .value.paid { color: #059669; }
-
     .due-info-box {
       background: #fef3c7;
       border: 1px solid #fcd34d;
@@ -363,59 +313,6 @@
     .due-info-box .due-row .value.due-amount { color: #dc2626; }
     .due-info-box .due-row .value.paid-amount { color: #059669; }
 
-    /* ===== CUSTOM PASSWORD / CONFIRM MODAL ===== */
-    .password-modal .modal-box,
-    .confirm-modal .modal-box {
-      max-width: 420px;
-    }
-    .password-modal .modal-box .password-input-wrap {
-      position: relative;
-    }
-    .password-modal .modal-box .password-input-wrap i {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #8e8e93;
-      cursor: pointer;
-    }
-    .password-modal .modal-box .password-input-wrap i:hover {
-      color: #007AFF;
-    }
-    .password-modal .modal-box .error-text {
-      color: #dc2626;
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
-      display: none;
-    }
-    .confirm-modal .confirm-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: #fef2f2;
-      color: #dc2626;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin: 0 auto 1rem;
-    }
-    .confirm-modal .confirm-body {
-      text-align: center;
-      color: #4b5563;
-      font-size: 0.9rem;
-      line-height: 1.55;
-      margin-bottom: 1.25rem;
-    }
-    .confirm-modal .confirm-body strong { color: #1f2937; }
-
-    /* ===== ANIMATIONS ===== */
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== FADE-UP ===== */
     .fade-up {
       opacity: 0;
       transform: translateY(20px);
@@ -426,7 +323,6 @@
       transform: translateY(0);
     }
 
-    /* ===== BACK TO TOP ===== */
     .scroll-top-btn {
       position: fixed;
       bottom: 30px;
@@ -453,11 +349,17 @@
     }
     .scroll-top-btn:hover { transform: scale(1.05); }
 
-    /* ===== RESPONSIVE ===== */
+    .toast {
+      border-left: 4px solid #007AFF;
+    }
+    .toast.success { border-left-color: #34C759; }
+    .toast.error { border-left-color: #FF3B30; }
+    .toast.warning { border-left-color: #FF9500; }
+
     @media (max-width: 768px) {
       .glass-card { padding: 1rem; border-radius: 12px; }
       .stat-card .stat-number { font-size: 1.5rem; }
-      .btn-primary, .btn-success, .btn-outline, .btn-danger { font-size: 0.85rem; min-height: 42px; padding: 8px 16px; }
+      .btn-primary, .btn-outline { font-size: 0.85rem; min-height: 42px; padding: 8px 16px; }
       .modal-box { padding: 1rem; border-radius: 16px; }
       .detail-item { font-size: 0.9rem; }
     }
@@ -467,13 +369,48 @@
       .modal-box { padding: 0.75rem; }
     }
 
-    /* ===== TOAST ===== */
-    .toast {
-      border-left: 4px solid #007AFF;
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      width: 90%;
+      max-width: 400px;
     }
-    .toast.success { border-left-color: #34C759; }
-    .toast.error { border-left-color: #FF3B30; }
-    .toast.warning { border-left-color: #FF9500; }
+    .toast {
+      pointer-events: auto;
+      background: #1c1c1e;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideUp 0.3s ease forwards;
+      width: 100%;
+      backdrop-filter: blur(4px);
+    }
+    .toast.success { background: #28A745; }
+    .toast.error { background: #dc3545; }
+    .toast.warning { background: #ffc107; color: #1c1c1e; }
+    .toast.hide { animation: slideDown 0.3s ease forwards; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideDown {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(30px); }
+    }
   </style>
 </head>
 <body>
@@ -510,6 +447,10 @@
           <button onclick="window.location.reload()" class="btn-outline text-sm py-2 px-4">
             <i class="fas fa-sync"></i> Refresh
           </button>
+          <!-- 🔥 NEW: Force reload orders button -->
+          <button onclick="forceReloadOrders()" class="btn-primary text-sm py-2 px-4">
+            <i class="fas fa-download"></i> Reload Orders
+          </button>
         </div>
 
         <!-- ===== STATS ===== -->
@@ -536,6 +477,9 @@
         <div id="orderList" class="space-y-4">
           <!-- Skeleton will be rendered by JS -->
         </div>
+
+        <!-- ===== ERROR / DEBUG INFO ===== -->
+        <div id="debugInfo" class="mt-4 text-sm text-gray-400 hidden"></div>
       </section>
     </main>
 
@@ -543,9 +487,7 @@
   </div>
 
   <!-- ===== BACK TO TOP ===== -->
-  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
-    <i class="fas fa-arrow-up"></i>
-  </button>
+  <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
 
   <!-- ===== ORDER DETAIL MODAL ===== -->
   <div id="orderDetailModal" class="modal-overlay">
@@ -572,11 +514,13 @@
   <!-- ===== CUSTOM CONFIRM MODAL ===== -->
   <div id="confirmModal" class="modal-overlay confirm-modal">
     <div class="modal-box">
-      <div class="confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="confirm-icon" style="width:56px;height:56px;border-radius:50%;background:#fef2f2;color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem;">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
       <div class="modal-header" style="justify-content:center; margin-bottom:0.5rem;">
         <h3 id="confirmModalTitle" class="text-xl font-bold text-gray-900 text-center">Confirm</h3>
       </div>
-      <div id="confirmModalBody" class="confirm-body"></div>
+      <div id="confirmModalBody" class="text-center text-gray-600 text-sm leading-relaxed mb-4"></div>
       <div class="mt-2 flex gap-3">
         <button type="button" id="confirmModalYes" class="btn-danger flex-1 justify-center">Yes, Cancel</button>
         <button type="button" id="confirmModalNo" class="btn-outline flex-1 justify-center">Keep Order</button>
@@ -592,11 +536,13 @@
         <button type="button" onclick="closePasswordModal()" class="modal-close">&times;</button>
       </div>
       <p id="passwordModalDesc" class="text-sm text-gray-500 mb-4">Please enter your password to confirm this action.</p>
-      <div class="password-input-wrap">
+      <div class="relative">
         <input type="password" id="passwordInput" placeholder="Your account password" class="form-input pr-12" autocomplete="current-password" />
-        <i class="fas fa-eye" id="togglePasswordVisibility" onclick="togglePasswordVisibility()"></i>
+        <button type="button" onclick="togglePasswordVisibility('passwordInput')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+          <i class="fas fa-eye"></i>
+        </button>
       </div>
-      <div id="passwordError" class="error-text">Incorrect password. Please try again.</div>
+      <div id="passwordError" class="text-red-500 text-sm mt-2 hidden">Incorrect password. Please try again.</div>
       <div class="mt-4 flex gap-3">
         <button type="button" onclick="confirmPassword()" id="passwordConfirmBtn" class="btn-primary flex-1 justify-center">Confirm</button>
         <button type="button" onclick="closePasswordModal()" class="btn-outline flex-1 justify-center">Cancel</button>
@@ -634,7 +580,7 @@
 
   <script type="module">
     // ================================================================
-    // ইমপোর্ট (শুধু প্রয়োজনীয় ফাংশনগুলো)
+    // ইমপোর্ট
     // ================================================================
     import {
       renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
@@ -644,8 +590,9 @@
       auth, db, collection, doc, getDoc, setDoc, addDoc, onSnapshot,
       query, where, serverTimestamp, signOut, onAuthStateChanged,
       signInWithEmailAndPassword, createUserWithEmailAndPassword,
-      updateDoc, deleteDoc, signInWithPopup, googleProvider,
-      EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup
+      updateDoc, deleteDoc, getDocs,  // 🔥 getDocs যোগ করলাম
+      signInWithPopup, googleProvider,
+      EmailAuthProvider, reauthenticateWithCredential
     } from './firebase-config.js';
 
     console.log('✅ my-orders.html loaded');
@@ -685,11 +632,7 @@
     // ===== BACK TO TOP =====
     const scrollBtn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 400) {
-        scrollBtn.classList.add('show');
-      } else {
-        scrollBtn.classList.remove('show');
-      }
+      scrollBtn.classList.toggle('show', window.scrollY > 400);
     });
     scrollBtn.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -746,10 +689,7 @@
         const input = document.getElementById('passwordInput');
         input.value = '';
         input.type = 'password';
-        document.getElementById('togglePasswordVisibility').className = 'fas fa-eye';
-        const err = document.getElementById('passwordError');
-        err.style.display = 'none';
-        err.textContent = '';
+        document.getElementById('passwordError').classList.add('hidden');
         document.getElementById('passwordModal').classList.add('open');
         passwordModalResolve = resolve;
         setTimeout(() => input.focus(), 50);
@@ -771,19 +711,18 @@
 
       if (!password) {
         err.textContent = 'Please enter your password.';
-        err.style.display = 'block';
+        err.classList.remove('hidden');
         input.focus();
         return;
       }
       if (password.length < 6) {
         err.textContent = 'Password must be at least 6 characters.';
-        err.style.display = 'block';
+        err.classList.remove('hidden');
         input.focus();
         return;
       }
 
-      err.style.display = 'none';
-      err.textContent = '';
+      err.classList.add('hidden');
       if (passwordModalResolve) {
         passwordModalResolve(password);
         passwordModalResolve = null;
@@ -791,31 +730,10 @@
       document.getElementById('passwordModal').classList.remove('open');
     };
 
-    window.showPasswordError = function(message) {
-      const err = document.getElementById('passwordError');
-      err.textContent = message || 'Incorrect password. Please try again.';
-      err.style.display = 'block';
-      const input = document.getElementById('passwordInput');
-      input.value = '';
-      document.getElementById('passwordModal').classList.add('open');
-      setTimeout(() => input.focus(), 50);
-    };
-
     window.togglePasswordVisibility = function(id) {
-      if (id) {
-        const input = document.getElementById(id);
-        if (input) input.type = input.type === 'password' ? 'text' : 'password';
-        return;
-      }
-      const input = document.getElementById('passwordInput');
-      const icon = document.getElementById('togglePasswordVisibility');
-      if (!input) return;
-      if (input.type === 'password') {
-        input.type = 'text';
-        if (icon) icon.className = 'fas fa-eye-slash';
-      } else {
-        input.type = 'password';
-        if (icon) icon.className = 'fas fa-eye';
+      const input = document.getElementById(id);
+      if (input) {
+        input.type = input.type === 'password' ? 'text' : 'password';
       }
     };
 
@@ -924,17 +842,21 @@
     };
 
     // ================================================================
-    // ✅ অর্ডার লজিক (onSnapshot)
+    // ✅ অর্ডার লজিক (onSnapshot + getDocs fallback)
     // ================================================================
 
     const orderList = document.getElementById('orderList');
     const searchInput = document.getElementById('searchOrders');
     const statusFilter = document.getElementById('statusFilter');
+    const debugInfo = document.getElementById('debugInfo');
 
     let allOrders = [];
     let filteredOrders = [];
     let currentUser = null;
     let unsubOrders = null;
+    let isLoading = false;
+    let loadAttempts = 0;
+    const MAX_LOAD_ATTEMPTS = 3;
 
     // ===== SKELETON RENDER =====
     function renderSkeletons(count = 3) {
@@ -966,7 +888,7 @@
       document.getElementById('completedCount').textContent = completed;
     }
 
-    // ===== RENDER ORDERS (পেমেন্ট টাইপ ও ডিউ ব্যাজ সহ) =====
+    // ===== RENDER ORDERS =====
     function renderOrders(orders) {
       if (!orders || orders.length === 0) {
         orderList.innerHTML = `
@@ -977,6 +899,11 @@
             <a href="get-new-website.html" class="btn-primary mt-4 inline-block">
               <i class="fas fa-shopping-cart"></i> Browse Store
             </a>
+            <div class="mt-3">
+              <button onclick="forceReloadOrders()" class="btn-outline text-sm py-2 px-4">
+                <i class="fas fa-sync"></i> Check for orders
+              </button>
+            </div>
           </div>
         `;
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
@@ -1015,17 +942,21 @@
                 <p class="text-sm text-gray-500">
                   <i class="fas fa-box mr-1"></i> ${o.items?.length || 0} items
                 </p>
+                ${o.transactionId ? `<p class="text-xs text-gray-400">Txn: ${o.transactionId}</p>` : '<p class="text-xs text-yellow-500">⚠️ Payment pending</p>'}
               </div>
               <div class="text-right">
                 <p class="text-2xl font-bold text-blue-600">$${o.total?.toFixed(2) || '0.00'}</p>
-                ${o.transactionId ? `<p class="text-xs text-gray-400">Txn: ${o.transactionId}</p>` : '<p class="text-xs text-yellow-500">⚠️ Payment pending</p>'}
                 <div class="flex flex-wrap justify-end gap-1 mt-1">
                   <button onclick="viewOrderDetail('${o.id}')" class="text-blue-600 text-sm hover:underline font-medium">
                     <i class="fas fa-eye"></i> Details
                   </button>
                   ${status === 'pending' ? `
-                  <button onclick="deleteOrder('${o.id}')" class="btn-delete text-xs" title="Cancel & request 95% refund">
+                  <button onclick="deleteOrder('${o.id}')" class="btn-delete text-xs">
                     <i class="fas fa-trash"></i> Cancel
+                  </button>` : ''}
+                  ${hasDue && status !== 'cancelled' && status !== 'completed' ? `
+                  <button onclick="payDue('${o.id}')" class="pay-due-btn text-xs">
+                    <i class="fas fa-credit-card"></i> Pay Due
                   </button>` : ''}
                 </div>
               </div>
@@ -1068,7 +999,71 @@
     statusFilter.addEventListener('change', applyFilters);
 
     // ================================================================
-    // ✅ অর্ডার ডিটেইল (পেমেন্ট টাইপ, পরিশোধিত ও ডিউ টাকা সহ)
+    // 🔥 FORCE RELOAD ORDERS (getDocs fallback)
+    // ================================================================
+    window.forceReloadOrders = async function() {
+      if (!currentUser) {
+        showToast('Not logged in', 'error');
+        return;
+      }
+
+      const btn = document.querySelector('[onclick="forceReloadOrders()"]');
+      if (btn) setLoading(btn, true, 'Loading...');
+
+      try {
+        debugInfo.classList.remove('hidden');
+        debugInfo.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching orders directly from Firestore...';
+
+        const q = query(collection(db, 'orders'), where('userId', '==', currentUser.uid));
+        const snapshot = await getDocs(q);
+        
+        const orders = [];
+        snapshot.forEach(doc => {
+          orders.push({ id: doc.id, ...doc.data() });
+        });
+        orders.sort((a, b) => {
+          const ta = a.createdAt?.toDate?.()?.getTime() || new Date(a.createdAt).getTime() || 0;
+          const tb = b.createdAt?.toDate?.()?.getTime() || new Date(b.createdAt).getTime() || 0;
+          return tb - ta;
+        });
+
+        debugInfo.innerHTML = `✅ Found ${orders.length} order(s) in Firestore. Last updated: ${new Date().toLocaleString()}`;
+
+        if (orders.length > 0) {
+          allOrders = orders;
+          applyFilters();
+          showToast(`✅ ${orders.length} order(s) loaded successfully!`, 'success');
+        } else {
+          // Still no orders, check if the user has any orders at all
+          const allOrdersSnapshot = await getDocs(collection(db, 'orders'));
+          const allOrdersCount = allOrdersSnapshot.size;
+          debugInfo.innerHTML += ` (Total orders in DB: ${allOrdersCount})`;
+          
+          if (allOrdersCount > 0) {
+            // There are orders but none for this user
+            debugInfo.innerHTML += ` ⚠️ No orders found for this user. Check if userId matches: ${currentUser.uid}`;
+          } else {
+            debugInfo.innerHTML += ` ℹ️ No orders in the database yet. Place an order to see it here.`;
+          }
+          
+          showToast('No orders found. Try placing an order.', 'warning');
+          allOrders = [];
+          applyFilters();
+        }
+      } catch (err) {
+        console.error('❌ Force reload error:', err);
+        debugInfo.innerHTML = `❌ Error: ${err.message}`;
+        showToast('⚠️ Error loading orders: ' + err.message, 'error');
+      } finally {
+        if (btn) setLoading(btn, false);
+        setTimeout(() => {
+          debugInfo.classList.add('hidden');
+        }, 15000);
+      }
+    };
+
+    // ================================================================
+    // ✅ অর্ডার ডিটেইল
     // ================================================================
 
     let currentOrderId = null;
@@ -1121,7 +1116,6 @@
       const dueUSD = Number(o.dueAmountUSD) || 0;
       const hasDue = dueBDT > 0;
 
-      // Build due info HTML
       let dueHtml = '';
       if (paymentType === 'advance') {
         dueHtml = `
@@ -1151,7 +1145,6 @@
               <button onclick="payDue('${o.id}')" class="pay-due-btn w-full justify-center">
                 <i class="fas fa-credit-card"></i> Pay Due Now
               </button>
-              <p class="text-xs text-gray-400 mt-1 text-center">Pay the remaining amount to complete your order</p>
             </div>
             ` : `
             <div class="due-row">
@@ -1198,7 +1191,6 @@
           ${o.senderNumber ? `<p class="text-sm text-gray-400">Sender: ${o.senderNumber}</p>` : ''}
         </div>
 
-        <!-- Payment Type & Due Info -->
         ${dueHtml}
 
         <div>
@@ -1240,7 +1232,7 @@
     });
 
     // ================================================================
-    // ✅ PAY DUE — `window.openDuePaymentModal` কল (components.js থেকে)
+    // ✅ PAY DUE
     // ================================================================
 
     window.payDue = async (orderId) => {
@@ -1262,7 +1254,6 @@
         return;
       }
 
-      // Close detail modal
       closeOrderDetail();
 
       try {
@@ -1282,7 +1273,7 @@
     };
 
     // ================================================================
-    // ✅ ORDER CANCEL (only pending → 95% refund policy)
+    // ✅ ORDER CANCEL
     // ================================================================
 
     window.deleteOrder = async (orderId) => {
@@ -1317,7 +1308,7 @@
       if (hasGoogle && !hasPassword) {
         try {
           showToast('Confirm with Google…', 'warning');
-          await reauthenticateWithPopup(user, googleProvider);
+          await reauthenticateWithCredential(user, googleProvider);
           await deleteDoc(doc(db, 'orders', orderId));
           showToast('✅ Order cancelled. Admin will process 95% refund if payment was received.', 'success');
         } catch (err) {
@@ -1349,14 +1340,13 @@
           const input = document.getElementById('passwordInput');
           input.value = '';
           input.type = 'password';
-          document.getElementById('togglePasswordVisibility').className = 'fas fa-eye';
           const errEl = document.getElementById('passwordError');
           if (showErrorOnOpen) {
             errEl.textContent = '❌ Incorrect password. Please try again.';
-            errEl.style.display = 'block';
+            errEl.classList.remove('hidden');
           } else {
             errEl.textContent = '';
-            errEl.style.display = 'none';
+            errEl.classList.add('hidden');
           }
           document.getElementById('passwordModal').classList.add('open');
           passwordModalResolve = resolve;
@@ -1514,7 +1504,143 @@ Thank you for shopping with CodeCureBD!
     };
 
     // ================================================================
-    // ✅ AUTH STATE
+    // 🔥 LOAD ORDERS (onSnapshot with error handling + fallback)
+    // ================================================================
+
+    function loadOrders(userId) {
+      if (!userId) {
+        orderList.innerHTML = `
+          <div class="empty-state fade-up">
+            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+            <h3>Please sign in</h3>
+            <p>Sign in to view your orders.</p>
+          </div>
+        `;
+        return;
+      }
+
+      renderSkeletons(3);
+
+      if (unsubOrders) {
+        unsubOrders();
+        unsubOrders = null;
+      }
+
+      console.log('🔍 Loading orders for userId:', userId);
+
+      const q = query(
+        collection(db, 'orders'),
+        where('userId', '==', userId)
+      );
+
+      // 🔥 First, try onSnapshot
+      unsubOrders = onSnapshot(q, (snapshot) => {
+        console.log('📦 onSnapshot received, size:', snapshot.size);
+        allOrders = [];
+        snapshot.forEach(doc => {
+          allOrders.push({ id: doc.id, ...doc.data() });
+        });
+        allOrders.sort((a, b) => {
+          const ta = a.createdAt?.toDate?.()?.getTime() || new Date(a.createdAt).getTime() || 0;
+          const tb = b.createdAt?.toDate?.()?.getTime() || new Date(b.createdAt).getTime() || 0;
+          return tb - ta;
+        });
+
+        console.log('📋 Orders loaded:', allOrders.length);
+        applyFilters();
+
+        // Hide debug after successful load
+        debugInfo.classList.add('hidden');
+
+      }, (error) => {
+        console.error('🔥 Snapshot error:', error);
+        // Try fallback with getDocs
+        debugInfo.classList.remove('hidden');
+        debugInfo.innerHTML = `⚠️ Real-time listener error: ${error.message}. Trying fallback...`;
+        showToast('⚠️ Error loading orders. Retrying...', 'warning');
+        
+        // Fallback: use getDocs
+        fallbackLoadOrders(userId);
+      });
+
+      // Also set a timeout to check if onSnapshot is stuck
+      setTimeout(() => {
+        if (allOrders.length === 0 && !isLoading) {
+          console.log('⏳ onSnapshot seems stuck, trying fallback...');
+          debugInfo.classList.remove('hidden');
+          debugInfo.innerHTML = '⏳ No orders yet. Checking database...';
+          fallbackLoadOrders(userId);
+        }
+      }, 5000);
+    }
+
+    // 🔥 FALLBACK: getDocs
+    async function fallbackLoadOrders(userId) {
+      if (isLoading) return;
+      isLoading = true;
+      loadAttempts++;
+
+      try {
+        console.log('🔄 Fallback: fetching orders with getDocs');
+        const q = query(collection(db, 'orders'), where('userId', '==', userId));
+        const snapshot = await getDocs(q);
+        
+        const orders = [];
+        snapshot.forEach(doc => {
+          orders.push({ id: doc.id, ...doc.data() });
+        });
+        orders.sort((a, b) => {
+          const ta = a.createdAt?.toDate?.()?.getTime() || new Date(a.createdAt).getTime() || 0;
+          const tb = b.createdAt?.toDate?.()?.getTime() || new Date(b.createdAt).getTime() || 0;
+          return tb - ta;
+        });
+
+        console.log('📦 Fallback loaded:', orders.length, 'orders');
+        
+        if (orders.length > 0) {
+          allOrders = orders;
+          applyFilters();
+          debugInfo.innerHTML = `✅ Found ${orders.length} order(s) in database.`;
+          setTimeout(() => debugInfo.classList.add('hidden'), 5000);
+          showToast(`✅ ${orders.length} order(s) loaded`, 'success');
+        } else {
+          // Check if there are any orders in the entire collection
+          const allOrdersSnap = await getDocs(collection(db, 'orders'));
+          const totalOrders = allOrdersSnap.size;
+          if (totalOrders > 0) {
+            debugInfo.innerHTML = `ℹ️ ${totalOrders} order(s) in database, but none for this user.`;
+          } else {
+            debugInfo.innerHTML = 'ℹ️ No orders in the database yet. Place an order to see it here.';
+          }
+          allOrders = [];
+          applyFilters();
+        }
+      } catch (err) {
+        console.error('❌ Fallback error:', err);
+        debugInfo.innerHTML = `❌ Error: ${err.message}. Check your Firestore permissions.`;
+        showToast('⚠️ Could not load orders. Check console.', 'error');
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    // ================================================================
+    // ✅ SYNC CART - OVERRIDE to prevent restoring cart on this page
+    // ================================================================
+
+    // We override the syncCart behavior on this page to prevent
+    // the cart from being restored from Firestore after payment.
+    // The cart should remain empty after payment.
+
+    // The original syncCart in components.js restores the server cart
+    // if local cart is empty. We prevent that by not calling syncCart
+    // on this page, or by clearing the server cart after payment.
+
+    // In the auth state change, we don't call syncCart for my-orders page.
+    // Instead, we just load the orders.
+
+    // ================================================================
+    // AUTH STATE
     // ================================================================
 
     onAuthStateChanged(auth, async (user) => {
@@ -1526,16 +1652,30 @@ Thank you for shopping with CodeCureBD!
       currentUser = user;
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
-      updateNavbarAuth(user, displayName);
+      const role = userDoc.exists() ? userDoc.data().role : 'user';
+      updateNavbarAuth(user, displayName, role);
 
+      // 🔥 IMPORTANT: Don't call syncCart here - it would restore the cart
+      // Instead, just load orders
       loadOrders(user.uid);
+
+      // Also check if cart is empty, if not, clear it (should be empty after payment)
+      const localCart = JSON.parse(localStorage.getItem('cart')) || [];
+      if (localCart.length > 0) {
+        console.log('⚠️ Cart has items on my-orders page. Clearing...');
+        // This might happen if the user navigates to my-orders without clearing cart
+        // We'll clear it to keep the UI consistent
+        localStorage.removeItem('cart');
+        updateCartBadge();
+        if (typeof window.updateCartUI === 'function') window.updateCartUI();
+      }
     });
 
     window.addEventListener('beforeunload', () => {
       if (unsubOrders) unsubOrders();
     });
 
-    console.log('📦 My Orders page ready – Pay Later & Due payment integrated.');
+    console.log('📦 My Orders page ready with fallback loading and cart fix.');
   </script>
 </body>
 </html>
