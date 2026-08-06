@@ -596,7 +596,7 @@
                     <div class="flex flex-wrap gap-4 mt-4 items-center fade-up">
                         <div class="relative flex-1 min-w-[200px]">
                             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="searchInput" placeholder="Search packages..." class="form-input pl-10" />
+                            <input type="text" id="productSearchInput" placeholder="Search packages..." class="form-input pl-10" />
                         </div>
                         <select id="categoryFilter" class="form-input max-w-xs">
                             <option value="all">All Categories</option>
@@ -866,7 +866,7 @@
         let allProducts = [];
         let allDiscounts = [];
         const grid = document.getElementById('productGrid');
-        const searchInput = document.getElementById('searchInput');
+        const searchInput = document.getElementById('productSearchInput');
         const categoryFilter = document.getElementById('categoryFilter');
         const sortFilter = document.getElementById('sortFilter');
 
@@ -1109,7 +1109,7 @@
             showToast(`✅ "${product.name}" added to cart`, 'success');
         };
 
-        console.log('🚀 Store page: currency toggle removed, rate banner added.');
+        console.log('🚀 Store page: currency toggle removed, rate banner added. Search fixed (productSearchInput).');
     </script>
 </body>
 </html>
