@@ -70,51 +70,256 @@ export function applyCachedNavbarAuth() {
 let unreadAdminMessages = [];
 let displayMessages = [];
 let adminMessageUnsubscribe = null;
+let notifDropdownOpen = false;
+let notifListenerReady = false;
 
-function startAdminMessageListener(user) {
-  if (adminMessageUnsubscribe) {
-    adminMessageUnsubscribe();
-    adminMessageUnsubscribe = null;
+function isImageContent(str) {
+  if (!str) return false;
+  const t = String(str).trim();
+  return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\?.*)?$/i.test(t) ||
+    t.includes('res.cloudinary.com');
+}
+
+function getMessagePreview(content) {
+  if (!content) return 'New message';
+  const raw = String(content);
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const textLines = lines.filter(l => !isImageContent(l));
+  const hasImage = lines.some(l => isImageContent(l));
+  if (textLines.length) {
+    const t = textLines.join(' ');
+    return t.length > 48 ? t.slice(0, 48) + '…' : t;
   }
+  if (hasImage || isImageContent(raw)) return '📷 Photo';
+  return raw.length > 48 ? raw.slice(0, 48) + '…' : raw;
+}
 
+function escapeNotifHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function isUnreadAdminMsg(data, userId) {
+  if (!data || !userId) return false;
+  // Admin messages only (admin panel uses fromUserId: 'admin')
+  const from = String(data.fromUserId || data.from || data.senderId || '').toLowerCase();
+  if (from !== 'admin') return false;
+  // Already read? (strict true only — missing/false/null = unread)
+  if (data.read === true || data.read === 'true' || data.read === 1) return false;
+  // Must belong to this user's conversation
+  const expectedCid = `conv_${userId}_admin`;
+  const cid = String(data.conversationId || data.convId || '');
+  const to = String(data.toUserId || data.to || '');
+  const parts = Array.isArray(data.participants) ? data.participants.map(String) : [];
+  const matchesUser =
+    cid === expectedCid ||
+    to === userId ||
+    parts.includes(userId) ||
+    parts.includes(String(userId));
+  return matchesUser;
+}
+
+// Merge docs from multiple listeners without duplicates
+const _notifDocMap = new Map(); // id -> { id, ...data }
+
+function rebuildUnreadFromMap(user) {
   if (!user) {
+    unreadAdminMessages = [];
     updateNotificationBadge(0);
     updateNotificationList([]);
+    if (typeof window.__ccbdUpdateSupportBadge === 'function') {
+      window.__ccbdUpdateSupportBadge(0);
+    }
+    return;
+  }
+  const prevIds = new Set(unreadAdminMessages.map(m => m.id));
+  unreadAdminMessages = [];
+  _notifDocMap.forEach((data, id) => {
+    if (isUnreadAdminMsg(data, user.uid)) {
+      unreadAdminMessages.push({ id, ...data });
+    }
+  });
+  unreadAdminMessages.sort((a, b) => {
+    const ta = a.timestamp?.toDate?.()?.getTime?.() || a.timestamp || 0;
+    const tb = b.timestamp?.toDate?.()?.getTime?.() || b.timestamp || 0;
+    return tb - ta;
+  });
+  const count = unreadAdminMessages.length;
+  updateNotificationBadge(count);
+  if (!notifDropdownOpen) {
+    updateNotificationList(unreadAdminMessages);
+  }
+  // Toast for brand-new messages (skip first snapshot)
+  if (notifListenerReady) {
+    const brandNew = unreadAdminMessages.filter(m => !prevIds.has(m.id));
+    if (brandNew.length > 0 && typeof window.showToast === 'function') {
+      const path = (window.location.pathname || '').toLowerCase();
+      if (!path.includes('messages')) {
+        const preview = getMessagePreview(brandNew[0].content);
+        window.showToast('💬 Admin: ' + preview, 'success');
+      }
+    }
+  }
+  notifListenerReady = true;
+  // Navbar bell + floating support button badges (same unread count)
+  if (typeof window.__ccbdUpdateSupportBadge === 'function') {
+    window.__ccbdUpdateSupportBadge(count);
+  }
+}
+
+function processNotifSnapshot(snapshot, user) {
+  if (!user) return;
+  snapshot.docChanges().forEach((change) => {
+    if (change.type === 'removed') {
+      _notifDocMap.delete(change.doc.id);
+    } else {
+      _notifDocMap.set(change.doc.id, change.doc.data());
+    }
+  });
+  // Full replace also (covers initial + rare missed changes)
+  snapshot.forEach((d) => {
+    _notifDocMap.set(d.id, d.data());
+  });
+  rebuildUnreadFromMap(user);
+}
+
+let adminMessageUnsubs = []; // support multiple concurrent listeners
+
+function stopAllNotifListeners() {
+  adminMessageUnsubs.forEach((fn) => {
+    try { fn(); } catch (_) {}
+  });
+  adminMessageUnsubs = [];
+  if (adminMessageUnsubscribe) {
+    try { adminMessageUnsubscribe(); } catch (_) {}
+    adminMessageUnsubscribe = null;
+  }
+}
+
+function startAdminMessageListener(user) {
+  stopAllNotifListeners();
+  notifListenerReady = false;
+  _notifDocMap.clear();
+
+  if (!user) {
+    unreadAdminMessages = [];
+    updateNotificationBadge(0);
+    updateNotificationList([]);
+    if (typeof window.__ccbdUpdateSupportBadge === 'function') {
+      window.__ccbdUpdateSupportBadge(0);
+    }
     return;
   }
 
-  const q = query(
-    collection(db, 'messages'),
-    where('toUserId', '==', user.uid),
-    where('fromUserId', '==', 'admin'),
-    where('read', '==', false)
-  );
+  const uid = user.uid;
+  console.log('[notif] starting participants listener for uid=', uid);
 
-  adminMessageUnsubscribe = onSnapshot(q, (snapshot) => {
-    unreadAdminMessages = [];
-    snapshot.forEach((doc) => {
-      unreadAdminMessages.push({ id: doc.id, ...doc.data() });
+  // ONLY participants query (rules-safe, no composite index, no permission noise)
+  try {
+    const qParts = query(
+      collection(db, 'messages'),
+      where('participants', 'array-contains', uid)
+    );
+    const unsub = onSnapshot(qParts, (snapshot) => {
+      console.log('[notif] participants snapshot size=', snapshot.size);
+      processNotifSnapshot(snapshot, user);
+    }, (error) => {
+      console.warn('[notif] participants error:', error?.code, error?.message);
+      // Fallback only if primary fails
+      try {
+        const convId = `conv_${uid}_admin`;
+        const q2 = query(collection(db, 'messages'), where('conversationId', '==', convId));
+        const unsub2 = onSnapshot(q2, (snap2) => {
+          console.log('[notif] fallback conversationId size=', snap2.size);
+          processNotifSnapshot(snap2, user);
+        }, (e2) => console.warn('[notif] fallback error:', e2?.code, e2?.message));
+        adminMessageUnsubs.push(unsub2);
+      } catch (_) {}
     });
-    updateNotificationBadge(unreadAdminMessages.length);
-    if (displayMessages.length > 0) {
-      // ড্রপডাউন খোলা থাকলে নতুন মেসেজ যোগ করি না (পরে দেখাবে)
-    } else {
-      updateNotificationList(unreadAdminMessages);
-    }
-  }, (error) => {
-    console.error('Admin messages listener error:', error);
-  });
+    adminMessageUnsubs.push(unsub);
+  } catch (e) {
+    console.warn('[notif] failed to attach:', e);
+  }
+
+  adminMessageUnsubscribe = () => stopAllNotifListeners();
 }
 
-function updateNotificationBadge(count) {
-  const badge = document.getElementById('notificationBadge');
-  if (!badge) return;
-  if (count > 0) {
-    badge.textContent = count > 99 ? '99+' : count;
-    badge.classList.remove('hidden');
-  } else {
-    badge.classList.add('hidden');
+// Console helper: window.debugNotif()
+window.debugNotif = function () {
+  const u = auth.currentUser;
+  console.log('=== NOTIF DEBUG ===');
+  console.log('currentUser:', u ? { uid: u.uid, email: u.email } : null);
+  console.log('unreadAdminMessages:', unreadAdminMessages.length, unreadAdminMessages);
+  console.log('_notifDocMap size:', _notifDocMap.size);
+  console.log('badge el:', document.getElementById('notificationBadge'));
+  console.log('authRequiredActions display:', document.getElementById('authRequiredActions')?.style?.display);
+  console.log('support badge el:', document.getElementById('ccbdSupportBtnBadge'));
+  if (!u) {
+    console.warn('Not logged in — login as a normal user, then run debugNotif() again');
+    return;
   }
+  // One-shot fetch to prove rules + data
+  getDocs(query(collection(db, 'messages'), where('participants', 'array-contains', u.uid)))
+    .then((snap) => {
+      console.log('[debugNotif] participants getDocs size=', snap.size);
+      snap.forEach((d) => {
+        const data = d.data();
+        console.log('  msg', d.id, {
+          from: data.fromUserId,
+          to: data.toUserId,
+          read: data.read,
+          participants: data.participants,
+          isUnread: isUnreadAdminMsg(data, u.uid),
+        });
+      });
+      // Force rebuild badge from this result
+      processNotifSnapshot(snap, u);
+    })
+    .catch((err) => console.error('[debugNotif] getDocs FAILED — RULES ISSUE:', err.code, err.message));
+};
+
+function updateNotificationBadge(count) {
+  const apply = () => {
+    // Ensure parent (bell area) is visible when logged in
+    const authRequired = document.getElementById('authRequiredActions');
+    if (authRequired && auth.currentUser) {
+      authRequired.style.display = 'flex';
+      authRequired.style.visibility = 'visible';
+    }
+
+    const badge = document.getElementById('notificationBadge');
+    const label = document.getElementById('notifCountLabel');
+    const n = Number(count) || 0;
+    if (badge) {
+      if (n > 0) {
+        badge.textContent = n > 99 ? '99+' : String(n);
+        badge.classList.remove('hidden');
+        badge.removeAttribute('hidden');
+        badge.style.cssText =
+          'display:flex !important; visibility:visible !important; opacity:1 !important; position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:10px; font-weight:700; border-radius:9999px; min-width:18px; height:18px; align-items:center; justify-content:center; padding:0 4px; z-index:50; line-height:1;';
+      } else {
+        badge.classList.add('hidden');
+        badge.style.cssText = 'display:none !important;';
+        badge.textContent = '0';
+      }
+    }
+    if (label) {
+      label.textContent = n > 0 ? `${n} new` : '0 new';
+    }
+    // Always sync floating chat badge too
+    if (typeof window.__ccbdUpdateSupportBadge === 'function') {
+      window.__ccbdUpdateSupportBadge(n);
+    }
+    if (n > 0) console.log('[notif] badge count =', n);
+  };
+  apply();
+  // Retry — navbar may render after first snapshot
+  setTimeout(apply, 80);
+  setTimeout(apply, 300);
+  setTimeout(apply, 800);
 }
 
 function updateNotificationList(messages) {
@@ -128,7 +333,7 @@ function updateNotificationList(messages) {
 
   let html = '';
   messages.slice(0, 10).forEach((msg) => {
-    const preview = msg.content?.length > 40 ? msg.content.slice(0, 40) + '...' : msg.content;
+    const preview = escapeNotifHtml(getMessagePreview(msg.content));
     const time = msg.timestamp?.toDate?.()?.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) || '';
     html += `
       <a href="messages.html" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 transition-colors">
@@ -158,8 +363,9 @@ async function markAllAdminMessagesRead() {
   const user = auth.currentUser;
   if (!user || unreadAdminMessages.length === 0) return;
 
+  const toMark = [...unreadAdminMessages];
   try {
-    const promises = unreadAdminMessages.map((msg) =>
+    const promises = toMark.map((msg) =>
       updateDoc(doc(db, 'messages', msg.id), {
         read: true,
         readAt: serverTimestamp(),
@@ -179,13 +385,16 @@ window.toggleNotifications = function() {
   if (!dropdown) return;
   const isOpening = dropdown.classList.contains('hidden');
   if (isOpening) {
+    notifDropdownOpen = true;
     displayMessages = [...unreadAdminMessages];
     updateNotificationList(displayMessages);
     dropdown.classList.remove('hidden');
     document.body.classList.add('dropdown-open');
     dropdown.style.animation = 'dropdownFade 0.2s ease';
-    markAllAdminMessagesRead();
+    // Do NOT mark read on open — only when user opens messages.html
+    // (keeps badge until they actually read the chat)
   } else {
+    notifDropdownOpen = false;
     displayMessages = [];
     dropdown.classList.add('hidden');
     document.body.classList.remove('dropdown-open');
@@ -1844,6 +2053,10 @@ export async function updateCartInFirestore(userId, cart) {
   }
 }
 
+// Prevent auth UI flicker: ignore brief null during token refresh if we still have a session
+let _lastAuthUid = null;
+let _authNullTimer = null;
+
 export function updateNavbarAuth(user, displayName, role = null) {
   const authBtns = document.getElementById('auth-buttons');
   const profileSection = document.getElementById('profile-section');
@@ -1865,6 +2078,13 @@ export function updateNavbarAuth(user, displayName, role = null) {
   }
 
   if (user) {
+    // Cancel any pending "logout UI" from a brief null event
+    if (_authNullTimer) {
+      clearTimeout(_authNullTimer);
+      _authNullTimer = null;
+    }
+    _lastAuthUid = user.uid;
+
     if (authBtns) authBtns.classList.add('hidden');
     if (profileSection) profileSection.classList.remove('hidden');
     if (avatar) {
@@ -1873,7 +2093,10 @@ export function updateNavbarAuth(user, displayName, role = null) {
       avatar.title = displayName || user.email || 'Account';
     }
     
-    if (authRequiredActions) authRequiredActions.style.display = 'flex';
+    if (authRequiredActions) {
+      authRequiredActions.style.display = 'flex';
+      authRequiredActions.style.visibility = 'visible';
+    }
 
     const isAdmin = (role === 'admin');
     if (adminLink) {
@@ -1885,30 +2108,36 @@ export function updateNavbarAuth(user, displayName, role = null) {
       mobileAdminLink.classList.toggle('hidden', !isAdmin);
     }
 
-    if (!isAdmin) {
-      startAdminMessageListener(user);
-    } else {
-      if (adminMessageUnsubscribe) {
-        adminMessageUnsubscribe();
-        adminMessageUnsubscribe = null;
-      }
-      updateNotificationBadge(0);
-      updateNotificationList([]);
+    // Notifications for any logged-in user
+    startAdminMessageListener(user);
+
+    // Support floating button on public pages
+    if (typeof window.__ccbdMountSupportWidget === 'function') {
+      window.__ccbdMountSupportWidget(user);
     }
 
   } else {
-    if (authBtns) authBtns.classList.remove('hidden');
-    if (profileSection) profileSection.classList.add('hidden');
-    if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
-    if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
-    if (adminMessageUnsubscribe) {
-      adminMessageUnsubscribe();
-      adminMessageUnsubscribe = null;
-    }
-    updateNotificationBadge(0);
-    updateNotificationList([]);
-
-    if (authRequiredActions) authRequiredActions.style.display = 'none';
+    // Debounce logout UI — token refresh can emit null briefly
+    if (_authNullTimer) clearTimeout(_authNullTimer);
+    _authNullTimer = setTimeout(() => {
+      // If Firebase still has a user, do NOT clear UI
+      if (auth.currentUser) {
+        console.log('[auth] ignored brief null — session still active');
+        return;
+      }
+      _lastAuthUid = null;
+      if (authBtns) authBtns.classList.remove('hidden');
+      if (profileSection) profileSection.classList.add('hidden');
+      if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
+      if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
+      stopAllNotifListeners();
+      updateNotificationBadge(0);
+      updateNotificationList([]);
+      if (authRequiredActions) authRequiredActions.style.display = 'none';
+      if (typeof window.__ccbdMountSupportWidget === 'function') {
+        window.__ccbdMountSupportWidget(null);
+      }
+    }, 400);
   }
 }
 
@@ -1934,6 +2163,7 @@ document.addEventListener('click', (e) => {
       notifDropdown.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
       displayMessages = [];
+      notifDropdownOpen = false;
     }
   }
 
@@ -1964,6 +2194,7 @@ document.addEventListener('keydown', (e) => {
       notifDropdown.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
       displayMessages = [];
+      notifDropdownOpen = false;
     }
     const cartPopup = document.getElementById('cartPopup');
     if (cartPopup && !cartPopup.classList.contains('hidden')) {
@@ -2356,4 +2587,409 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('✅ components.js: Auth Modal + Auth Cache + Performance tweaks loaded.');
+// ================================================================
+// ✅ FLOATING SUPPORT CHAT (Facebook Messenger style — all pages)
+// ================================================================
+let _supportUser = null;
+let _supportUnsub = null;
+let _supportOpen = false;
+let _supportMsgs = [];
+
+function _supportIsMessagesPage() {
+  const p = (window.location.pathname || '').toLowerCase();
+  return p.includes('messages');
+}
+
+function _supportIsAdminPage() {
+  const p = (window.location.pathname || '').toLowerCase();
+  return p.includes('admin-panel') || p.includes('admin-login');
+}
+
+function _injectSupportStyles() {
+  let style = document.getElementById('ccbd-support-styles');
+  if (!style) {
+    style = document.createElement('style');
+    style.id = 'ccbd-support-styles';
+    document.head.appendChild(style);
+  }
+  style.textContent = `
+    #ccbdSupportRoot { position: fixed; bottom: 22px; left: 22px; right: auto; z-index: 9800; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; }
+    #ccbdSupportBtn {
+      width: 58px; height: 58px; border-radius: 50%; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff;
+      box-shadow: 0 8px 28px rgba(0,102,255,0.35); display: flex; align-items: center; justify-content: center;
+      font-size: 1.35rem; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative;
+    }
+    #ccbdSupportBtn:hover { transform: scale(1.06); box-shadow: 0 12px 36px rgba(0,102,255,0.45); }
+    #ccbdSupportBtnBadge {
+      position: absolute; top: -2px; right: -2px; min-width: 20px; height: 20px; padding: 0 5px;
+      border-radius: 999px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 700;
+      display: none; align-items: center; justify-content: center; border: 2px solid #fff; line-height: 1;
+      z-index: 2;
+    }
+    #ccbdSupportBtnBadge.show { display: flex !important; }
+    #ccbdSupportPanel {
+      position: absolute; bottom: 70px; left: 0; right: auto; width: 360px; max-width: calc(100vw - 24px);
+      height: 480px; max-height: calc(100vh - 120px); background: #fff; border-radius: 18px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.16); border: 1px solid rgba(0,0,0,0.06);
+      display: none; flex-direction: column; overflow: hidden; animation: ccbdSupportIn 0.22s ease;
+    }
+    #ccbdSupportPanel.open { display: flex; }
+    @keyframes ccbdSupportIn { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: none; } }
+    #ccbdSupportHeader {
+      padding: 14px 16px; background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff;
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    #ccbdSupportHeader .av {
+      width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    #ccbdSupportHeader .info { flex: 1; min-width: 0; }
+    #ccbdSupportHeader .info .name { font-weight: 700; font-size: 0.95rem; }
+    #ccbdSupportHeader .info .sub { font-size: 0.72rem; opacity: 0.9; }
+    #ccbdSupportHeader .actions { display: flex; gap: 4px; }
+    #ccbdSupportHeader .actions button {
+      background: rgba(255,255,255,0.15); border: none; color: #fff; width: 32px; height: 32px;
+      border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    #ccbdSupportHeader .actions button:hover { background: rgba(255,255,255,0.28); }
+    #ccbdSupportBody {
+      flex: 1; overflow-y: auto; padding: 14px 12px; background: #f8fafc;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    /* Row: fit-content so bubble can size to text (avoid % max-width shrink bug) */
+    #ccbdSupportBody .s-row {
+      display: flex; flex-direction: column;
+      width: fit-content; max-width: 92%; min-width: 0;
+    }
+    #ccbdSupportBody .s-row.sent { align-self: flex-end; align-items: flex-end; margin-left: auto; }
+    #ccbdSupportBody .s-row.recv { align-self: flex-start; align-items: flex-start; margin-right: auto; }
+    /* Bubble: grow with text; no mid-word break like Ok/ye */
+    #ccbdSupportBody .s-msg {
+      display: block;
+      width: max-content;
+      max-width: min(280px, 78vw);
+      min-width: 40px;
+      padding: 8px 12px; border-radius: 14px; font-size: 0.88rem; line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: normal;
+      overflow-wrap: break-word;
+      box-sizing: border-box;
+    }
+    #ccbdSupportBody .s-row.sent .s-msg {
+      background: linear-gradient(135deg, #0066FF, #5856D6); color: #fff; border-bottom-right-radius: 4px;
+    }
+    #ccbdSupportBody .s-row.recv .s-msg {
+      background: #fff; color: #1e293b; border: 1px solid rgba(0,0,0,0.05); border-bottom-left-radius: 4px;
+    }
+    #ccbdSupportBody .s-time { font-size: 0.62rem; color: #94a3b8; margin-top: 2px; padding: 0 4px; }
+    #ccbdSupportBody .s-empty { margin: auto; text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 24px; }
+    #ccbdSupportFooter {
+      padding: 10px 12px; border-top: 1px solid rgba(0,0,0,0.05); background: #fff;
+      display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+    }
+    #ccbdSupportInput {
+      flex: 1; border: 1.5px solid #e2e8f0; border-radius: 18px; padding: 10px 14px;
+      font-size: 0.88rem; resize: none; max-height: 90px; min-height: 42px; outline: none;
+      font-family: inherit; line-height: 1.4; background: #f8fafc;
+    }
+    #ccbdSupportInput:focus { border-color: #0066FF; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+    #ccbdSupportSend {
+      width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+    }
+    #ccbdSupportSend:disabled { opacity: 0.45; cursor: not-allowed; }
+    #ccbdSupportLoginHint {
+      padding: 16px; text-align: center; font-size: 0.85rem; color: #64748b;
+    }
+    #ccbdSupportLoginHint button {
+      margin-top: 10px; background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff;
+      border: none; padding: 10px 18px; border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 0.85rem;
+    }
+    @media (max-width: 480px) {
+      #ccbdSupportRoot { bottom: 16px; left: 14px; right: auto; }
+      #ccbdSupportPanel { width: calc(100vw - 20px); height: min(70vh, 520px); left: 0; right: auto; }
+      #ccbdSupportBtn { width: 52px; height: 52px; font-size: 1.2rem; }
+    }
+  `;
+  if (!style.parentNode) document.head.appendChild(style);
+}
+
+function _ensureSupportDom() {
+  if (document.getElementById('ccbdSupportRoot')) return;
+  _injectSupportStyles();
+  const root = document.createElement('div');
+  root.id = 'ccbdSupportRoot';
+  root.innerHTML = `
+    <div id="ccbdSupportPanel" role="dialog" aria-label="Support chat">
+      <div id="ccbdSupportHeader">
+        <div class="av"><i class="fas fa-headset"></i></div>
+        <div class="info">
+          <div class="name">Admin Support</div>
+          <div class="sub">Usually replies fast</div>
+        </div>
+        <div class="actions">
+          <button type="button" id="ccbdSupportExpand" title="Open full chat" aria-label="Open full chat"><i class="fas fa-expand-alt"></i></button>
+          <button type="button" id="ccbdSupportMinimize" title="Minimize" aria-label="Minimize"><i class="fas fa-minus"></i></button>
+        </div>
+      </div>
+      <div id="ccbdSupportBody"><div class="s-empty">Loading…</div></div>
+      <div id="ccbdSupportFooter">
+        <textarea id="ccbdSupportInput" rows="1" placeholder="Type a message…"></textarea>
+        <button type="button" id="ccbdSupportSend" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+    <button type="button" id="ccbdSupportBtn" title="Support chat" aria-label="Open support chat">
+      <i class="fas fa-comment-dots" id="ccbdSupportBtnIcon"></i>
+      <span id="ccbdSupportBtnBadge">0</span>
+    </button>
+  `;
+  document.body.appendChild(root);
+
+  document.getElementById('ccbdSupportBtn').addEventListener('click', () => {
+    if (!_supportUser) {
+      if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
+      else if (typeof window.showToast === 'function') window.showToast('Please sign in to chat', 'warning');
+      return;
+    }
+    _supportOpen = !_supportOpen;
+    const panel = document.getElementById('ccbdSupportPanel');
+    const icon = document.getElementById('ccbdSupportBtnIcon');
+    if (_supportOpen) {
+      panel.classList.add('open');
+      if (icon) icon.className = 'fas fa-times';
+      _renderSupportMsgs(_supportMsgs);
+      setTimeout(() => {
+        const body = document.getElementById('ccbdSupportBody');
+        if (body) body.scrollTop = body.scrollHeight;
+        document.getElementById('ccbdSupportInput')?.focus();
+      }, 50);
+      // Viewing chat in popup = mark admin messages read → clear badges
+      markAllAdminMessagesRead().then(() => {
+        // Optimistic local clear (listener will also rebuild)
+        unreadAdminMessages = [];
+        updateNotificationBadge(0);
+        updateNotificationList([]);
+        if (typeof window.__ccbdUpdateSupportBadge === 'function') {
+          window.__ccbdUpdateSupportBadge(0);
+        }
+      });
+    } else {
+      panel.classList.remove('open');
+      if (icon) icon.className = 'fas fa-comment-dots';
+    }
+  });
+
+  document.getElementById('ccbdSupportMinimize').addEventListener('click', (e) => {
+    e.stopPropagation();
+    _supportOpen = false;
+    document.getElementById('ccbdSupportPanel')?.classList.remove('open');
+    const icon = document.getElementById('ccbdSupportBtnIcon');
+    if (icon) icon.className = 'fas fa-comment-dots';
+  });
+
+  document.getElementById('ccbdSupportExpand').addEventListener('click', (e) => {
+    e.stopPropagation();
+    window.location.href = 'messages.html';
+  });
+
+  const input = document.getElementById('ccbdSupportInput');
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 90) + 'px';
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      _sendSupportMessage();
+    }
+  });
+  document.getElementById('ccbdSupportSend').addEventListener('click', () => _sendSupportMessage());
+}
+
+function _renderSupportMsgs(msgs) {
+  const body = document.getElementById('ccbdSupportBody');
+  if (!body) return;
+  if (!_supportUser) {
+    body.innerHTML = `<div id="ccbdSupportLoginHint">Sign in to chat with support.<br><button type="button" onclick="window.openAuthModal && window.openAuthModal('signin')">Sign In</button></div>`;
+    return;
+  }
+  if (!msgs || msgs.length === 0) {
+    body.innerHTML = `<div class="s-empty"><i class="fas fa-comments" style="font-size:1.6rem;opacity:0.35;display:block;margin-bottom:8px;"></i>Say hello to start chatting</div>`;
+    return;
+  }
+  let html = '';
+  msgs.forEach((m) => {
+    const isSent = m.fromUserId === _supportUser.uid;
+    const ts = m.timestamp?.toDate?.() || null;
+    const time = ts ? ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '';
+    const raw = String(m.content || '');
+    const safe = raw
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    html += `
+      <div class="s-row ${isSent ? 'sent' : 'recv'}">
+        <div class="s-msg">${safe || '(empty)'}</div>
+        <div class="s-time">${time}</div>
+      </div>`;
+  });
+  body.innerHTML = html;
+  body.scrollTop = body.scrollHeight;
+}
+
+async function _sendSupportMessage() {
+  const input = document.getElementById('ccbdSupportInput');
+  const btn = document.getElementById('ccbdSupportSend');
+  if (!input || !_supportUser) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const convId = `conv_${_supportUser.uid}_admin`;
+  btn.disabled = true;
+  try {
+    await addDoc(collection(db, 'messages'), {
+      conversationId: convId,
+      fromUserId: _supportUser.uid,
+      toUserId: 'admin',
+      content: text,
+      timestamp: serverTimestamp(),
+      read: false,
+      participants: [_supportUser.uid, 'admin']
+    });
+    input.value = '';
+    input.style.height = 'auto';
+  } catch (err) {
+    console.error('Support send error:', err);
+    if (typeof window.showToast === 'function') {
+      window.showToast('⚠️ ' + (err.message || 'Failed to send'), 'error');
+    }
+  } finally {
+    btn.disabled = false;
+    input.focus();
+  }
+}
+
+function _startSupportListener(user) {
+  if (_supportUnsub) {
+    try { _supportUnsub(); } catch (_) {}
+    _supportUnsub = null;
+  }
+  if (!user) return;
+  const convId = `conv_${user.uid}_admin`;
+
+  const applySnap = (snapshot) => {
+    const msgs = [];
+    snapshot.forEach((d) => {
+      const data = d.data();
+      if (data.conversationId === convId || !data.conversationId) {
+        msgs.push({ id: d.id, ...data });
+      }
+    });
+    msgs.sort((a, b) => {
+      const ta = a.timestamp?.toDate?.()?.getTime() || 0;
+      const tb = b.timestamp?.toDate?.()?.getTime() || 0;
+      return ta - tb;
+    });
+    _supportMsgs = msgs;
+    if (_supportOpen) _renderSupportMsgs(msgs);
+  };
+
+  const start = async () => {
+    try { await user.getIdToken(true); } catch (_) {}
+    const q = query(
+      collection(db, 'messages'),
+      where('participants', 'array-contains', user.uid)
+    );
+    _supportUnsub = onSnapshot(q, applySnap, (err) => {
+      console.warn('[support] participants failed:', err?.code);
+      const q2 = query(collection(db, 'messages'), where('conversationId', '==', convId));
+      _supportUnsub = onSnapshot(q2, applySnap, (err2) => {
+        console.warn('[support] conversationId failed:', err2?.code);
+        const q3 = query(collection(db, 'messages'), where('toUserId', '==', user.uid));
+        _supportUnsub = onSnapshot(q3, applySnap, (err3) => {
+          console.error('[support] ALL queries failed:', err3?.code, err3?.message);
+        });
+      });
+    });
+  };
+  start();
+}
+
+window.__ccbdUpdateSupportBadge = function(count) {
+  const apply = () => {
+    const badge = document.getElementById('ccbdSupportBtnBadge');
+    if (!badge) return false;
+    const n = Number(count) || 0;
+    if (n > 0) {
+      badge.textContent = n > 99 ? '99+' : String(n);
+      badge.classList.add('show');
+      badge.style.display = 'flex';
+    } else {
+      badge.textContent = '0';
+      badge.classList.remove('show');
+      badge.style.display = 'none';
+    }
+    return true;
+  };
+  if (!apply()) {
+    // DOM not ready yet — retry
+    setTimeout(apply, 100);
+    setTimeout(apply, 400);
+  }
+};
+
+window.__ccbdMountSupportWidget = function(user) {
+  if (_supportIsAdminPage() || _supportIsMessagesPage()) {
+    window.__ccbdHideSupportWidget();
+    return;
+  }
+  _supportUser = user || null;
+  _ensureSupportDom();
+  const root = document.getElementById('ccbdSupportRoot');
+  if (root) {
+    root.style.display = 'block';
+    root.style.visibility = 'visible';
+    root.style.opacity = '1';
+    root.style.pointerEvents = 'auto';
+  }
+  if (user) {
+    _startSupportListener(user);
+    // Re-apply current unread badge after mount
+    if (typeof window.__ccbdUpdateSupportBadge === 'function') {
+      window.__ccbdUpdateSupportBadge(unreadAdminMessages.length);
+    }
+  } else if (_supportUnsub) {
+    try { _supportUnsub(); } catch (_) {}
+    _supportUnsub = null;
+    _supportMsgs = [];
+    window.__ccbdUpdateSupportBadge(0);
+  }
+};
+
+window.__ccbdHideSupportWidget = function() {
+  const root = document.getElementById('ccbdSupportRoot');
+  if (root) root.style.display = 'none';
+  _supportOpen = false;
+  document.getElementById('ccbdSupportPanel')?.classList.remove('open');
+  if (_supportUnsub) {
+    try { _supportUnsub(); } catch (_) {}
+    _supportUnsub = null;
+  }
+  _supportUser = null;
+  _supportMsgs = [];
+};
+
+// Mount minimized launcher even before auth (shows login prompt on open)
+if (typeof document !== 'undefined') {
+  const boot = () => {
+    if (_supportIsAdminPage() || _supportIsMessagesPage()) return;
+    _ensureSupportDom();
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    setTimeout(boot, 0);
+  }
+}
+
+console.log('✅ components.js: Auth Modal + Auth Cache + Notifications + Support Widget loaded.');
+
