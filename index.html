@@ -143,11 +143,42 @@
       text-align: center;
     }
     .hero-section .hero-title {
-      font-size: clamp(2.25rem, 5vw, 4.25rem);
+      font-size: clamp(1.85rem, 5vw, 4.25rem);
       font-weight: 800;
       letter-spacing: -0.03em;
-      line-height: 1.12;
+      line-height: 1.2;
       color: #0f172a;
+      /* Always reserve 2 lines → CTA buttons stay fixed while typing */
+      min-height: calc(1.2em * 2);
+      height: calc(1.2em * 2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+      max-width: 20rem;
+      overflow: hidden;
+    }
+    @media (min-width: 640px) {
+      .hero-section .hero-title {
+        max-width: 36rem;
+      }
+    }
+    @media (max-width: 380px) {
+      .hero-section .hero-title {
+        font-size: 1.65rem;
+        /* still exactly 2 lines of space */
+        min-height: calc(1.2em * 2);
+        height: calc(1.2em * 2);
+      }
+    }
+    .hero-section .hero-title .typed-text {
+      background: linear-gradient(135deg, #0066FF, #8B5CF6, #F59E0B);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .hero-section .hero-sub {
       font-size: clamp(1rem, 2vw, 1.25rem);
@@ -644,8 +675,8 @@
             <span class="trust-badge"><i class="fas fa-check-circle text-emerald-500"></i> 150+ Projects</span>
           </div>
 
-          <h1 class="hero-title fade-up">
-            Build Your <span class="gradient-text">Dream Website</span> Today
+          <h1 class="hero-title fade-up" aria-live="polite">
+            <span id="typedHero" class="typed-text">Build Your Dream Website Today</span>
           </h1>
           <p class="hero-sub fade-up" style="transition-delay:0.1s;">
             Professional website development, fixing, and maintenance – tailored for your business.
@@ -1297,7 +1328,78 @@ onAuthStateChanged(auth, async (user) => {
       }
     });
 
-    console.log('🏠 Landing page loaded with HTML previews + DISCOUNT & BDT + single-line title in featured products!');
+    // ===== HERO TYPING ANIMATION (3 texts × 4s each) =====
+    (function initHeroTyping() {
+      const el = document.getElementById('typedHero');
+      if (!el) return;
+
+      const texts = [
+        'Build Your Dream Website Today',
+        'Fix Bugs, Speed & Security Fast',
+        'Ready-Made Sites for Your Business'
+      ];
+      const DURATION = 4000; // total time per text (ms)
+      const typeMs = 42;
+      const deleteMs = 28;
+      let textIndex = 0;
+      let charIndex = 0;
+      let deleting = false;
+      let holdUntil = 0;
+
+      // Start with full first text already visible, then cycle
+      el.textContent = texts[0];
+      charIndex = texts[0].length;
+      holdUntil = performance.now() + 2200; // brief hold before first delete
+
+      function tick(now) {
+        const full = texts[textIndex];
+
+        if (!deleting && charIndex === full.length) {
+          // Holding full text until DURATION window ends
+          if (now < holdUntil) {
+            requestAnimationFrame(tick);
+            return;
+          }
+          deleting = true;
+        }
+
+        if (deleting) {
+          if (charIndex > 0) {
+            charIndex--;
+            el.textContent = full.slice(0, charIndex);
+            setTimeout(() => requestAnimationFrame(tick), deleteMs);
+            return;
+          }
+          // move to next
+          deleting = false;
+          textIndex = (textIndex + 1) % texts.length;
+          charIndex = 0;
+          setTimeout(() => requestAnimationFrame(tick), 280);
+          return;
+        }
+
+        // typing
+        charIndex++;
+        el.textContent = full.slice(0, charIndex);
+        if (charIndex === full.length) {
+          // schedule hold so total ~DURATION from start of this phrase
+          const typedTime = charIndex * typeMs;
+          const hold = Math.max(1200, DURATION - typedTime - (full.length * deleteMs) - 280);
+          holdUntil = performance.now() + hold;
+        }
+        setTimeout(() => requestAnimationFrame(tick), typeMs);
+      }
+
+      // Prefer reduced motion: show first text only
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.textContent = texts[0];
+        return;
+      }
+
+      requestAnimationFrame(tick);
+    })();
+
+    console.log('🏠 Landing page loaded — hero typing animation active');
   </script>
 </body>
 </html>
