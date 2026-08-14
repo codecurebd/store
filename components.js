@@ -1493,6 +1493,7 @@ export function renderPaymentModal() {
           const newDueBDT = Math.max(0, (currentOrder.dueAmountBDT || 0) - dueData.dueBDT);
           const newDueUSD = Math.max(0, (currentOrder.dueAmountUSD || 0) - dueData.dueUSD);
 
+          const duePaidFully = newDueBDT <= 0 && newDueUSD <= 0;
           await updateDoc(orderRef, {
             amountBDT: newPaidBDT,
             amountUSD: newPaidUSD,
@@ -1502,14 +1503,23 @@ export function renderPaymentModal() {
             senderNumber: senderNumber,
             paymentMethod: method,
             updatedAt: serverTimestamp(),
-            ...(newDueBDT === 0 ? { duePaidAt: serverTimestamp() } : {})
+            ...(duePaidFully ? {
+              duePaidAt: serverTimestamp(),
+              remainingPaymentEnabled: false,
+              remainingPaymentAmountBDT: 0,
+              remainingPaymentAmountUSD: 0,
+              paymentType: 'full'
+            } : {})
           });
 
           window.showToast('✅ Due payment successful! Order updated.', 'success');
           window.closePaymentModal();
           window._duePaymentData = null;
+          if (typeof window.refreshCampaignPage === 'function') {
+            try { await window.refreshCampaignPage(); } catch (_) {}
+          }
           // Refresh the page to update order list
-          setTimeout(() => window.location.reload(), 1500);
+          setTimeout(() => window.location.reload(), 1200);
 
         } catch (err) {
           console.error('Due payment error:', err);
@@ -1586,8 +1596,9 @@ export function renderPaymentModal() {
         const advanceBDT = Number(pending.amountBDT) || Number(pending.totalBDT) || 500;
         const advanceUSD = Number((advanceBDT / rate).toFixed(2));
         const campaignPrice = Number(pending.campaignPrice) || 0;
-        const dueBDT = Math.max(0, campaignPrice - advanceBDT);
-        const dueUSD = Number((dueBDT / rate).toFixed(2));
+        // Due is set manually by admin later — do NOT auto-calculate from campaign price
+        const dueBDT = 0;
+        const dueUSD = 0;
         const btn = document.getElementById('paymentSubmitBtn');
         setLoading(btn, true, 'Confirm Payment');
 
@@ -1624,6 +1635,8 @@ export function renderPaymentModal() {
             campaignId: pending.campaignId,
             campaignTitle: pending.campaignTitle || camp.title || 'Campaign',
             orderType: 'campaign',
+            type: 'campaign',
+            isCampaign: true,
             items: [{
               id: pending.campaignId,
               name: pending.campaignTitle || camp.title || 'Campaign',
@@ -1642,6 +1655,9 @@ export function renderPaymentModal() {
             amountBDT: advanceBDT,
             dueAmountUSD: dueUSD,
             dueAmountBDT: dueBDT,
+            remainingPaymentEnabled: false,
+            remainingPaymentAmountBDT: 0,
+            remainingPaymentAmountUSD: 0,
             usdRate: rate,
             packageType: isSpecial ? 'special' : 'normal',
             createdAt: serverTimestamp()
