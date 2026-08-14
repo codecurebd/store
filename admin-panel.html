@@ -2054,6 +2054,13 @@
                     <div class="dash-mini"><div class="dm-label">Contact Msgs</div><div class="dm-value blue" id="dashContactMsgs">0</div></div>
                     <div class="dash-mini"><div class="dm-label">Unread Chats</div><div class="dm-value purple" id="dashUnreadChats">0</div></div>
                 </div>
+
+                <h3 class="text-lg font-semibold mt-6 mb-2" style="color:#1c1c1e;"><i class="fas fa-bullhorn text-blue-600"></i> Campaign</h3>
+                <div class="dashboard-grid-secondary">
+                    <div class="dash-mini"><div class="dm-label">Campaign Pending</div><div class="dm-value orange" id="dashCampPending">0</div></div>
+                    <div class="dash-mini"><div class="dm-label">Campaign Completed</div><div class="dm-value green" id="dashCampCompleted">0</div></div>
+                    <div class="dash-mini"><div class="dm-label">Campaign Revenue</div><div class="dm-value purple" id="dashCampRevenue">৳0</div></div>
+                </div>
                 <div class="chart-grid">
                     <div class="glass-card"><h3 class="font-semibold text-gray-700 mb-2" style="font-size:0.9rem;">📈 Daily Orders</h3><div class="chart-container"><canvas id="dailyOrdersChart"></canvas></div></div>
                     <div class="glass-card"><h3 class="font-semibold text-gray-700 mb-2" style="font-size:0.9rem;">💰 Daily Revenue</h3><div class="chart-container"><canvas id="dailyRevenueChart"></canvas></div></div>
@@ -2462,9 +2469,15 @@
             <!-- ===== CAMPAIGN ===== -->
             <div id="tab-campaign" class="tab-content">
                 <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Campaign</h2>
-                <p class="text-sm text-gray-500 mb-4">Only one active campaign at a time. Users pay ৳500 advance from the campaign page.</p>
+                <p class="text-sm text-gray-500 mb-4">Only one campaign at a time. Users pay advance from the campaign page. Due amount is set manually per order.</p>
 
-                <div class="glass-card mb-6 max-w-2xl">
+                <div class="mb-4" id="campaignAddBtnWrap">
+                    <button type="button" id="campaignAddBtn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Add Campaign
+                    </button>
+                </div>
+
+                <div class="glass-card mb-6 max-w-2xl hidden" id="campaignFormCard">
                     <h3 class="text-lg font-semibold mb-3" id="campaignFormTitle">Create Campaign</h3>
                     <form id="campaignAdminForm" class="space-y-3">
                         <input type="hidden" id="campaignEditId" value="" />
@@ -3036,6 +3049,16 @@
                     const unread = Object.values(conversationsMap || {}).reduce((s, c) => s + (c.unread || 0), 0);
                     set('dashUnreadChats', unread);
                 } catch (_) { set('dashUnreadChats', 0); }
+                // Campaign order stats
+                const campOrders = getCampaignOrders(allOrders);
+                const campPending = campOrders.filter(o => (o.status || 'pending') === 'pending' || o.status === 'processing').length;
+                const campCompleted = campOrders.filter(o => o.status === 'completed').length;
+                const campRevenueBDT = campOrders
+                    .filter(o => o.status !== 'cancelled')
+                    .reduce((s, o) => s + (Number(o.amountBDT) || 0), 0);
+                set('dashCampPending', campPending);
+                set('dashCampCompleted', campCompleted);
+                set('dashCampRevenue', '৳' + campRevenueBDT.toLocaleString('en-BD'));
                 renderRecentActivity();
             }
 
@@ -5039,26 +5062,18 @@
                         </div>
 
                         <div class="order-payment-box space-y-3 p-3 rounded-xl border border-amber-100 bg-amber-50/40">
-                            <p class="text-sm font-semibold text-gray-800"><i class="fas fa-hand-holding-usd text-amber-600"></i> Due amount (manual — set by admin)</p>
-                            <p class="text-xs text-gray-500">Not auto-calculated from campaign price. Enter what the client still owes after advance.</p>
+                            <p class="text-sm font-semibold text-gray-800"><i class="fas fa-hand-holding-usd text-amber-600"></i> Due amount (manual — BDT only)</p>
+                            <p class="text-xs text-gray-500">Enter what the client still owes after advance. USD is calculated automatically from Settings rate.</p>
                             <div class="flex flex-wrap gap-3 items-end">
                                 <div>
-                                    <label class="text-xs text-gray-500">Due BDT</label>
-                                    <input type="number" id="campEditDueBDT" class="form-input text-sm py-1" style="width:120px;" min="0" step="1" value="${dueBDT || ''}" placeholder="0" />
-                                </div>
-                                <div>
-                                    <label class="text-xs text-gray-500">Due USD</label>
-                                    <input type="number" id="campEditDueUSD" class="form-input text-sm py-1" style="width:110px;" min="0" step="0.01" value="${dueUSD || ''}" placeholder="0" />
-                                </div>
-                                <div>
-                                    <label class="text-xs text-gray-500">USD rate</label>
-                                    <input type="number" id="campEditUsdRate" class="form-input text-sm py-1" style="width:90px;" min="1" step="0.01" value="${rate}" />
+                                    <label class="text-xs text-gray-500">Due Amount (BDT)</label>
+                                    <input type="number" id="campEditDueBDT" class="form-input text-sm py-1" style="width:160px;" min="0" step="1" value="${dueBDT || ''}" placeholder="e.g. 499" />
                                 </div>
                                 <button type="button" onclick="saveCampaignDueAmount('${order.id}')" class="btn-primary btn-sm">
                                     <i class="fas fa-save"></i> Save Due
                                 </button>
                             </div>
-                            <p class="text-xs text-gray-400">Tip: fill Due BDT; USD can be left 0 or set from rate.</p>
+                            <p class="text-xs text-gray-400 mt-1">USD uses the rate from <strong>Settings → USD → BDT Rate</strong>. Current order rate reference: ৳${rate}/$.</p>
                         </div>
 
                         <div class="p-3 rounded-xl border border-blue-100 bg-blue-50/50 space-y-2">
@@ -5112,30 +5127,20 @@
                 }
             };
 
-            /** BDT is source of truth; USD always from Settings rate. */
+            /** BDT only input; USD always from Settings rate. */
             async function resolveCampaignDueAmounts() {
                 let dueBDT = parseFloat(document.getElementById('campEditDueBDT')?.value);
-                let dueUSD = parseFloat(document.getElementById('campEditDueUSD')?.value);
-                let rate = parseFloat(document.getElementById('campEditUsdRate')?.value);
-                if (isNaN(dueBDT)) dueBDT = 0;
-                if (isNaN(dueUSD)) dueUSD = 0;
-                if (isNaN(rate) || rate <= 0) rate = 125;
+                if (isNaN(dueBDT) || dueBDT < 0) dueBDT = 0;
+                let rate = 125;
                 try {
                     const snap = await getDoc(doc(db, 'settings', 'payment'));
                     if (snap.exists() && Number(snap.data().usdRate) > 0) {
                         rate = Number(snap.data().usdRate);
                     }
                 } catch (_) {}
-                // Admin entered BDT → always recompute USD (ignore stale USD in form/order)
-                if (dueBDT > 0 && rate > 0) {
-                    dueUSD = Math.round((dueBDT / rate) * 100) / 100;
-                } else if (dueUSD > 0 && dueBDT <= 0 && rate > 0) {
-                    dueBDT = Math.round(dueUSD * rate);
-                }
-                const usdInput = document.getElementById('campEditDueUSD');
-                const rateInput = document.getElementById('campEditUsdRate');
-                if (usdInput) usdInput.value = dueUSD ? String(dueUSD) : '';
-                if (rateInput) rateInput.value = String(rate);
+                const dueUSD = (dueBDT > 0 && rate > 0)
+                    ? Math.round((dueBDT / rate) * 100) / 100
+                    : 0;
                 return { dueBDT, dueUSD, rate };
             }
 
@@ -6272,13 +6277,59 @@
                 // ----- Campaign -----
                 const campList = document.getElementById('campaignAdminList');
                 const campForm = document.getElementById('campaignAdminForm');
+                const campFormCard = document.getElementById('campaignFormCard');
+                const campAddBtnWrap = document.getElementById('campaignAddBtnWrap');
+                let campaignCount = 0;
+
+                function showCampaignForm() {
+                    if (!campFormCard) return;
+                    campFormCard.classList.remove('hidden');
+                    document.getElementById('campCancelEdit')?.classList.remove('hidden');
+                    const cancelBtn = document.getElementById('campCancelEdit');
+                    if (cancelBtn) cancelBtn.textContent = 'Cancel';
+                    campFormCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+
+                function hideCampaignForm() {
+                    if (!campFormCard) return;
+                    campFormCard.classList.add('hidden');
+                    if (campForm) campForm.reset();
+                    const editId = document.getElementById('campaignEditId');
+                    if (editId) editId.value = '';
+                    const imgUrl = document.getElementById('campImageUrl');
+                    if (imgUrl) imgUrl.value = '';
+                    document.getElementById('campImagePreview')?.classList.add('hidden');
+                    const titleEl = document.getElementById('campaignFormTitle');
+                    if (titleEl) titleEl.textContent = 'Create Campaign';
+                    const ts = document.getElementById('campTotalSlots');
+                    if (ts) ts.value = 12;
+                    const ss = document.getElementById('campSpecialSlots');
+                    if (ss) ss.value = 3;
+                    const adv = document.getElementById('campAdvance');
+                    if (adv) adv.value = 500;
+                }
+
+                function updateCampaignAddVisibility() {
+                    if (!campAddBtnWrap) return;
+                    if (campaignCount > 0) campAddBtnWrap.classList.add('hidden');
+                    else campAddBtnWrap.classList.remove('hidden');
+                }
+
+                document.getElementById('campaignAddBtn')?.addEventListener('click', () => {
+                    hideCampaignForm();
+                    const titleEl = document.getElementById('campaignFormTitle');
+                    if (titleEl) titleEl.textContent = 'Create Campaign';
+                    showCampaignForm();
+                });
 
                 async function renderCampaignList() {
                     if (!campList) return;
                     try {
                         const snap = await getDocs(collection(db, 'campaigns'));
+                        campaignCount = snap.size;
+                        updateCampaignAddVisibility();
                         if (snap.empty) {
-                            campList.innerHTML = '<p class="text-gray-400">No campaigns yet.</p>';
+                            campList.innerHTML = '<p class="text-gray-400">No campaigns yet. Click “Add Campaign” to create one.</p>';
                             return;
                         }
                         let html = '';
@@ -6290,7 +6341,7 @@
                               <div class="p-3 rounded-xl border border-gray-100 bg-white flex flex-wrap justify-between gap-2 items-center">
                                 <div>
                                   <div class="font-semibold text-gray-900">${(c.title || '').replace(/</g,'&lt;')}</div>
-                                  <div class="text-xs text-gray-500">Status: <strong>${status}</strong> · Slots left: ${remaining}/${c.totalSlots || 0} · ৳${c.campaignPrice || 0}</div>
+                                  <div class="text-xs text-gray-500">Status: <strong>${status}</strong> ·Slots left: ${remaining}/${c.totalSlots || 0} · ৳${c.campaignPrice || 0}</div>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
                                   ${status !== 'active' ? `<button type="button" class="btn-primary text-xs py-1 px-3" data-act="activate" data-id="${d.id}">Activate</button>` : `<button type="button" class="btn-outline text-xs py-1 px-3" data-act="close" data-id="${d.id}">Close</button>`}
@@ -6327,15 +6378,7 @@
                 });
 
                 document.getElementById('campCancelEdit')?.addEventListener('click', () => {
-                    campForm.reset();
-                    document.getElementById('campaignEditId').value = '';
-                    document.getElementById('campImageUrl').value = '';
-                    document.getElementById('campImagePreview').classList.add('hidden');
-                    document.getElementById('campaignFormTitle').textContent = 'Create Campaign';
-                    document.getElementById('campCancelEdit').classList.add('hidden');
-                    document.getElementById('campTotalSlots').value = 12;
-                    document.getElementById('campSpecialSlots').value = 3;
-                    document.getElementById('campAdvance').value = 500;
+                    hideCampaignForm();
                 });
 
                 campForm?.addEventListener('submit', async (e) => {
@@ -6355,6 +6398,10 @@
 
                     if (!title || !campaignPrice) {
                         showToast('Title and campaign price required', 'warning');
+                        return;
+                    }
+                    if (!editId && campaignCount > 0) {
+                        showToast('Only one campaign allowed. Delete the existing one first.', 'warning');
                         return;
                     }
                     const btn = document.getElementById('campSubmitBtn');
@@ -6441,8 +6488,7 @@
                             if (c.imageUrl) { prev.src = c.imageUrl; prev.classList.remove('hidden'); }
                             else prev.classList.add('hidden');
                             document.getElementById('campaignFormTitle').textContent = 'Edit Campaign';
-                            document.getElementById('campCancelEdit').classList.remove('hidden');
-                            document.getElementById('tab-campaign')?.scrollIntoView({ behavior: 'smooth' });
+                            showCampaignForm();
                         }
                     } catch (err) {
                         showToast('⚠️ ' + err.message, 'error');
