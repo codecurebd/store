@@ -5112,27 +5112,44 @@
                 }
             };
 
-            window.saveCampaignDueAmount = async function(orderId) {
+            /** BDT is source of truth; USD always from Settings rate. */
+            async function resolveCampaignDueAmounts() {
                 let dueBDT = parseFloat(document.getElementById('campEditDueBDT')?.value);
                 let dueUSD = parseFloat(document.getElementById('campEditDueUSD')?.value);
-                let rate = parseFloat(document.getElementById('campEditUsdRate')?.value) || 125;
+                let rate = parseFloat(document.getElementById('campEditUsdRate')?.value);
                 if (isNaN(dueBDT)) dueBDT = 0;
                 if (isNaN(dueUSD)) dueUSD = 0;
+                if (isNaN(rate) || rate <= 0) rate = 125;
+                try {
+                    const snap = await getDoc(doc(db, 'settings', 'payment'));
+                    if (snap.exists() && Number(snap.data().usdRate) > 0) {
+                        rate = Number(snap.data().usdRate);
+                    }
+                } catch (_) {}
+                // Admin entered BDT → always recompute USD (ignore stale USD in form/order)
+                if (dueBDT > 0 && rate > 0) {
+                    dueUSD = Math.round((dueBDT / rate) * 100) / 100;
+                } else if (dueUSD > 0 && dueBDT <= 0 && rate > 0) {
+                    dueBDT = Math.round(dueUSD * rate);
+                }
+                const usdInput = document.getElementById('campEditDueUSD');
+                const rateInput = document.getElementById('campEditUsdRate');
+                if (usdInput) usdInput.value = dueUSD ? String(dueUSD) : '';
+                if (rateInput) rateInput.value = String(rate);
+                return { dueBDT, dueUSD, rate };
+            }
+
+            window.saveCampaignDueAmount = async function(orderId) {
+                const { dueBDT, dueUSD, rate } = await resolveCampaignDueAmounts();
                 if (dueBDT < 0 || dueUSD < 0) {
                     showToast('Due cannot be negative', 'warning');
                     return;
                 }
-                // If only BDT set, derive USD from rate
-                if (dueBDT > 0 && dueUSD <= 0 && rate > 0) dueUSD = Math.round((dueBDT / rate) * 100) / 100;
-                // If only USD set, derive BDT
-                if (dueUSD > 0 && dueBDT <= 0 && rate > 0) dueBDT = Math.round(dueUSD * rate);
-
                 try {
                     await updateDoc(doc(db, 'orders', orderId), {
                         dueAmountBDT: dueBDT,
                         dueAmountUSD: dueUSD,
                         usdRate: rate,
-                        // Keep remaining request amounts in sync if already enabled
                         remainingPaymentAmountBDT: dueBDT,
                         remainingPaymentAmountUSD: dueUSD,
                         updatedAt: serverTimestamp()
@@ -5145,7 +5162,7 @@
                         allOrders[idx].remainingPaymentAmountBDT = dueBDT;
                         allOrders[idx].remainingPaymentAmountUSD = dueUSD;
                     }
-                    showToast('✅ Due amount saved', 'success');
+                    showToast(`✅ Due saved: ৳${dueBDT.toLocaleString('en-BD')} ($${dueUSD.toFixed(2)} @ ৳${rate}/$)`, 'success');
                     renderCampaignOrdersTable();
                     viewCampaignOrderDetail(orderId);
                 } catch (err) {
@@ -5156,19 +5173,16 @@
             window.sendCampaignPaymentRequest = async function(orderId) {
                 const order = allOrders.find(o => o.id === orderId);
                 if (!order) return;
-                let dueBDT = parseFloat(document.getElementById('campEditDueBDT')?.value);
-                let dueUSD = parseFloat(document.getElementById('campEditDueUSD')?.value);
-                let rate = parseFloat(document.getElementById('campEditUsdRate')?.value) || Number(order.usdRate) || 125;
-                if (isNaN(dueBDT)) dueBDT = Number(order.dueAmountBDT) || 0;
-                if (isNaN(dueUSD)) dueUSD = Number(order.dueAmountUSD) || 0;
-                if (dueBDT > 0 && dueUSD <= 0 && rate > 0) dueUSD = Math.round((dueBDT / rate) * 100) / 100;
-                if (dueUSD > 0 && dueBDT <= 0 && rate > 0) dueBDT = Math.round(dueUSD * rate);
-
+                let { dueBDT, dueUSD, rate } = await resolveCampaignDueAmounts();
+                if (dueBDT <= 0 && dueUSD <= 0) {
+                    dueBDT = Number(order.dueAmountBDT) || 0;
+                    if (dueBDT > 0 && rate > 0) dueUSD = Math.round((dueBDT / rate) * 100) / 100;
+                }
                 if (dueBDT <= 0 && dueUSD <= 0) {
                     showToast('Set a due amount first, then send the payment request.', 'warning');
                     return;
                 }
-                if (!confirm(`Send remaining payment request to client?\n\nAmount: ৳${dueBDT.toLocaleString('en-BD')} ($${dueUSD.toFixed(2)})\n\nClient will see Pay Remaining on the campaign page.`)) return;
+                if (!confirm(`Send remaining payment request to client?\n\nAmount: ৳${dueBDT.toLocaleString('en-BD')} ($${dueUSD.toFixed(2)})\nRate: 1 USD = ৳${rate}\n\nClient will see Pay Remaining on the campaign page.`)) return;
 
                 try {
                     await updateDoc(doc(db, 'orders', orderId), {

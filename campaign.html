@@ -424,7 +424,9 @@
       const paidBDT = Number(o.amountBDT) || 0;
       const paidUSD = Number(o.amountUSD) || 0;
       const dueBDT = Number(o.remainingPaymentAmountBDT ?? o.dueAmountBDT) || 0;
-      const dueUSD = Number(o.remainingPaymentAmountUSD ?? o.dueAmountUSD) || 0;
+      // Always derive USD from BDT + current settings rate (ignore stale stored USD)
+      const rateForDue = (Number(usdRate) > 0 ? Number(usdRate) : (Number(o.usdRate) > 0 ? Number(o.usdRate) : 125));
+      const dueUSD = dueBDT > 0 ? Math.round((dueBDT / rateForDue) * 100) / 100 : 0;
       const payEnabled = !!o.remainingPaymentEnabled && dueBDT > 0;
       const date = o.createdAt?.toDate?.() || (o.createdAt ? new Date(o.createdAt) : null);
       const dateStr = date
@@ -497,9 +499,9 @@
         showToast('No remaining payment request from admin yet.', 'info');
         return;
       }
+      // BDT is source of truth — never trust a stale stored USD
       const dueBDT = Number(o.remainingPaymentAmountBDT ?? o.dueAmountBDT) || 0;
-      const dueUSD = Number(o.remainingPaymentAmountUSD ?? o.dueAmountUSD) || 0;
-      if (dueBDT <= 0 && dueUSD <= 0) {
+      if (dueBDT <= 0) {
         showToast('Due amount is not set yet.', 'warning');
         return;
       }
@@ -507,11 +509,12 @@
         const snap = await getDoc(doc(db, 'settings', 'payment'));
         const settings = snap.exists() ? snap.data() : {};
         if (settings.usdRate && Number(settings.usdRate) > 0) usdRate = Number(settings.usdRate);
-        const finalUSD = dueUSD > 0 ? dueUSD : Number((dueBDT / usdRate).toFixed(2));
-        const finalBDT = dueBDT > 0 ? dueBDT : Math.round(finalUSD * usdRate);
+        const rate = usdRate > 0 ? usdRate : 125;
+        const finalBDT = dueBDT;
+        const finalUSD = Math.round((finalBDT / rate) * 100) / 100;
 
         if (typeof window.openDuePaymentModal === 'function') {
-          window.openDuePaymentModal(o.id, finalUSD, finalBDT, settings, o);
+          window.openDuePaymentModal(o.id, finalUSD, finalBDT, { ...settings, usdRate: rate }, o);
         } else {
           showToast('Payment system not ready. Please refresh.', 'error');
         }
