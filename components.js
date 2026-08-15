@@ -816,6 +816,15 @@ export function renderNavbar() {
         #auth-buttons > button {
           margin-right: 2px !important;
         }
+        #navGetStartedBtn {
+          font-size: 0.8125rem !important;
+          padding: 0.45rem 0.9rem !important;
+          line-height: 1.25 !important;
+          min-height: 0 !important;
+        }
+        #navGetStartedBtn i {
+          font-size: 0.7rem !important;
+        }
       }
     `;
     document.head.appendChild(gsStyle);
@@ -896,8 +905,8 @@ export function renderNavbar() {
           <div id="auth-buttons" class="hidden flex items-center gap-1.5 md:gap-2 ml-1 md:ml-2">
             <button onclick="window.openAuthModal('signin')" class="text-xs sm:text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg hover:bg-blue-50/50 whitespace-nowrap leading-none md:mr-0.5">Sign In</button>
             <span id="navGetStartedWrap" class="nav-get-started-wrap">
-              <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap inline-flex items-center gap-1.5">
-                <i class="fas fa-rocket text-xs"></i> Get Started
+              <button id="navGetStartedBtn" onclick="window.openAuthModal('signup')" class="btn-primary text-xs py-2 px-3.5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap inline-flex items-center gap-1.5">
+                <i class="fas fa-rocket text-[10px]"></i> Get Started
               </button>
             </span>
           </div>
