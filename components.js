@@ -807,8 +807,15 @@ export function renderNavbar() {
     gsStyle.id = 'navGetStartedStyle';
     gsStyle.textContent = `
       #navGetStartedWrap.nav-get-started-wrap { display: none !important; }
+      #auth-buttons > button { margin-right: 0; }
       @media (min-width: 768px) {
-        #navGetStartedWrap.nav-get-started-wrap { display: inline-flex !important; }
+        #navGetStartedWrap.nav-get-started-wrap {
+          display: inline-flex !important;
+          margin-left: 10px !important;
+        }
+        #auth-buttons > button {
+          margin-right: 2px !important;
+        }
       }
     `;
     document.head.appendChild(gsStyle);
