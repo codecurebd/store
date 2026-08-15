@@ -801,6 +801,19 @@ function setActiveNavLink() {
 export function renderNavbar() {
   renderContactModal();
 
+  // Mobile: hide Get Started in top nav (keep Sign In only). Desktop (md+): show both.
+  if (!document.getElementById('navGetStartedStyle')) {
+    const gsStyle = document.createElement('style');
+    gsStyle.id = 'navGetStartedStyle';
+    gsStyle.textContent = `
+      #navGetStartedWrap.nav-get-started-wrap { display: none !important; }
+      @media (min-width: 768px) {
+        #navGetStartedWrap.nav-get-started-wrap { display: inline-flex !important; }
+      }
+    `;
+    document.head.appendChild(gsStyle);
+  }
+
   const navbarHTML = `
     <nav id="mainNavbar" class="fixed top-0 left-0 w-full z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 transition-all duration-300 ease-out glass shadow-sm border-b border-gray-100/30">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
@@ -875,7 +888,7 @@ export function renderNavbar() {
 
           <div id="auth-buttons" class="hidden flex items-center gap-1.5 md:gap-2">
             <button onclick="window.openAuthModal('signin')" class="text-xs sm:text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg hover:bg-blue-50/50 whitespace-nowrap leading-none">Sign In</button>
-            <span id="navGetStartedWrap" class="hidden md:inline-flex">
+            <span id="navGetStartedWrap" class="nav-get-started-wrap">
               <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap inline-flex items-center gap-1.5">
                 <i class="fas fa-rocket text-xs"></i> Get Started
               </button>
