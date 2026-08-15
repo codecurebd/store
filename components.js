@@ -875,9 +875,11 @@ export function renderNavbar() {
 
           <div id="auth-buttons" class="hidden flex items-center gap-1.5 md:gap-2">
             <button onclick="window.openAuthModal('signin')" class="text-xs sm:text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg hover:bg-blue-50/50 whitespace-nowrap leading-none">Sign In</button>
-            <button onclick="window.openAuthModal('signup')" class="btn-primary hidden md:inline-flex text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap items-center gap-1.5">
-              <i class="fas fa-rocket text-xs"></i> Get Started
-            </button>
+            <span id="navGetStartedWrap" class="hidden md:inline-flex">
+              <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap inline-flex items-center gap-1.5">
+                <i class="fas fa-rocket text-xs"></i> Get Started
+              </button>
+            </span>
           </div>
 
           <div id="profile-section" class="relative hidden">
