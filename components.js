@@ -873,9 +873,9 @@ export function renderNavbar() {
             <div class="w-24 h-10 bg-gray-200 rounded-full animate-pulse hidden md:block"></div>
           </div>
 
-          <div id="auth-buttons" class="hidden flex items-center gap-2">
-            <button onclick="window.openAuthModal('signin')" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-blue-50/50">Sign In</button>
-            <button onclick="window.openAuthModal('signup')" class="btn-primary text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30">
+          <div id="auth-buttons" class="hidden flex items-center gap-1.5 md:gap-2">
+            <button onclick="window.openAuthModal('signin')" class="text-xs sm:text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg hover:bg-blue-50/50 whitespace-nowrap leading-none">Sign In</button>
+            <button onclick="window.openAuthModal('signup')" class="btn-primary hidden md:inline-flex text-sm py-2.5 px-5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap items-center gap-1.5">
               <i class="fas fa-rocket text-xs"></i> Get Started
             </button>
           </div>
@@ -907,13 +907,21 @@ export function renderNavbar() {
         <a href="get-new-website.html" data-nav="store" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Store</a>
         <a href="fix-website.html" data-nav="fix" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Fix</a>
         <a href="#" data-nav="contact" onclick="window.handleContactClick(event)" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Contact</a>
-        <hr class="my-2 border-gray-100" />
-        <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
-        <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
-        <a href="my-fix-requests.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-tools mr-3"></i> Fix Requests</a>
-        <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-comment-dots mr-3"></i> Support Chat</a>
-        <a href="admin-panel.html" id="mobileAdminPanelLink" class="hidden nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-blue-600 transition-colors"><i class="fas fa-shield-alt mr-3"></i> Admin Panel</a>
-        <a href="#" onclick="window.handleLogout()" class="nav-link py-3 px-4 rounded-xl hover:bg-red-50/50 font-medium text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
+        <div id="mobileAuthButtons" class="hidden flex flex-col gap-2 mt-2 pt-2 border-t border-gray-100">
+          <button type="button" onclick="window.openAuthModal('signin'); window.toggleMobileMenu();" class="w-full text-center text-sm font-medium text-gray-700 py-2.5 px-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap">Sign In</button>
+          <button type="button" onclick="window.openAuthModal('signup'); window.toggleMobileMenu();" class="btn-primary w-full justify-center text-sm py-2.5 px-4 whitespace-nowrap">
+            <i class="fas fa-rocket text-xs"></i> Get Started
+          </button>
+        </div>
+        <div id="mobileUserLinks" class="hidden flex flex-col gap-1">
+          <hr class="my-2 border-gray-100" />
+          <a href="my-profile.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-user mr-3"></i> Profile</a>
+          <a href="my-orders.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-box mr-3"></i> Orders</a>
+          <a href="my-fix-requests.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-tools mr-3"></i> Fix Requests</a>
+          <a href="messages.html" class="nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-gray-700 transition-colors"><i class="fas fa-comment-dots mr-3"></i> Support Chat</a>
+          <a href="admin-panel.html" id="mobileAdminPanelLink" class="hidden nav-link py-3 px-4 rounded-xl hover:bg-blue-50/50 font-medium text-blue-600 transition-colors"><i class="fas fa-shield-alt mr-3"></i> Admin Panel</a>
+          <a href="#" onclick="window.handleLogout()" class="nav-link py-3 px-4 rounded-xl hover:bg-red-50/50 font-medium text-red-500 transition-colors"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
+        </div>
       </div>
     </div>
   `;
@@ -2280,6 +2288,8 @@ export function updateNavbarAuth(user, displayName, role = null) {
   const adminLink = document.getElementById('adminPanelLink');
   const mobileAdminLink = document.getElementById('mobileAdminPanelLink');
   const authRequiredActions = document.getElementById('authRequiredActions');
+  const mobileAuthButtons = document.getElementById('mobileAuthButtons');
+  const mobileUserLinks = document.getElementById('mobileUserLinks');
 
   if (loadingEl) loadingEl.style.display = 'none';
 
@@ -2302,6 +2312,8 @@ export function updateNavbarAuth(user, displayName, role = null) {
 
     if (authBtns) authBtns.classList.add('hidden');
     if (profileSection) profileSection.classList.remove('hidden');
+    if (mobileAuthButtons) mobileAuthButtons.classList.add('hidden');
+    if (mobileUserLinks) mobileUserLinks.classList.remove('hidden');
     if (avatar) {
       // Keep default profile icon (do not use first letter)
       avatar.innerHTML = '<i class="fas fa-user"></i>';
@@ -2343,6 +2355,8 @@ export function updateNavbarAuth(user, displayName, role = null) {
       _lastAuthUid = null;
       if (authBtns) authBtns.classList.remove('hidden');
       if (profileSection) profileSection.classList.add('hidden');
+      if (mobileAuthButtons) mobileAuthButtons.classList.remove('hidden');
+      if (mobileUserLinks) mobileUserLinks.classList.add('hidden');
       if (adminLink) { adminLink.style.display = 'none'; adminLink.classList.add('hidden'); }
       if (mobileAdminLink) { mobileAdminLink.style.display = 'none'; mobileAdminLink.classList.add('hidden'); }
       stopAllNotifListeners();
