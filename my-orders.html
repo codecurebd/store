@@ -623,6 +623,28 @@
           </div>
         </div>
 
+        <!-- ===== CAMPAIGN ORDERS NOTICE (not listed here — managed on campaign page) ===== -->
+        <div id="campaignOrdersNotice" class="hidden mb-6 fade-up">
+          <div class="glass-card" style="padding:1rem 1.25rem; border:1px solid rgba(139,92,246,0.2); background:linear-gradient(135deg,rgba(239,246,255,0.9) 0%,rgba(248,250,252,0.95) 100%);">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs font-bold uppercase tracking-wide text-purple-600">
+                    <i class="fas fa-bullhorn mr-1"></i> Campaign
+                  </span>
+                  <span id="campaignOrdersCountBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">0</span>
+                </div>
+                <p class="text-sm text-gray-700 mt-1.5" id="campaignOrdersNoticeText">
+                  You have campaign order(s). View progress, payment and details on the Campaign page.
+                </p>
+              </div>
+              <a href="campaign.html" class="btn-primary text-sm py-2 px-4 shrink-0" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed); min-height:auto;">
+                <i class="fas fa-external-link-alt"></i> Go to Campaign
+              </a>
+            </div>
+          </div>
+        </div>
+
         <!-- ===== ORDER LIST ===== -->
         <div id="orderList" class="space-y-4">
           <!-- Skeleton will be rendered by JS -->
@@ -1062,14 +1084,49 @@ renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
       updateStats(orders);
     }
 
+    function isCampaignOrder(o) {
+      if (!o) return false;
+      if (o.campaignId) return true;
+      if (o.orderType === 'campaign' || o.type === 'campaign' || o.isCampaign === true) return true;
+      if (o.items && o.items.some(it => it && it.isCampaign)) return true;
+      return false;
+    }
+
+    function updateCampaignOrdersNotice() {
+      const notice = document.getElementById('campaignOrdersNotice');
+      const badge = document.getElementById('campaignOrdersCountBadge');
+      const text = document.getElementById('campaignOrdersNoticeText');
+      if (!notice) return;
+
+      const campOrders = (allOrders || []).filter(isCampaignOrder);
+      const activeCamp = campOrders.filter(o => (o.status || 'pending') !== 'cancelled');
+      const count = activeCamp.length || campOrders.length;
+
+      if (count <= 0) {
+        notice.classList.add('hidden');
+        return;
+      }
+
+      notice.classList.remove('hidden');
+      if (badge) badge.textContent = String(count);
+      if (text) {
+        text.textContent = count === 1
+          ? 'You have 1 campaign order. View progress, payment and details on the Campaign page.'
+          : `You have ${count} campaign orders. View progress, payment and details on the Campaign page.`;
+      }
+    }
+
     // ===== APPLY FILTERS =====
     function applyFilters() {
       const search = searchInput.value.toLowerCase().trim();
       const status = statusFilter.value;
 
+      // Campaign notice (always based on full list, not filters)
+      updateCampaignOrdersNotice();
+
       filteredOrders = allOrders.filter(o => {
         // Campaign orders are shown on campaign.html only (My Entry)
-        if (o.orderType === 'campaign' || o.campaignId) return false;
+        if (isCampaignOrder(o)) return false;
         if (search) {
           const id = o.id?.toLowerCase() || '';
           if (!id.includes(search)) return false;
