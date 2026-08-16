@@ -337,14 +337,30 @@
       border-radius: 14px;
       overflow: hidden;
       border: 1px solid #e2e8f0;
-      background: #0b1220;
-      display: none;
+      background: #f8fafc;
+      position: relative;
     }
-    .preview-frame-wrap.open { display: block; }
+    .preview-frame-wrap.empty {
+      min-height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-placeholder {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      padding: 1.5rem 1rem;
+    }
+    .preview-placeholder i {
+      font-size: 1.75rem;
+      opacity: 0.35;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
     .preview-toolbar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 8px;
       padding: 8px 12px;
       background: #1e293b;
@@ -353,10 +369,19 @@
     }
     .preview-frame-wrap iframe {
       width: 100%;
-      height: 420px;
+      height: 320px;
       border: none;
       background: #fff;
       display: block;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .preview-static-mask {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      cursor: default;
+      background: transparent;
     }
 
     .chat-section-title {
@@ -604,7 +629,7 @@
         min-height: 520px;
         max-height: 720px;
       }
-      .preview-frame-wrap iframe { height: 480px; }
+      .preview-frame-wrap iframe { height: 380px; }
       #orderTitle { font-size: 1.4rem; }
       .ring-wrap, .ring-wrap svg { width: 92px; height: 92px; }
       .ring-center #progressPct { font-size: 1.2rem; }
@@ -626,7 +651,7 @@
         border-radius: 16px;
       }
       .dev-row { max-width: min(88%, 300px); }
-      .preview-frame-wrap iframe { height: min(45vh, 300px); }
+      .preview-frame-wrap iframe { height: min(40vh, 260px); }
       .milestones .ms { font-size: 0.6rem; }
     }
   </style>
@@ -703,7 +728,7 @@
                 <div class="visit-head">
                   <div>
                     <h3><span class="ico"><i class="fas fa-globe"></i></span> Visit Site</h3>
-                    <p>Live preview of files from your developer</p>
+                    <p>Static preview of files from your developer · Open for full interactive view</p>
                   </div>
                   <button type="button" id="visitSiteBtn" class="btn-preview" disabled>
                     <i class="fas fa-external-link-alt"></i> Open Preview
@@ -712,14 +737,16 @@
                 <div id="fileList" class="file-chips">
                   <span style="font-size:0.75rem;color:#94a3b8;">Loading files…</span>
                 </div>
-                <div class="preview-frame-wrap" id="previewWrap">
-                  <div class="preview-toolbar">
-                    <span><i class="fas fa-desktop" style="margin-right:6px;"></i> Preview</span>
-                    <button type="button" id="closePreviewBtn" class="btn-ghost-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15);color:#e2e8f0;min-height:32px;padding:4px 10px;">
-                      <i class="fas fa-times"></i> Close
-                    </button>
+                <div class="preview-frame-wrap empty" id="previewWrap">
+                  <div class="preview-placeholder" id="previewPlaceholder">
+                    <i class="fas fa-desktop"></i>
+                    Preview will appear here when files are uploaded
                   </div>
-                  <iframe id="previewFrame" title="Site preview" sandbox="allow-scripts allow-same-origin"></iframe>
+                  <div class="preview-toolbar" id="previewToolbar" style="display:none;">
+                    <span><i class="fas fa-desktop" style="margin-right:6px;"></i> Live Preview <span style="opacity:0.7;font-weight:400;">· static view</span></span>
+                  </div>
+                  <iframe id="previewFrame" title="Site preview" sandbox="allow-scripts allow-same-origin" style="display:none;"></iframe>
+                  <div class="preview-static-mask" id="previewMask" style="display:none;" aria-hidden="true"></div>
                 </div>
               </section>
             </div>
@@ -935,6 +962,40 @@
       }
     }
 
+    function setPreviewEmpty() {
+      const wrap = document.getElementById('previewWrap');
+      const frame = document.getElementById('previewFrame');
+      const placeholder = document.getElementById('previewPlaceholder');
+      const toolbar = document.getElementById('previewToolbar');
+      const mask = document.getElementById('previewMask');
+      if (wrap) wrap.classList.add('empty');
+      if (frame) { frame.style.display = 'none'; frame.srcdoc = ''; }
+      if (placeholder) placeholder.style.display = '';
+      if (toolbar) toolbar.style.display = 'none';
+      if (mask) mask.style.display = 'none';
+    }
+
+    function loadStaticPreview() {
+      const html = buildPreviewHtml();
+      const wrap = document.getElementById('previewWrap');
+      const frame = document.getElementById('previewFrame');
+      const placeholder = document.getElementById('previewPlaceholder');
+      const toolbar = document.getElementById('previewToolbar');
+      const mask = document.getElementById('previewMask');
+      if (!html) {
+        setPreviewEmpty();
+        return;
+      }
+      if (wrap) wrap.classList.remove('empty');
+      if (placeholder) placeholder.style.display = 'none';
+      if (toolbar) toolbar.style.display = 'flex';
+      if (frame) {
+        frame.style.display = 'block';
+        frame.srcdoc = html;
+      }
+      if (mask) mask.style.display = 'block';
+    }
+
     function renderFileList() {
       const listEl = document.getElementById('fileList');
       const visitBtn = document.getElementById('visitSiteBtn');
@@ -942,6 +1003,7 @@
       if (!filesCache.length) {
         listEl.innerHTML = '<span style="font-size:0.75rem;color:#94a3b8;">No files uploaded yet.</span>';
         visitBtn.disabled = true;
+        setPreviewEmpty();
         return;
       }
       listEl.innerHTML = filesCache.map(f =>
@@ -951,6 +1013,8 @@
       ).join('');
       const anyHtml = filesCache.some(f => /\.html?$/i.test(f.fileName || f.path || ''));
       visitBtn.disabled = !anyHtml;
+      if (anyHtml) loadStaticPreview();
+      else setPreviewEmpty();
     }
 
     function listenFiles() {
@@ -975,6 +1039,7 @@
           if (listEl) listEl.innerHTML = '<span style="font-size:0.75rem;color:#f87171;">Could not load files</span>';
           const visitBtn = document.getElementById('visitSiteBtn');
           if (visitBtn) visitBtn.disabled = true;
+          setPreviewEmpty();
         }
       });
     }
@@ -1021,23 +1086,14 @@
         showToast('No HTML file to preview yet', 'warning');
         return;
       }
-      const wrap = document.getElementById('previewWrap');
-      const frame = document.getElementById('previewFrame');
-      if (wrap) wrap.classList.add('open');
-      if (frame) frame.srcdoc = html;
       try {
         const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
-      } catch (_) {}
-    });
-
-    document.getElementById('closePreviewBtn')?.addEventListener('click', () => {
-      const wrap = document.getElementById('previewWrap');
-      const frame = document.getElementById('previewFrame');
-      if (wrap) wrap.classList.remove('open');
-      if (frame) frame.srcdoc = '';
+      } catch (_) {
+        showToast('Could not open preview', 'error');
+      }
     });
 
     function renderMsgs(msgs) {
