@@ -277,8 +277,13 @@
       document.getElementById('progressNote').textContent = o.progressNote || 'Updates from the developer will appear here.';
       const short = (orderId || '').slice(0, 8).toUpperCase();
       document.getElementById('orderTitle').textContent = `Order #${short}`;
+      const isCampaign = !!(o.campaignId || o.type === 'campaign' || o.isCampaign || o.orderType === 'campaign');
+      const campaignTitle = o.campaignTitle || o.items?.[0]?.name || '';
       const items = (o.items || []).map(i => i.name).filter(Boolean).slice(0, 3).join(', ');
-      document.getElementById('orderMeta').textContent = items ? items : (o.status || 'pending');
+      let meta = o.status || 'pending';
+      if (isCampaign && campaignTitle) meta = `Campaign · ${campaignTitle}`;
+      else if (items) meta = items;
+      document.getElementById('orderMeta').textContent = meta;
     }
 
     async function loadFiles() {
