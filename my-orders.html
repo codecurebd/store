@@ -1027,7 +1027,51 @@ renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
         const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
         const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const isCamp = isCampaignOrder(o);
 
+        // ----- Campaign order card (no Details / Progress — only Campaign page) -----
+        if (isCamp) {
+          const paidBDT = Number(o.amountBDT) || 0;
+          const campTitle = o.campaignTitle || o.items?.[0]?.name || 'Campaign offer';
+          html += `
+          <div class="glass-card order-card fade-up" style="transition-delay: ${(index % 6) * 0.05}s; border:1px solid rgba(139,92,246,0.22); background:linear-gradient(135deg,rgba(245,243,255,0.95) 0%,rgba(255,255,255,0.9) 100%);">
+            <div class="flex flex-wrap justify-between items-start gap-3">
+              <div class="flex-1 min-w-[150px]">
+                <div class="flex items-center gap-3 flex-wrap">
+                  <p class="font-bold text-gray-900 text-lg">
+                    #${o.id?.slice(0, 8)?.toUpperCase() || 'N/A'}
+                  </p>
+                  <span class="status-badge ${status}">${status}</span>
+                  <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                    <i class="fas fa-bullhorn"></i> Campaign
+                  </span>
+                </div>
+                <p class="text-sm text-purple-700 mt-1.5 font-medium">
+                  <i class="fas fa-info-circle mr-1"></i> This order was placed from Campaign
+                </p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <i class="fas fa-tag mr-1"></i> ${String(campTitle).replace(/</g,'&lt;')}
+                </p>
+                <p class="text-sm text-gray-500 mt-1">
+                  <i class="far fa-calendar-alt mr-1"></i> ${dateStr} at ${timeStr}
+                </p>
+                ${paidBDT > 0 ? `<p class="text-sm text-gray-500">Paid <strong>৳${paidBDT.toLocaleString('en-BD')}</strong> (advance)</p>` : ''}
+                ${o.transactionId ? `<p class="text-xs text-gray-400">Txn: ${o.transactionId}</p>` : ''}
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-purple-600 mb-2">Campaign order</p>
+                <div class="order-actions">
+                  <a href="campaign.html" class="btn-action progress" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);">
+                    <i class="fas fa-bullhorn"></i> Campaign
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>`;
+          return;
+        }
+
+        // ----- Normal store order card -----
         const paymentType = o.paymentType || 'full';
         const paymentBadgeClass = paymentType === 'full' ? 'full' : 'advance';
         const paymentLabel = paymentType === 'full' ? '💳 Full' : '⏳ Pay Later';
@@ -1081,7 +1125,8 @@ renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
 
       orderList.innerHTML = html;
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-      updateStats(orders);
+      // Stats: only normal (non-campaign) orders so numbers stay meaningful for store
+      updateStats(orders.filter(o => !isCampaignOrder(o)));
     }
 
     function isCampaignOrder(o) {
@@ -1121,17 +1166,18 @@ renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
       const search = searchInput.value.toLowerCase().trim();
       const status = statusFilter.value;
 
-      // Campaign notice (always based on full list, not filters)
-      updateCampaignOrdersNotice();
+      // Optional top notice (kept hidden — campaign orders now appear as cards in the list)
+      const notice = document.getElementById('campaignOrdersNotice');
+      if (notice) notice.classList.add('hidden');
 
       filteredOrders = allOrders.filter(o => {
-        // Campaign orders are shown on campaign.html only (My Entry)
-        if (isCampaignOrder(o)) return false;
+        // Include both normal + campaign orders in the list
         if (search) {
-          const id = o.id?.toLowerCase() || '';
-          if (!id.includes(search)) return false;
+          const id = (o.id || '').toLowerCase();
+          const title = (o.campaignTitle || o.items?.[0]?.name || '').toLowerCase();
+          if (!id.includes(search) && !title.includes(search)) return false;
         }
-        if (status !== 'all' && o.status !== status) return false;
+        if (status !== 'all' && (o.status || 'pending') !== status) return false;
         return true;
       });
 
