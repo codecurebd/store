@@ -21,27 +21,27 @@
       min-height: 100vh;
       color: #0f172a;
     }
+    .op-hidden { display: none !important; }
 
     .progress-wrap {
-      max-width: 720px;
+      width: 100%;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 0.5rem 0.85rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      padding: 0.75rem 1rem calc(1.75rem + env(safe-area-inset-bottom, 0px));
     }
 
-    /* ===== Top bar ===== */
     .op-topbar {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 0.85rem;
-      padding-top: 0.25rem;
+      gap: 12px;
+      margin-bottom: 1rem;
     }
     .op-back {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 12px;
       background: #fff;
       border: 1px solid rgba(0,0,0,0.06);
@@ -52,40 +52,43 @@
     }
     .op-back:active { transform: scale(0.96); }
     .op-topbar h1 {
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 700;
       margin: 0;
       color: #0f172a;
       line-height: 1.2;
     }
     .op-topbar .sub {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       color: #64748b;
-      margin: 0;
+      margin: 2px 0 0;
     }
 
-    /* ===== Cards ===== */
+    .op-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
     .op-card {
       background: #fff;
       border-radius: 18px;
       border: 1px solid rgba(15, 23, 42, 0.05);
       box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
-      padding: 1.1rem 1.15rem;
-      margin-bottom: 0.85rem;
+      padding: 1.15rem 1.25rem;
     }
+    .op-stack { display: flex; flex-direction: column; gap: 1rem; }
 
-    /* ===== Progress hero ===== */
     .progress-hero {
       background:
         radial-gradient(ellipse 80% 60% at 100% 0%, rgba(0,102,255,0.08), transparent 55%),
         radial-gradient(ellipse 60% 50% at 0% 100%, rgba(139,92,246,0.07), transparent 50%),
         #fff;
-      position: relative;
-      overflow: hidden;
     }
     .progress-hero-top {
       display: flex;
-      gap: 14px;
+      gap: 16px;
       align-items: flex-start;
       justify-content: space-between;
     }
@@ -94,7 +97,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -109,25 +112,25 @@
       background: rgba(124, 58, 237, 0.1);
     }
     #orderTitle {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       font-weight: 800;
       margin: 0;
       letter-spacing: -0.02em;
       word-break: break-word;
     }
     #orderMeta {
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       color: #64748b;
       margin-top: 4px;
-      line-height: 1.35;
+      line-height: 1.4;
     }
     .status-chip {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       font-weight: 600;
-      padding: 3px 9px;
+      padding: 3px 10px;
       border-radius: 999px;
       margin-top: 8px;
       text-transform: capitalize;
@@ -137,44 +140,42 @@
     .status-chip.completed { background: #d1fae5; color: #047857; }
     .status-chip.cancelled { background: #fee2e2; color: #b91c1c; }
 
-    /* Circular progress */
     .ring-wrap {
       position: relative;
-      width: 76px;
-      height: 76px;
+      width: 84px;
+      height: 84px;
       flex-shrink: 0;
     }
-    .ring-wrap svg { width: 76px; height: 76px; transform: rotate(-90deg); }
+    .ring-wrap svg { width: 84px; height: 84px; transform: rotate(-90deg); }
     .ring-bg { fill: none; stroke: #e2e8f0; stroke-width: 7; }
     .ring-fg {
       fill: none;
       stroke: url(#ringGrad);
       stroke-width: 7;
       stroke-linecap: round;
-      stroke-dasharray: 201;
-      stroke-dashoffset: 201;
+      stroke-dasharray: 201.06;
+      stroke-dashoffset: 201.06;
       transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .ring-center {
       position: absolute;
       inset: 0;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       pointer-events: none;
     }
     .ring-center #progressPct {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 800;
       color: #0f172a;
       line-height: 1;
     }
     #progressLabel {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #64748b;
-      margin-top: 10px;
+      margin-top: 8px;
       text-align: center;
     }
 
@@ -193,17 +194,16 @@
       width: 0%;
     }
 
-    /* Milestones */
     .milestones {
       display: flex;
       justify-content: space-between;
-      margin-top: 12px;
+      margin-top: 14px;
       gap: 4px;
     }
     .ms {
       flex: 1;
       text-align: center;
-      font-size: 0.62rem;
+      font-size: 0.68rem;
       font-weight: 600;
       color: #94a3b8;
       position: relative;
@@ -215,8 +215,8 @@
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 8px;
-      height: 8px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: #e2e8f0;
       border: 2px solid #fff;
@@ -234,27 +234,25 @@
     }
 
     #progressNote {
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       color: #475569;
-      margin: 12px 0 0;
-      line-height: 1.45;
-      padding: 10px 12px;
+      margin: 14px 0 0;
+      line-height: 1.5;
+      padding: 12px 14px;
       background: #f8fafc;
       border-radius: 12px;
       border: 1px solid #f1f5f9;
     }
-    #progressNote:empty { display: none; }
 
-    /* ===== Visit Site ===== */
     .visit-head {
       display: flex;
       flex-wrap: wrap;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
     }
     .visit-head h3 {
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 700;
       margin: 0;
       display: flex;
@@ -262,18 +260,18 @@
       gap: 8px;
     }
     .visit-head h3 .ico {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
       background: rgba(0,102,255,0.1);
       color: #0066FF;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
     }
     .visit-head p {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: #64748b;
       margin: 4px 0 0;
     }
@@ -281,15 +279,15 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 9px 14px;
+      padding: 10px 16px;
       border-radius: 12px;
       border: none;
       background: linear-gradient(135deg, #0066FF, #5856D6);
       color: #fff;
       font-weight: 600;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       cursor: pointer;
-      min-height: 40px;
+      min-height: 42px;
       box-shadow: 0 4px 14px rgba(0,102,255,0.22);
       white-space: nowrap;
     }
@@ -298,7 +296,6 @@
       cursor: not-allowed;
       box-shadow: none;
     }
-    .btn-preview:not(:disabled):active { transform: scale(0.97); }
     .btn-ghost-sm {
       display: inline-flex;
       align-items: center;
@@ -308,12 +305,11 @@
       border: 1px solid #e2e8f0;
       background: #fff;
       color: #475569;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       min-height: 36px;
     }
-    .btn-ghost-sm:active { background: #f1f5f9; }
 
     .file-chips {
       display: flex;
@@ -328,7 +324,7 @@
       padding: 5px 10px;
       background: #f1f5f9;
       border-radius: 8px;
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       color: #334155;
       font-weight: 500;
       max-width: 100%;
@@ -350,22 +346,21 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 8px 10px;
+      padding: 8px 12px;
       background: #1e293b;
       color: #e2e8f0;
-      font-size: 0.72rem;
+      font-size: 0.75rem;
     }
     .preview-frame-wrap iframe {
       width: 100%;
-      height: min(52vh, 380px);
+      height: 420px;
       border: none;
       background: #fff;
       display: block;
     }
 
-    /* ===== Chat ===== */
     .chat-section-title {
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 700;
       margin: 0 0 10px;
       display: flex;
@@ -373,22 +368,22 @@
       gap: 8px;
     }
     .chat-section-title .ico {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
       background: rgba(139,92,246,0.12);
       color: #7c3aed;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
     }
 
     .dev-chat-shell {
       display: flex;
       flex-direction: column;
-      height: min(58vh, 480px);
-      min-height: 320px;
+      height: min(62vh, 560px);
+      min-height: 360px;
       background: #fff;
       border-radius: 18px;
       border: 1px solid rgba(15, 23, 42, 0.06);
@@ -396,28 +391,28 @@
       box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
     }
     .dev-chat-header {
-      padding: 12px 14px;
+      padding: 12px 16px;
       background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       color: #fff;
       display: flex;
       align-items: center;
-      gap: 11px;
+      gap: 12px;
       flex-shrink: 0;
     }
     .dev-chat-header .av {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: linear-gradient(135deg, #0066FF, #8B5CF6);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.95rem;
+      font-size: 1rem;
       flex-shrink: 0;
       box-shadow: 0 2px 8px rgba(0,102,255,0.3);
     }
-    .dev-chat-header .name { font-weight: 650; font-size: 0.88rem; }
-    .dev-chat-header .role { font-size: 0.68rem; opacity: 0.75; margin-top: 1px; }
+    .dev-chat-header .name { font-weight: 650; font-size: 0.9rem; }
+    .dev-chat-header .role { font-size: 0.7rem; opacity: 0.75; margin-top: 1px; }
     .online-dot {
       width: 8px;
       height: 8px;
@@ -432,7 +427,7 @@
       flex: 1;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 12px 12px 8px;
+      padding: 14px;
       background:
         radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,102,255,0.03), transparent 60%),
         #f1f5f9;
@@ -444,14 +439,14 @@
       display: flex;
       flex-direction: column;
       width: fit-content;
-      max-width: min(82%, 340px);
+      max-width: min(82%, 380px);
     }
     .dev-row.sent { align-self: flex-end; align-items: flex-end; margin-left: auto; }
     .dev-row.recv { align-self: flex-start; align-items: flex-start; }
     .dev-bubble {
       padding: 9px 13px;
       border-radius: 16px;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       line-height: 1.45;
       white-space: pre-wrap;
       word-break: normal;
@@ -477,7 +472,7 @@
       padding: 0 4px;
     }
     .msg-img {
-      max-width: min(220px, 70vw);
+      max-width: min(240px, 70vw);
       border-radius: 10px;
       display: block;
       margin-bottom: 4px;
@@ -513,7 +508,7 @@
     }
 
     .dev-chat-footer {
-      padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
       border-top: 1px solid rgba(15,23,42,0.05);
       background: #fff;
       display: flex;
@@ -528,7 +523,7 @@
       padding: 10px 12px;
       font-size: 0.9rem;
       resize: none;
-      max-height: 100px;
+      max-height: 110px;
       min-height: 44px;
       outline: none;
       font-family: inherit;
@@ -559,14 +554,9 @@
       box-shadow: 0 3px 12px rgba(0,102,255,0.3);
     }
     .dev-send:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
-    .dev-send:not(:disabled):active { transform: scale(0.94); }
-    .dev-file-btn {
-      background: #f1f5f9;
-      color: #64748b;
-    }
+    .dev-file-btn { background: #f1f5f9; color: #64748b; }
     .dev-file-btn:active { background: #e0e7ff; color: #0066FF; }
 
-    /* Loading / error */
     .op-skeleton .sk {
       background: linear-gradient(90deg, #e8edf3 25%, #f1f5f9 50%, #e8edf3 75%);
       background-size: 200% 100%;
@@ -579,7 +569,7 @@
     }
     .error-box { text-align: center; padding: 2.5rem 1.25rem; }
     .error-box i { font-size: 2.5rem; color: #f87171; margin-bottom: 0.75rem; }
-    .error-box p { color: #64748b; margin: 0 0 1rem; font-size: 0.92rem; }
+    .error-box p { color: #64748b; margin: 0 0 1rem; font-size: 0.95rem; }
     .btn-primary-op {
       display: inline-flex;
       align-items: center;
@@ -589,31 +579,55 @@
       background: linear-gradient(135deg, #0066FF, #5856D6);
       color: #fff;
       font-weight: 600;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       text-decoration: none;
       border: none;
       cursor: pointer;
     }
 
-    /* Mobile refinements */
-    @media (max-width: 480px) {
-      .progress-wrap { padding-left: 0.7rem; padding-right: 0.7rem; }
+    @media (min-width: 900px) {
+      .progress-wrap {
+        padding: 1rem 1.5rem 2.5rem;
+        max-width: 1200px;
+      }
+      .op-topbar h1 { font-size: 1.45rem; }
+      .op-grid {
+        grid-template-columns: 1fr 400px;
+        gap: 1.25rem;
+      }
+      .op-chat-col {
+        position: sticky;
+        top: 80px;
+      }
+      .dev-chat-shell {
+        height: calc(100vh - 140px);
+        min-height: 520px;
+        max-height: 720px;
+      }
+      .preview-frame-wrap iframe { height: 480px; }
+      #orderTitle { font-size: 1.4rem; }
+      .ring-wrap, .ring-wrap svg { width: 92px; height: 92px; }
+      .ring-center #progressPct { font-size: 1.2rem; }
+    }
+
+    @media (min-width: 1100px) {
+      .op-grid { grid-template-columns: 1fr 420px; }
+      .progress-wrap { max-width: 1280px; padding-left: 2rem; padding-right: 2rem; }
+    }
+
+    @media (max-width: 899px) {
+      .progress-wrap { padding-left: 0.75rem; padding-right: 0.75rem; }
       .op-card { padding: 1rem; border-radius: 16px; }
-      .ring-wrap, .ring-wrap svg { width: 68px; height: 68px; }
+      .ring-wrap, .ring-wrap svg { width: 72px; height: 72px; }
       .ring-center #progressPct { font-size: 0.95rem; }
       .dev-chat-shell {
-        height: min(62vh, 520px);
+        height: min(58vh, 480px);
         min-height: 300px;
         border-radius: 16px;
       }
       .dev-row { max-width: min(88%, 300px); }
-      .preview-frame-wrap iframe { height: min(48vh, 320px); }
-      .milestones .ms { font-size: 0.58rem; }
-    }
-    @media (min-width: 640px) {
-      .progress-wrap { padding-left: 1.25rem; padding-right: 1.25rem; }
-      .op-topbar h1 { font-size: 1.35rem; }
-      #orderTitle { font-size: 1.35rem; }
+      .preview-frame-wrap iframe { height: min(45vh, 300px); }
+      .milestones .ms { font-size: 0.6rem; }
     }
   </style>
 </head>
@@ -621,7 +635,7 @@
   <div class="page-wrapper">
     <div id="navbar-placeholder"></div>
     <main class="main-content">
-      <div class="progress-wrap pt-1">
+      <div class="progress-wrap">
         <div class="op-topbar">
           <a href="my-orders.html" class="op-back" aria-label="Back to My Orders">
             <i class="fas fa-arrow-left"></i>
@@ -632,124 +646,121 @@
           </div>
         </div>
 
-        <!-- Loading -->
         <div id="loadingState" class="op-card op-skeleton">
           <div class="sk" style="height:14px;width:40%;margin-bottom:12px;"></div>
           <div class="sk" style="height:10px;width:100%;margin-bottom:8px;"></div>
           <div class="sk" style="height:10px;width:70%;"></div>
         </div>
 
-        <!-- Error -->
-        <div id="errorState" class="hidden op-card error-box">
+        <div id="errorState" class="op-hidden op-card error-box">
           <i class="fas fa-exclamation-circle"></i>
           <p id="errorMsg">Could not load order.</p>
           <a href="my-orders.html" class="btn-primary-op"><i class="fas fa-arrow-left"></i> Back to orders</a>
         </div>
 
-        <div id="mainState" class="hidden">
-          <!-- Progress -->
-          <section class="op-card progress-hero">
-            <div class="progress-hero-top">
-              <div class="progress-hero-left">
-                <span class="dev-pill" id="devPill"><i class="fas fa-code"></i> Development</span>
-                <h2 id="orderTitle">Order</h2>
-                <p id="orderMeta"></p>
-                <span class="status-chip pending" id="orderStatusChip">pending</span>
-              </div>
-              <div class="text-center">
-                <div class="ring-wrap">
-                  <svg viewBox="0 0 76 76" aria-hidden="true">
-                    <defs>
-                      <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#0066FF"/>
-                        <stop offset="100%" stop-color="#8B5CF6"/>
-                      </linearGradient>
-                    </defs>
-                    <circle class="ring-bg" cx="38" cy="38" r="32"/>
-                    <circle class="ring-fg" id="progressRing" cx="38" cy="38" r="32"/>
-                  </svg>
-                  <div class="ring-center">
-                    <span id="progressPct">0%</span>
+        <div id="mainState" class="op-hidden">
+          <div class="op-grid">
+            <div class="op-stack">
+              <section class="op-card progress-hero">
+                <div class="progress-hero-top">
+                  <div class="progress-hero-left">
+                    <span class="dev-pill" id="devPill"><i class="fas fa-code"></i> Development</span>
+                    <h2 id="orderTitle">Order</h2>
+                    <p id="orderMeta"></p>
+                    <span class="status-chip pending" id="orderStatusChip">pending</span>
+                  </div>
+                  <div style="text-align:center;">
+                    <div class="ring-wrap">
+                      <svg viewBox="0 0 76 76" aria-hidden="true">
+                        <defs>
+                          <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#0066FF"/>
+                            <stop offset="100%" stop-color="#8B5CF6"/>
+                          </linearGradient>
+                        </defs>
+                        <circle class="ring-bg" cx="38" cy="38" r="32"/>
+                        <circle class="ring-fg" id="progressRing" cx="38" cy="38" r="32"/>
+                      </svg>
+                      <div class="ring-center">
+                        <span id="progressPct">0%</span>
+                      </div>
+                    </div>
+                    <p id="progressLabel">Not started</p>
                   </div>
                 </div>
-                <p id="progressLabel">Not started</p>
-              </div>
-            </div>
-            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-            <div class="milestones" id="milestones">
-              <div class="ms" data-at="0">Start</div>
-              <div class="ms" data-at="25">25%</div>
-              <div class="ms" data-at="50">50%</div>
-              <div class="ms" data-at="75">75%</div>
-              <div class="ms" data-at="100">Done</div>
-            </div>
-            <p id="progressNote"></p>
-          </section>
-
-          <!-- Visit Site -->
-          <section class="op-card">
-            <div class="visit-head">
-              <div>
-                <h3><span class="ico"><i class="fas fa-globe"></i></span> Visit Site</h3>
-                <p>Live preview of files from your developer</p>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <button type="button" id="visitSiteBtn" class="btn-preview" disabled>
-                  <i class="fas fa-external-link-alt"></i> Open Preview
-                </button>
-              </div>
-            </div>
-            <div id="fileList" class="file-chips">
-              <span class="text-xs text-gray-400">Loading files…</span>
-            </div>
-            <div class="preview-frame-wrap" id="previewWrap">
-              <div class="preview-toolbar">
-                <span><i class="fas fa-desktop mr-1"></i> Preview</span>
-                <button type="button" id="closePreviewBtn" class="btn-ghost-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15);color:#e2e8f0;min-height:32px;padding:4px 10px;">
-                  <i class="fas fa-times"></i> Close
-                </button>
-              </div>
-              <iframe id="previewFrame" title="Site preview" sandbox="allow-scripts allow-same-origin"></iframe>
-            </div>
-          </section>
-
-          <!-- Chat -->
-          <section class="mb-2">
-            <h3 class="chat-section-title">
-              <span class="ico"><i class="fas fa-laptop-code"></i></span>
-              Chat with Developer
-            </h3>
-            <div class="dev-chat-shell">
-              <div class="dev-chat-header">
-                <div class="av"><i class="fas fa-user-tie"></i></div>
-                <div class="flex-1 min-w-0">
-                  <div class="name">Web Developer</div>
-                  <div class="role">Order development support</div>
+                <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="milestones" id="milestones">
+                  <div class="ms" data-at="0">Start</div>
+                  <div class="ms" data-at="25">25%</div>
+                  <div class="ms" data-at="50">50%</div>
+                  <div class="ms" data-at="75">75%</div>
+                  <div class="ms" data-at="100">Done</div>
                 </div>
-                <span class="online-dot" title="Support available"></span>
-              </div>
-              <div class="dev-chat-body" id="devChatBody">
-                <div class="text-center text-gray-400 text-sm py-10">Loading messages…</div>
-              </div>
-              <div class="img-preview-row" id="imgPreviewRow">
-                <img id="imgPreviewThumb" alt="" />
-                <span class="text-xs text-gray-500 flex-1">Image ready to send</span>
-                <button type="button" id="imgPreviewClear" class="clear-btn" aria-label="Remove image">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-              <div class="dev-chat-footer">
-                <label class="dev-file-btn" title="Attach image">
-                  <i class="fas fa-image"></i>
-                  <input type="file" id="devFileInput" accept="image/*" hidden />
-                </label>
-                <textarea id="devChatInput" rows="1" placeholder="Message the developer…" enterkeyhint="send"></textarea>
-                <button type="button" class="dev-send" id="devSendBtn" aria-label="Send">
-                  <i class="fas fa-paper-plane"></i>
-                </button>
+                <p id="progressNote"></p>
+              </section>
+
+              <section class="op-card">
+                <div class="visit-head">
+                  <div>
+                    <h3><span class="ico"><i class="fas fa-globe"></i></span> Visit Site</h3>
+                    <p>Live preview of files from your developer</p>
+                  </div>
+                  <button type="button" id="visitSiteBtn" class="btn-preview" disabled>
+                    <i class="fas fa-external-link-alt"></i> Open Preview
+                  </button>
+                </div>
+                <div id="fileList" class="file-chips">
+                  <span style="font-size:0.75rem;color:#94a3b8;">Loading files…</span>
+                </div>
+                <div class="preview-frame-wrap" id="previewWrap">
+                  <div class="preview-toolbar">
+                    <span><i class="fas fa-desktop" style="margin-right:6px;"></i> Preview</span>
+                    <button type="button" id="closePreviewBtn" class="btn-ghost-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15);color:#e2e8f0;min-height:32px;padding:4px 10px;">
+                      <i class="fas fa-times"></i> Close
+                    </button>
+                  </div>
+                  <iframe id="previewFrame" title="Site preview" sandbox="allow-scripts allow-same-origin"></iframe>
+                </div>
+              </section>
+            </div>
+
+            <div class="op-chat-col">
+              <h3 class="chat-section-title">
+                <span class="ico"><i class="fas fa-laptop-code"></i></span>
+                Chat with Developer
+              </h3>
+              <div class="dev-chat-shell">
+                <div class="dev-chat-header">
+                  <div class="av"><i class="fas fa-user-tie"></i></div>
+                  <div style="flex:1;min-width:0;">
+                    <div class="name">Web Developer</div>
+                    <div class="role">Order development support</div>
+                  </div>
+                  <span class="online-dot" title="Support available"></span>
+                </div>
+                <div class="dev-chat-body" id="devChatBody">
+                  <div style="text-align:center;color:#94a3b8;font-size:0.875rem;padding:2.5rem 1rem;">Loading messages…</div>
+                </div>
+                <div class="img-preview-row" id="imgPreviewRow">
+                  <img id="imgPreviewThumb" alt="" />
+                  <span style="font-size:0.75rem;color:#64748b;flex:1;">Image ready to send</span>
+                  <button type="button" id="imgPreviewClear" class="clear-btn" aria-label="Remove image">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div class="dev-chat-footer">
+                  <label class="dev-file-btn" title="Attach image">
+                    <i class="fas fa-image"></i>
+                    <input type="file" id="devFileInput" accept="image/*" hidden />
+                  </label>
+                  <textarea id="devChatInput" rows="1" placeholder="Message the developer…" enterkeyhint="send"></textarea>
+                  <button type="button" class="dev-send" id="devSendBtn" aria-label="Send">
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+                </div>
               </div>
             </div>
-          </section>
+          </div>
         </div>
       </div>
     </main>
@@ -776,9 +787,10 @@
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container') || document.body;
       const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
+      toast.className = 'toast ' + type;
       const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
-      toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+      const icon = icons[type] || icons.success;
+      toast.innerHTML = '<i class="fas ' + icon + '"></i> ' + message;
       container.appendChild(toast);
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4000);
     };
@@ -792,12 +804,14 @@
     let unsubFiles = null;
     let pendingImage = null;
     let filesCache = [];
-
-    const RING_C = 2 * Math.PI * 32; // r=32
+    const RING_C = 2 * Math.PI * 32;
 
     function escapeHtml(str) {
       return String(str || '')
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
 
     function isImageUrl(str) {
@@ -811,23 +825,27 @@
       return !!(o.campaignId || o.type === 'campaign' || o.isCampaign || o.orderType === 'campaign');
     }
 
+    function showEl(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('op-hidden', 'hidden');
+      el.style.display = '';
+    }
+    function hideEl(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('op-hidden');
+    }
+
     function showError(msg) {
-      document.getElementById('loadingState').classList.add('hidden');
-      document.getElementById('mainState').classList.add('hidden');
-      document.getElementById('errorState').classList.remove('hidden');
-      document.getElementById('errorMsg').textContent = msg || 'Error';
+      hideEl('loadingState');
+      hideEl('mainState');
+      showEl('errorState');
+      const em = document.getElementById('errorMsg');
+      if (em) em.textContent = msg || 'Error';
     }
 
     function updateMilestones(pct) {
-      document.querySelectorAll('#milestones .ms').forEach(el => {
-        const at = Number(el.dataset.at) || 0;
-        el.classList.remove('done', 'current');
-        if (pct >= at && (at < 100 ? pct > at || at === 0 : pct >= 100)) {
-          if (pct >= 100 && at === 100) el.classList.add('done', 'current');
-          else if (pct >= at) el.classList.add('done');
-        }
-        // highlight nearest reached step as current
-      });
       const steps = [0, 25, 50, 75, 100];
       let current = 0;
       for (const s of steps) {
@@ -835,94 +853,108 @@
       }
       document.querySelectorAll('#milestones .ms').forEach(el => {
         const at = Number(el.dataset.at) || 0;
-        if (at === current) el.classList.add('current');
+        el.classList.remove('done', 'current');
         if (pct >= at) el.classList.add('done');
-        else {
-          el.classList.remove('done');
-          if (at !== current) el.classList.remove('current');
-        }
+        if (at === current) el.classList.add('current');
       });
     }
 
     function updateProgressUI(o) {
-      const pct = Math.min(100, Math.max(0, Number(o.progressPercent) || 0));
-      document.getElementById('progressPct').textContent = pct + '%';
-      document.getElementById('progressFill').style.width = pct + '%';
+      if (!o) return;
+      try {
+        const pct = Math.min(100, Math.max(0, Number(o.progressPercent) || 0));
+        const pctEl = document.getElementById('progressPct');
+        const fillEl = document.getElementById('progressFill');
+        if (pctEl) pctEl.textContent = pct + '%';
+        if (fillEl) fillEl.style.width = pct + '%';
 
-      const ring = document.getElementById('progressRing');
-      if (ring) {
-        const offset = RING_C - (RING_C * pct) / 100;
-        ring.style.strokeDashoffset = String(offset);
-      }
-
-      const labels = {
-        0: 'Not started',
-        25: 'In progress',
-        50: 'Halfway',
-        75: 'Almost done',
-        100: 'Completed'
-      };
-      let label = o.progressStatus || labels[0];
-      if (!o.progressStatus) {
-        if (pct >= 100) label = labels[100];
-        else if (pct >= 75) label = labels[75];
-        else if (pct >= 50) label = labels[50];
-        else if (pct >= 1) label = labels[25];
-      }
-      document.getElementById('progressLabel').textContent = label;
-
-      const noteEl = document.getElementById('progressNote');
-      const note = (o.progressNote || '').trim();
-      noteEl.textContent = note || 'Updates from the developer will appear here.';
-
-      const short = (orderId || '').slice(0, 8).toUpperCase();
-      document.getElementById('orderTitle').textContent = `Order #${short}`;
-
-      const campaign = isCampaignOrder(o);
-      const campaignTitle = o.campaignTitle || o.items?.[0]?.name || '';
-      const items = (o.items || []).map(i => i.name).filter(Boolean).slice(0, 3).join(', ');
-      let meta = o.status || 'pending';
-      if (campaign && campaignTitle) meta = `Campaign · ${campaignTitle}`;
-      else if (items) meta = items;
-      document.getElementById('orderMeta').textContent = meta;
-
-      const pill = document.getElementById('devPill');
-      if (pill) {
-        if (campaign) {
-          pill.classList.add('campaign');
-          pill.innerHTML = '<i class="fas fa-bullhorn"></i> Campaign Dev';
-        } else {
-          pill.classList.remove('campaign');
-          pill.innerHTML = '<i class="fas fa-code"></i> Development';
+        const ring = document.getElementById('progressRing');
+        if (ring) {
+          ring.style.strokeDasharray = String(RING_C);
+          ring.style.strokeDashoffset = String(RING_C - (RING_C * pct) / 100);
         }
-      }
 
-      const chip = document.getElementById('orderStatusChip');
-      if (chip) {
-        const st = (o.status || 'pending').toLowerCase();
-        chip.className = 'status-chip ' + (['pending','processing','completed','cancelled'].includes(st) ? st : 'pending');
-        chip.textContent = st;
-      }
+        const labels = {
+          0: 'Not started',
+          25: 'In progress',
+          50: 'Halfway',
+          75: 'Almost done',
+          100: 'Completed'
+        };
+        let label = o.progressStatus || labels[0];
+        if (!o.progressStatus) {
+          if (pct >= 100) label = labels[100];
+          else if (pct >= 75) label = labels[75];
+          else if (pct >= 50) label = labels[50];
+          else if (pct >= 1) label = labels[25];
+        }
+        const labelEl = document.getElementById('progressLabel');
+        if (labelEl) labelEl.textContent = label;
 
-      updateMilestones(pct);
+        const noteEl = document.getElementById('progressNote');
+        if (noteEl) {
+          const note = (o.progressNote || '').trim();
+          noteEl.textContent = note || 'Updates from the developer will appear here.';
+        }
+
+        const short = (orderId || '').slice(0, 8).toUpperCase();
+        const titleEl = document.getElementById('orderTitle');
+        if (titleEl) titleEl.textContent = 'Order #' + short;
+
+        const campaign = isCampaignOrder(o);
+        const campaignTitle = o.campaignTitle || (o.items && o.items[0] && o.items[0].name) || '';
+        const items = (o.items || []).map(i => i.name).filter(Boolean).slice(0, 3).join(', ');
+        let meta = o.status || 'pending';
+        if (campaign && campaignTitle) meta = 'Campaign · ' + campaignTitle;
+        else if (items) meta = items;
+        const metaEl = document.getElementById('orderMeta');
+        if (metaEl) metaEl.textContent = meta;
+
+        const pill = document.getElementById('devPill');
+        if (pill) {
+          if (campaign) {
+            pill.classList.add('campaign');
+            pill.innerHTML = '<i class="fas fa-bullhorn"></i> Campaign Dev';
+          } else {
+            pill.classList.remove('campaign');
+            pill.innerHTML = '<i class="fas fa-code"></i> Development';
+          }
+        }
+
+        const chip = document.getElementById('orderStatusChip');
+        if (chip) {
+          const st = String(o.status || 'pending').toLowerCase();
+          const ok = ['pending', 'processing', 'completed', 'cancelled'].includes(st) ? st : 'pending';
+          chip.className = 'status-chip ' + ok;
+          chip.textContent = st;
+        }
+
+        updateMilestones(pct);
+      } catch (err) {
+        console.warn('updateProgressUI', err);
+      }
     }
 
     function renderFileList() {
       const listEl = document.getElementById('fileList');
       const visitBtn = document.getElementById('visitSiteBtn');
+      if (!listEl || !visitBtn) return;
       if (!filesCache.length) {
-        listEl.innerHTML = '<span class="text-xs text-gray-400">No files uploaded yet.</span>';
+        listEl.innerHTML = '<span style="font-size:0.75rem;color:#94a3b8;">No files uploaded yet.</span>';
         visitBtn.disabled = true;
         return;
       }
       listEl.innerHTML = filesCache.map(f =>
-        `<span class="file-chip"><i class="fas fa-file-code"></i><span>${escapeHtml(f.path || f.fileName || 'file')}</span></span>`
+        '<span class="file-chip"><i class="fas fa-file-code"></i><span>' +
+        escapeHtml(f.path || f.fileName || 'file') +
+        '</span></span>'
       ).join('');
       const anyHtml = filesCache.some(f => /\.html?$/i.test(f.fileName || f.path || ''));
       visitBtn.disabled = !anyHtml;
     }
 
     function listenFiles() {
+      if (!orderId) return;
       if (unsubFiles) try { unsubFiles(); } catch (_) {}
       const q = query(collection(db, 'devFiles'), where('orderId', '==', orderId));
       unsubFiles = onSnapshot(q, (snap) => {
@@ -939,8 +971,10 @@
           filesCache.sort((a, b) => (a.path || a.fileName || '').localeCompare(b.path || b.fileName || ''));
           renderFileList();
         } catch (e2) {
-          document.getElementById('fileList').innerHTML = '<span class="text-xs text-red-400">Could not load files</span>';
-          document.getElementById('visitSiteBtn').disabled = true;
+          const listEl = document.getElementById('fileList');
+          if (listEl) listEl.innerHTML = '<span style="font-size:0.75rem;color:#f87171;">Could not load files</span>';
+          const visitBtn = document.getElementById('visitSiteBtn');
+          if (visitBtn) visitBtn.disabled = true;
         }
       });
     }
@@ -961,16 +995,18 @@
       let html = byName[indexKey];
       Object.keys(byName).forEach(name => {
         if (/\.css$/i.test(name)) {
-          const re = new RegExp('href=["\\']' + escapeRegExp(name) + '["\\']', 'gi');
+          const re = new RegExp('href=["\']' + escapeRegExp(name) + '["\']', 'gi');
           html = html.replace(re, '');
           if (!html.includes('</head>')) html = '<style>' + byName[name] + '</style>' + html;
           else html = html.replace('</head>', '<style>' + byName[name] + '</style></head>');
         }
         if (/\.js$/i.test(name) && !/src=["']https?:/i.test(byName[name])) {
-          const re = new RegExp('src=["\\']' + escapeRegExp(name) + '["\\']', 'gi');
+          const re = new RegExp('src=["\']' + escapeRegExp(name) + '["\']', 'gi');
           html = html.replace(re, '');
-          if (!html.includes('</body>')) html = html + '<script>' + byName[name] + '<\/script>';
-          else html = html.replace('</body>', '<script>' + byName[name] + '<\/script></body>');
+          const tagOpen = '<' + 'script>';
+          const tagClose = '</' + 'script>';
+          if (!html.includes('</body>')) html = html + tagOpen + byName[name] + tagClose;
+          else html = html.replace('</body>', tagOpen + byName[name] + tagClose + '</body>');
         }
       });
       if (!/<html/i.test(html)) {
@@ -987,8 +1023,8 @@
       }
       const wrap = document.getElementById('previewWrap');
       const frame = document.getElementById('previewFrame');
-      wrap.classList.add('open');
-      frame.srcdoc = html;
+      if (wrap) wrap.classList.add('open');
+      if (frame) frame.srcdoc = html;
       try {
         const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -1000,17 +1036,17 @@
     document.getElementById('closePreviewBtn')?.addEventListener('click', () => {
       const wrap = document.getElementById('previewWrap');
       const frame = document.getElementById('previewFrame');
-      wrap.classList.remove('open');
-      frame.srcdoc = '';
+      if (wrap) wrap.classList.remove('open');
+      if (frame) frame.srcdoc = '';
     });
 
     function renderMsgs(msgs) {
       const body = document.getElementById('devChatBody');
+      if (!body) return;
       if (!msgs.length) {
-        body.innerHTML = `<div class="text-center text-gray-400 text-sm py-10 px-4">
-          <i class="fas fa-comments text-3xl opacity-30 block mb-3"></i>
-          No messages yet.<br/>Ask the developer about your site.
-        </div>`;
+        body.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:0.875rem;padding:2.5rem 1rem;">' +
+          '<i class="fas fa-comments" style="font-size:1.75rem;opacity:0.3;display:block;margin-bottom:0.75rem;"></i>' +
+          'No messages yet.<br/>Ask the developer about your site.</div>';
         return;
       }
       let html = '';
@@ -1029,19 +1065,21 @@
         });
         if (!img && isImageUrl(raw.trim())) { img = raw.trim(); text = []; }
         let content = '';
-        if (img) content += `<img class="msg-img" src="${escapeHtml(img)}" alt="Attachment" loading="lazy" onclick="window.open('${escapeHtml(img)}','_blank')" />`;
+        if (img) {
+          content += '<img class="msg-img" src="' + escapeHtml(img) + '" alt="Attachment" loading="lazy" onclick="window.open(\'' + escapeHtml(img) + '\',\'_blank\')" />';
+        }
         if (text.length) content += escapeHtml(text.join('\n'));
         if (!content) content = '<span style="opacity:0.6">(empty)</span>';
-        html += `<div class="dev-row ${isSent ? 'sent' : 'recv'}">
-          <div class="dev-bubble">${content}</div>
-          <div class="dev-time">${time}</div>
-        </div>`;
+        html += '<div class="dev-row ' + (isSent ? 'sent' : 'recv') + '">' +
+          '<div class="dev-bubble">' + content + '</div>' +
+          '<div class="dev-time">' + time + '</div></div>';
       });
       body.innerHTML = html;
       body.scrollTop = body.scrollHeight;
     }
 
     function listenMessages() {
+      if (!orderId) return;
       if (unsubMsgs) try { unsubMsgs(); } catch (_) {}
       const q1 = query(collection(db, 'devMessages'), where('orderId', '==', orderId));
       unsubMsgs = onSnapshot(q1, (snap) => {
@@ -1060,14 +1098,15 @@
         });
       }, (err) => {
         console.warn(err);
-        document.getElementById('devChatBody').innerHTML =
-          `<div class="text-center text-red-400 text-sm py-6">${escapeHtml(err.message)}</div>`;
+        const body = document.getElementById('devChatBody');
+        if (body) body.innerHTML = '<div style="text-align:center;color:#f87171;font-size:0.875rem;padding:1.5rem;">' + escapeHtml(err.message) + '</div>';
       });
     }
 
     async function sendMessage() {
       const input = document.getElementById('devChatInput');
       const btn = document.getElementById('devSendBtn');
+      if (!input || !btn) return;
       const text = (input.value || '').trim();
       if (!text && !pendingImage) return;
       if (!currentUser || !orderId) return;
@@ -1082,7 +1121,7 @@
         if (imageUrl) content = text ? (text + '\n' + imageUrl) : imageUrl;
         await addDoc(collection(db, 'devMessages'), {
           orderId,
-          conversationId: `dev_${orderId}`,
+          conversationId: 'dev_' + orderId,
           fromUserId: currentUser.uid,
           toUserId: 'developer',
           content,
@@ -1102,9 +1141,12 @@
 
     function clearImagePreview() {
       pendingImage = null;
-      document.getElementById('imgPreviewRow').classList.remove('show');
-      document.getElementById('imgPreviewThumb').src = '';
-      document.getElementById('devFileInput').value = '';
+      const row = document.getElementById('imgPreviewRow');
+      const thumb = document.getElementById('imgPreviewThumb');
+      const fileInput = document.getElementById('devFileInput');
+      if (row) row.classList.remove('show');
+      if (thumb) thumb.src = '';
+      if (fileInput) fileInput.value = '';
     }
 
     document.getElementById('devSendBtn')?.addEventListener('click', sendMessage);
@@ -1116,10 +1158,10 @@
     });
     document.getElementById('devChatInput')?.addEventListener('input', (e) => {
       e.target.style.height = 'auto';
-      e.target.style.height = Math.min(e.target.scrollHeight, 100) + 'px';
+      e.target.style.height = Math.min(e.target.scrollHeight, 110) + 'px';
     });
     document.getElementById('devFileInput')?.addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
+      const file = e.target.files && e.target.files[0];
       if (!file) return;
       if (!file.type.startsWith('image/')) {
         showToast('Please select an image', 'warning');
@@ -1127,8 +1169,10 @@
       }
       pendingImage = file;
       const url = URL.createObjectURL(file);
-      document.getElementById('imgPreviewThumb').src = url;
-      document.getElementById('imgPreviewRow').classList.add('show');
+      const thumb = document.getElementById('imgPreviewThumb');
+      const row = document.getElementById('imgPreviewRow');
+      if (thumb) thumb.src = url;
+      if (row) row.classList.add('show');
     });
     document.getElementById('imgPreviewClear')?.addEventListener('click', clearImagePreview);
 
@@ -1150,8 +1194,11 @@
           showError('You do not have access to this order.');
           return;
         }
-        document.getElementById('loadingState').classList.add('hidden');
-        document.getElementById('mainState').classList.remove('hidden');
+
+        hideEl('loadingState');
+        hideEl('errorState');
+        showEl('mainState');
+
         updateProgressUI(orderData);
         listenMessages();
         listenFiles();
@@ -1161,7 +1208,7 @@
           if (!s.exists()) return;
           orderData = { id: s.id, ...s.data() };
           updateProgressUI(orderData);
-        });
+        }, (err) => console.warn('order snapshot', err));
       } catch (err) {
         console.error(err);
         showError(err.message || 'Failed to load');
@@ -1176,7 +1223,7 @@
       let name = null;
       try {
         const ud = await getDoc(doc(db, 'users', user.uid));
-        name = ud.exists() ? ud.data().displayName : user.email?.split('@')[0];
+        name = ud.exists() ? ud.data().displayName : (user.email ? user.email.split('@')[0] : null);
       } catch (_) {}
       updateNavbarAuth(user, name);
       boot(user);
