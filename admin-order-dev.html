@@ -28,112 +28,120 @@
       .dev-sidebar, .dev-chat-col { max-height: 380px; }
     }
     .dev-sidebar {
-      background: rgba(255, 255, 255, 0.78);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
       border-right: 1px solid rgba(0, 0, 0, 0.06);
-      padding: 1rem;
+      padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 1rem;
       overflow-y: auto;
     }
     .dev-main {
-      padding: 1rem 1.25rem;
+      padding: 1.25rem 1.5rem;
       overflow-y: auto;
       background: #f0f4f9;
     }
     .dev-chat-col {
-      background: rgba(255, 255, 255, 0.78);
-      backdrop-filter: blur(28px);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
       border-left: 1px solid rgba(0, 0, 0, 0.06);
       display: flex;
       flex-direction: column;
       min-height: 0;
     }
     .panel {
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      border-radius: 18px;
-      padding: 1rem 1.15rem;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 20px;
+      padding: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
     }
     .panel h3 {
-      margin: 0 0 0.75rem;
+      margin: 0 0 1rem;
       font-size: 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
       color: #64748b;
       font-weight: 700;
     }
     .file-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      border-radius: 10px;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 14px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       color: #334155;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .file-row:hover, .file-row.active {
-      background: rgba(0, 102, 255, 0.08);
+      background: rgba(0, 102, 255, 0.09);
       color: #0f172a;
+      transform: translateX(6px);
     }
-    .file-row .actions { margin-left: auto; display: flex; gap: 4px; opacity: 0.7; }
+    .file-row .actions { margin-left: auto; display: flex; gap: 5px; opacity: 0.8; }
     .file-row .actions button {
       background: none; border: none; color: #64748b; cursor: pointer;
-      padding: 2px 6px; border-radius: 6px;
+      padding: 3px 7px; border-radius: 6px; transition: all 0.2s;
     }
-    .file-row .actions button:hover { color: #dc2626; background: rgba(220, 38, 38, 0.08); }
+    .file-row .actions button:hover { color: #dc2626; background: rgba(220, 38, 38, 0.1); }
     .editor-area {
       width: 100%;
-      min-height: 360px;
+      min-height: 380px;
       background: #f8fafc;
       color: #0f172a;
       border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 16px;
+      padding: 16px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.82rem;
-      line-height: 1.5;
+      font-size: 0.84rem;
+      line-height: 1.65;
       resize: vertical;
       outline: none;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
     }
-    .editor-area:focus { border-color: #0066FF; background: #fff; }
+    .editor-area:focus { border-color: #0066FF; background: #fff; box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.15); }
     .btn-dev {
       background: linear-gradient(135deg, #0066FF, #8B5CF6);
       color: #fff;
       border: none;
-      padding: 8px 14px;
-      border-radius: 10px;
+      padding: 9px 16px;
+      border-radius: 12px;
       font-weight: 600;
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    .btn-dev:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0, 102, 255, 0.35); }
     .btn-dev:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-ghost {
       background: #fff;
       color: #334155;
       border: 1px solid #e2e8f0;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 0.85rem;
+      padding: 9px 14px;
+      border-radius: 12px;
+      font-size: 0.875rem;
       cursor: pointer;
+      transition: all 0.2s;
     }
     .btn-ghost:hover { background: #f1f5f9; border-color: #cbd5e1; }
     .progress-slider { width: 100%; accent-color: #0066FF; }
     .chat-body {
       flex: 1;
       overflow-y: auto;
-      padding: 12px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      gap: 8px;
+      gap: 10px;
       background: #f8fafc;
       min-height: 200px;
     }
@@ -141,7 +149,7 @@
       display: flex;
       flex-direction: column;
       width: fit-content;
-      max-width: min(85%, 320px);
+      max-width: min(88%, 340px);
     }
     .c-row.sent {
       align-self: flex-end;
@@ -154,42 +162,41 @@
       margin-right: auto;
     }
     .c-label {
-      font-size: 0.65rem;
+      font-size: 0.68rem;
       font-weight: 600;
-      margin-bottom: 2px;
-      padding: 0 4px;
+      margin-bottom: 3px;
+      padding: 0 5px;
     }
     .c-row.sent .c-label { color: #5856D6; }
     .c-row.recv .c-label { color: #64748b; }
     .c-bubble {
-      padding: 8px 12px;
-      border-radius: 14px;
-      font-size: 0.85rem;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.88rem;
       white-space: pre-wrap;
-      word-break: normal;
-      overflow-wrap: break-word;
+      word-break: break-word;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
     .c-row.sent .c-bubble {
       background: linear-gradient(135deg, #0066FF, #5856D6);
       color: #fff;
-      border-bottom-right-radius: 4px;
+      border-bottom-right-radius: 6px;
     }
     .c-row.recv .c-bubble {
       background: #fff;
       color: #1e293b;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-bottom-left-radius: 4px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-bottom-left-radius: 6px;
     }
     .c-time {
-      font-size: 0.6rem;
+      font-size: 0.62rem;
       color: #94a3b8;
-      margin-top: 2px;
-      padding: 0 4px;
+      margin-top: 4px;
+      padding: 0 5px;
     }
     .chat-foot {
-      padding: 10px;
-      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 12px 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
       display: flex;
       gap: 8px;
       align-items: flex-end;
@@ -199,13 +206,13 @@
       flex: 1;
       background: #f8fafc;
       border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
+      border-radius: 14px;
       color: #0f172a;
-      padding: 8px 10px;
-      font-size: 0.85rem;
+      padding: 10px 14px;
+      font-size: 0.88rem;
       resize: none;
-      min-height: 40px;
-      max-height: 90px;
+      min-height: 44px;
+      max-height: 120px;
       outline: none;
       font-family: inherit;
     }
@@ -215,35 +222,46 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
+      padding: 1.5rem;
       background: #f0f4f9;
     }
     .gate-card {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      border-radius: 20px;
-      padding: 2rem;
-      max-width: 400px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      max-width: 420px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.06);
     }
-    .msg-img { max-width: 180px; border-radius: 8px; display: block; margin-bottom: 4px; }
+    .msg-img { 
+      max-width: 200px; 
+      border-radius: 12px; 
+      display: block; 
+      margin: 6px 0; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
     .topbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
     }
     .badge-soft {
-      background: rgba(0, 102, 255, 0.08);
+      background: rgba(0, 102, 255, 0.1);
       color: #0066FF;
-      font-size: 0.75rem;
-      padding: 4px 10px;
+      font-size: 0.78rem;
+      padding: 5px 12px;
       border-radius: 999px;
+      font-weight: 700;
+    }
+    .file-name {
       font-weight: 600;
+      color: #0f172a;
+      font-size: 0.9rem;
     }
     #pageTitle { color: #1c1c1e !important; }
     #sidebarOrderMeta, #chatUserLabel { color: #64748b !important; }
@@ -254,25 +272,59 @@
       background: #fff !important;
       color: #0f172a !important;
       border: 1.5px solid #e2e8f0 !important;
-      border-radius: 10px;
-      padding: 8px 12px;
+      border-radius: 12px;
+      padding: 10px 14px;
     }
     input#progressStatus:focus, input#filePathInput:focus, textarea#progressNote:focus {
       border-color: #0066FF !important;
       outline: none;
+    }
+    .btn-download {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: #fff;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+    .btn-download:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(16, 185, 129, 0.35);
+    }
+    .btn-preview {
+      background: linear-gradient(135deg, #6366f1, #a5b4fc);
+      color: #fff;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-preview:hover:not(:disabled) {
+      transform: translateY(-2px);
     }
   </style>
 </head>
 <body>
   <div id="adminGate" class="gate">
     <div class="gate-card">
-      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0066FF,#8B5CF6);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
-        <i class="fas fa-shield-alt text-white text-xl"></i>
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0066FF,#8B5CF6);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+        <i class="fas fa-shield-alt text-white text-2xl"></i>
       </div>
-      <h2 class="text-xl font-bold mb-1" id="gateTitle">Verifying access…</h2>
+      <h2 class="text-2xl font-bold mb-1" id="gateTitle">Verifying access…</h2>
       <p id="gateStatus" class="text-sm text-gray-500">Please wait</p>
-      <div id="gateDenied" class="hidden mt-4">
-        <p class="text-red-400 text-sm mb-3">Access denied. Admin only.</p>
+      <div id="gateDenied" class="hidden mt-6">
+        <p class="text-red-400 text-sm mb-4">Access denied. Admin only.</p>
         <a href="admin-login.html" class="btn-dev" style="display:inline-flex;">Admin Login</a>
         <a href="admin-panel.html" class="btn-ghost" style="display:inline-flex;margin-left:8px;">Panel</a>
       </div>
@@ -281,9 +333,9 @@
 
   <div id="devApp" class="dev-layout" style="display:none;">
     <aside class="dev-sidebar">
-      <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center justify-between gap-3">
         <strong class="text-sm text-gray-900">Project files</strong>
-        <a href="admin-panel.html" class="btn-ghost text-xs" style="padding:4px 8px;">Panel</a>
+        <a href="admin-panel.html" class="btn-ghost text-xs" style="padding:5px 10px;">Panel</a>
       </div>
       <p class="text-xs text-gray-500" id="sidebarOrderMeta">Order —</p>
       <div class="flex flex-wrap gap-2">
@@ -294,18 +346,19 @@
         </label>
       </div>
       <div id="fileList" class="flex-1 overflow-y-auto space-y-1 mt-2"></div>
-      <p class="text-xs text-gray-500">Files stored as text in Firestore. User previews via Visit Site.</p>
+      <p class="text-xs text-gray-500">Files stored as text in Firestore. Customer previews via Visit Site.</p>
     </aside>
 
     <main class="dev-main">
       <div class="topbar">
         <div>
-          <h1 class="text-lg font-bold m-0" id="pageTitle">Development</h1>
+          <h1 class="text-xl font-bold m-0" id="pageTitle">Development</h1>
           <span class="badge-soft" id="activeFileName">No file selected</span>
         </div>
         <div class="flex flex-wrap gap-2">
           <button type="button" class="btn-dev" id="btnSaveFile" disabled><i class="fas fa-save"></i> Save</button>
-          <button type="button" class="btn-ghost" id="btnPreview"><i class="fas fa-eye"></i> Preview</button>
+          <button type="button" class="btn-preview" id="btnPreview"><i class="fas fa-eye"></i> Preview</button>
+          <button type="button" class="btn-download" id="btnDownloadFile" disabled><i class="fas fa-download"></i> Download</button>
         </div>
       </div>
 
@@ -362,7 +415,7 @@
 
     window.showToast = (message, type = 'success') => {
       let c = document.getElementById('toast-container');
-      if (!c) { c = document.createElement('div'); c.id = 'toast-container'; document.body.appendChild(c); }
+      if (!c) { c = document.getElementById('toast-container'); if (!c) { c = document.createElement('div'); c.id = 'toast-container'; document.body.appendChild(c); } }
       const t = document.createElement('div');
       t.className = `toast ${type}`;
       t.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
@@ -444,8 +497,9 @@
       activeFileId = id;
       document.getElementById('filePathInput').value = f.path || f.fileName || '';
       document.getElementById('fileEditor').value = f.content || '';
-      document.getElementById('activeFileName').textContent = f.path || f.fileName || 'file';
+      document.getElementById('activeFileName').innerHTML = `<span class="file-name">${escapeHtml(f.path || f.fileName || 'file')}</span>`;
       document.getElementById('btnSaveFile').disabled = false;
+      document.getElementById('btnDownloadFile').disabled = false;
       renderFileList();
     }
 
@@ -462,6 +516,7 @@
           activeFileId = null;
           document.getElementById('fileEditor').value = '';
           document.getElementById('btnSaveFile').disabled = true;
+          document.getElementById('btnDownloadFile').disabled = true;
           document.getElementById('activeFileName').textContent = 'No file selected';
         }
       }, (err) => console.warn('files listener', err));
@@ -475,7 +530,6 @@
       }
       let html = '';
       msgs.forEach(m => {
-        // Developer / admin → RIGHT; customer → LEFT
         const from = m.fromUserId || '';
         const isDev = from === 'developer' || from === 'admin' || (adminUser && from === adminUser.uid);
         const side = isDev ? 'sent' : 'recv';
@@ -664,6 +718,29 @@
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     });
 
+    document.getElementById('btnDownloadFile')?.addEventListener('click', () => {
+      if (!activeFileId) {
+        showToast('No file selected', 'warning');
+        return;
+      }
+      const f = files.find(x => x.id === activeFileId);
+      if (!f || !f.content) {
+        showToast('File content not found', 'error');
+        return;
+      }
+      const filename = f.path || f.fileName || 'file.txt';
+      const blob = new Blob([f.content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('File downloaded', 'success');
+    });
+
     async function sendChat() {
       const input = document.getElementById('chatInput');
       const text = (input.value || '').trim();
@@ -708,7 +785,6 @@
       if (f) { pendingChatImage = f; showToast('Image attached — press send', 'info'); }
     });
 
-    // Same as admin-panel: role check only — no password form
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         showDenied('Not signed in.');
