@@ -244,131 +244,10 @@
       border: 1px solid #f1f5f9;
     }
 
-    /* --- Responsive preview block --- */
+    /* ---- Static preview (no toolbar) ---- */
     .preview-section {
       margin-top: 0;
     }
-    .preview-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: #1e293b;
-      border-radius: 12px 12px 0 0;
-      color: #e2e8f0;
-      font-size: 0.75rem;
-    }
-    .preview-toolbar .btn-preset {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid transparent;
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: #cbd5e1;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .preview-toolbar .btn-preset:hover {
-      background: rgba(255,255,255,0.14);
-    }
-    .preview-toolbar .btn-preset.active {
-      background: #3b82f6;
-      color: #fff;
-      border-color: #3b82f6;
-    }
-    .preview-toolbar .size-group {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-left: auto;
-    }
-    .preview-toolbar .size-group label {
-      font-size: 0.65rem;
-      color: #94a3b8;
-    }
-    .preview-toolbar .size-group input {
-      width: 60px;
-      padding: 3px 6px;
-      border-radius: 6px;
-      border: 1px solid #475569;
-      background: #0f172a;
-      color: #e2e8f0;
-      font-size: 0.7rem;
-      outline: none;
-    }
-    .preview-toolbar .size-group input:focus {
-      border-color: #3b82f6;
-    }
-    .preview-toolbar .size-group button {
-      background: #3b82f6;
-      border: none;
-      border-radius: 6px;
-      padding: 3px 10px;
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .preview-toolbar .size-group button:hover {
-      background: #2563eb;
-    }
-    .preview-frame-wrap {
-      border-radius: 0 0 14px 14px;
-      overflow: hidden;
-      border: 1px solid #e2e8f0;
-      border-top: none;
-      background: #f8fafc;
-      position: relative;
-      min-height: 320px;
-    }
-    .preview-frame-wrap iframe {
-      width: 100%;
-      height: 480px;
-      border: none;
-      background: #fff;
-      display: block;
-      transition: width 0.2s, height 0.2s;
-      pointer-events: auto;
-      max-width: 100%;
-    }
-    .preview-placeholder {
-      text-align: center;
-      color: #94a3b8;
-      font-size: 0.85rem;
-      padding: 2.5rem 1rem;
-    }
-    .preview-placeholder i {
-      font-size: 2rem;
-      opacity: 0.35;
-      display: block;
-      margin-bottom: 0.6rem;
-    }
-
-    /* --- File chips --- */
-    .file-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 12px;
-    }
-    .file-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
-      background: #f1f5f9;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      color: #334155;
-      font-weight: 500;
-      max-width: 100%;
-    }
-    .file-chip i { color: #0066FF; font-size: 0.7rem; flex-shrink: 0; }
-    .file-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-    /* --- Visit button --- */
     .visit-head {
       display: flex;
       flex-wrap: wrap;
@@ -420,6 +299,195 @@
       opacity: 0.45;
       cursor: not-allowed;
       box-shadow: none;
+    }
+
+    .file-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: #334155;
+      font-weight: 500;
+      max-width: 100%;
+    }
+    .file-chip i { color: #0066FF; font-size: 0.7rem; flex-shrink: 0; }
+    .file-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .preview-frame-wrap {
+      margin-top: 14px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      position: relative;
+      min-height: 200px;
+    }
+    .preview-frame-wrap iframe {
+      width: 100%;
+      height: 380px;
+      border: none;
+      background: #fff;
+      display: block;
+      pointer-events: none;
+    }
+    .preview-placeholder {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      padding: 2rem 1rem;
+    }
+    .preview-placeholder i {
+      font-size: 2rem;
+      opacity: 0.35;
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+
+    /* ---- Preview Modal (full responsive) ---- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 26, 51, 0.6);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      padding: 20px;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-content {
+      background: #ffffff;
+      border-radius: 24px;
+      max-width: 98vw;
+      max-height: 95vh;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .modal-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      flex-shrink: 0;
+    }
+    .modal-toolbar .preset-group {
+      display: flex;
+      gap: 6px;
+    }
+    .modal-toolbar .preset-group .btn-preset {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-toolbar .preset-group .btn-preset:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+    .modal-toolbar .preset-group .btn-preset.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: #fff;
+    }
+    .modal-toolbar .size-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .modal-toolbar .size-group label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #475569;
+    }
+    .modal-toolbar .size-group input {
+      width: 70px;
+      padding: 4px 8px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      background: #fff;
+      outline: none;
+      transition: border 0.15s;
+    }
+    .modal-toolbar .size-group input:focus {
+      border-color: #3b82f6;
+    }
+    .modal-toolbar .size-group button {
+      background: #3b82f6;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 12px;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-toolbar .size-group button:hover {
+      background: #2563eb;
+    }
+    .modal-toolbar .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .modal-toolbar .close-btn:hover {
+      background: #f1f5f9;
+      color: #0b1a33;
+    }
+    .modal-frame-wrap {
+      flex: 1;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      overflow: auto;
+      min-height: 0;
+    }
+    .modal-frame-wrap iframe {
+      background: #fff;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      transition: width 0.2s, height 0.2s;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      pointer-events: auto;
     }
 
     /* Chat */
@@ -644,14 +712,13 @@
       cursor: pointer;
     }
 
-    /* responsive */
     @media (min-width: 900px) {
       .progress-wrap { padding: 1rem 1.5rem 2.5rem; max-width: 1200px; }
       .op-topbar h1 { font-size: 1.45rem; }
       .op-grid { grid-template-columns: 1fr 400px; gap: 1.25rem; }
       .op-chat-col { position: sticky; top: 80px; }
       .dev-chat-shell { height: calc(100vh - 140px); min-height: 520px; max-height: 720px; }
-      .preview-frame-wrap iframe { height: 480px; }
+      .preview-frame-wrap iframe { height: 420px; }
       #orderTitle { font-size: 1.4rem; }
       .ring-wrap, .ring-wrap svg { width: 92px; height: 92px; }
       .ring-center #progressPct { font-size: 1.2rem; }
@@ -667,7 +734,7 @@
       .ring-center #progressPct { font-size: 0.95rem; }
       .dev-chat-shell { height: min(58vh, 480px); min-height: 300px; border-radius: 16px; }
       .dev-row { max-width: min(88%, 300px); }
-      .preview-frame-wrap iframe { height: min(50vh, 360px); }
+      .preview-frame-wrap iframe { height: min(40vh, 280px); }
       .milestones .ms { font-size: 0.6rem; }
     }
   </style>
@@ -740,42 +807,26 @@
                 <p id="progressNote"></p>
               </section>
 
-              <!-- Preview section with responsive controls -->
+              <!-- Preview section: static iframe + Open Preview button -->
               <section class="op-card preview-section">
                 <div class="visit-head">
                   <div>
                     <h3><span class="ico"><i class="fas fa-globe"></i></span> Visit Site</h3>
-                    <p>Interactive preview · resize to test responsiveness</p>
+                    <p>Static preview · click "Open Preview" for full interactive view</p>
                   </div>
                   <button type="button" id="visitSiteBtn" class="btn-preview" disabled>
-                    <i class="fas fa-external-link-alt"></i> Open Full
+                    <i class="fas fa-external-link-alt"></i> Open Preview
                   </button>
                 </div>
                 <div id="fileList" class="file-chips">
                   <span style="font-size:0.75rem;color:#94a3b8;">Loading files…</span>
                 </div>
-
-                <!-- Responsive preview toolbar & frame -->
-                <div style="margin-top:14px;">
-                  <div class="preview-toolbar">
-                    <button class="btn-preset active" data-w="1366" data-h="768">🖥️ Desktop</button>
-                    <button class="btn-preset" data-w="768" data-h="1024">📟 Tablet</button>
-                    <button class="btn-preset" data-w="375" data-h="667">📱 Mobile</button>
-                    <div class="size-group">
-                      <label>W</label>
-                      <input type="number" id="previewWidth" value="1366" min="200" max="2000" step="10" />
-                      <label>H</label>
-                      <input type="number" id="previewHeight" value="768" min="200" max="2000" step="10" />
-                      <button id="applySizeBtn">Apply</button>
-                    </div>
+                <div class="preview-frame-wrap" id="previewFrameWrap">
+                  <div class="preview-placeholder" id="previewPlaceholder">
+                    <i class="fas fa-desktop"></i>
+                    Preview will appear here when files are uploaded
                   </div>
-                  <div class="preview-frame-wrap" id="previewFrameWrap">
-                    <div class="preview-placeholder" id="previewPlaceholder">
-                      <i class="fas fa-desktop"></i>
-                      Preview will appear here when files are uploaded
-                    </div>
-                    <iframe id="previewFrame" title="Site preview" sandbox="allow-scripts allow-same-origin allow-modals" style="display:none;"></iframe>
-                  </div>
+                  <iframe id="previewFrame" title="Site preview" sandbox="allow-scripts allow-same-origin" style="display:none;"></iframe>
                 </div>
               </section>
             </div>
@@ -822,6 +873,31 @@
     </main>
     <div id="footer-placeholder"></div>
   </div>
+
+  <!-- Preview Modal (full responsive) -->
+  <div id="previewModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-toolbar">
+        <div class="preset-group">
+          <button class="btn-preset" data-w="375" data-h="667">📱 Mobile</button>
+          <button class="btn-preset" data-w="768" data-h="1024">📟 Tablet</button>
+          <button class="btn-preset active" data-w="1366" data-h="768">🖥️ Desktop</button>
+        </div>
+        <div class="size-group">
+          <label>W</label>
+          <input type="number" id="modalWidth" value="1366" min="200" max="2000" step="10" />
+          <label>H</label>
+          <input type="number" id="modalHeight" value="768" min="200" max="2000" step="10" />
+          <button id="applyModalSize">Apply</button>
+        </div>
+        <button class="close-btn" id="closePreviewModal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-frame-wrap">
+        <iframe id="modalPreviewFrame" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-container"></div>
 
   <script type="module">
@@ -861,6 +937,7 @@
     let pendingImage = null;
     let filesCache = [];
     let previewBlobUrl = null;
+    let modalBlobUrl = null;
     const RING_C = 2 * Math.PI * 32;
 
     function escapeHtml(str) {
@@ -999,6 +1076,43 @@
       if (placeholder) placeholder.style.display = '';
     }
 
+    function buildPreviewHtml() {
+      const byName = {};
+      filesCache.forEach(f => {
+        const name = (f.path || f.fileName || 'file').replace(/^\//, '');
+        byName[name] = f.content || '';
+      });
+      let indexKey = Object.keys(byName).find(k => /(^|\/)index\.html?$/i.test(k));
+      if (!indexKey) indexKey = Object.keys(byName).find(k => /\.html?$/i.test(k));
+      if (!indexKey) return null;
+      let html = byName[indexKey];
+      // Inline CSS and JS
+      Object.keys(byName).forEach(name => {
+        if (/\.css$/i.test(name)) {
+          const re = new RegExp('href=["\']' + escapeRegExp(name) + '["\']', 'gi');
+          html = html.replace(re, '');
+          if (!html.includes('</head>')) html = '<style>' + byName[name] + '</style>' + html;
+          else html = html.replace('</head>', '<style>' + byName[name] + '</style></head>');
+        }
+        if (/\.js$/i.test(name) && !/src=["']https?:/i.test(byName[name])) {
+          const re = new RegExp('src=["\']' + escapeRegExp(name) + '["\']', 'gi');
+          html = html.replace(re, '');
+          const tagOpen = '<' + 'script>';
+          const tagClose = '</' + 'script>';
+          if (!html.includes('</body>')) html = html + tagOpen + byName[name] + tagClose;
+          else html = html.replace('</body>', tagOpen + byName[name] + tagClose + '</body>');
+        }
+      });
+      if (!/<html/i.test(html)) {
+        html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>' + html + '</body></html>';
+      }
+      return html;
+    }
+
+    function escapeRegExp(s) {
+      return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
     function loadStaticPreview() {
       const html = buildPreviewHtml();
       const frame = document.getElementById('previewFrame');
@@ -1068,77 +1182,88 @@
       });
     }
 
-    function escapeRegExp(s) {
-      return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    function buildPreviewHtml() {
-      const byName = {};
-      filesCache.forEach(f => {
-        const name = (f.path || f.fileName || 'file').replace(/^\//, '');
-        byName[name] = f.content || '';
-      });
-      let indexKey = Object.keys(byName).find(k => /(^|\/)index\.html?$/i.test(k));
-      if (!indexKey) indexKey = Object.keys(byName).find(k => /\.html?$/i.test(k));
-      if (!indexKey) return null;
-      let html = byName[indexKey];
-      // Inline CSS and JS
-      Object.keys(byName).forEach(name => {
-        if (/\.css$/i.test(name)) {
-          const re = new RegExp('href=["\']' + escapeRegExp(name) + '["\']', 'gi');
-          html = html.replace(re, '');
-          if (!html.includes('</head>')) html = '<style>' + byName[name] + '</style>' + html;
-          else html = html.replace('</head>', '<style>' + byName[name] + '</style></head>');
-        }
-        if (/\.js$/i.test(name) && !/src=["']https?:/i.test(byName[name])) {
-          const re = new RegExp('src=["\']' + escapeRegExp(name) + '["\']', 'gi');
-          html = html.replace(re, '');
-          const tagOpen = '<' + 'script>';
-          const tagClose = '</' + 'script>';
-          if (!html.includes('</body>')) html = html + tagOpen + byName[name] + tagClose;
-          else html = html.replace('</body>', tagOpen + byName[name] + tagClose + '</body>');
-        }
-      });
-      if (!/<html/i.test(html)) {
-        html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>' + html + '</body></html>';
-      }
-      return html;
-    }
-
-    // ---- Preview size controls ----
-    function setPreviewSize(w, h) {
-      const frame = document.getElementById('previewFrame');
-      if (!frame) return;
-      const wrap = document.getElementById('previewFrameWrap');
-      const maxW = wrap ? wrap.clientWidth - 12 : 1200;
-      const finalW = Math.min(w, maxW);
-      frame.style.width = finalW + 'px';
-      // Height: respect given, but cap to viewport
-      const maxH = window.innerHeight - 200;
-      const finalH = Math.min(h, maxH);
-      frame.style.height = Math.max(200, finalH) + 'px';
-      document.getElementById('previewWidth').value = finalW;
-      document.getElementById('previewHeight').value = finalH;
-    }
-
-    // ---- Visit site full ----
-    document.getElementById('visitSiteBtn')?.addEventListener('click', () => {
+    // ---- Open Preview Modal ----
+    function openPreviewModal() {
       const html = buildPreviewHtml();
       if (!html) {
-        showToast('No HTML file to preview yet', 'warning');
+        showToast('No HTML file to preview', 'warning');
         return;
       }
-      try {
-        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
-      } catch (_) {
-        showToast('Could not open preview', 'error');
+      const modal = document.getElementById('previewModal');
+      const iframe = document.getElementById('modalPreviewFrame');
+      if (modalBlobUrl) {
+        URL.revokeObjectURL(modalBlobUrl);
+        modalBlobUrl = null;
+      }
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      modalBlobUrl = URL.createObjectURL(blob);
+      iframe.src = modalBlobUrl;
+      modal.classList.remove('hidden');
+      // Set default size (Desktop)
+      setModalSize(1366, 768);
+      document.querySelectorAll('#previewModal .btn-preset').forEach(b => b.classList.remove('active'));
+      document.querySelector('#previewModal .btn-preset[data-w="1366"]')?.classList.add('active');
+      document.getElementById('modalWidth').value = 1366;
+      document.getElementById('modalHeight').value = 768;
+    }
+
+    function closePreviewModal() {
+      const modal = document.getElementById('previewModal');
+      modal.classList.add('hidden');
+      const iframe = document.getElementById('modalPreviewFrame');
+      if (modalBlobUrl) {
+        URL.revokeObjectURL(modalBlobUrl);
+        modalBlobUrl = null;
+      }
+      iframe.src = 'about:blank';
+    }
+
+    function setModalSize(w, h) {
+      const iframe = document.getElementById('modalPreviewFrame');
+      const container = iframe.parentElement;
+      const maxW = container.clientWidth - 24;
+      const maxH = container.clientHeight - 24;
+      const finalW = Math.min(w, maxW);
+      const finalH = Math.min(h, maxH);
+      iframe.style.width = Math.max(200, finalW) + 'px';
+      iframe.style.height = Math.max(200, finalH) + 'px';
+      document.getElementById('modalWidth').value = finalW;
+      document.getElementById('modalHeight').value = finalH;
+    }
+
+    document.getElementById('visitSiteBtn')?.addEventListener('click', openPreviewModal);
+    document.getElementById('closePreviewModal')?.addEventListener('click', closePreviewModal);
+    document.getElementById('previewModal')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closePreviewModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('previewModal');
+        if (!modal.classList.contains('hidden')) closePreviewModal();
       }
     });
 
-    // ---- Chat ---- 
+    // Modal preset buttons
+    document.querySelectorAll('#previewModal .btn-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const w = parseInt(btn.dataset.w, 10);
+        const h = parseInt(btn.dataset.h, 10);
+        if (!isNaN(w) && !isNaN(h)) {
+          setModalSize(w, h);
+          document.querySelectorAll('#previewModal .btn-preset').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      });
+    });
+
+    document.getElementById('applyModalSize')?.addEventListener('click', () => {
+      const w = parseInt(document.getElementById('modalWidth').value, 10) || 800;
+      const h = parseInt(document.getElementById('modalHeight').value, 10) || 600;
+      setModalSize(w, h);
+      document.querySelectorAll('#previewModal .btn-preset').forEach(b => b.classList.remove('active'));
+    });
+
+    // ---- Chat ----
     function renderMsgs(msgs) {
       const body = document.getElementById('devChatBody');
       if (!body) return;
@@ -1275,26 +1400,6 @@
     });
     document.getElementById('imgPreviewClear')?.addEventListener('click', clearImagePreview);
 
-    // ---- Preview toolbar events ----
-    document.querySelectorAll('.preview-toolbar .btn-preset').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const w = parseInt(btn.dataset.w, 10);
-        const h = parseInt(btn.dataset.h, 10);
-        if (!isNaN(w) && !isNaN(h)) {
-          setPreviewSize(w, h);
-          document.querySelectorAll('.preview-toolbar .btn-preset').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-        }
-      });
-    });
-
-    document.getElementById('applySizeBtn')?.addEventListener('click', () => {
-      const w = parseInt(document.getElementById('previewWidth').value, 10) || 800;
-      const h = parseInt(document.getElementById('previewHeight').value, 10) || 600;
-      setPreviewSize(w, h);
-      document.querySelectorAll('.preview-toolbar .btn-preset').forEach(b => b.classList.remove('active'));
-    });
-
     // ---- Boot ----
     async function boot(user) {
       if (!orderId) {
@@ -1330,10 +1435,6 @@
           updateProgressUI(orderData);
         }, (err) => console.warn('order snapshot', err));
 
-        // Set default preview size after frame loads
-        setTimeout(() => {
-          setPreviewSize(1366, 768);
-        }, 300);
       } catch (err) {
         console.error(err);
         showError(err.message || 'Failed to load');
@@ -1359,6 +1460,7 @@
       if (unsubOrder) unsubOrder();
       if (unsubFiles) unsubFiles();
       if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
+      if (modalBlobUrl) URL.revokeObjectURL(modalBlobUrl);
     });
   </script>
 </body>
