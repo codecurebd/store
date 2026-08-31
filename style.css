@@ -999,3 +999,144 @@ body {
 .animate-pulse {
   animation: pulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+/* ===== COOKIE CONSENT BANNER (Professional Glass) ===== */
+#cookieConsent {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 1200px;
+  z-index: 99999;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  display: none; /* JS দিয়ে শো করানো হবে */
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  animation: cookieSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes cookieSlideUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.cookie-text {
+  flex: 1;
+  min-width: 0;
+}
+.cookie-text h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cookie-text p {
+  font-size: 0.88rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 700px;
+}
+.cookie-text p a {
+  color: #0066FF;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.cookie-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.cookie-actions .btn-allow {
+  background: linear-gradient(135deg, #0066FF, #8B5CF6);
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 60px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 102, 255, 0.25);
+}
+.cookie-actions .btn-allow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 102, 255, 0.35);
+}
+
+.cookie-actions .btn-decline {
+  background: rgba(0, 0, 0, 0.04);
+  color: #475569;
+  border: 1.5px solid rgba(0, 0, 0, 0.06);
+  padding: 10px 22px;
+  border-radius: 60px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.5);
+}
+.cookie-actions .btn-decline:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: #94a3b8;
+}
+
+/* ── মোবাইল রেসপনসিভ ── */
+@media (max-width: 768px) {
+  #cookieConsent {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.25rem;
+    bottom: 16px;
+    width: calc(100% - 24px);
+    border-radius: 16px;
+    gap: 1rem;
+  }
+  .cookie-text p {
+    font-size: 0.82rem;
+  }
+  .cookie-actions {
+    justify-content: flex-end;
+  }
+  .cookie-actions .btn-allow,
+  .cookie-actions .btn-decline {
+    padding: 8px 18px;
+    font-size: 0.82rem;
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+}
+@media (max-width: 480px) {
+  #cookieConsent {
+    padding: 1rem;
+  }
+  .cookie-text h3 {
+    font-size: 0.9rem;
+  }
+  .cookie-actions {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+  .cookie-actions .btn-allow,
+  .cookie-actions .btn-decline {
+    width: 100%;
+    justify-content: center;
+  }
+}

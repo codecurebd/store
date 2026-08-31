@@ -3253,5 +3253,67 @@ if (typeof document !== 'undefined') {
   }
 }
 
+// ================================================================
+// 🍪 COOKIE CONSENT BANNER
+// ================================================================
+export function renderCookieConsent() {
+  const consentKey = 'ccbd_cookie_consent_v1';
+  const status = localStorage.getItem(consentKey);
+
+  // যদি আগেই রেসপন্স দিয়ে থাকে, তাহলে কিছু করব না
+  if (status === 'accepted' || status === 'declined') {
+    return;
+  }
+
+  // ব্যানারের HTML তৈরি
+  const bannerHTML = `
+    <div id="cookieConsent" role="dialog" aria-label="Cookie consent">
+      <div class="cookie-text">
+        <h3><span>🍪</span> We value your privacy</h3>
+        <p>
+          We use cookies to enhance your browsing experience, personalize content, and analyze our traffic.
+          By clicking <strong>"Accept All"</strong>, you consent to our use of cookies. 
+          <a href="#" onclick="event.preventDefault(); alert('We use only essential cookies for login & cart. No third-party tracking yet.')">Learn more</a>
+        </p>
+      </div>
+      <div class="cookie-actions">
+        <button class="btn-decline" id="declineCookies" aria-label="Decline non-essential cookies">Decline</button>
+        <button class="btn-allow" id="acceptCookies" aria-label="Accept all cookies">Accept All</button>
+      </div>
+    </div>
+  `;
+
+  // ব্যানারটি DOM-এর একদম শেষে (footer-এর আগে) যোগ করি
+  const body = document.body;
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = bannerHTML;
+  const bannerNode = tempDiv.firstElementChild;
+  body.appendChild(bannerNode);
+
+  // ব্যানার শো করান (CSS display:flex সেট করে)
+  bannerNode.style.display = 'flex';
+
+  // ইভেন্ট লিসেনার
+  const acceptBtn = document.getElementById('acceptCookies');
+  const declineBtn = document.getElementById('declineCookies');
+
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', () => {
+      localStorage.setItem(consentKey, 'accepted');
+      bannerNode.style.display = 'none';
+      console.log('🍪 Cookies accepted.');
+      // (ভবিষ্যতে এখানে Google Analytics বা Meta Pixel চালু করবেন)
+    });
+  }
+
+  if (declineBtn) {
+    declineBtn.addEventListener('click', () => {
+      localStorage.setItem(consentKey, 'declined');
+      bannerNode.style.display = 'none';
+      console.log('🍪 Cookies declined.');
+    });
+  }
+}
+
 console.log('✅ components.js: Auth Modal + Auth Cache + Notifications + Support Widget loaded.');
 
