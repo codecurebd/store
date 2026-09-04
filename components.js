@@ -65,7 +65,7 @@ export function applyCachedNavbarAuth() {
 
 
 // ================================================================
-// ✅ নোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা (Realtime)
+// ✅ नোটिफिकেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা (Realtime)
 // ================================================================
 let unreadAdminMessages = [];
 let displayMessages = [];
@@ -2850,12 +2850,15 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ================================================================
-// ✅ FLOATING SUPPORT CHAT (Facebook Messenger style — all pages)
+// ✅ FLOATING SUPPORT CHAT — ENHANCED WITH IMAGES & SYNC
 // ================================================================
 let _supportUser = null;
 let _supportUnsub = null;
 let _supportOpen = false;
 let _supportMsgs = [];
+let _supportConvId = null;
+let _supportPendingImage = null;
+let _supportImagePreview = null;
 
 function _supportIsMessagesPage() {
   const p = (window.location.pathname || '').toLowerCase();
@@ -2865,6 +2868,30 @@ function _supportIsMessagesPage() {
 function _supportIsAdminPage() {
   const p = (window.location.pathname || '').toLowerCase();
   return p.includes('admin-panel') || p.includes('admin-login') || p.includes('auth.html') || p.endsWith('/auth') || p.includes('/auth?');
+}
+
+function _supportIsImageUrl(str) {
+  if (!str) return false;
+  const t = String(str).trim();
+  return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\?.*)?$/i.test(t) ||
+    t.includes('res.cloudinary.com');
+}
+
+function _supportParseContent(content) {
+  const raw = content || '';
+  const lines = raw.split('\n');
+  let textParts = [];
+  let imageUrl = null;
+  lines.forEach(line => {
+    const t = line.trim();
+    if (_supportIsImageUrl(t)) imageUrl = t;
+    else if (t) textParts.push(line);
+  });
+  if (!imageUrl && _supportIsImageUrl(raw.trim())) {
+    imageUrl = raw.trim();
+    textParts = [];
+  }
+  return { text: textParts.join('\n'), imageUrl };
 }
 
 function _injectSupportStyles() {
@@ -2877,33 +2904,33 @@ function _injectSupportStyles() {
   style.textContent = `
     #ccbdSupportRoot { position: fixed; bottom: 22px; left: 22px; right: auto; z-index: 9800; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; }
     #ccbdSupportBtn {
-      width: 58px; height: 58px; border-radius: 50%; border: none; cursor: pointer;
+      width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
       background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff;
       box-shadow: 0 8px 28px rgba(0,102,255,0.35); display: flex; align-items: center; justify-content: center;
-      font-size: 1.35rem; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative;
+      font-size: 1.4rem; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative;
     }
     #ccbdSupportBtn:hover { transform: scale(1.06); box-shadow: 0 12px 36px rgba(0,102,255,0.45); }
     #ccbdSupportBtnBadge {
-      position: absolute; top: -2px; right: -2px; min-width: 20px; height: 20px; padding: 0 5px;
+      position: absolute; top: -2px; right: -2px; min-width: 22px; height: 22px; padding: 0 6px;
       border-radius: 999px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 700;
       display: none; align-items: center; justify-content: center; border: 2px solid #fff; line-height: 1;
       z-index: 2;
     }
     #ccbdSupportBtnBadge.show { display: flex !important; }
     #ccbdSupportPanel {
-      position: absolute; bottom: 70px; left: 0; right: auto; width: 360px; max-width: calc(100vw - 24px);
-      height: 480px; max-height: calc(100vh - 120px); background: #fff; border-radius: 18px;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.16); border: 1px solid rgba(0,0,0,0.06);
+      position: absolute; bottom: 74px; left: 0; right: auto; width: 380px; max-width: calc(100vw - 24px);
+      height: 520px; max-height: calc(100vh - 120px); background: #fff; border-radius: 20px;
+      box-shadow: 0 16px 56px rgba(0,0,0,0.18); border: 1px solid rgba(0,0,0,0.06);
       display: none; flex-direction: column; overflow: hidden; animation: ccbdSupportIn 0.22s ease;
     }
     #ccbdSupportPanel.open { display: flex; }
     @keyframes ccbdSupportIn { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: none; } }
     #ccbdSupportHeader {
-      padding: 14px 16px; background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff;
+      padding: 14px 18px; background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff;
       display: flex; align-items: center; gap: 12px; flex-shrink: 0;
     }
     #ccbdSupportHeader .av {
-      width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2);
+      width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.2);
       display: flex; align-items: center; justify-content: center; font-size: 1rem;
     }
     #ccbdSupportHeader .info { flex: 1; min-width: 0; }
@@ -2911,28 +2938,27 @@ function _injectSupportStyles() {
     #ccbdSupportHeader .info .sub { font-size: 0.72rem; opacity: 0.9; }
     #ccbdSupportHeader .actions { display: flex; gap: 4px; }
     #ccbdSupportHeader .actions button {
-      background: rgba(255,255,255,0.15); border: none; color: #fff; width: 32px; height: 32px;
+      background: rgba(255,255,255,0.15); border: none; color: #fff; width: 34px; height: 34px;
       border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; transition: 0.15s;
     }
     #ccbdSupportHeader .actions button:hover { background: rgba(255,255,255,0.28); }
     #ccbdSupportBody {
-      flex: 1; overflow-y: auto; padding: 14px 12px; background: #f8fafc;
-      display: flex; flex-direction: column; gap: 6px;
+      flex: 1; overflow-y: auto; padding: 14px 14px 8px; background: #f8fafc;
+      display: flex; flex-direction: column; gap: 4px;
     }
-    /* Row: fit-content so bubble can size to text (avoid % max-width shrink bug) */
     #ccbdSupportBody .s-row {
       display: flex; flex-direction: column;
       width: fit-content; max-width: 92%; min-width: 0;
     }
     #ccbdSupportBody .s-row.sent { align-self: flex-end; align-items: flex-end; margin-left: auto; }
     #ccbdSupportBody .s-row.recv { align-self: flex-start; align-items: flex-start; margin-right: auto; }
-    /* Bubble: grow with text; no mid-word break like Ok/ye */
     #ccbdSupportBody .s-msg {
       display: block;
       width: max-content;
-      max-width: min(280px, 78vw);
+      max-width: min(300px, 80vw);
       min-width: 40px;
-      padding: 8px 12px; border-radius: 14px; font-size: 0.88rem; line-height: 1.45;
+      padding: 8px 14px; border-radius: 14px; font-size: 0.88rem; line-height: 1.5;
       white-space: pre-wrap;
       word-break: normal;
       overflow-wrap: break-word;
@@ -2944,35 +2970,70 @@ function _injectSupportStyles() {
     #ccbdSupportBody .s-row.recv .s-msg {
       background: #fff; color: #1e293b; border: 1px solid rgba(0,0,0,0.05); border-bottom-left-radius: 4px;
     }
+    #ccbdSupportBody .s-msg .s-img-wrap {
+      margin: 0 0 4px; border-radius: 10px; overflow: hidden; cursor: pointer; max-width: 200px;
+    }
+    #ccbdSupportBody .s-msg .s-img-wrap img {
+      display: block; width: 100%; height: auto; border-radius: 10px; transition: transform 0.2s;
+    }
+    #ccbdSupportBody .s-msg .s-img-wrap:hover img { transform: scale(1.02); }
     #ccbdSupportBody .s-time { font-size: 0.62rem; color: #94a3b8; margin-top: 2px; padding: 0 4px; }
     #ccbdSupportBody .s-empty { margin: auto; text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 24px; }
+    #ccbdSupportBody .s-empty i { font-size: 2rem; opacity: 0.25; display: block; margin-bottom: 8px; }
     #ccbdSupportFooter {
-      padding: 10px 12px; border-top: 1px solid rgba(0,0,0,0.05); background: #fff;
-      display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+      padding: 8px 12px 12px; border-top: 1px solid rgba(0,0,0,0.05); background: #fff;
+      display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+    }
+    #ccbdSupportFooter .input-row {
+      display: flex; gap: 8px; align-items: flex-end;
     }
     #ccbdSupportInput {
-      flex: 1; border: 1.5px solid #e2e8f0; border-radius: 18px; padding: 10px 14px;
-      font-size: 0.88rem; resize: none; max-height: 90px; min-height: 42px; outline: none;
+      flex: 1; border: 1.5px solid #e2e8f0; border-radius: 20px; padding: 9px 14px;
+      font-size: 0.88rem; resize: none; max-height: 90px; min-height: 40px; outline: none;
       font-family: inherit; line-height: 1.4; background: #f8fafc;
     }
     #ccbdSupportInput:focus { border-color: #0066FF; background: #fff; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
     #ccbdSupportSend {
-      width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer;
+      width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;
       background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+      transition: 0.2s;
     }
+    #ccbdSupportSend:hover { transform: scale(1.05); }
     #ccbdSupportSend:disabled { opacity: 0.45; cursor: not-allowed; }
+    #ccbdSupportFooter .file-row {
+      display: flex; gap: 6px; align-items: center; padding: 0 4px;
+    }
+    #ccbdSupportFooter .file-row .file-btn {
+      background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;
+      padding: 4px 6px; border-radius: 50%; transition: 0.15s;
+    }
+    #ccbdSupportFooter .file-row .file-btn:hover { color: #0066FF; background: rgba(0,102,255,0.06); }
+    #ccbdSupportFooter .file-row .file-btn input[type="file"] { display: none; }
+    #ccbdSupportFooter .file-row .preview {
+      display: none; align-items: center; gap: 6px; background: rgba(0,102,255,0.06);
+      border-radius: 12px; padding: 3px 8px 3px 4px; border: 1px solid rgba(0,102,255,0.1);
+    }
+    #ccbdSupportFooter .file-row .preview.show { display: flex; }
+    #ccbdSupportFooter .file-row .preview img {
+      width: 32px; height: 32px; border-radius: 8px; object-fit: cover;
+    }
+    #ccbdSupportFooter .file-row .preview .remove {
+      background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 0.75rem;
+      padding: 2px; border-radius: 50%;
+    }
+    #ccbdSupportFooter .file-row .preview .remove:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
     #ccbdSupportLoginHint {
-      padding: 16px; text-align: center; font-size: 0.85rem; color: #64748b;
+      padding: 20px 16px; text-align: center; font-size: 0.85rem; color: #64748b;
     }
     #ccbdSupportLoginHint button {
-      margin-top: 10px; background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff;
-      border: none; padding: 10px 18px; border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 0.85rem;
+      margin-top: 12px; background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff;
+      border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 0.85rem;
     }
     @media (max-width: 480px) {
       #ccbdSupportRoot { bottom: 16px; left: 14px; right: auto; }
-      #ccbdSupportPanel { width: calc(100vw - 20px); height: min(70vh, 520px); left: 0; right: auto; }
-      #ccbdSupportBtn { width: 52px; height: 52px; font-size: 1.2rem; }
+      #ccbdSupportPanel { width: calc(100vw - 20px); height: min(70vh, 500px); left: 0; right: auto; }
+      #ccbdSupportBtn { width: 54px; height: 54px; font-size: 1.2rem; }
     }
   `;
   if (!style.parentNode) document.head.appendChild(style);
@@ -2996,10 +3057,23 @@ function _ensureSupportDom() {
           <button type="button" id="ccbdSupportMinimize" title="Minimize" aria-label="Minimize"><i class="fas fa-minus"></i></button>
         </div>
       </div>
-      <div id="ccbdSupportBody"><div class="s-empty">Loading…</div></div>
+      <div id="ccbdSupportBody"><div class="s-empty"><i class="fas fa-comment-dots"></i>Loading…</div></div>
       <div id="ccbdSupportFooter">
-        <textarea id="ccbdSupportInput" rows="1" placeholder="Type a message…"></textarea>
-        <button type="button" id="ccbdSupportSend" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+        <div class="input-row">
+          <textarea id="ccbdSupportInput" rows="1" placeholder="Type a message…"></textarea>
+          <button type="button" id="ccbdSupportSend" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <div class="file-row">
+          <label class="file-btn" id="ccbdFileBtn" title="Attach image">
+            <i class="fas fa-image"></i>
+            <input type="file" id="ccbdFileInput" accept="image/*" />
+          </label>
+          <div class="preview" id="ccbdPreview">
+            <img id="ccbdPreviewImg" src="#" alt="preview" />
+            <button type="button" class="remove" id="ccbdRemovePreview" title="Remove"><i class="fas fa-times"></i></button>
+          </div>
+          <span style="font-size:0.7rem;color:#94a3b8;margin-left:auto;">Image support</span>
+        </div>
       </div>
     </div>
     <button type="button" id="ccbdSupportBtn" title="Support chat" aria-label="Open support chat">
@@ -3009,6 +3083,7 @@ function _ensureSupportDom() {
   `;
   document.body.appendChild(root);
 
+  // ── Button toggle ──
   document.getElementById('ccbdSupportBtn').addEventListener('click', () => {
     if (!_supportUser) {
       if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
@@ -3027,9 +3102,8 @@ function _ensureSupportDom() {
         if (body) body.scrollTop = body.scrollHeight;
         document.getElementById('ccbdSupportInput')?.focus();
       }, 50);
-      // Viewing chat in popup = mark admin messages read → clear badges
+      // Mark admin messages as read when opening popup
       markAllAdminMessagesRead().then(() => {
-        // Optimistic local clear (listener will also rebuild)
         unreadAdminMessages = [];
         updateNotificationBadge(0);
         updateNotificationList([]);
@@ -3056,6 +3130,7 @@ function _ensureSupportDom() {
     window.location.href = 'messages.html';
   });
 
+  // ── Input & send ──
   const input = document.getElementById('ccbdSupportInput');
   input.addEventListener('input', () => {
     input.style.height = 'auto';
@@ -3068,6 +3143,44 @@ function _ensureSupportDom() {
     }
   });
   document.getElementById('ccbdSupportSend').addEventListener('click', () => _sendSupportMessage());
+
+  // ── File attachment ──
+  const fileBtn = document.getElementById('ccbdFileBtn');
+  const fileInput = document.getElementById('ccbdFileInput');
+  const preview = document.getElementById('ccbdPreview');
+  const previewImg = document.getElementById('ccbdPreviewImg');
+  const removePreview = document.getElementById('ccbdRemovePreview');
+
+  fileBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      window.showToast('Please select an image file.', 'warning');
+      fileInput.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      window.showToast('Image must be less than 10MB.', 'warning');
+      fileInput.value = '';
+      return;
+    }
+    _supportPendingImage = file;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      previewImg.src = ev.target.result;
+      preview.classList.add('show');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  removePreview.addEventListener('click', () => {
+    _supportPendingImage = null;
+    preview.classList.remove('show');
+    previewImg.src = '#';
+    fileInput.value = '';
+  });
 }
 
 function _renderSupportMsgs(msgs) {
@@ -3078,7 +3191,7 @@ function _renderSupportMsgs(msgs) {
     return;
   }
   if (!msgs || msgs.length === 0) {
-    body.innerHTML = `<div class="s-empty"><i class="fas fa-comments" style="font-size:1.6rem;opacity:0.35;display:block;margin-bottom:8px;"></i>Say hello to start chatting</div>`;
+    body.innerHTML = `<div class="s-empty"><i class="fas fa-comments"></i>Say hello to start chatting</div>`;
     return;
   }
   let html = '';
@@ -3086,12 +3199,20 @@ function _renderSupportMsgs(msgs) {
     const isSent = m.fromUserId === _supportUser.uid;
     const ts = m.timestamp?.toDate?.() || null;
     const time = ts ? ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '';
-    const raw = String(m.content || '');
-    const safe = raw
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const { text, imageUrl } = _supportParseContent(m.content || '');
+    let contentHtml = '';
+    if (imageUrl) {
+      contentHtml += `
+        <div class="s-img-wrap" onclick="window.openImageLightbox && window.openImageLightbox('${escapeNotifHtml(imageUrl)}')">
+          <img src="${escapeNotifHtml(imageUrl)}" alt="Attachment" loading="lazy" />
+        </div>`;
+    }
+    if (text) contentHtml += `<span>${escapeNotifHtml(text)}</span>`;
+    if (!contentHtml) contentHtml = '<span style="opacity:0.6;">(empty)</span>';
+
     html += `
       <div class="s-row ${isSent ? 'sent' : 'recv'}">
-        <div class="s-msg">${safe || '(empty)'}</div>
+        <div class="s-msg">${contentHtml}</div>
         <div class="s-time">${time}</div>
       </div>`;
   });
@@ -3104,15 +3225,29 @@ async function _sendSupportMessage() {
   const btn = document.getElementById('ccbdSupportSend');
   if (!input || !_supportUser) return;
   const text = input.value.trim();
-  if (!text) return;
-  const convId = `conv_${_supportUser.uid}_admin`;
+  const hasFile = !!_supportPendingImage;
+  if (!text && !hasFile) return;
+
+  const convId = _supportConvId || `conv_${_supportUser.uid}_admin`;
   btn.disabled = true;
+  let imageUrl = null;
   try {
+    if (hasFile) {
+      imageUrl = await uploadImage(_supportPendingImage);
+      // Clear preview
+      _supportPendingImage = null;
+      document.getElementById('ccbdPreview')?.classList.remove('show');
+      document.getElementById('ccbdPreviewImg').src = '#';
+      document.getElementById('ccbdFileInput').value = '';
+    }
+    let content = text;
+    if (imageUrl) content = text ? (text + '\n' + imageUrl) : imageUrl;
+
     await addDoc(collection(db, 'messages'), {
       conversationId: convId,
       fromUserId: _supportUser.uid,
       toUserId: 'admin',
-      content: text,
+      content,
       timestamp: serverTimestamp(),
       read: false,
       participants: [_supportUser.uid, 'admin']
@@ -3137,6 +3272,7 @@ function _startSupportListener(user) {
   }
   if (!user) return;
   const convId = `conv_${user.uid}_admin`;
+  _supportConvId = convId;
 
   const applySnap = (snapshot) => {
     const msgs = [];
@@ -3193,7 +3329,6 @@ window.__ccbdUpdateSupportBadge = function(count) {
     return true;
   };
   if (!apply()) {
-    // DOM not ready yet — retry
     setTimeout(apply, 100);
     setTimeout(apply, 400);
   }
@@ -3215,7 +3350,6 @@ window.__ccbdMountSupportWidget = function(user) {
   }
   if (user) {
     _startSupportListener(user);
-    // Re-apply current unread badge after mount
     if (typeof window.__ccbdUpdateSupportBadge === 'function') {
       window.__ccbdUpdateSupportBadge(unreadAdminMessages.length);
     }
@@ -3240,7 +3374,7 @@ window.__ccbdHideSupportWidget = function() {
   _supportMsgs = [];
 };
 
-// Mount minimized launcher even before auth (shows login prompt on open)
+// Mount launcher even before auth (shows login prompt on open)
 if (typeof document !== 'undefined') {
   const boot = () => {
     if (_supportIsAdminPage() || _supportIsMessagesPage()) return;
@@ -3253,19 +3387,17 @@ if (typeof document !== 'undefined') {
   }
 }
 
-// ================================================================
+// ─────────────────────────────────────────────────────────────
 // 🍪 COOKIE CONSENT BANNER
-// ================================================================
+// ─────────────────────────────────────────────────────────────
 export function renderCookieConsent() {
   const consentKey = 'ccbd_cookie_consent_v1';
   const status = localStorage.getItem(consentKey);
 
-  // যদি আগেই রেসপন্স দিয়ে থাকে, তাহলে কিছু করব না
   if (status === 'accepted' || status === 'declined') {
     return;
   }
 
-  // ব্যানারের HTML তৈরি
   const bannerHTML = `
     <div id="cookieConsent" role="dialog" aria-label="Cookie consent">
       <div class="cookie-text">
@@ -3283,17 +3415,13 @@ export function renderCookieConsent() {
     </div>
   `;
 
-  // ব্যানারটি DOM-এর একদম শেষে (footer-এর আগে) যোগ করি
   const body = document.body;
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = bannerHTML;
   const bannerNode = tempDiv.firstElementChild;
   body.appendChild(bannerNode);
-
-  // ব্যানার শো করান (CSS display:flex সেট করে)
   bannerNode.style.display = 'flex';
 
-  // ইভেন্ট লিসেনার
   const acceptBtn = document.getElementById('acceptCookies');
   const declineBtn = document.getElementById('declineCookies');
 
@@ -3302,7 +3430,6 @@ export function renderCookieConsent() {
       localStorage.setItem(consentKey, 'accepted');
       bannerNode.style.display = 'none';
       console.log('🍪 Cookies accepted.');
-      // (ভবিষ্যতে এখানে Google Analytics বা Meta Pixel চালু করবেন)
     });
   }
 
@@ -3315,5 +3442,18 @@ export function renderCookieConsent() {
   }
 }
 
-console.log('✅ components.js: Auth Modal + Auth Cache + Notifications + Support Widget loaded.');
+// Expose lightbox for popup images
+window.openImageLightbox = function(url) {
+  const lb = document.getElementById('imgLightbox');
+  const img = document.getElementById('lbImage');
+  if (lb && img) {
+    img.src = url;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  } else {
+    // Fallback: open in new tab
+    window.open(url, '_blank');
+  }
+};
 
+console.log('✅ components.js: Enhanced support chat with images & archive sync');
