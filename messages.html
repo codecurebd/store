@@ -19,9 +19,6 @@
     <link rel="stylesheet" href="style.css" />
 
     <style>
-        /* ─────────────────────────────────────────────────────────────
-           PROFESSIONAL SUPPORT CHAT — MODERN SAAS STYLE
-           ───────────────────────────────────────────────────────────── */
         * { box-sizing: border-box; }
         body {
             background: #f0f4f9;
@@ -77,7 +74,6 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
         }
 
-        /* ─── Conversation List ─── */
         .conv-list {
             width: 340px;
             border-right: 1px solid rgba(0, 0, 0, 0.05);
@@ -248,7 +244,6 @@
         .conv-item:hover .restore-icon { opacity: 1; }
         .conv-item .restore-icon:hover { color: #16a34a; }
 
-        /* ─── Chat Area ─── */
         .chat-area {
             flex: 1;
             display: flex;
@@ -777,7 +772,6 @@
         <main class="main-content">
             <section class="chat-full-section">
                 <div class="messenger-wrap">
-                    <!-- Conversation List -->
                     <div class="conv-list" id="convList">
                         <div class="conv-list-header">
                             <span class="title"><i class="fas fa-comment-dots"></i> Conversations</span>
@@ -794,7 +788,6 @@
                         </div>
                     </div>
 
-                    <!-- Chat Area -->
                     <div class="chat-area" id="chatArea">
                         <div class="chat-header" id="chatHeader">
                             <div class="avatar" id="chatAvatar"><i class="fas fa-headset"></i></div>
@@ -862,7 +855,6 @@
         <div id="footer-placeholder"></div>
     </div>
 
-    <!-- Image Lightbox -->
     <div class="img-lightbox" id="imgLightbox">
         <button class="close" id="lbClose" aria-label="Close">&times;</button>
         <img id="lbImage" src="" alt="Full size" />
@@ -871,9 +863,6 @@
     <div id="toast-container"></div>
 
     <script type="module">
-        // ─────────────────────────────────────────────────────────────
-        // IMPORTS
-        // ─────────────────────────────────────────────────────────────
         import {
             auth, db, collection, doc, getDoc, setDoc, addDoc, onSnapshot,
             query, where, serverTimestamp, onAuthStateChanged, updateDoc,
@@ -905,9 +894,6 @@
                 setTimeout(() => toast.remove(), 400); }, 4500);
         };
 
-        // ─────────────────────────────────────────────────────────────
-        // STATE
-        // ─────────────────────────────────────────────────────────────
         let currentUser = null;
         let conversations = [];
         let currentConvId = null;
@@ -921,7 +907,6 @@
         let typingTimeout = null;
         let convTypingUnsub = null;
 
-        // DOM refs
         const convItems = document.getElementById('convItems');
         const chatMessages = document.getElementById('chatMessages');
         const chatForm = document.getElementById('chatForm');
@@ -946,9 +931,6 @@
         const typingIndicator = document.getElementById('typingIndicator');
         const statusText = document.getElementById('statusText');
 
-        // ─────────────────────────────────────────────────────────────
-        // HELPERS
-        // ─────────────────────────────────────────────────────────────
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -1002,9 +984,6 @@
             return { text: textParts.join('\n'), imageUrl };
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // TYPING INDICATOR (full page)
-        // ─────────────────────────────────────────────────────────────
         function setTypingStatus(isTyping) {
             if (!currentConvId || !currentUser) return;
             const convRef = doc(db, 'conversations', currentConvId);
@@ -1017,7 +996,6 @@
             }
         }
 
-        // Listen to typing from conversation doc
         function listenTyping(convId) {
             if (convTypingUnsub) { convTypingUnsub(); convTypingUnsub = null; }
             if (!convId) return;
@@ -1036,9 +1014,6 @@
             }, (err) => console.warn('Typing listener error:', err));
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // RENDER CONVERSATION LIST
-        // ─────────────────────────────────────────────────────────────
         function renderConvList() {
             const filtered = conversations.filter(c => c.status === currentFilter);
             if (filtered.length === 0) {
@@ -1081,7 +1056,6 @@
             });
             convItems.innerHTML = html;
 
-            // Click on conversation item
             convItems.querySelectorAll('.conv-item').forEach(el => {
                 el.addEventListener('click', (e) => {
                     if (e.target.closest('.archive-icon') || e.target.closest('.restore-icon')) return;
@@ -1107,9 +1081,6 @@
             });
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // SELECT CONVERSATION
-        // ─────────────────────────────────────────────────────────────
         function selectConversation(convId) {
             if (!convId) return;
             const conv = conversations.find(c => c.id === convId);
@@ -1127,13 +1098,9 @@
             }
             renderConvList();
             chatInput.focus();
-            // Mark messages as read
             markConversationMessagesRead(convId, currentUser.uid);
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // LOAD MESSAGES
-        // ─────────────────────────────────────────────────────────────
         function loadMessages(convId) {
             if (unsubMessages) unsubMessages();
             const q = query(
@@ -1163,9 +1130,6 @@
             });
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // RENDER MESSAGES
-        // ─────────────────────────────────────────────────────────────
         function renderMessages(msgs) {
             if (!msgs || msgs.length === 0) {
                 chatMessages.innerHTML = `
@@ -1250,9 +1214,6 @@
         });
         scrollBtn.addEventListener('click', () => scrollToBottom(true));
 
-        // ─────────────────────────────────────────────────────────────
-        // SEND MESSAGE
-        // ─────────────────────────────────────────────────────────────
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const text = chatInput.value.trim();
@@ -1269,7 +1230,6 @@
                 const conv = await getOrCreateConversation(currentUser);
                 if (conv) {
                     currentConvId = conv.id;
-                    // Add to local state
                     conversations.unshift({ id: conv.id, ...conv, status: 'active' });
                     renderConvList();
                     selectConversation(conv.id);
@@ -1295,7 +1255,6 @@
                 chatInput.focus();
                 userNearBottom = true;
                 renderConvList();
-                // Clear typing
                 setTypingStatus(false);
                 clearTimeout(typingTimeout);
             } catch (err) {
@@ -1307,9 +1266,6 @@
             }
         });
 
-        // ─────────────────────────────────────────────────────────────
-        // CREATE CONVERSATION (using imported function)
-        // ─────────────────────────────────────────────────────────────
         newChatBtn.addEventListener('click', async () => {
             if (!currentUser) {
                 showToast('Please sign in.', 'warning');
@@ -1327,9 +1283,6 @@
             }
         });
 
-        // ─────────────────────────────────────────────────────────────
-        // ARCHIVE / UNARCHIVE
-        // ─────────────────────────────────────────────────────────────
         async function toggleArchive(convId) {
             if (!convId) return;
             const conv = conversations.find(c => c.id === convId);
@@ -1379,9 +1332,6 @@
             if (currentConvId) toggleArchive(currentConvId);
         });
 
-        // ─────────────────────────────────────────────────────────────
-        // FILTER TOGGLE
-        // ─────────────────────────────────────────────────────────────
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 filterBtns.forEach(b => b.classList.remove('active'));
@@ -1391,16 +1341,12 @@
             });
         });
 
-        // ─────────────────────────────────────────────────────────────
-        // AUTO-RESIZE TEXTAREA
-        // ─────────────────────────────────────────────────────────────
         function autoResize() {
             chatInput.style.height = 'auto';
             chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
         }
         chatInput.addEventListener('input', () => {
             autoResize();
-            // Typing indicator
             if (currentUser && currentConvId) {
                 if (chatInput.value.trim().length > 0) {
                     setTypingStatus(true);
@@ -1420,9 +1366,6 @@
             }
         });
 
-        // ─────────────────────────────────────────────────────────────
-        // FILE ATTACHMENT
-        // ─────────────────────────────────────────────────────────────
         fileBtn.addEventListener('click', () => fileInput.click());
 
         fileInput.addEventListener('change', (e) => {
@@ -1460,9 +1403,6 @@
             fileBtn.style.color = '';
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // LIGHTBOX
-        // ─────────────────────────────────────────────────────────────
         window.openImageLightbox = function(url) {
             if (!url) return;
             lbImage.src = url;
@@ -1482,9 +1422,6 @@
             if (e.key === 'Escape' && imgLightbox.classList.contains('open')) closeLightbox();
         });
 
-        // ─────────────────────────────────────────────────────────────
-        // QUICK REPLIES
-        // ─────────────────────────────────────────────────────────────
         document.querySelectorAll('#quickReplies button').forEach(btn => {
             btn.addEventListener('click', () => {
                 const text = btn.dataset.text || '';
@@ -1495,9 +1432,6 @@
             });
         });
 
-        // ─────────────────────────────────────────────────────────────
-        // LISTEN CONVERSATIONS
-        // ─────────────────────────────────────────────────────────────
         function listenConversations() {
             if (!currentUser) return;
             if (unsubConversations) unsubConversations();
@@ -1540,9 +1474,6 @@
             });
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // AUTH
-        // ─────────────────────────────────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';

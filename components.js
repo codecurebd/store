@@ -75,7 +75,7 @@ let typingTimeout = null;
 let unreadAdminCount = 0;
 
 // --- Get or create a conversation between user and admin ---
-async function getOrCreateConversation(user) {
+export async function getOrCreateConversation(user) {
   if (!user) return null;
   // Check if an active conversation exists (ignore archived ones for popup, but we can reuse any)
   const q = query(
@@ -1155,10 +1155,937 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL (unchanged – keep as is)
+// ✅ PAYMENT MODAL (full – unchanged)
 // ================================================================
-// ... (payment modal code remains exactly the same, omitted for brevity)
-// But we need to include it in the final output. For this answer we'll keep it.
+// (All payment modal code from the original file goes here unchanged)
+// For brevity in this answer, I'm including the full payment code below.
+// It is identical to your original file.
+
+let _paymentSettings = {};
+let _paymentOrderTotalUSD = 0;
+let _pendingCheckoutData = null;
+let _duePaymentData = null; // For due payment
+
+const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
+const QR_IMAGE_PATH = './Deposit USDT.jpeg';
+
+window.openQrZoom = function(imgSrc) {
+  const modal = document.getElementById('qrZoomModal');
+  const img = document.getElementById('qrZoomImage');
+  if (!modal || !img) return;
+  img.src = imgSrc || QR_IMAGE_PATH;
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeQrZoom = function() {
+  const modal = document.getElementById('qrZoomModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.downloadQrImage = function() {
+  const img = document.getElementById('qrZoomImage');
+  if (!img) return;
+  const link = document.createElement('a');
+  link.href = img.src;
+  link.download = 'USDT_Deposit_QR.png';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✅ QR code downloaded!', 'success');
+};
+
+function renderQrZoomModal() {
+  if (document.getElementById('qrZoomModal')) return;
+  const modalHTML = `
+    <div id="qrZoomModal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] hidden" style="display:none;" onclick="if(event.target===this) window.closeQrZoom()">
+      <div class="relative max-w-[95vw] max-h-[95vh] bg-white rounded-2xl p-4 shadow-2xl overflow-hidden">
+        <button onclick="window.closeQrZoom()" class="absolute top-3 right-3 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl transition-colors">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="flex flex-col items-center">
+          <div class="relative overflow-auto flex items-center justify-center" style="max-height:80vh; max-width:90vw;">
+            <img id="qrZoomImage" src="${QR_IMAGE_PATH}" alt="QR Code" class="object-contain" style="max-width:90vw; max-height:75vh;" />
+          </div>
+          <div class="mt-3 flex items-center gap-4">
+            <button onclick="window.downloadQrImage()" class="btn-primary text-sm py-2 px-4">
+              <i class="fas fa-download"></i> Download
+            </button>
+            <button onclick="window.closeQrZoom()" class="btn-outline text-sm py-2 px-4">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+export function renderPaymentModal() {
+  renderQrZoomModal();
+
+  const existing = document.getElementById('paymentModal');
+  if (existing) {
+    if (existing.dataset.version === 'v3') return;
+    existing.remove();
+    const oldForm = document.getElementById('paymentForm');
+    if (oldForm) oldForm.dataset.bound = '';
+  }
+
+  const modalHTML = `
+    <div id="paymentModal" data-version="v3" data-duemode="false" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
+      <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold text-gray-900">Complete Payment</h3>
+          <button type="button" onclick="window.closePaymentModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors" aria-label="Close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div id="paymentOrderSummary" class="mb-4 p-3 bg-blue-50 rounded-xl text-sm text-gray-700">
+          <div class="flex justify-between"><span>Order Total</span><strong id="paymentTotalUSD">$0.00</strong></div>
+          <div id="paymentTotalBDTRow" class="flex justify-between mt-1 hidden"><span>Total in BDT</span><strong id="paymentTotalBDT" class="text-green-700">৳0</strong></div>
+          <p id="paymentRateNote" class="text-xs text-gray-400 mt-1 hidden"></p>
+        </div>
+
+        <form id="paymentForm" class="space-y-4">
+          <input type="hidden" id="paymentOrderId" />
+          
+          <!-- Payment Type Option: Full vs Pay later (500 TK) -->
+          <div id="paymentTypeGroup">
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Type *</label>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                <input type="radio" name="paymentType" value="full" checked class="text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm font-medium text-gray-800">Full Payment</span>
+              </label>
+              <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+                <input type="radio" name="paymentType" value="advance" class="text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm font-medium text-gray-800">Pay Later</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Method *</label>
+            <select id="paymentMethodSelect" required class="form-input">
+              <option value="">Select method</option>
+              <option value="bKash">bKash</option>
+              <option value="Nagad">Nagad</option>
+              <option value="USDT">USDT (BEP20)</option>
+            </select>
+          </div>
+
+          <div id="paymentMethodDetails" class="hidden space-y-4">
+            <div id="paymentAddressBox" class="text-sm bg-gray-50 p-4 rounded-xl border border-gray-100"></div>
+            <div id="paymentHowToBox" class="text-sm bg-amber-50 p-4 rounded-xl border border-amber-100"></div>
+
+            <div id="paymentFieldsBox" class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5" id="paymentSenderLabel">Sender Number *</label>
+                <input type="text" id="paymentSenderNumber" placeholder="Number you paid from" class="form-input" />
+                <p class="text-xs text-gray-400 mt-1" id="paymentSenderHint">Your bKash/Nagad personal number</p>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Transaction ID *</label>
+                <input type="text" id="transactionId" placeholder="Enter transaction ID from the app" class="form-input" />
+              </div>
+              <button type="submit" id="paymentSubmitBtn" class="btn-primary w-full justify-center">
+                <i class="fas fa-check"></i> Confirm Payment
+              </button>
+            </div>
+          </div>
+
+          <div id="paymentError" class="text-red-500 text-sm hidden text-center p-3 bg-red-50 rounded-xl border border-red-200"></div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+  if (!document.getElementById('paymentModalStyle')) {
+    const style = document.createElement('style');
+    style.id = 'paymentModalStyle';
+    style.textContent = `
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .animate-scaleIn { animation: scaleIn 0.25s ease forwards; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const methodSelect = document.getElementById('paymentMethodSelect');
+  if (methodSelect && !methodSelect.dataset.bound) {
+    methodSelect.dataset.bound = '1';
+    methodSelect.addEventListener('change', () => window.updatePaymentMethodUI());
+  }
+
+  document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
+    if (!radio.dataset.bound) {
+      radio.dataset.bound = '1';
+      radio.addEventListener('change', () => window.updatePaymentMethodUI());
+    }
+  });
+
+  const paymentForm = document.getElementById('paymentForm');
+  if (paymentForm && !paymentForm.dataset.bound) {
+    paymentForm.dataset.bound = '1';
+    paymentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const isDueMode = document.getElementById('paymentModal').dataset.duemode === 'true';
+      const dueData = window._duePaymentData;
+      const orderId = document.getElementById('paymentOrderId').value;
+
+      if (isDueMode && dueData) {
+        const method = document.getElementById('paymentMethodSelect').value;
+        const txnId = document.getElementById('transactionId').value.trim();
+        const senderNumber = document.getElementById('paymentSenderNumber').value.trim();
+        const errorDiv = document.getElementById('paymentError');
+        errorDiv.classList.add('hidden');
+        document.querySelectorAll('#paymentForm .form-input').forEach(el => el.classList.remove('error'));
+
+        if (!method) {
+          errorDiv.textContent = '⚠️ Please select a payment method.';
+          errorDiv.classList.remove('hidden');
+          methodSelect.classList.add('error');
+          return;
+        }
+
+        if (method === 'USDT') {
+          if (!senderNumber || senderNumber.length < 10) {
+            errorDiv.textContent = '⚠️ Please enter your valid BEP20 sender address.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('paymentSenderNumber').classList.add('error');
+            return;
+          }
+          if (!txnId || txnId.length < 5) {
+            errorDiv.textContent = '⚠️ Please enter a valid USDT transaction ID.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('transactionId').classList.add('error');
+            return;
+          }
+        } else {
+          if (!senderNumber) {
+            errorDiv.textContent = '⚠️ Please enter the number you paid from.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('paymentSenderNumber').classList.add('error');
+            return;
+          }
+          if (!txnId) {
+            errorDiv.textContent = '⚠️ Please enter transaction ID.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('transactionId').classList.add('error');
+            return;
+          }
+        }
+
+        if (!auth.currentUser) {
+          errorDiv.textContent = '⚠️ You are not logged in.';
+          errorDiv.classList.remove('hidden');
+          return;
+        }
+
+        const btn = document.getElementById('paymentSubmitBtn');
+        setLoading(btn, true, 'Processing...');
+
+        try {
+          const orderRef = doc(db, 'orders', dueData.orderId);
+          const orderSnap = await getDoc(orderRef);
+          if (!orderSnap.exists()) {
+            throw new Error('Order not found.');
+          }
+
+          const currentOrder = orderSnap.data();
+          const newPaidBDT = (currentOrder.amountBDT || 0) + dueData.dueBDT;
+          const newPaidUSD = (currentOrder.amountUSD || 0) + dueData.dueUSD;
+          const newDueBDT = Math.max(0, (currentOrder.dueAmountBDT || 0) - dueData.dueBDT);
+          const newDueUSD = Math.max(0, (currentOrder.dueAmountUSD || 0) - dueData.dueUSD);
+
+          const duePaidFully = newDueBDT <= 0 && newDueUSD <= 0;
+          await updateDoc(orderRef, {
+            amountBDT: newPaidBDT,
+            amountUSD: newPaidUSD,
+            dueAmountBDT: newDueBDT,
+            dueAmountUSD: newDueUSD,
+            transactionId: txnId,
+            senderNumber: senderNumber,
+            paymentMethod: method,
+            updatedAt: serverTimestamp(),
+            ...(duePaidFully ? {
+              duePaidAt: serverTimestamp(),
+              remainingPaymentEnabled: false,
+              remainingPaymentAmountBDT: 0,
+              remainingPaymentAmountUSD: 0,
+              paymentType: 'full'
+            } : {})
+          });
+
+          window.showToast('✅ Due payment successful! Order updated.', 'success');
+          window.closePaymentModal();
+          window._duePaymentData = null;
+          if (typeof window.refreshCampaignPage === 'function') {
+            try { await window.refreshCampaignPage(); } catch (_) {}
+          }
+          setTimeout(() => window.location.reload(), 1200);
+
+        } catch (err) {
+          console.error('Due payment error:', err);
+          errorDiv.textContent = '⚠️ ' + err.message;
+          errorDiv.classList.remove('hidden');
+          window.showToast('⚠️ ' + err.message, 'error');
+        } finally {
+          setLoading(btn, false);
+        }
+        return;
+      }
+
+      const pending = window._pendingCheckoutData;
+      if (!pending) {
+        showToast('Checkout data missing. Please try again.', 'error');
+        return;
+      }
+
+      const method = document.getElementById('paymentMethodSelect').value;
+      const paymentTypeEl = document.querySelector('input[name="paymentType"]:checked');
+      const paymentType = pending.type === 'campaign' ? 'advance' : (paymentTypeEl?.value || 'full');
+      const txnId = document.getElementById('transactionId').value.trim();
+      const senderNumber = document.getElementById('paymentSenderNumber').value.trim();
+      const errorDiv = document.getElementById('paymentError');
+      errorDiv.classList.add('hidden');
+      document.querySelectorAll('#paymentForm .form-input').forEach(el => el.classList.remove('error'));
+
+      if (!method) {
+        errorDiv.textContent = '⚠️ Please select a payment method.';
+        errorDiv.classList.remove('hidden');
+        methodSelect.classList.add('error');
+        return;
+      }
+
+      if (method === 'USDT') {
+        if (!senderNumber || senderNumber.length < 10) {
+          errorDiv.textContent = '⚠️ Please enter your valid BEP20 sender address.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('paymentSenderNumber').classList.add('error');
+          return;
+        }
+        if (!txnId || txnId.length < 5) {
+          errorDiv.textContent = '⚠️ Please enter a valid USDT transaction ID.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('transactionId').classList.add('error');
+          return;
+        }
+      } else {
+        if (!senderNumber) {
+          errorDiv.textContent = '⚠️ Please enter the number you paid from.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('paymentSenderNumber').classList.add('error');
+          return;
+        }
+        if (!txnId) {
+          errorDiv.textContent = '⚠️ Please enter transaction ID.';
+          errorDiv.classList.remove('hidden');
+          document.getElementById('transactionId').classList.add('error');
+          return;
+        }
+      }
+
+      if (!auth.currentUser) {
+        errorDiv.textContent = '⚠️ You are not logged in.';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
+
+      if (pending.type === 'campaign' && pending.campaignId) {
+        const advanceBDT = Number(pending.amountBDT) || Number(pending.totalBDT) || 500;
+        const advanceUSD = Number((advanceBDT / rate).toFixed(2));
+        const campaignPrice = Number(pending.campaignPrice) || 0;
+        const dueBDT = 0;
+        const dueUSD = 0;
+        const btn = document.getElementById('paymentSubmitBtn');
+        setLoading(btn, true, 'Confirm Payment');
+
+        try {
+          const campRef = doc(db, 'campaigns', pending.campaignId);
+          const campSnap = await getDoc(campRef);
+          if (!campSnap.exists()) throw new Error('Campaign not found.');
+          const camp = campSnap.data();
+          if (camp.status === 'closed' || (camp.remainingSlots ?? 0) <= 0) {
+            throw new Error('This campaign is closed or full.');
+          }
+
+          const dupQ = query(
+            collection(db, 'orders'),
+            where('userId', '==', auth.currentUser.uid),
+            where('campaignId', '==', pending.campaignId)
+          );
+          const dupSnap = await getDocs(dupQ);
+          if (!dupSnap.empty) throw new Error('You already joined this campaign.');
+
+          let userName = auth.currentUser.email?.split('@')[0] || 'User';
+          try {
+            const uDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+            if (uDoc.exists() && uDoc.data().displayName) userName = uDoc.data().displayName;
+          } catch (_) {}
+
+          const isSpecial = (camp.specialRemaining ?? 0) > 0;
+          const orderData = {
+            userId: auth.currentUser.uid,
+            userEmail: auth.currentUser.email || '',
+            userName,
+            campaignId: pending.campaignId,
+            campaignTitle: pending.campaignTitle || camp.title || 'Campaign',
+            orderType: 'campaign',
+            type: 'campaign',
+            isCampaign: true,
+            items: [{
+              id: pending.campaignId,
+              name: pending.campaignTitle || camp.title || 'Campaign',
+              price: advanceUSD,
+              quantity: 1,
+              isCampaign: true
+            }],
+            total: advanceUSD,
+            campaignPriceBDT: campaignPrice,
+            status: 'pending',
+            paymentMethod: method,
+            paymentType: 'advance',
+            transactionId: txnId,
+            senderNumber: senderNumber,
+            amountUSD: advanceUSD,
+            amountBDT: advanceBDT,
+            dueAmountUSD: dueUSD,
+            dueAmountBDT: dueBDT,
+            remainingPaymentEnabled: false,
+            remainingPaymentAmountBDT: 0,
+            remainingPaymentAmountUSD: 0,
+            usdRate: rate,
+            packageType: isSpecial ? 'special' : 'normal',
+            createdAt: serverTimestamp()
+          };
+          if (method === 'USDT') orderData.senderAddress = senderNumber;
+
+          await addDoc(collection(db, 'orders'), orderData);
+
+          const updates = {
+            remainingSlots: increment(-1),
+            updatedAt: serverTimestamp()
+          };
+          if (isSpecial) updates.specialRemaining = increment(-1);
+          await updateDoc(campRef, updates);
+
+          const afterSnap = await getDoc(campRef);
+          if (afterSnap.exists() && (afterSnap.data().remainingSlots ?? 0) <= 0) {
+            await updateDoc(campRef, { status: 'closed', closedAt: serverTimestamp() });
+          }
+
+          showToast('✅ Campaign joined! Order placed. Admin will verify soon.', 'success');
+          window.closePaymentModal();
+          window._pendingCheckoutData = null;
+          setTimeout(() => { window.location.href = 'campaign.html'; }, 1500);
+        } catch (err) {
+          console.error('Campaign payment error:', err);
+          errorDiv.textContent = '⚠️ ' + err.message;
+          errorDiv.classList.remove('hidden');
+          showToast('⚠️ ' + err.message, 'error');
+        } finally {
+          setLoading(btn, false);
+        }
+        return;
+      }
+
+      const totalUSD = Number(_paymentOrderTotalUSD) || 0;
+      const totalBDT = Math.round(totalUSD * rate);
+
+      let paidAmountBDT = totalBDT;
+      let dueAmountBDT = 0;
+      let paidAmountUSD = totalUSD;
+      let dueAmountUSD = 0;
+
+      if (paymentType === 'advance') {
+        paidAmountBDT = 500;
+        dueAmountBDT = Math.max(0, totalBDT - 500);
+        paidAmountUSD = Number((500 / rate).toFixed(2));
+        dueAmountUSD = Math.max(0, Number((totalUSD - paidAmountUSD).toFixed(2)));
+      }
+
+      const btn = document.getElementById('paymentSubmitBtn');
+      setLoading(btn, true, 'Confirm Payment');
+
+      try {
+        const orderData = {
+          userId: pending.user.uid,
+          userEmail: pending.user.email,
+          items: (pending.cart || []).map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity || 1,
+            imageUrl: item.imageUrl || ''
+          })),
+          total: pending.total,
+          status: 'pending',
+          paymentMethod: method,
+          paymentType: paymentType,
+          transactionId: txnId,
+          senderNumber: senderNumber,
+          amountUSD: paidAmountUSD,
+          amountBDT: paidAmountBDT,
+          dueAmountUSD: dueAmountUSD,
+          dueAmountBDT: dueAmountBDT,
+          usdRate: rate,
+          createdAt: serverTimestamp()
+        };
+
+        if (method === 'USDT') {
+          orderData.senderAddress = senderNumber;
+        }
+
+        await addDoc(collection(db, 'orders'), orderData);
+
+        showToast('✅ Payment confirmed! Order placed. Admin will verify soon.', 'success');
+        window.closePaymentModal();
+        
+        localStorage.removeItem('cart');
+        updateCartPopupUI();
+        updateCartBadge();
+        await updateCartInFirestore(pending.user.uid, []);
+
+        if (typeof window.toggleCart === 'function') window.toggleCart();
+
+        window._pendingCheckoutData = null;
+        setTimeout(() => {
+          window.location.href = 'my-orders.html';
+        }, 1500);
+
+      } catch (err) {
+        console.error('Payment/Order error:', err);
+        errorDiv.textContent = '⚠️ ' + err.message;
+        errorDiv.classList.remove('hidden');
+        showToast('⚠️ ' + err.message, 'error');
+      } finally {
+        setLoading(btn, false);
+      }
+    });
+  }
+}
+
+export function openPaymentModal(data) {
+  if (!document.getElementById('paymentModal')) {
+    showToast('Payment system not ready. Please refresh.', 'error');
+    return;
+  }
+
+  window._pendingCheckoutData = data;
+  _paymentSettings = data.settings || {};
+  _paymentOrderTotalUSD = Number(data.total) || Number(data.totalUSD) || 0;
+
+  if (!(_paymentSettings.usdRate > 0)) _paymentSettings.usdRate = 125;
+  if (!_paymentSettings.usdt) {
+    _paymentSettings.usdt = DEFAULT_USDT_ADDRESS;
+  }
+
+  document.getElementById('paymentModal').dataset.duemode = 'false';
+
+  if (data && data.type === 'campaign') {
+    const fullOpt = document.querySelector('input[name="paymentType"][value="full"]');
+    const advOpt = document.querySelector('input[name="paymentType"][value="advance"]');
+    if (fullOpt) {
+      fullOpt.closest('label')?.classList.add('hidden');
+      fullOpt.disabled = true;
+    }
+    if (advOpt) {
+      advOpt.checked = true;
+      advOpt.closest('label')?.classList.remove('hidden');
+    }
+  } else {
+    const fullOpt = document.querySelector('input[name="paymentType"][value="full"]');
+    if (fullOpt) {
+      fullOpt.disabled = false;
+      fullOpt.closest('label')?.classList.remove('hidden');
+    }
+  }
+
+  document.querySelectorAll('input[name="paymentType"]').forEach(el => {
+    if (el.value === 'advance') {
+      el.disabled = false;
+      el.closest('label').style.display = '';
+    }
+  });
+
+  const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
+  if (fullRadio) fullRadio.checked = true;
+
+  document.getElementById('paymentOrderId').value = '';
+  document.getElementById('paymentTotalUSD').textContent = '$' + _paymentOrderTotalUSD.toFixed(2);
+  document.getElementById('paymentTotalBDTRow').classList.add('hidden');
+  document.getElementById('paymentRateNote').classList.add('hidden');
+  document.getElementById('paymentMethodDetails').classList.add('hidden');
+  document.getElementById('paymentError').classList.add('hidden');
+
+  const methodSelect = document.getElementById('paymentMethodSelect');
+  methodSelect.value = '';
+  methodSelect.classList.remove('error');
+  document.getElementById('paymentSenderNumber').value = '';
+  document.getElementById('transactionId').value = '';
+
+  document.getElementById('paymentModal').classList.remove('hidden');
+}
+window.openPaymentModal = openPaymentModal;
+
+window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderData) {
+  if (!document.getElementById('paymentModal')) {
+    showToast('Payment system not ready. Please refresh.', 'error');
+    return;
+  }
+
+  window._duePaymentData = {
+    orderId: orderId,
+    dueUSD: dueUSD,
+    dueBDT: dueBDT,
+    settings: settings,
+    orderData: orderData
+  };
+
+  _paymentOrderTotalUSD = dueUSD;
+  _paymentSettings = settings || {};
+  if (!_paymentSettings.usdRate || _paymentSettings.usdRate <= 0) _paymentSettings.usdRate = 125;
+
+  const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
+  if (fullRadio) fullRadio.checked = true;
+  const advanceRadio = document.querySelector('input[name="paymentType"][value="advance"]');
+  if (advanceRadio) {
+    advanceRadio.disabled = true;
+    advanceRadio.closest('label').style.display = 'none';
+  }
+
+  document.getElementById('paymentModal').dataset.duemode = 'true';
+
+  document.getElementById('paymentOrderId').value = orderId;
+  document.getElementById('paymentTotalUSD').textContent = '$' + dueUSD.toFixed(2);
+  document.getElementById('paymentTotalBDTRow').classList.remove('hidden');
+  document.getElementById('paymentTotalBDT').textContent = '৳' + dueBDT.toFixed(0);
+  document.getElementById('paymentRateNote').classList.remove('hidden');
+  document.getElementById('paymentRateNote').textContent = `Due payment: $${dueUSD.toFixed(2)} USD = ৳${dueBDT.toFixed(0)} (Rate: 1 USD = ৳${_paymentSettings.usdRate})`;
+
+  document.getElementById('paymentMethodSelect').value = '';
+  document.getElementById('paymentSenderNumber').value = '';
+  document.getElementById('transactionId').value = '';
+  document.getElementById('paymentError').classList.add('hidden');
+  document.getElementById('paymentMethodDetails').classList.add('hidden');
+
+  document.getElementById('paymentModal').classList.remove('hidden');
+};
+
+window.openCampaignPaymentModal = function(campaign, advanceBDT, advanceUSD, settings) {
+  if (!document.getElementById('paymentModal')) {
+    showToast('Payment system not ready. Please refresh.', 'error');
+    return;
+  }
+  if (!auth.currentUser) {
+    showToast('Please sign in to join the campaign.', 'warning');
+    if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
+    return;
+  }
+
+  const rate = (settings && Number(settings.usdRate) > 0) ? Number(settings.usdRate) : 125;
+  const advBDT = Number(advanceBDT) || 500;
+  const advUSD = Number(advanceUSD) || Number((advBDT / rate).toFixed(2));
+
+  window._pendingCheckoutData = {
+    type: 'campaign',
+    campaignId: campaign.id,
+    campaignTitle: campaign.title || 'Campaign',
+    campaignPrice: Number(campaign.campaignPrice) || 0,
+    amountBDT: advBDT,
+    amountUSD: advUSD,
+    totalBDT: advBDT,
+    totalUSD: advUSD,
+    total: advUSD,
+    settings: settings || {},
+    user: auth.currentUser
+  };
+
+  _paymentSettings = settings || {};
+  if (!(_paymentSettings.usdRate > 0)) _paymentSettings.usdRate = rate;
+  _paymentOrderTotalUSD = advUSD;
+
+  const fullOpt = document.querySelector('input[name="paymentType"][value="full"]');
+  const advOpt = document.querySelector('input[name="paymentType"][value="advance"]');
+  if (fullOpt) {
+    fullOpt.disabled = true;
+    if (fullOpt.closest('label')) fullOpt.closest('label').style.display = 'none';
+  }
+  if (advOpt) {
+    advOpt.disabled = false;
+    advOpt.checked = true;
+    if (advOpt.closest('label')) advOpt.closest('label').style.display = '';
+  }
+
+  document.getElementById('paymentModal').dataset.duemode = 'false';
+  document.getElementById('paymentOrderId').value = 'Campaign: ' + (campaign.title || campaign.id);
+  document.getElementById('paymentTotalUSD').textContent = '$' + advUSD.toFixed(2);
+  document.getElementById('paymentTotalBDTRow')?.classList.remove('hidden');
+  const bdtEl = document.getElementById('paymentTotalBDT');
+  if (bdtEl) bdtEl.textContent = '৳' + advBDT.toFixed(0);
+  const rateNote = document.getElementById('paymentRateNote');
+  if (rateNote) {
+    rateNote.classList.remove('hidden');
+    rateNote.textContent = `Campaign advance: ৳${advBDT} ($${advUSD.toFixed(2)} at 1 USD = ৳${rate})`;
+  }
+
+  document.getElementById('paymentMethodSelect').value = '';
+  document.getElementById('paymentSenderNumber').value = '';
+  document.getElementById('transactionId').value = '';
+  document.getElementById('paymentError')?.classList.add('hidden');
+  document.getElementById('paymentMethodDetails')?.classList.add('hidden');
+  document.getElementById('paymentModal').classList.remove('hidden');
+};
+
+window.closePaymentModal = function() {
+  const el = document.getElementById('paymentModal');
+  if (el) {
+    el.classList.add('hidden');
+    el.dataset.duemode = 'false';
+  }
+  document.querySelectorAll('input[name="paymentType"]').forEach(el => {
+    el.disabled = false;
+    if (el.closest('label')) el.closest('label').style.display = '';
+  });
+  window._duePaymentData = null;
+};
+
+window.updatePaymentMethodUI = function() {
+  const method = document.getElementById('paymentMethodSelect')?.value || '';
+  const paymentType = document.querySelector('input[name="paymentType"]:checked')?.value || 'full';
+  const isDueMode = document.getElementById('paymentModal').dataset.duemode === 'true';
+  const details = document.getElementById('paymentMethodDetails');
+  const addressBox = document.getElementById('paymentAddressBox');
+  const howToBox = document.getElementById('paymentHowToBox');
+  const fieldsBox = document.getElementById('paymentFieldsBox');
+  const bdtRow = document.getElementById('paymentTotalBDTRow');
+  const rateNote = document.getElementById('paymentRateNote');
+  const errorDiv = document.getElementById('paymentError');
+  if (errorDiv) errorDiv.classList.add('hidden');
+
+  if (!method) {
+    details.classList.add('hidden');
+    bdtRow.classList.add('hidden');
+    rateNote.classList.add('hidden');
+    return;
+  }
+
+  details.classList.remove('hidden');
+  const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
+  const totalUSD = Number(_paymentOrderTotalUSD) || 0;
+  const totalBDT = Math.round(totalUSD * rate);
+
+  const pending = window._pendingCheckoutData;
+  const isCampaign = pending && pending.type === 'campaign';
+  const campaignAdvanceBDT = isCampaign
+    ? (Number(pending.amountBDT) || Number(pending.totalBDT) || 500)
+    : 500;
+  const campaignAdvanceUSD = isCampaign
+    ? (Number(pending.amountUSD) || Number((campaignAdvanceBDT / rate).toFixed(2)))
+    : Number((500 / rate).toFixed(2));
+  const campaignFullBDT = isCampaign
+    ? (Number(pending.campaignPrice) || campaignAdvanceBDT)
+    : totalBDT;
+
+  let payableBDT = totalBDT;
+  let payableUSD = totalUSD;
+
+  if (paymentType === 'advance' && !isDueMode) {
+    payableBDT = campaignAdvanceBDT;
+    payableUSD = campaignAdvanceUSD;
+  }
+
+  if (method === 'bKash' || method === 'Nagad') {
+    bdtRow.classList.remove('hidden');
+    let bdtText;
+    if (isDueMode) {
+      bdtText = '৳' + totalBDT.toLocaleString('en-BD') + ' (Due)';
+    } else if (paymentType === 'advance') {
+      bdtText = '৳' + payableBDT.toLocaleString('en-BD') + ' (Advance)';
+    } else {
+      bdtText = '৳' + totalBDT.toLocaleString('en-BD');
+    }
+    document.getElementById('paymentTotalBDT').textContent = bdtText;
+    
+    rateNote.classList.remove('hidden');
+    if (isDueMode) {
+      rateNote.textContent = `Due Payment: Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
+    } else if (paymentType === 'advance') {
+      const dueBase = isCampaign ? campaignFullBDT : totalBDT;
+      const dueBDT = Math.max(0, dueBase - payableBDT);
+      rateNote.textContent = `Advance Payment: ৳${payableBDT.toLocaleString('en-BD')} · Remaining Due: ৳${dueBDT.toLocaleString('en-BD')} (Pay after work)`;
+    } else {
+      rateNote.textContent = `Rate: 1 USD = ৳${rate} · Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
+    }
+
+    const number = method === 'bKash' ? (_paymentSettings.bkash || '') : (_paymentSettings.nagad || '');
+    const color = method === 'bKash' ? 'text-pink-600' : 'text-orange-600';
+    addressBox.innerHTML = number
+      ? `<p class="font-semibold text-gray-800 mb-1">Send money to this ${method} number:</p>
+         <p class="text-xl font-bold ${color} tracking-wide select-all">${number}</p>
+         <p class="text-xs text-gray-400 mt-1">Amount to send: <strong>৳${payableBDT.toLocaleString('en-BD')}</strong></p>`
+      : `<p class="text-red-500">${method} number not set. Contact admin.</p>`;
+
+    const appName = method === 'bKash' ? 'bKash' : 'Nagad';
+    const dialCode = method === 'bKash' ? '*247#' : '*167#';
+    const dialSendOption = method === 'bKash' ? '1' : '2';
+    const user = auth.currentUser;
+    const username = (user?.displayName || (user?.email ? user.email.split('@')[0] : '') || 'your username');
+    const numDisplay = number || '—';
+    const amountDisplay = '৳' + payableBDT.toLocaleString('en-BD');
+
+    howToBox.innerHTML = `
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-mobile-alt mr-1"></i> How to pay — ${appName} App</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm mb-4">
+        <li>Open the <strong>${appName}</strong> app and log in</li>
+        <li>Go to <strong>Send Money</strong></li>
+        <li>Enter number: <strong class="select-all">${numDisplay}</strong></li>
+        <li>Enter amount: <strong>${amountDisplay}</strong></li>
+        <li>In <strong>Reference</strong>, enter your username: <strong class="select-all">${username}</strong></li>
+        <li>Enter your PIN and <strong>Confirm</strong></li>
+        <li>Copy the <strong>Transaction ID</strong> and paste it below</li>
+      </ol>
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-phone-alt mr-1"></i> How to pay — Dial (USSD)</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm">
+        <li>Dial <strong class="select-all">${dialCode}</strong></li>
+        <li>Select option <strong>${dialSendOption}. Send Money</strong></li>
+        <li>Enter number: <strong class="select-all">${numDisplay}</strong></li>
+        <li>Enter amount: <strong>${amountDisplay}</strong></li>
+        <li>Enter username in reference: <strong class="select-all">${username}</strong></li>
+        <li>Enter PIN and confirm</li>
+        <li>Copy the <strong>Transaction ID</strong> and paste it below</li>
+      </ol>`;
+
+    fieldsBox.classList.remove('hidden');
+    document.getElementById('paymentSenderLabel').textContent = `Your ${method} Number *`;
+    document.getElementById('paymentSenderNumber').placeholder = `Number you sent money from`;
+    document.getElementById('paymentSenderHint').textContent = `Your personal ${method} number (sender)`;
+    document.getElementById('paymentSubmitBtn').disabled = !number;
+
+  } else if (method === 'USDT') {
+    bdtRow.classList.add('hidden');
+    rateNote.classList.remove('hidden');
+    if (isDueMode) {
+      rateNote.textContent = `Due payment: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+    } else if (paymentType === 'advance') {
+      const dueUSD = Math.max(0, Number((totalUSD - payableUSD).toFixed(2)));
+      rateNote.textContent = `Advance Payment: $${payableUSD.toFixed(2)} USD · Remaining Due: $${dueUSD.toFixed(2)} USD`;
+    } else {
+      rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+    }
+
+    const usdtAddress = _paymentSettings.usdt || DEFAULT_USDT_ADDRESS;
+
+    addressBox.innerHTML = `
+      <p class="font-semibold text-gray-800 mb-2"><i class="fab fa-bitcoin text-yellow-500 mr-1"></i> USDT (BEP20)</p>
+      <p class="text-sm text-gray-500">Network: <strong>BSC (BEP20)</strong></p>
+      <div class="flex flex-col items-center my-2">
+        <div class="relative w-full max-w-[300px] mx-auto cursor-pointer" onclick="window.openQrZoom('${QR_IMAGE_PATH}')" title="Click to zoom">
+          <img src="${QR_IMAGE_PATH}" 
+               alt="USDT Deposit QR Code" 
+               class="w-[95%] mx-auto rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+               onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='block';" />
+          <div id="qrFallback" style="display:none;" class="text-amber-600 text-sm mt-2 text-center">
+            <i class="fas fa-exclamation-triangle"></i> QR code not available. Please copy address below.
+          </div>
+          <div class="text-center mt-1 text-xs text-blue-500">
+            <i class="fas fa-search-plus"></i> Click to zoom
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-100 p-3 rounded-xl flex items-center justify-between gap-2 break-all">
+        <code class="text-xs font-mono text-gray-800 select-all">${usdtAddress}</code>
+        <button onclick="navigator.clipboard.writeText('${usdtAddress}').then(()=>showToast('✅ Address copied!','success'))" 
+                class="text-blue-600 hover:text-blue-800 text-sm flex-shrink-0" title="Copy address">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+      </div>
+      <p class="text-xs text-gray-400 mt-2">Send exactly <strong>$${payableUSD.toFixed(2)} USDT</strong> to this address.</p>
+      <p class="text-xs text-red-400 mt-1"><i class="fas fa-exclamation-triangle"></i> Use BEP20 network only, otherwise funds may be lost.</p>
+    `;
+
+    howToBox.innerHTML = `
+      <p class="font-semibold text-gray-800 mb-2"><i class="fas fa-mobile-alt mr-1"></i> How to send USDT (BEP20) from Binance</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 text-sm mb-2">
+        <li>Open <strong>Binance App</strong> → Go to <strong>Wallet</strong> → <strong>Withdraw</strong></li>
+        <li>Select coin: <strong>USDT</strong></li>
+        <li>Select network: <strong>BSC (BEP20)</strong></li>
+        <li>Paste the address: <strong class="select-all">${usdtAddress}</strong></li>
+        <li>Enter amount: <strong>$${payableUSD.toFixed(2)} USDT</strong></li>
+        <li>Double‑check the network and address, then submit</li>
+        <li>Copy the <strong>Transaction ID (TXID)</strong> and your <strong>Sender Address</strong> below</li>
+      </ol>
+      <p class="text-xs text-blue-600"><i class="fas fa-info-circle"></i> Need help? <a href="https://www.binance.com/en/support/faq/how-to-withdraw-cryptocurrency-from-binance-360033577672" target="_blank" class="underline">Binance withdrawal guide</a></p>
+    `;
+
+    fieldsBox.classList.remove('hidden');
+    document.getElementById('paymentSenderLabel').textContent = 'Your BEP20 Sender Address *';
+    document.getElementById('paymentSenderNumber').placeholder = '0x... your wallet address';
+    document.getElementById('paymentSenderHint').textContent = 'The BEP20 address you sent from (starts with 0x)';
+    document.getElementById('paymentSubmitBtn').disabled = false;
+  }
+};
+
+window.checkout = async function() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  if (cart.length === 0) {
+    window.showToast('🛒 Your cart is empty', 'warning');
+    return;
+  }
+
+  const user = auth.currentUser;
+  if (!user) {
+    window.showToast('⚠️ Please sign in to checkout', 'error');
+    if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
+    return;
+  }
+
+  const checkoutBtn = document.querySelector('.cart-checkout-btn');
+  if (checkoutBtn) setLoading(checkoutBtn, true, 'Processing...');
+
+  try {
+    const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
+    const settings = settingsSnap.exists() ? settingsSnap.data() : {};
+    if (!settings.usdRate || Number(settings.usdRate) <= 0) settings.usdRate = 125;
+    if (!settings.usdt) {
+      settings.usdt = DEFAULT_USDT_ADDRESS;
+    }
+    if (!settings.bkash && !settings.nagad && !settings.usdt) {
+      window.showToast('⚠️ No payment methods configured. Contact admin.', 'error');
+      if (checkoutBtn) setLoading(checkoutBtn, false);
+      return;
+    }
+
+    const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    
+    const data = {
+      cart: cart,
+      total: total,
+      settings: settings,
+      user: user
+    };
+
+    openPaymentModal(data);
+    if (checkoutBtn) setLoading(checkoutBtn, false);
+  } catch (err) {
+    window.showToast('⚠️ ' + err.message, 'error');
+    if (checkoutBtn) setLoading(checkoutBtn, false);
+  }
+};
 
 // ================================================================
 // ✅ CLOUDINARY UPLOAD
@@ -1227,7 +2154,7 @@ export async function updateCartInFirestore(userId, cart) {
 }
 
 // ================================================================
-// ✅ NAVBAR UPDATE (unchanged)
+// ✅ NAVBAR UPDATE
 // ================================================================
 let _lastAuthUid = null;
 let _authNullTimer = null;
@@ -1284,7 +2211,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
       mobileAdminLink.classList.toggle('hidden', !isAdmin);
     }
 
-    // Support floating button on public pages
     if (typeof window.__ccbdMountSupportWidget === 'function') {
       window.__ccbdMountSupportWidget(user);
     }
@@ -1333,7 +2259,6 @@ document.addEventListener('click', (e) => {
     if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
       notifDropdown.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
-      notifDropdownOpen = false;
     }
   }
 
@@ -1363,8 +2288,6 @@ document.addEventListener('keydown', (e) => {
     if (notifDropdown && !notifDropdown.classList.contains('hidden')) {
       notifDropdown.classList.add('hidden');
       document.body.classList.remove('dropdown-open');
-      displayMessages = [];
-      notifDropdownOpen = false;
     }
     const cartPopup = document.getElementById('cartPopup');
     if (cartPopup && !cartPopup.classList.contains('hidden')) {
@@ -1382,7 +2305,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ================================================================
-// ✅ COMMON AUTH MODAL (unchanged – redirected to auth.html)
+// ✅ COMMON AUTH MODAL (redirect to auth.html)
 // ================================================================
 window.openAuthModal = function(mode = 'signin') {
   const m = (mode === 'signup' || mode === 'forgot' || mode === 'signin') ? mode : 'signin';
@@ -1664,7 +2587,6 @@ function _ensureSupportDom() {
   `;
   document.body.appendChild(root);
 
-  // ── Button toggle ──
   document.getElementById('ccbdSupportBtn').addEventListener('click', () => {
     if (!_supportUser) {
       if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
@@ -1683,7 +2605,6 @@ function _ensureSupportDom() {
         if (body) body.scrollTop = body.scrollHeight;
         document.getElementById('ccbdSupportInput')?.focus();
       }, 50);
-      // Mark messages as read when opening popup
       if (currentConversationId && auth.currentUser) {
         markConversationMessagesRead(currentConversationId, auth.currentUser.uid);
       }
@@ -1706,12 +2627,10 @@ function _ensureSupportDom() {
     window.location.href = 'messages.html';
   });
 
-  // ── Input & send ──
   const input = document.getElementById('ccbdSupportInput');
   input.addEventListener('input', () => {
     input.style.height = 'auto';
     input.style.height = Math.min(input.scrollHeight, 90) + 'px';
-    // Typing indicator
     if (_supportUser && currentConversationId) {
       if (input.value.trim().length > 0) {
         setTypingStatus(_supportUser, true);
@@ -1732,7 +2651,6 @@ function _ensureSupportDom() {
   });
   document.getElementById('ccbdSupportSend').addEventListener('click', () => _sendSupportMessage());
 
-  // ── File attachment ──
   const fileBtn = document.getElementById('ccbdFileBtn');
   const fileInput = document.getElementById('ccbdFileInput');
   const preview = document.getElementById('ccbdPreview');
@@ -1771,7 +2689,6 @@ function _ensureSupportDom() {
   });
 }
 
-// --- Popup message rendering (uses unified data) ---
 function _renderSupportMsgs(msgs) {
   const body = document.getElementById('ccbdSupportBody');
   if (!body) return;
@@ -1792,11 +2709,11 @@ function _renderSupportMsgs(msgs) {
     let contentHtml = '';
     if (imageUrl) {
       contentHtml += `
-        <div class="s-img-wrap" onclick="window.openImageLightbox && window.openImageLightbox('${escapeNotifHtml(imageUrl)}')">
-          <img src="${escapeNotifHtml(imageUrl)}" alt="Attachment" loading="lazy" />
+        <div class="s-img-wrap" onclick="window.openImageLightbox && window.openImageLightbox('${escapeHtml(imageUrl)}')">
+          <img src="${escapeHtml(imageUrl)}" alt="Attachment" loading="lazy" />
         </div>`;
     }
-    if (text) contentHtml += `<span>${escapeNotifHtml(text)}</span>`;
+    if (text) contentHtml += `<span>${escapeHtml(text)}</span>`;
     if (!contentHtml) contentHtml = '<span style="opacity:0.6;">(empty)</span>';
 
     html += `
@@ -1805,13 +2722,11 @@ function _renderSupportMsgs(msgs) {
         <div class="s-time">${time}</div>
       </div>`;
   });
-  // Add typing indicator placeholder
   html += `<div class="typing-indicator" id="supportTypingIndicator">Admin is typing…</div>`;
   body.innerHTML = html;
   body.scrollTop = body.scrollHeight;
 }
 
-// --- Expose functions for conversation listener to update popup ---
 window.__ccbdUpdateMessages = function(msgs, user) {
   _supportUser = user;
   _supportMsgs = msgs;
@@ -1829,7 +2744,6 @@ window.__ccbdSetTyping = function(isTyping) {
   }
 };
 
-// --- Send message from popup ---
 async function _sendSupportMessage() {
   const input = document.getElementById('ccbdSupportInput');
   const btn = document.getElementById('ccbdSupportSend');
@@ -1839,7 +2753,6 @@ async function _sendSupportMessage() {
   if (!text && !hasFile) return;
 
   if (!currentConversationId) {
-    // Try to get/create conversation
     const conv = await getOrCreateConversation(_supportUser);
     if (conv) {
       currentConversationId = conv.id;
@@ -1861,7 +2774,6 @@ async function _sendSupportMessage() {
     await sendSupportMessage(_supportUser, currentConversationId, content);
     input.value = '';
     input.style.height = 'auto';
-    // Clear typing
     setTypingStatus(_supportUser, false);
     clearTimeout(_supportTypingTimeout);
   } catch (err) {
@@ -1885,7 +2797,6 @@ function clearImagePreview() {
   if (input) input.value = '';
 }
 
-// --- Mount support widget ---
 window.__ccbdMountSupportWidget = function(user) {
   if (_supportIsAdminPage() || _supportIsMessagesPage()) {
     window.__ccbdHideSupportWidget();
@@ -1901,7 +2812,6 @@ window.__ccbdMountSupportWidget = function(user) {
     root.style.pointerEvents = 'auto';
   }
   if (user) {
-    // Conversation listener is already running globally; popup will receive updates via __ccbdUpdateMessages
     if (typeof window.__ccbdUpdateSupportBadge === 'function') {
       window.__ccbdUpdateSupportBadge(unreadAdminCount);
     }
@@ -1922,7 +2832,6 @@ window.__ccbdHideSupportWidget = function() {
   _supportMsgs = [];
 };
 
-// Mount launcher
 if (typeof document !== 'undefined') {
   const boot = () => {
     if (_supportIsAdminPage() || _supportIsMessagesPage()) return;
@@ -1936,7 +2845,7 @@ if (typeof document !== 'undefined') {
 }
 
 // ================================================================
-// ✅ COOKIE CONSENT (unchanged)
+// ✅ COOKIE CONSENT
 // ================================================================
 export function renderCookieConsent() {
   const consentKey = 'ccbd_cookie_consent_v1';
