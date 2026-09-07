@@ -303,6 +303,15 @@
             display: inline-block;
             animation: pulse-dot 1.8s ease-in-out infinite;
         }
+        .chat-area .chat-header .info .status .typing-text {
+            color: #0066FF;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: none;
+        }
+        .chat-area .chat-header .info .status .typing-text.show {
+            display: inline-block;
+        }
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.45; transform: scale(0.85); }
@@ -791,7 +800,11 @@
                             <div class="avatar" id="chatAvatar"><i class="fas fa-headset"></i></div>
                             <div class="info">
                                 <div class="name" id="chatName">Admin Support</div>
-                                <div class="status"><span class="dot"></span> Online</div>
+                                <div class="status">
+                                    <span class="dot"></span>
+                                    <span id="statusText">Online</span>
+                                    <span class="typing-text" id="typingIndicator">Typing…</span>
+                                </div>
                             </div>
                             <div class="chat-header-actions">
                                 <button class="archive-btn" id="archiveBtn" title="Archive conversation">
@@ -869,7 +882,8 @@
         import {
             renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
             renderCartSidebar, setLoading, renderPaymentModal, uploadImage,
-            renderAuthModal
+            renderAuthModal, sendSupportMessage, markConversationMessagesRead,
+            getOrCreateConversation
         } from './components.js';
 
         renderNavbar();
@@ -904,6 +918,8 @@
         let pendingNewCount = 0;
         let lastMsgCount = 0;
         let currentFilter = 'active';
+        let typingTimeout = null;
+        let convTypingUnsub = null;
 
         // DOM refs
         const convItems = document.getElementById('convItems');
@@ -927,6 +943,8 @@
         const unarchiveBtn = document.getElementById('unarchiveBtn');
         const newChatBtn = document.getElementById('newChatBtn');
         const filterBtns = document.querySelectorAll('.conv-filter button');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const statusText = document.getElementById('statusText');
 
         // ─────────────────────────────────────────────────────────────
         // HELPERS
@@ -985,6 +1003,40 @@
         }
 
         // ─────────────────────────────────────────────────────────────
+        // TYPING INDICATOR (full page)
+        // ─────────────────────────────────────────────────────────────
+        function setTypingStatus(isTyping) {
+            if (!currentConvId || !currentUser) return;
+            const convRef = doc(db, 'conversations', currentConvId);
+            if (isTyping) {
+                updateDoc(convRef, {
+                    typing: { uid: currentUser.uid, timestamp: serverTimestamp() }
+                }).catch(() => {});
+            } else {
+                updateDoc(convRef, { typing: null }).catch(() => {});
+            }
+        }
+
+        // Listen to typing from conversation doc
+        function listenTyping(convId) {
+            if (convTypingUnsub) { convTypingUnsub(); convTypingUnsub = null; }
+            if (!convId) return;
+            const convRef = doc(db, 'conversations', convId);
+            convTypingUnsub = onSnapshot(convRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.typing && data.typing.uid && data.typing.uid !== currentUser?.uid) {
+                        typingIndicator.classList.add('show');
+                        statusText.textContent = 'Typing…';
+                    } else {
+                        typingIndicator.classList.remove('show');
+                        statusText.textContent = 'Online';
+                    }
+                }
+            }, (err) => console.warn('Typing listener error:', err));
+        }
+
+        // ─────────────────────────────────────────────────────────────
         // RENDER CONVERSATION LIST
         // ─────────────────────────────────────────────────────────────
         function renderConvList() {
@@ -1032,14 +1084,12 @@
             // Click on conversation item
             convItems.querySelectorAll('.conv-item').forEach(el => {
                 el.addEventListener('click', (e) => {
-                    // Ignore clicks on archive/restore icons
                     if (e.target.closest('.archive-icon') || e.target.closest('.restore-icon')) return;
                     const id = el.dataset.id;
                     if (id) selectConversation(id);
                 });
             });
 
-            // Archive icon click
             convItems.querySelectorAll('.archive-icon').forEach(el => {
                 el.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1048,7 +1098,6 @@
                 });
             });
 
-            // Restore icon click
             convItems.querySelectorAll('.restore-icon').forEach(el => {
                 el.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1072,11 +1121,14 @@
             archiveBtn.style.display = isArchived ? 'none' : 'inline-flex';
             unarchiveBtn.style.display = isArchived ? 'inline-flex' : 'none';
             loadMessages(convId);
+            listenTyping(convId);
             if (conv.unreadCount > 0) {
                 updateDoc(doc(db, 'conversations', convId), { unreadCount: 0 });
             }
             renderConvList();
             chatInput.focus();
+            // Mark messages as read
+            markConversationMessagesRead(convId, currentUser.uid);
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -1214,8 +1266,17 @@
                 return;
             }
             if (!currentConvId) {
-                const newId = await createConversation();
-                if (!newId) return;
+                const conv = await getOrCreateConversation(currentUser);
+                if (conv) {
+                    currentConvId = conv.id;
+                    // Add to local state
+                    conversations.unshift({ id: conv.id, ...conv, status: 'active' });
+                    renderConvList();
+                    selectConversation(conv.id);
+                } else {
+                    showToast('Could not create conversation.', 'error');
+                    return;
+                }
             }
 
             setLoading(sendBtn, true);
@@ -1227,27 +1288,16 @@
                 }
                 let content = text;
                 if (imageUrl) content = text ? (text + '\n' + imageUrl) : imageUrl;
-
-                await addDoc(collection(db, 'messages'), {
-                    conversationId: currentConvId,
-                    fromUserId: currentUser.uid,
-                    toUserId: 'admin',
-                    content,
-                    timestamp: serverTimestamp(),
-                    read: false,
-                });
-
-                await updateDoc(doc(db, 'conversations', currentConvId), {
-                    lastMessage: text || '📷 Image',
-                    lastMessageTime: serverTimestamp(),
-                    unreadCount: 0
-                });
+                await sendSupportMessage(currentUser, currentConvId, content);
 
                 chatInput.value = '';
                 autoResize();
                 chatInput.focus();
                 userNearBottom = true;
                 renderConvList();
+                // Clear typing
+                setTypingStatus(false);
+                clearTimeout(typingTimeout);
             } catch (err) {
                 console.error('Send error:', err);
                 showToast('Error sending message: ' + err.message, 'error');
@@ -1258,47 +1308,27 @@
         });
 
         // ─────────────────────────────────────────────────────────────
-        // CREATE CONVERSATION
+        // CREATE CONVERSATION (using imported function)
         // ─────────────────────────────────────────────────────────────
-        async function createConversation() {
-            if (!currentUser) return null;
-            try {
-                const ref = await addDoc(collection(db, 'conversations'), {
-                    participants: [currentUser.uid, 'admin'],
-                    createdAt: serverTimestamp(),
-                    status: 'active',
-                    lastMessage: '',
-                    lastMessageTime: serverTimestamp(),
-                    unreadCount: 0,
-                });
-                const newId = ref.id;
-                // Add to local state
-                conversations.unshift({
-                    id: newId,
-                    participants: [currentUser.uid, 'admin'],
-                    createdAt: new Date(),
-                    status: 'active',
-                    lastMessage: '',
-                    lastMessageTime: new Date(),
-                    unreadCount: 0,
-                });
-                currentConvId = newId;
-                // Force re-render
-                renderConvList();
-                selectConversation(newId);
-                showToast('New conversation started', 'success');
-                return newId;
-            } catch (err) {
-                console.error('Create conversation error:', err);
-                showToast('Error creating conversation: ' + err.message, 'error');
-                return null;
+        newChatBtn.addEventListener('click', async () => {
+            if (!currentUser) {
+                showToast('Please sign in.', 'warning');
+                return;
             }
-        }
-
-        newChatBtn.addEventListener('click', createConversation);
+            const conv = await getOrCreateConversation(currentUser);
+            if (conv) {
+                currentConvId = conv.id;
+                conversations.unshift({ id: conv.id, ...conv, status: 'active' });
+                renderConvList();
+                selectConversation(conv.id);
+                showToast('New conversation started', 'success');
+            } else {
+                showToast('Could not start conversation.', 'error');
+            }
+        });
 
         // ─────────────────────────────────────────────────────────────
-        // ARCHIVE / UNARCHIVE (FIXED)
+        // ARCHIVE / UNARCHIVE
         // ─────────────────────────────────────────────────────────────
         async function toggleArchive(convId) {
             if (!convId) return;
@@ -1311,13 +1341,10 @@
                     status: newStatus,
                     updatedAt: serverTimestamp()
                 });
-                // Update local state
                 conv.status = newStatus;
 
-                // If we archived the currently open conversation
                 if (convId === currentConvId) {
                     if (newStatus === 'archived') {
-                        // Clear the chat view
                         currentConvId = null;
                         chatMessages.innerHTML = `
                             <div class="empty-state">
@@ -1330,15 +1357,13 @@
                         archiveBtn.style.display = 'none';
                         unarchiveBtn.style.display = 'none';
                         if (unsubMessages) unsubMessages();
+                        if (convTypingUnsub) convTypingUnsub();
                     } else {
-                        // Restored - show it
                         selectConversation(convId);
                     }
                 }
 
-                // Always re-render the list
                 renderConvList();
-
                 showToast(`Conversation ${newStatus === 'archived' ? 'archived' : 'restored'}`, 'success');
             } catch (err) {
                 console.error('Archive toggle error:', err);
@@ -1373,7 +1398,21 @@
             chatInput.style.height = 'auto';
             chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
         }
-        chatInput.addEventListener('input', autoResize);
+        chatInput.addEventListener('input', () => {
+            autoResize();
+            // Typing indicator
+            if (currentUser && currentConvId) {
+                if (chatInput.value.trim().length > 0) {
+                    setTypingStatus(true);
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => {
+                        setTypingStatus(false);
+                    }, 3000);
+                } else {
+                    setTypingStatus(false);
+                }
+            }
+        });
         chatInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -1474,7 +1513,6 @@
                 conversations = newConvs;
                 renderConvList();
 
-                // If current conversation no longer exists, clear it
                 if (currentConvId && !conversations.find(c => c.id === currentConvId)) {
                     currentConvId = null;
                     chatMessages.innerHTML = `
@@ -1487,8 +1525,8 @@
                     chatAvatar.innerHTML = `<i class="fas fa-headset"></i>`;
                     archiveBtn.style.display = 'none';
                     unarchiveBtn.style.display = 'none';
+                    if (convTypingUnsub) convTypingUnsub();
                 } else if (currentConvId) {
-                    // Update header buttons for current conversation
                     const conv = conversations.find(c => c.id === currentConvId);
                     if (conv) {
                         const isArchived = conv.status === 'archived';
@@ -1534,9 +1572,10 @@
         window.addEventListener('beforeunload', () => {
             if (unsubMessages) unsubMessages();
             if (unsubConversations) unsubConversations();
+            if (convTypingUnsub) convTypingUnsub();
         });
 
-        console.log('✅ Support Chat — archive fixed, image support added');
+        console.log('✅ Support Chat — unified with typing indicators and full sync');
     </script>
 </body>
 </html>
