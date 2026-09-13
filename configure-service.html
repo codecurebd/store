@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Configure Your Project – CodeCureBD</title>
+    <meta name="description" content="Configure your custom website — pick add-ons, share design references, and get a personalised quote from CodeCureBD.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="tailwind.css" />
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #f0f4f9;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: #0f172a;
+        }
+
+        /* ===== TOP HEADER ===== */
+        .cfg-topbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 1.5rem;
+        }
+        .cfg-topbar .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            color: #334155;
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: 0.2s;
+        }
+        .cfg-topbar .back-link:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+            transform: translateX(-2px);
+        }
+        .cfg-topbar h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin: 0;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+        .cfg-topbar .sub {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 3px 0 0;
+        }
+
+        /* ===== STEP INDICATOR (shared) ===== */
+        .step-indicator {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 1.75rem; justify-content: flex-start; flex-wrap: wrap;
+        }
+        .step-indicator .step {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 14px 6px 6px; border-radius: 999px;
+            background: #fff; border: 1px solid rgba(15,23,42,0.06);
+            font-size: 0.8rem; font-weight: 600; color: #94a3b8;
+        }
+        .step-indicator .step .num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #f1f5f9; color: #94a3b8;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 800;
+        }
+        .step-indicator .step.done { color: #0f172a; }
+        .step-indicator .step.done .num { background: #16a34a; color: #fff; }
+        .step-indicator .step.active {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff; border-color: transparent;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.28);
+        }
+        .step-indicator .step.active .num { background: rgba(255,255,255,0.25); color: #fff; }
+        .step-indicator .step-arrow { color: #94a3b8; font-size: 0.72rem; }
+        @media (max-width: 560px) {
+            .step-indicator .step span.lbl { display: none; }
+            .step-indicator .step { padding: 6px; }
+            .step-indicator .step-arrow { display: none; }
+        }
+
+        /* ===== GRID LAYOUT ===== */
+        .cfg-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 980px) {
+            .cfg-layout { grid-template-columns: 1fr; }
+        }
+
+        /* ===== PANELS ===== */
+        .cfg-panel {
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 22px;
+            padding: 1.5rem 1.5rem 1.75rem;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+        }
+        .cfg-panel + .cfg-panel { margin-top: 1.25rem; }
+
+        .cfg-panel .cp-title {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 1rem; font-weight: 700;
+            color: #0f172a; margin-bottom: 1rem; letter-spacing: -0.01em;
+        }
+        .cfg-panel .cp-title .ico {
+            width: 32px; height: 32px; border-radius: 10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: rgba(37,99,235,0.1); color: #2563eb;
+            font-size: 0.9rem; flex-shrink: 0;
+        }
+        .cfg-panel .cp-sub {
+            font-size: 0.82rem; color: #64748b; margin: -0.5rem 0 1rem;
+            line-height: 1.55;
+        }
+
+        /* ===== PREVIEW ===== */
+        .cfg-preview {
+            background: #f1f5f9;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        .cfg-preview .preview-toolbar {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px; background: #0f172a; color: #cbd5e1;
+            font-size: 0.72rem; font-weight: 500;
+        }
+        .cfg-preview .preview-toolbar .dots { display: inline-flex; gap: 4px; }
+        .cfg-preview .preview-toolbar .dots span {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+        }
+        .cfg-preview .preview-frame {
+            width: 100%; height: 380px; background: #fff;
+            border: none; display: block; pointer-events: none;
+        }
+        @media (max-width: 640px) {
+            .cfg-preview .preview-frame { height: 260px; }
+        }
+        .cfg-preview .preview-empty {
+            min-height: 300px;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 10px;
+            color: #94a3b8; text-align: center; padding: 1.5rem;
+        }
+        .cfg-preview .preview-empty i { font-size: 2.25rem; opacity: 0.4; }
+
+        /* ===== TEMPLATE INFO ===== */
+        .template-meta {
+            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .template-meta .tag {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 999px;
+            font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.03em; text-transform: uppercase;
+        }
+        .template-meta .tag.cat {
+            background: rgba(37,99,235,0.1); color: #2563eb;
+        }
+        .template-meta .tag.featured {
+            background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff;
+        }
+        .template-meta .tag.custom {
+            background: rgba(124,58,237,0.1); color: #7c3aed;
+        }
+
+        /* ===== ADD-ON LIST ===== */
+        .addon-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .addon-row {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px;
+            background: #f8fafc;
+            border: 1.5px solid transparent;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: 0.22s;
+            user-select: none;
+        }
+        .addon-row:hover {
+            background: #fff;
+            border-color: rgba(37,99,235,0.2);
+            transform: translateX(2px);
+        }
+        .addon-row.selected {
+            background: #fff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .addon-row .addon-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.1));
+            color: #2563eb;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.95rem; flex-shrink: 0; transition: 0.22s;
+        }
+        .addon-row.selected .addon-icon {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+        }
+        .addon-row .addon-info { flex: 1; min-width: 0; }
+        .addon-row .addon-name {
+            font-weight: 700; font-size: 0.92rem; color: #0f172a; line-height: 1.3;
+        }
+        .addon-row .addon-desc {
+            font-size: 0.78rem; color: #94a3b8; margin-top: 2px; line-height: 1.45;
+        }
+        .addon-row .addon-price {
+            font-weight: 800; font-size: 0.95rem; color: #0f172a;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .addon-row .addon-check {
+            width: 24px; height: 24px; border-radius: 8px;
+            border: 2px solid rgba(15,23,42,0.14);
+            display: inline-flex; align-items: center; justify-content: center;
+            color: transparent; font-size: 0.7rem;
+            transition: 0.2s; flex-shrink: 0; background: #fff;
+        }
+        .addon-row.selected .addon-check {
+            background: #2563eb; border-color: #2563eb; color: #fff;
+        }
+
+        .addon-empty {
+            text-align: center; padding: 2rem 1rem;
+            color: #94a3b8; font-size: 0.9rem;
+            background: #f8fafc; border-radius: 14px;
+            border: 1px dashed rgba(15,23,42,0.08);
+        }
+        .addon-empty i { font-size: 1.75rem; opacity: 0.35; display: block; margin-bottom: 8px; }
+
+        /* ===== BRIEF TEXTAREA ===== */
+        .cfg-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid rgba(15,23,42,0.08);
+            border-radius: 14px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            line-height: 1.55;
+            background: #f8fafc;
+            color: #0f172a;
+            outline: none;
+            resize: vertical;
+            min-height: 120px;
+            transition: 0.2s;
+        }
+        .cfg-textarea:focus {
+            border-color: #2563eb;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+        }
+        .cfg-char-count {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* ===== DESIGN REFERENCES BLOCK ===== */
+        .ref-actions {
+            display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .btn-add-ref {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 1.5px dashed rgba(37,99,235,0.3);
+            background: rgba(37,99,235,0.05);
+            color: #2563eb;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-add-ref:hover {
+            background: rgba(37,99,235,0.1);
+            border-color: #2563eb;
+            transform: translateY(-1px);
+        }
+        .btn-add-ref i { font-size: 0.9rem; }
+
+        .ref-chip-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+        .ref-chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 10px 6px 6px;
+            background: #f8fafc;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 999px;
+            font-size: 0.78rem; font-weight: 600;
+            color: #475569; max-width: 100%;
+            transition: 0.2s;
+        }
+        .ref-chip:hover { border-color: rgba(37,99,235,0.25); color: #2563eb; }
+        .ref-chip .icon {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: rgba(124,58,237,0.1); color: #7c3aed;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; flex-shrink: 0;
+        }
+        .ref-chip .ref-img {
+            width: 24px; height: 24px; border-radius: 6px;
+            object-fit: cover; flex-shrink: 0;
+        }
+        .ref-chip .label {
+            max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .ref-chip .remove {
+            background: none; border: none; color: #94a3b8; cursor: pointer;
+            font-size: 0.75rem; padding: 2px; border-radius: 50%;
+            transition: 0.15s;
+        }
+        .ref-chip .remove:hover {
+            color: #dc2626; background: rgba(220,38,38,0.1);
+        }
+
+        .ref-hint {
+            font-size: 0.76rem; color: #94a3b8; margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        /* ===== PRICE SUMMARY ===== */
+        .price-summary {
+            position: sticky;
+            top: 100px;
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 22px;
+            padding: 1.5rem 1.5rem 1.6rem;
+            box-shadow: 0 6px 22px rgba(15,23,42,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+        .price-summary::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            border-radius: 22px 22px 0 0;
+        }
+        .price-summary .ps-title {
+            font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em;
+            text-transform: uppercase; color: #94a3b8; margin-bottom: 1rem;
+        }
+        .price-summary .ps-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 12px; padding: 7px 0; font-size: 0.88rem; color: #475569;
+        }
+        .price-summary .ps-row .label { flex: 1; min-width: 0; }
+        .price-summary .ps-row .value {
+            font-weight: 700; color: #0f172a; white-space: nowrap;
+        }
+        .price-summary .ps-row.addon .label {
+            font-size: 0.82rem;
+            color: #334155;
+        }
+        .price-summary .ps-row.addon .value {
+            font-size: 0.84rem;
+            color: #2563eb;
+        }
+        .price-summary .ps-divider {
+            height: 1px; background: rgba(15,23,42,0.07); margin: 0.5rem 0;
+        }
+        .price-summary .ps-total {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin-top: 0.5rem; padding-top: 0.85rem;
+            border-top: 2px dashed rgba(15,23,42,0.08);
+        }
+        .price-summary .ps-total .lbl {
+            font-size: 0.78rem; font-weight: 800; color: #475569;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .price-summary .ps-total .amt {
+            font-size: 1.65rem; font-weight: 800; color: #0f172a;
+            letter-spacing: -0.03em; line-height: 1;
+        }
+        .price-summary .ps-bdt {
+            font-size: 0.82rem; color: #94a3b8;
+            text-align: right; margin-top: 5px; font-weight: 600;
+        }
+        .price-summary .ps-bdt strong { color: #16a34a; font-weight: 800; }
+
+        .price-summary .ps-note {
+            display: flex; gap: 8px; align-items: flex-start;
+            font-size: 0.75rem; color: #64748b;
+            margin-top: 1rem; padding: 10px 12px;
+            background: rgba(37,99,235,0.05); border-radius: 12px;
+            line-height: 1.55;
+        }
+        .price-summary .ps-note i { color: #2563eb; margin-top: 2px; flex-shrink: 0; }
+
+        .price-summary .ps-actions {
+            display: flex; flex-direction: column; gap: 8px; margin-top: 1.1rem;
+        }
+        .ps-btn-primary {
+            width: 100%; padding: 13px 16px;
+            border-radius: 14px; border: none;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff; font-weight: 700; font-size: 0.9rem;
+            font-family: inherit; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 6px 20px rgba(37,99,235,0.25);
+            transition: 0.22s;
+            min-height: 48px;
+        }
+        .ps-btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(37,99,235,0.35);
+        }
+        .ps-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+        .ps-btn-outline {
+            width: 100%; padding: 11px 16px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1.5px solid rgba(15,23,42,0.08);
+            color: #334155; font-weight: 600; font-size: 0.85rem;
+            font-family: inherit; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.2s; min-height: 44px;
+        }
+        .ps-btn-outline:hover {
+            border-color: #2563eb; color: #2563eb; background: #fff;
+        }
+
+        /* ===== SUCCESS SCREEN ===== */
+        .cfg-success {
+            max-width: 620px; margin: 3rem auto;
+            background: #fff; border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 24px; padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 16px 48px rgba(15,23,42,0.06);
+        }
+        .cfg-success .check-circle {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: #fff; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1.9rem; margin-bottom: 1.25rem;
+            box-shadow: 0 12px 32px rgba(22,163,74,0.3);
+        }
+        .cfg-success h2 {
+            font-size: 1.5rem; font-weight: 800;
+            letter-spacing: -0.02em; color: #0f172a; margin: 0 0 0.5rem;
+        }
+        .cfg-success p {
+            color: #475569; font-size: 0.95rem;
+            line-height: 1.65; margin: 0 0 0.75rem;
+        }
+        .cfg-success .order-id {
+            display: inline-block;
+            font-family: 'Courier New', monospace;
+            font-weight: 700; font-size: 0.92rem;
+            background: #f1f5f9; color: #0f172a;
+            padding: 6px 14px; border-radius: 8px;
+            margin: 0.5rem 0 1.5rem;
+            word-break: break-all;
+        }
+        .cfg-success .actions {
+            display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+        }
+        .cfg-success .actions a,
+        .cfg-success .actions button {
+            padding: 12px 22px; border-radius: 14px;
+            font-weight: 700; font-size: 0.88rem;
+            text-decoration: none; cursor: pointer; font-family: inherit;
+            border: none; display: inline-flex; align-items: center; gap: 8px;
+            min-height: 48px;
+        }
+        .cfg-success .actions .primary {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff; box-shadow: 0 6px 20px rgba(37,99,235,0.25);
+        }
+        .cfg-success .actions .primary:hover { transform: translateY(-1px); }
+        .cfg-success .actions .outline {
+            background: #fff; border: 1.5px solid rgba(15,23,42,0.08);
+            color: #334155;
+        }
+        .cfg-success .actions .outline:hover { border-color: #2563eb; color: #2563eb; }
+
+        /* ===== LOADING / ERROR STATES ===== */
+        .cfg-loading, .cfg-error {
+            max-width: 620px; margin: 3rem auto;
+            background: #fff; border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 22px; padding: 3rem 2rem;
+            text-align: center;
+        }
+        .cfg-spinner {
+            width: 54px; height: 54px;
+            border: 4px solid rgba(37,99,235,0.1);
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: cfgSpin 0.85s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes cfgSpin { to { transform: rotate(360deg); } }
+        .cfg-error i.big {
+            font-size: 3rem; color: #f87171; opacity: 0.9;
+            display: block; margin-bottom: 0.85rem;
+        }
+        .cfg-error h2 {
+            font-size: 1.2rem; font-weight: 700; color: #0f172a;
+            margin: 0 0 0.35rem;
+        }
+        .cfg-error p { color: #64748b; font-size: 0.9rem; margin: 0 0 1.25rem; line-height: 1.55; }
+
+        /* ===== SKELETON BLOCK ===== */
+        .sk {
+            background: linear-gradient(90deg, #e8edf3 25%, #f1f5f9 50%, #e8edf3 75%);
+            background-size: 200% 100%;
+            animation: cfgShimmer 1.2s ease-in-out infinite;
+            border-radius: 10px;
+        }
+        @keyframes cfgShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ===== TOAST ===== */
+        #toast-container {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; display: flex; flex-direction: column; align-items: center;
+            gap: 8px; pointer-events: none; width: 90%; max-width: 400px;
+        }
+        .toast {
+            pointer-events: auto; background: #1c1c1e; color: #fff;
+            padding: 12px 22px; border-radius: 60px; font-size: 0.9rem; font-weight: 500;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            display: flex; align-items: center; gap: 10px;
+            animation: slideUp 0.3s ease forwards; width: 100%;
+        }
+        .toast.success { background: #28A745; }
+        .toast.error { background: #dc3545; }
+        .toast.warning { background: #ffc107; color: #1c1c1e; }
+        .toast.hide { animation: slideDown 0.3s ease forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(30px); } }
+
+        /* ===== AUTH GATE ===== */
+        .cfg-auth-gate {
+            max-width: 520px; margin: 0 auto;
+            background: #fff; border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 20px; padding: 2rem 1.75rem;
+            text-align: center;
+            box-shadow: 0 8px 28px rgba(15,23,42,0.05);
+        }
+        .cfg-auth-gate i {
+            font-size: 2.25rem; color: #2563eb; opacity: 0.85;
+            display: block; margin-bottom: 0.85rem;
+        }
+        .cfg-auth-gate h3 {
+            font-size: 1.15rem; font-weight: 700;
+            color: #0f172a; margin: 0 0 0.4rem;
+        }
+        .cfg-auth-gate p {
+            font-size: 0.9rem; color: #64748b;
+            margin: 0 0 1.25rem; line-height: 1.55;
+        }
+        .cfg-auth-gate .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 22px; border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff; font-weight: 700; font-size: 0.9rem;
+            text-decoration: none; border: none; cursor: pointer;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <div id="navbar-placeholder"></div>
+
+    <main class="main-content">
+        <section style="padding: 1.5rem 1rem 4rem;">
+            <div style="max-width: 1200px; margin: 0 auto;">
+
+                <!-- ===== TOP BAR ===== -->
+                <div class="cfg-topbar fade-up">
+                    <a href="get-new-website.html" class="back-link" aria-label="Back to design selector">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div class="min-w-0">
+                        <h1 id="pageTitle">Configure Your Project</h1>
+                        <p class="sub" id="pageSub">Pick add-ons, share design references, and submit your brief.</p>
+                    </div>
+                </div>
+
+                <!-- ===== STEP INDICATOR ===== -->
+                <div class="step-indicator fade-up">
+                    <span class="step done"><span class="num"><i class="fas fa-check"></i></span><span class="lbl">Choose design</span></span>
+                    <i class="fas fa-chevron-right step-arrow"></i>
+                    <span class="step active"><span class="num">2</span><span class="lbl">Configure add-ons</span></span>
+                    <i class="fas fa-chevron-right step-arrow"></i>
+                    <span class="step"><span class="num">3</span><span class="lbl">Submit brief</span></span>
+                </div>
+
+                <!-- ===== LOADING ===== -->
+                <div id="loadingState" class="cfg-loading">
+                    <div class="cfg-spinner"></div>
+                    <p style="color:#64748b;font-weight:600;">Loading your configuration…</p>
+                </div>
+
+                <!-- ===== ERROR ===== -->
+                <div id="errorState" class="cfg-error" style="display:none;">
+                    <i class="big fas fa-exclamation-circle"></i>
+                    <h2>Could not load this design</h2>
+                    <p id="errorMsg">Something went wrong. Please try again.</p>
+                    <a href="get-new-website.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;text-decoration:none;font-weight:700;font-size:0.9rem;">
+                        <i class="fas fa-arrow-left"></i> Back to Designs
+                    </a>
+                </div>
+
+                <!-- ===== MAIN ===== -->
+                <div id="mainState" style="display:none;">
+                    <div class="cfg-layout">
+
+                        <!-- ============ LEFT: Config blocks ============ -->
+                        <div>
+                            <!-- Template preview panel -->
+                            <div class="cfg-panel fade-up">
+                                <div class="cp-title">
+                                    <span class="ico"><i class="fas fa-desktop"></i></span>
+                                    <span>Design preview</span>
+                                </div>
+                                <div class="template-meta" id="templateMeta"></div>
+                                <div class="cfg-preview" id="previewWrap">
+                                    <div class="preview-toolbar">
+                                        <span class="dots"><span></span><span></span><span></span></span>
+                                        <span style="margin-left:8px;">Live preview · read-only</span>
+                                    </div>
+                                    <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
+                                </div>
+                                <p style="font-size:0.78rem;color:#94a3b8;margin-top:10px;line-height:1.55;">
+                                    <i class="fas fa-info-circle"></i>
+                                    This is a starting point — we tailor every detail to your brand and brief.
+                                </p>
+                            </div>
+
+                            <!-- Add-ons panel -->
+                            <div class="cfg-panel fade-up">
+                                <div class="cp-title">
+                                    <span class="ico"><i class="fas fa-puzzle-piece"></i></span>
+                                    <span>Add-ons</span>
+                                    <span id="addonCount" style="margin-left:auto;font-size:0.75rem;color:#94a3b8;font-weight:600;">0 selected</span>
+                                </div>
+                                <p class="cp-sub">Select the modules you need. The estimate updates live.</p>
+                                <div class="addon-list" id="addonList">
+                                    <!-- Filled by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Design references panel -->
+                            <div class="cfg-panel fade-up">
+                                <div class="cp-title">
+                                    <span class="ico"><i class="fas fa-palette"></i></span>
+                                    <span>Design references</span>
+                                </div>
+                                <p class="cp-sub">Share links, screenshots, or a description of the look you want. Multiple references welcome.</p>
+                                <div class="ref-actions">
+                                    <button type="button" class="btn-add-ref" id="addRefBtn">
+                                        <i class="fas fa-plus"></i> Add Design Reference
+                                    </button>
+                                </div>
+                                <div class="ref-chip-list" id="refChipList">
+                                    <!-- Filled by JS -->
+                                </div>
+                                <p class="ref-hint">
+                                    <i class="fas fa-lightbulb" style="color:#f59e0b;"></i>
+                                    A URL, an image, or a few words is enough. We'll combine them with your brief.
+                                </p>
+                            </div>
+
+                            <!-- Brief panel -->
+                            <div class="cfg-panel fade-up">
+                                <div class="cp-title">
+                                    <span class="ico"><i class="fas fa-clipboard-list"></i></span>
+                                    <span>Project brief</span>
+                                </div>
+                                <p class="cp-sub">Tell us about your project — goals, audience, timeline, anything that helps.</p>
+                                <textarea
+                                    id="briefTextarea"
+                                    class="cfg-textarea"
+                                    maxlength="2000"
+                                    placeholder="Example: I run a small bakery in Dhaka. I need a 5-page site with menu, gallery, contact form, and bKash checkout for custom orders. Launch by end of month."
+                                ></textarea>
+                                <div class="cfg-char-count">
+                                    <span id="briefCount">0</span> / 2000
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============ RIGHT: Sticky summary ============ -->
+                        <aside>
+                            <div class="price-summary fade-up">
+                                <div class="ps-title">Your estimate</div>
+
+                                <div class="ps-row">
+                                    <span class="label">Base — <span id="sumBaseName">Design</span></span>
+                                    <span class="value" id="sumBasePrice">$0</span>
+                                </div>
+
+                                <div id="sumAddOnsContainer"></div>
+
+                                <div class="ps-divider"></div>
+
+                                <div class="ps-total">
+                                    <span class="lbl">Estimate</span>
+                                    <span class="amt" id="sumTotal">$0</span>
+                                </div>
+                                <div class="ps-bdt">
+                                    ≈ <strong id="sumBDT">৳0</strong>
+                                </div>
+
+                                <div class="ps-note">
+                                    <i class="fas fa-info-circle"></i>
+                                    <div>This is a <strong>ballpark estimate</strong>. Our team confirms the final quote after reviewing your brief and design references.</div>
+                                </div>
+
+                                <div class="ps-actions">
+                                    <button type="button" id="submitBtn" class="ps-btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Submit Request
+                                    </button>
+                                    <a href="get-new-website.html" class="ps-btn-outline">
+                                        <i class="fas fa-arrow-left"></i> Back to Designs
+                                    </a>
+                                </div>
+
+                                <div id="authGate" class="cfg-auth-gate" style="display:none;margin-top:1rem;box-shadow:none;padding:1.25rem 1rem;">
+                                    <i class="fas fa-lock"></i>
+                                    <h3 style="font-size:1rem;">Sign in to submit</h3>
+                                    <p style="font-size:0.85rem;margin-bottom:1rem;">We link your request to your account so you can track it.</p>
+                                    <button type="button" onclick="window.openAuthModal && window.openAuthModal('signin')" class="btn-primary" style="font-size:0.85rem;padding:10px 18px;border-radius:12px;">
+                                        <i class="fas fa-sign-in-alt"></i> Sign In
+                                    </button>
+                                </div>
+                            </div>
+                        </aside>
+
+                    </div>
+                </div>
+
+                <!-- ===== SUCCESS ===== -->
+                <div id="successState" class="cfg-success" style="display:none;">
+                    <div class="check-circle"><i class="fas fa-check"></i></div>
+                    <h2>Request submitted!</h2>
+                    <p>Thanks — we've received your configuration and design references.</p>
+                    <p>Our team will review the brief and get back to you with a personalised quote.</p>
+                    <div class="order-id" id="successOrderId">#—</div>
+                    <div class="actions">
+                        <a href="my-orders.html" class="primary">
+                            <i class="fas fa-box"></i> Track in My Orders
+                        </a>
+                        <a href="get-new-website.html" class="outline">
+                            <i class="fas fa-palette"></i> Start Another Project
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+    // ================================================================
+    // IMPORTS
+    // ================================================================
+    import {
+        auth, db, doc, getDoc, getDocs, collection, query, where,
+        onAuthStateChanged, onSnapshot
+    } from './firebase-config.js';
+    import {
+        renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
+        renderCartSidebar, renderPaymentModal, renderAuthModal,
+        listenServiceCategories, listenAddOns, computeConfigTotal,
+        openDesignReferenceModal, submitServiceRequest
+    } from './components.js';
+
+    // ================================================================
+    // COMMON RENDER
+    // ================================================================
+    renderNavbar();
+    renderAuthModal();
+    renderFooter();
+    renderCartSidebar();   // no-op on agency page
+    renderPaymentModal();  // no-op on agency page
+    updateCartBadge();     // no-op when #cartCount missing
+
+    // ================================================================
+    // TOAST
+    // ================================================================
+    window.showToast = (message, type = 'success') => {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
+    };
+
+    // ================================================================
+    // UTILITIES
+    // ================================================================
+    function escapeHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+    function escapeHtmlAttr(str) { return escapeHtml(str); }
+
+    function showState(name) {
+        ['loadingState', 'errorState', 'mainState', 'successState'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = (id === name) ? '' : 'none';
+        });
+    }
+
+    // ================================================================
+    // STATE
+    // ================================================================
+    let allServiceCategories = [];
+    let allAddOns = [];
+    let usdRate = 125;
+    let currentUser = null;
+
+    let currentTemplate = null;             // { id, name, description, htmlContent, imageUrl, categoryId, categoryName, basePrice, _source }
+    let applicableAddOns = [];              // filtered by categoryId OR universal
+    let selectedAddOnIds = new Set();       // Set<string>
+    let designReferences = [];              // [{ id, type, url, imageUrl, description }]
+
+    // URL params
+    const params = new URLSearchParams(window.location.search);
+    const templateId = params.get('id') || '';
+    const sourceHint = params.get('src') || 'template'; // 'template' | 'product'
+
+    // ================================================================
+    // LOAD BASE DATA
+    // ================================================================
+    async function loadUsdRate() {
+        try {
+            const snap = await getDoc(doc(db, 'settings', 'payment'));
+            if (snap.exists()) {
+                const d = snap.data();
+                if (Number(d.usdRate) > 0) usdRate = Number(d.usdRate);
+            }
+        } catch (err) {
+            console.warn('[cfg] usdRate load failed:', err?.code || err?.message);
+        }
+    }
+
+    async function loadTemplateFromFirestore() {
+        if (!templateId) {
+            // No ID → "start from scratch" mode
+            return {
+                id: null,
+                name: 'Custom Direction',
+                description: 'A fully custom design built to your brief.',
+                htmlContent: '',
+                imageUrl: '',
+                categoryId: null,
+                categoryName: 'Custom',
+                basePrice: 0,
+                _source: 'custom'
+            };
+        }
+
+        // Try designTemplates first
+        if (sourceHint === 'template' || sourceHint !== 'product') {
+            try {
+                const s = await getDoc(doc(db, 'designTemplates', templateId));
+                if (s.exists()) {
+                    const d = s.data();
+                    const cat = allServiceCategories.find(c => c.id === d.categoryId);
+                    return {
+                        id: s.id,
+                        name: d.name || 'Design',
+                        description: d.description || '',
+                        htmlContent: d.htmlContent || '',
+                        imageUrl: d.imageUrl || '',
+                        categoryId: d.categoryId || null,
+                        categoryName: cat?.name || 'Design',
+                        basePrice: Number(d.basePrice) || 0,
+                        _source: 'template'
+                    };
+                }
+            } catch (err) {
+                console.warn('[cfg] designTemplates read failed:', err?.code || err?.message);
+            }
+        }
+
+        // Fallback to products
+        try {
+            const s = await getDoc(doc(db, 'products', templateId));
+            if (s.exists()) {
+                const d = s.data();
+                return {
+                    id: s.id,
+                    name: d.name || 'Design',
+                    description: d.desc || d.description || '',
+                    htmlContent: d.htmlContent || '',
+                    imageUrl: d.imageUrl || '',
+                    categoryId: null,
+                    categoryName: d.category || 'Design',
+                    basePrice: Number(d.price) || 0,
+                    _source: 'product'
+                };
+            }
+        } catch (err) {
+            console.warn('[cfg] products read failed:', err?.code || err?.message);
+        }
+
+        return null;
+    }
+
+    // ================================================================
+    // RENDER: TEMPLATE INFO + PREVIEW
+    // ================================================================
+    function renderTemplateInfo() {
+        const meta = document.getElementById('templateMeta');
+        if (!meta || !currentTemplate) return;
+
+        const tags = [];
+        if (currentTemplate.categoryName) {
+            tags.push(`<span class="tag cat"><i class="fas fa-folder"></i> ${escapeHtml(currentTemplate.categoryName)}</span>`);
+        }
+        if (currentTemplate._source === 'custom') {
+            tags.push(`<span class="tag custom"><i class="fas fa-magic"></i> Custom</span>`);
+        }
+
+        meta.innerHTML = tags.join('');
+
+        // Sub header
+        document.getElementById('pageTitle').textContent = currentTemplate.name;
+        document.getElementById('pageSub').textContent = currentTemplate.description || 'Configure your add-ons and share design references below.';
+
+        // Preview
+        const frame = document.getElementById('previewFrame');
+        const wrap = document.getElementById('previewWrap');
+        const html = String(currentTemplate.htmlContent || '').trim();
+
+        if (html) {
+            let doc = html;
+            if (!/<html[\s>]/i.test(doc) && !/<!DOCTYPE/i.test(doc)) {
+                doc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>${doc}</body></html>`;
+            }
+            frame.srcdoc = doc;
+            frame.style.display = 'block';
+        } else {
+            frame.style.display = 'none';
+            // Insert placeholder next to frame
+            if (wrap) {
+                const existing = wrap.querySelector('.preview-empty');
+                if (!existing) {
+                    const ph = document.createElement('div');
+                    ph.className = 'preview-empty';
+                    ph.innerHTML = `
+                        <i class="fas fa-magic"></i>
+                        <div style="font-weight:700;color:#334155;font-size:0.95rem;">Custom design</div>
+                        <div style="font-size:0.82rem;max-width:260px;line-height:1.5;">We'll craft this one-of-a-kind direction based on your brief and references.</div>
+                    `;
+                    wrap.appendChild(ph);
+                }
+            }
+        }
+    }
+
+    // ================================================================
+    // RENDER: ADD-ONS
+    // ================================================================
+    function filterApplicableAddOns() {
+        if (!currentTemplate) return [];
+        const catId = currentTemplate.categoryId;
+        if (!catId) {
+            // Custom direction → only universal add-ons
+            return allAddOns.filter(a => a.appliesToAll);
+        }
+        return allAddOns.filter(a => a.appliesToAll || a.categoryId === catId);
+    }
+
+    function renderAddOns() {
+        const wrap = document.getElementById('addonList');
+        if (!wrap) return;
+        const list = applicableAddOns;
+
+        if (!list.length) {
+            wrap.innerHTML = `
+                <div class="addon-empty">
+                    <i class="fas fa-puzzle-piece"></i>
+                    No add-ons available for this category yet.<br/>
+                    You can still submit your brief — we'll quote the extras for you.
+                </div>
+            `;
+            return;
+        }
+
+        wrap.innerHTML = list.map(a => {
+            const checked = selectedAddOnIds.has(a.id);
+            const icon = a.icon || 'fa-puzzle-piece';
+            const price = Number(a.price) || 0;
+            const priceLabel = price > 0 ? `$${price.toFixed(0)}` : 'Free';
+            return `
+                <div class="addon-row ${checked ? 'selected' : ''}" data-id="${escapeHtmlAttr(a.id)}" role="checkbox" aria-checked="${checked}" tabindex="0">
+                    <div class="addon-icon"><i class="fas ${icon}"></i></div>
+                    <div class="addon-info">
+                        <div class="addon-name">${escapeHtml(a.name || 'Add-on')}</div>
+                        ${a.description ? `<div class="addon-desc">${escapeHtml(a.description)}</div>` : ''}
+                    </div>
+                    <div class="addon-price">${priceLabel}</div>
+                    <div class="addon-check"><i class="fas fa-check"></i></div>
+                </div>
+            `;
+        }).join('');
+
+        wrap.querySelectorAll('.addon-row').forEach(row => {
+            const toggle = () => {
+                const id = row.dataset.id;
+                if (selectedAddOnIds.has(id)) selectedAddOnIds.delete(id);
+                else selectedAddOnIds.add(id);
+                row.classList.toggle('selected', selectedAddOnIds.has(id));
+                row.setAttribute('aria-checked', selectedAddOnIds.has(id));
+                updatePriceSummary();
+            };
+            row.addEventListener('click', toggle);
+            row.addEventListener('keydown', (e) => {
+                if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+            });
+        });
+    }
+
+    // ================================================================
+    // RENDER: DESIGN REFERENCES
+    // ================================================================
+    function renderRefChips() {
+        const wrap = document.getElementById('refChipList');
+        if (!wrap) return;
+
+        if (!designReferences.length) {
+            wrap.innerHTML = `<span style="font-size:0.78rem;color:#94a3b8;">No references added yet.</span>`;
+            return;
+        }
+
+        wrap.innerHTML = designReferences.map((r, idx) => {
+            const type = r.type || 'url';
+            let iconClass = 'fa-link';
+            let label = '';
+            let thumb = '';
+            if (type === 'upload' && r.imageUrl) {
+                iconClass = 'fa-image';
+                label = r.description ? r.description.slice(0, 40) : 'Uploaded image';
+                thumb = `<img class="ref-img" src="${escapeHtmlAttr(r.imageUrl)}" alt="" loading="lazy" />`;
+            } else if (type === 'url' && r.url) {
+                iconClass = 'fa-link';
+                try { label = new URL(r.url).hostname || r.url; } catch { label = r.url; }
+            } else {
+                iconClass = 'fa-align-left';
+                label = (r.description || 'Note').slice(0, 40);
+            }
+
+            return `
+                <div class="ref-chip" data-idx="${idx}">
+                    ${thumb || `<span class="icon"><i class="fas ${iconClass}"></i></span>`}
+                    <span class="label">${escapeHtml(label)}</span>
+                    <button type="button" class="remove" title="Remove" aria-label="Remove reference">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        wrap.querySelectorAll('.ref-chip .remove').forEach((btn, i) => {
+            btn.addEventListener('click', () => {
+                designReferences.splice(i, 1);
+                renderRefChips();
+            });
+        });
+    }
+
+    // ================================================================
+    // PRICE SUMMARY
+    // ================================================================
+    function updatePriceSummary() {
+        if (!currentTemplate) return;
+
+        const basePrice = Number(currentTemplate.basePrice) || 0;
+        const calc = computeConfigTotal(basePrice, applicableAddOns, selectedAddOnIds, usdRate);
+
+        // Base
+        document.getElementById('sumBaseName').textContent = currentTemplate.name || 'Design';
+        document.getElementById('sumBasePrice').textContent = basePrice > 0 ? `$${basePrice.toFixed(2)}` : 'Custom';
+
+        // Add-ons breakdown
+        const addonsWrap = document.getElementById('sumAddOnsContainer');
+        const selected = applicableAddOns.filter(a => selectedAddOnIds.has(a.id));
+        if (selected.length) {
+            addonsWrap.innerHTML = selected.map(a => `
+                <div class="ps-row addon">
+                    <span class="label">+ ${escapeHtml(a.name || 'Add-on')}</span>
+                    <span class="value">$${(Number(a.price) || 0).toFixed(2)}</span>
+                </div>
+            `).join('');
+        } else {
+            addonsWrap.innerHTML = '';
+        }
+
+        // Total
+        if (basePrice > 0 || calc.addOnsUSD > 0) {
+            document.getElementById('sumTotal').textContent = `$${calc.totalUSD.toFixed(2)}`;
+            document.getElementById('sumBDT').textContent = `৳${calc.totalBDT.toLocaleString('en-BD')}`;
+        } else {
+            document.getElementById('sumTotal').textContent = 'Custom';
+            document.getElementById('sumBDT').textContent = 'Quote after review';
+        }
+
+        // Count
+        const countEl = document.getElementById('addonCount');
+        if (countEl) {
+            countEl.textContent = `${selectedAddOnIds.size} selected`;
+        }
+    }
+
+    // ================================================================
+    // BRIEF TEXTAREA COUNTER
+    // ================================================================
+    const briefArea = document.getElementById('briefTextarea');
+    const briefCount = document.getElementById('briefCount');
+    briefArea?.addEventListener('input', () => {
+        if (briefCount) briefCount.textContent = briefArea.value.length;
+    });
+
+    // ================================================================
+    // ADD DESIGN REFERENCE (uses modal from components.js)
+    // ================================================================
+    document.getElementById('addRefBtn')?.addEventListener('click', () => {
+        if (!currentUser) {
+            window.showToast('Please sign in to add references.', 'warning');
+            if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
+            return;
+        }
+        openDesignReferenceModal({
+            serviceCategoryId: currentTemplate?.categoryId || null,
+            serviceCategoryName: currentTemplate?.categoryName || '',
+            onSave: async (payload) => {
+                // Save to Firestore via components helper
+                const { saveDesignReference } = await import('./components.js');
+                const res = await saveDesignReference({
+                    ...payload,
+                    serviceCategoryId: currentTemplate?.categoryId || null,
+                    serviceCategoryName: currentTemplate?.categoryName || ''
+                });
+                if (!res.success) throw new Error(res.error || 'Failed to save reference.');
+                // Add to local list for chips display
+                designReferences.push({
+                    id: res.id,
+                    type: payload.type,
+                    url: payload.url,
+                    imageUrl: payload.imageUrl,
+                    description: payload.description
+                });
+                renderRefChips();
+                window.showToast('✅ Reference added.', 'success');
+            }
+        });
+    });
+
+    // ================================================================
+    // SUBMIT
+    // ================================================================
+    document.getElementById('submitBtn')?.addEventListener('click', async () => {
+        if (!currentUser) {
+            window.showToast('Please sign in to submit.', 'warning');
+            if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Submitting…';
+
+        try {
+            // Build snapshot of selected add-ons
+            const selectedAddOnsSnapshot = applicableAddOns
+                .filter(a => selectedAddOnIds.has(a.id))
+                .map(a => ({
+                    id: a.id,
+                    name: a.name,
+                    price: Number(a.price) || 0,
+                    icon: a.icon || 'fa-puzzle-piece'
+                }));
+
+            const brief = (briefArea?.value || '').trim();
+
+            const payload = {
+                userId: currentUser.uid,
+                userEmail: currentUser.email || '',
+                userName: currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Customer'),
+                serviceCategoryId: currentTemplate?.categoryId || null,
+                serviceCategoryName: currentTemplate?.categoryName || '',
+                designTemplateId: currentTemplate?.id || null,
+                designTemplateName: currentTemplate?.name || 'Custom Direction',
+                basePrice: Number(currentTemplate?.basePrice) || 0,
+                selectedAddOns: selectedAddOnsSnapshot,
+                designReferences: designReferences.map(r => ({
+                    id: r.id || null,
+                    type: r.type || 'url',
+                    url: r.url || '',
+                    imageUrl: r.imageUrl || '',
+                    description: r.description || ''
+                })),
+                projectDescription: brief,
+                quoteRequested: true,
+                usdRate
+            };
+
+            const result = await submitServiceRequest(payload);
+
+            if (!result.success) {
+                throw new Error(result.error || 'Submission failed.');
+            }
+
+            // Success
+            document.getElementById('successOrderId').textContent = '#' + (result.orderId || '').slice(0, 10).toUpperCase();
+            showState('successState');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.showToast('✅ Request submitted successfully!', 'success');
+
+        } catch (err) {
+            console.error('Submit error:', err);
+            window.showToast('⚠️ ' + (err.message || 'Submission failed'), 'error');
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+        }
+    });
+
+    // ================================================================
+    // AUTH STATE
+    // ================================================================
+    onAuthStateChanged(auth, async (user) => {
+        currentUser = user || null;
+        let name = null;
+        if (user) {
+            try {
+                const uDoc = await getDoc(doc(db, 'users', user.uid));
+                name = uDoc.exists() ? uDoc.data().displayName : user.email.split('@')[0];
+            } catch (_) {
+                name = user.email?.split('@')[0] || null;
+            }
+        }
+        updateNavbarAuth(user, name);
+
+        // Toggle auth gate under submit button
+        const gate = document.getElementById('authGate');
+        const submitBtn = document.getElementById('submitBtn');
+        if (gate && submitBtn) {
+            if (user) {
+                gate.style.display = 'none';
+                submitBtn.style.display = '';
+            } else {
+                gate.style.display = 'block';
+                submitBtn.style.display = 'none';
+            }
+        }
+    });
+
+    // ================================================================
+    // BOOT
+    // ================================================================
+    (async function boot() {
+        showState('loadingState');
+
+        // 1. Rate
+        await loadUsdRate();
+
+        // 2. Live listeners for categories + add-ons
+        // We need categories first to resolve the template's categoryName
+        await new Promise((resolve) => {
+            let settled = false;
+            try {
+                listenServiceCategories((active, all) => {
+                    allServiceCategories = (active && active.length ? active : (all || []));
+                    if (!settled) { settled = true; resolve(); }
+                });
+            } catch (_) {
+                if (!settled) { settled = true; resolve(); }
+            }
+            // Safety timeout in case listener is slow
+            setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
+        });
+
+        await new Promise((resolve) => {
+            let settled = false;
+            try {
+                listenAddOns((active) => {
+                    allAddOns = active || [];
+                    if (!settled) { settled = true; resolve(); }
+                });
+            } catch (_) {
+                if (!settled) { settled = true; resolve(); }
+            }
+            setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
+        });
+
+        // 3. Template
+        let tmpl = null;
+        try {
+            tmpl = await loadTemplateFromFirestore();
+        } catch (err) {
+            console.error('Template load error:', err);
+        }
+
+        if (!tmpl && templateId) {
+            // ID given but not found
+            document.getElementById('errorMsg').textContent =
+                'This design could not be found. It may have been removed. Please pick another from the selector.';
+            showState('errorState');
+            return;
+        }
+
+        // If no ID → custom mode
+        if (!tmpl) {
+            tmpl = {
+                id: null,
+                name: 'Custom Direction',
+                description: 'A fully custom design built to your brief.',
+                htmlContent: '',
+                imageUrl: '',
+                categoryId: null,
+                categoryName: 'Custom',
+                basePrice: 0,
+                _source: 'custom'
+            };
+        }
+
+        currentTemplate = tmpl;
+        applicableAddOns = filterApplicableAddOns();
+
+        // 4. Render
+        renderTemplateInfo();
+        renderAddOns();
+        renderRefChips();
+        updatePriceSummary();
+
+        // 5. Live re-render when add-ons change in Firestore
+        //    (optional — keep state consistent)
+        try {
+            const q = query(collection(db, 'addOns'));
+            onSnapshot(q, (snap) => {
+                const list = [];
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data.isActive !== false) list.push({ id: d.id, ...data });
+                });
+                allAddOns = list;
+                applicableAddOns = filterApplicableAddOns();
+                // Prune selections that are no longer applicable
+                const applicableIds = new Set(applicableAddOns.map(a => a.id));
+                [...selectedAddOnIds].forEach(id => {
+                    if (!applicableIds.has(id)) selectedAddOnIds.delete(id);
+                });
+                renderAddOns();
+                updatePriceSummary();
+            }, (err) => console.warn('[cfg] live addOns listener:', err?.code || err?.message));
+        } catch (_) {}
+
+        showState('mainState');
+        console.log('⚙️ Configure page ready | template:', tmpl.name, '| source:', tmpl._source, '| add-ons applicable:', applicableAddOns.length);
+    })();
+</script>
+</body>
+</html>

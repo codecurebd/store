@@ -10,6 +10,37 @@ import {
 
 
 // ================================================================
+// ✅ PAGE CONTEXT — agency/service flow detection
+// ================================================================
+/**
+ * Returns true when the current page is part of the new
+ * Agency / Service Selector flow (no cart, no instant checkout).
+ * Legacy pages (product-detail.html, campaign.html, my-orders.html)
+ * keep the cart + payment modal exactly as before.
+ */
+export function isAgencyServiceFlow() {
+  try {
+    const raw = (window.location.pathname || '').split('/').pop() || '';
+    const file = raw.toLowerCase() || 'index.html';
+    const AGENCY_PAGES = [
+      '', 'index.html',
+      'get-new-website.html',
+      'configure-service.html',
+      'design-reference.html'
+    ];
+    return AGENCY_PAGES.includes(file);
+  } catch {
+    return false;
+  }
+}
+
+/** True when current page still needs cart + payment modal */
+export function isLegacyCartFlow() {
+  return !isAgencyServiceFlow();
+}
+
+
+// ================================================================
 // ✅ AUTH CACHE – Instant navbar (no flicker on page change)
 // ================================================================
 const AUTH_CACHE_KEY = 'ccbd_user_v1';
@@ -58,14 +89,544 @@ export function clearCachedUser() {
 export function applyCachedNavbarAuth() {
   const cached = getCachedUser();
   if (!cached) return false;
-  // Fake user-like object for UI only
   updateNavbarAuth({ uid: cached.uid, email: cached.email }, cached.displayName, cached.role);
   return true;
 }
 
 
 // ================================================================
-// ✅ नোটिफिकেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা (Realtime)
+// ✅ SERVICE FLOW HELPERS (NEW)
+// ================================================================
+
+/**
+ * Live listener for service categories.
+ * Returns unsubscribe fn. Callback receives a sorted array.
+ */
+export function listenServiceCategories(callback) {
+  try {
+    const q = query(collection(db, 'serviceCategories'));
+    return onSnapshot(q, (snap) => {
+      const list = [];
+      snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+      // Only active categories for public pages
+      const activeOnly = list.filter(c => c.isActive !== false);
+      activeOnly.sort((a, b) => (a.order || 0) - (b.order || 0));
+      callback(activeOnly, list);
+    }, (err) => {
+      console.warn('[serviceCategories] listener:', err?.code, err?.message);
+      callback([], []);
+    });
+  } catch (e) {
+    console.warn('[serviceCategories] attach failed:', e);
+    callback([], []);
+    return () => {};
+  }
+}
+
+/**
+ * Live listener for add-ons.
+ * Returns unsubscribe fn. Callback receives a sorted array.
+ */
+export function listenAddOns(callback) {
+  try {
+    const q = query(collection(db, 'addOns'));
+    return onSnapshot(q, (snap) => {
+      const list = [];
+      snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+      const activeOnly = list.filter(a => a.isActive !== false);
+      activeOnly.sort((a, b) => (a.order || 0) - (b.order || 0));
+      callback(activeOnly, list);
+    }, (err) => {
+      console.warn('[addOns] listener:', err?.code, err?.message);
+      callback([], []);
+    });
+  } catch (e) {
+    console.warn('[addOns] attach failed:', e);
+    callback([], []);
+    return () => {};
+  }
+}
+
+/**
+ * Compute the running total for a service configuration.
+ * @param {number} basePrice       – design template base price (USD)
+ * @param {Array}  addOns          – full add-ons list
+ * @param {Set|Array} selectedIds  – currently selected add-on IDs
+ * @param {number} usdRate         – BDT per USD (default 125)
+ */
+export function computeConfigTotal(basePrice, addOns, selectedIds, usdRate = 125) {
+  const selected = new Set(
+    Array.isArray(selectedIds) ? selectedIds : Array.from(selectedIds || [])
+  );
+  let addOnsUSD = 0;
+  (addOns || []).forEach(a => {
+    if (selected.has(a.id)) addOnsUSD += Number(a.price) || 0;
+  });
+  const base = Number(basePrice) || 0;
+  const totalUSD = base + addOnsUSD;
+  const rate = Number(usdRate) > 0 ? Number(usdRate) : 125;
+  return {
+    baseUSD: base,
+    addOnsUSD,
+    totalUSD,
+    totalBDT: Math.round(totalUSD * rate),
+    usdRate: rate,
+    count: selected.size
+  };
+}
+
+/**
+ * Creates a service request order with the new schema.
+ * Backward compatible — legacy orders don't use this path.
+ *
+ * @param {Object} payload
+ *   userId, userEmail, userName
+ *   serviceCategoryId, serviceCategoryName
+ *   designTemplateId, designTemplateName
+ *   basePrice, selectedAddOns (array of {id,name,price,icon}),
+ *   designReferences (array of designReference doc snapshots),
+ *   projectDescription
+ *   quoteRequested (bool)
+ *   usdRate
+ * @returns {Promise<{success:boolean, orderId?:string, error?:string}>}
+ */
+export async function submitServiceRequest(payload) {
+  if (!auth.currentUser) {
+    return { success: false, error: 'Not signed in.' };
+  }
+  try {
+    const basePrice = Number(payload.basePrice) || 0;
+    const addOnsTotal = (payload.selectedAddOns || []).reduce(
+      (s, a) => s + (Number(a.price) || 0), 0
+    );
+    const totalUSD = basePrice + addOnsTotal;
+    const rate = Number(payload.usdRate) > 0 ? Number(payload.usdRate) : 125;
+    const totalBDT = Math.round(totalUSD * rate);
+
+    const orderData = {
+      // Standard fields (kept compatible with admin panel renderers)
+      userId: auth.currentUser.uid,
+      userEmail: auth.currentUser.email || '',
+      userName: payload.userName || auth.currentUser.email?.split('@')[0] || 'Customer',
+      // NEW: order type discriminator
+      type: 'service',
+      orderType: 'service',
+      // Service-specific snapshot
+      serviceCategoryId: payload.serviceCategoryId || null,
+      serviceCategoryName: payload.serviceCategoryName || '',
+      designTemplateId: payload.designTemplateId || null,
+      designTemplateName: payload.designTemplateName || '',
+      basePrice,
+      selectedAddOns: (payload.selectedAddOns || []).map(a => ({
+        id: a.id,
+        name: a.name,
+        price: Number(a.price) || 0,
+        icon: a.icon || 'fa-puzzle-piece'
+      })),
+      addOnsTotal,
+      designReferences: (payload.designReferences || []).map(r => ({
+        id: r.id || null,
+        type: r.type || 'url',
+        url: r.url || '',
+        imageUrl: r.imageUrl || '',
+        description: r.description || ''
+      })),
+      projectDescription: payload.projectDescription || '',
+      // Estimate shown to client — final quote comes from admin
+      total: totalUSD,
+      estimateUSD: totalUSD,
+      estimateBDT: totalBDT,
+      usdRate: rate,
+      // Lifecycle: pending → reviewing → quoted → approved → processing → completed
+      status: 'pending',
+      paymentMethod: null,
+      paymentType: null,
+      paymentVerified: false,
+      quoteRequested: payload.quoteRequested !== false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+
+    const ref = await addDoc(collection(db, 'orders'), orderData);
+    return { success: true, orderId: ref.id };
+  } catch (err) {
+    console.error('submitServiceRequest error:', err);
+    return { success: false, error: err.message || 'Failed to submit request.' };
+  }
+}
+
+/**
+ * Saves a design reference doc.
+ * Returns { success, id, ref } or { success: false, error }.
+ */
+export async function saveDesignReference(refData) {
+  if (!auth.currentUser) {
+    return { success: false, error: 'Not signed in.' };
+  }
+  try {
+    const payload = {
+      userId: auth.currentUser.uid,
+      userEmail: auth.currentUser.email || '',
+      orderId: refData.orderId || null,
+      serviceCategoryId: refData.serviceCategoryId || null,
+      serviceCategoryName: refData.serviceCategoryName || '',
+      type: refData.type || 'url', // 'url' | 'upload' | 'text'
+      url: refData.url || '',
+      imageUrl: refData.imageUrl || '',
+      description: refData.description || '',
+      createdAt: serverTimestamp()
+    };
+    const ref = await addDoc(collection(db, 'designReferences'), payload);
+    return { success: true, id: ref.id, data: payload };
+  } catch (err) {
+    console.error('saveDesignReference error:', err);
+    return { success: false, error: err.message || 'Failed to save reference.' };
+  }
+}
+
+
+// ================================================================
+// ✅ DESIGN REFERENCE MODAL (NEW)
+// ================================================================
+function renderDesignReferenceModalDom() {
+  if (document.getElementById('designRefModal')) return;
+
+  const html = `
+    <div id="designRefModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[700] hidden p-4">
+      <div class="bg-white rounded-2xl p-6 md:p-7 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl" style="animation: drmScale 0.25s ease;">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">
+              <i class="fas fa-palette" style="color:#7c3aed;margin-right:6px;"></i> Design Reference
+            </h3>
+            <p class="text-xs text-gray-500 mt-0.5">Share a URL, upload a screenshot, or describe your vision.</p>
+          </div>
+          <button type="button" onclick="window.__ccbdCloseDesignRefModal()" class="text-gray-400 hover:text-gray-700 text-2xl leading-none" aria-label="Close">&times;</button>
+        </div>
+
+        <div id="designRefTypeTabs" class="grid grid-cols-3 gap-2 mb-4 p-1 rounded-xl" style="background:#f1f5f9;">
+          <button type="button" data-type="url" class="drm-tab drm-tab-active">
+            <i class="fas fa-link"></i> URL
+          </button>
+          <button type="button" data-type="upload" class="drm-tab">
+            <i class="fas fa-image"></i> Upload
+          </button>
+          <button type="button" data-type="text" class="drm-tab">
+            <i class="fas fa-align-left"></i> Describe
+          </button>
+        </div>
+
+        <!-- URL MODE -->
+        <div id="drmSectionUrl" class="drm-section">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Reference URL</label>
+          <input type="url" id="drmUrlInput" class="form-input" placeholder="https://example.com/design-you-like" autocomplete="off" />
+          <p class="text-xs text-gray-400 mt-1">Paste a link to a site, Dribbble shot, Figma file, or any design you like.</p>
+        </div>
+
+        <!-- UPLOAD MODE -->
+        <div id="drmSectionUpload" class="drm-section hidden">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Screenshot / Inspiration</label>
+          <div id="drmUploadZone" class="relative" style="border:2px dashed #cbd5e1;border-radius:14px;padding:1.5rem;text-align:center;background:#f8fafc;cursor:pointer;transition:0.2s;">
+            <input type="file" id="drmFileInput" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;" />
+            <img id="drmUploadPreview" style="max-height:140px;border-radius:10px;margin:0 auto 8px;display:none;object-fit:contain;max-width:100%;" alt="" />
+            <div id="drmUploadPlaceholder">
+              <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:#94a3b8;display:block;margin-bottom:6px;"></i>
+              <p class="text-sm font-semibold text-gray-700 m-0">Click or drag to upload</p>
+              <p class="text-xs text-gray-400 mt-1 mb-0">PNG, JPG, WebP — max 10 MB</p>
+            </div>
+          </div>
+          <p id="drmUploadStatus" class="text-xs text-gray-400 mt-2 hidden"></p>
+        </div>
+
+        <!-- TEXT MODE -->
+        <div id="drmSectionText" class="drm-section hidden">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Describe your design vision</label>
+          <textarea id="drmDescriptionInput" rows="4" class="form-input" placeholder="e.g. Clean SaaS landing page, dark hero with blue accent, glassy cards…"></textarea>
+        </div>
+
+        <!-- COMMON DESCRIPTION (URL + Upload modes) -->
+        <div id="drmCommonDesc">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">Optional note</label>
+          <textarea id="drmNoteInput" rows="2" class="form-input" placeholder="What do you like about this reference?"></textarea>
+        </div>
+
+        <div id="drmError" class="text-sm text-red-500 mt-3 hidden"></div>
+
+        <div class="flex flex-wrap gap-2 mt-5">
+          <button type="button" id="drmSaveBtn" class="btn-primary" style="flex:1;">
+            <i class="fas fa-save"></i> Save Reference
+          </button>
+          <button type="button" onclick="window.__ccbdCloseDesignRefModal()" class="btn-outline">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', html);
+
+  if (!document.getElementById('designRefModalStyle')) {
+    const s = document.createElement('style');
+    s.id = 'designRefModalStyle';
+    s.textContent = `
+      @keyframes drmScale { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+      #designRefModal .form-input {
+        width:100%; padding:12px 16px; border:1.5px solid #e2e8f0; border-radius:12px;
+        font-size:0.95rem; background:#fff; outline:none; font-family:inherit; color:#0f172a;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      #designRefModal .form-input:focus {
+        border-color:#0066FF; box-shadow:0 0 0 4px rgba(0,102,255,0.08);
+      }
+      #designRefModal textarea.form-input { resize: vertical; min-height: 60px; }
+      #designRefModal .btn-primary {
+        background:linear-gradient(135deg,#0066FF,#8B5CF6); color:#fff; border:none;
+        padding:12px 22px; border-radius:60px; font-weight:600; font-size:0.95rem;
+        cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+        gap:8px; min-height:46px; transition:0.2s; font-family:inherit;
+      }
+      #designRefModal .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,102,255,0.25); }
+      #designRefModal .btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none !important; }
+      #designRefModal .btn-outline {
+        background:rgba(255,255,255,0.5); color:#1a1a2e; border:1.5px solid rgba(0,102,255,0.08);
+        padding:12px 22px; border-radius:60px; font-weight:600; font-size:0.9rem;
+        cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+        min-height:46px; transition:0.2s; font-family:inherit;
+      }
+      #designRefModal .btn-outline:hover {
+        background:#fff; border-color:#0066FF; color:#0066FF; transform:translateY(-2px);
+      }
+      #designRefModal .drm-tab {
+        background:transparent; border:none; padding:9px 8px; border-radius:9px;
+        font-weight:600; font-size:0.85rem; color:#64748b; cursor:pointer;
+        transition:0.2s; display:flex; align-items:center; justify-content:center; gap:6px;
+        font-family:inherit;
+      }
+      #designRefModal .drm-tab:hover { color:#0066FF; }
+      #designRefModal .drm-tab-active {
+        background:#fff; color:#0f172a !important;
+        box-shadow: 0 2px 8px rgba(15,23,42,0.06);
+      }
+      #designRefModal .drm-tab i { font-size:0.78rem; }
+      @media (max-width:520px) {
+        #designRefModal .drm-tab { font-size:0.78rem; padding:8px 6px; gap:4px; }
+        #designRefModal .drm-tab i { font-size:0.7rem; }
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  // ---- Modal state ----
+  const state = {
+    type: 'url',
+    url: '',
+    uploadedUrl: '',
+    uploadedFile: null,
+    description: '',
+    note: ''
+  };
+  window.__ccbdDesignRefState = state;
+
+  const tabs = document.querySelectorAll('#designRefModal .drm-tab');
+  const sectionUrl = document.getElementById('drmSectionUrl');
+  const sectionUpload = document.getElementById('drmSectionUpload');
+  const sectionText = document.getElementById('drmSectionText');
+  const commonDesc = document.getElementById('drmCommonDesc');
+
+  function switchType(type) {
+    state.type = type;
+    tabs.forEach(t => t.classList.toggle('drm-tab-active', t.dataset.type === type));
+    sectionUrl.classList.toggle('hidden', type !== 'url');
+    sectionUpload.classList.toggle('hidden', type !== 'upload');
+    sectionText.classList.toggle('hidden', type !== 'text');
+    commonDesc.classList.toggle('hidden', type === 'text');
+    document.getElementById('drmError').classList.add('hidden');
+  }
+  tabs.forEach(t => t.addEventListener('click', () => switchType(t.dataset.type)));
+
+  // Upload handling
+  const uploadZone = document.getElementById('drmUploadZone');
+  const fileInput = document.getElementById('drmFileInput');
+  const preview = document.getElementById('drmUploadPreview');
+  const placeholder = document.getElementById('drmUploadPlaceholder');
+  const status = document.getElementById('drmUploadStatus');
+
+  uploadZone.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      window.showToast && window.showToast('Please select an image.', 'warning');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      window.showToast && window.showToast('Image must be under 10 MB.', 'warning');
+      return;
+    }
+    state.uploadedFile = file;
+    const localUrl = URL.createObjectURL(file);
+    preview.src = localUrl;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    status.classList.remove('hidden');
+    status.textContent = 'Uploading…';
+    status.style.color = '#2563eb';
+
+    try {
+      const url = await uploadImage(file);
+      state.uploadedUrl = url;
+      preview.src = url;
+      status.textContent = '✓ Uploaded';
+      status.style.color = '#059669';
+    } catch (err) {
+      console.error(err);
+      status.textContent = 'Upload failed — try again';
+      status.style.color = '#dc2626';
+      state.uploadedUrl = '';
+    }
+  });
+
+  // Save button
+  document.getElementById('drmSaveBtn').addEventListener('click', async () => {
+    const errEl = document.getElementById('drmError');
+    errEl.classList.add('hidden');
+    const t = state.type;
+
+    // Collect values
+    const urlVal = document.getElementById('drmUrlInput').value.trim();
+    const descVal = document.getElementById('drmDescriptionInput').value.trim();
+    const noteVal = document.getElementById('drmNoteInput').value.trim();
+
+    const payload = {
+      type: t,
+      url: '',
+      imageUrl: '',
+      description: ''
+    };
+
+    if (t === 'url') {
+      if (!urlVal) {
+        errEl.textContent = 'Please enter a URL.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      try { new URL(urlVal); } catch {
+        errEl.textContent = 'Please enter a valid URL (including https://).';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      payload.url = urlVal;
+      payload.description = noteVal;
+    } else if (t === 'upload') {
+      if (!state.uploadedUrl) {
+        errEl.textContent = 'Please wait for the image to finish uploading.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      payload.imageUrl = state.uploadedUrl;
+      payload.description = noteVal;
+    } else if (t === 'text') {
+      if (!descVal) {
+        errEl.textContent = 'Please describe your vision.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      payload.description = descVal;
+    }
+
+    // Hand off to the caller's callback (if provided)
+    const cfg = window.__ccbdDesignRefConfig || {};
+    const saveBtn = document.getElementById('drmSaveBtn');
+    const origHtml = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span class="spinner"></span> Saving…';
+
+    try {
+      if (typeof cfg.onSave === 'function') {
+        await cfg.onSave(payload);
+      } else {
+        // No callback → save to Firestore directly
+        const result = await saveDesignReference({
+          ...payload,
+          orderId: cfg.orderId || null,
+          serviceCategoryId: cfg.serviceCategoryId || null,
+          serviceCategoryName: cfg.serviceCategoryName || ''
+        });
+        if (!result.success) throw new Error(result.error);
+        window.showToast && window.showToast('✅ Design reference saved.', 'success');
+      }
+      window.__ccbdCloseDesignRefModal();
+    } catch (err) {
+      errEl.textContent = err.message || 'Failed to save.';
+      errEl.classList.remove('hidden');
+      window.showToast && window.showToast('⚠️ ' + (err.message || 'Save failed'), 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = origHtml;
+    }
+  });
+
+  // Click outside to close
+  document.getElementById('designRefModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) window.__ccbdCloseDesignRefModal();
+  });
+}
+
+/** Opens the design reference modal (optionally with a callback). */
+export function openDesignReferenceModal(config = {}) {
+  renderDesignReferenceModalDom();
+  window.__ccbdDesignRefConfig = config || {};
+
+  // Reset state
+  const modal = document.getElementById('designRefModal');
+  modal.classList.remove('hidden');
+
+  const url = document.getElementById('drmUrlInput');
+  const desc = document.getElementById('drmDescriptionInput');
+  const note = document.getElementById('drmNoteInput');
+  const fileInput = document.getElementById('drmFileInput');
+  const preview = document.getElementById('drmUploadPreview');
+  const placeholder = document.getElementById('drmUploadPlaceholder');
+  const status = document.getElementById('drmUploadStatus');
+  const errEl = document.getElementById('drmError');
+
+  if (url) url.value = '';
+  if (desc) desc.value = '';
+  if (note) note.value = '';
+  if (fileInput) fileInput.value = '';
+  if (preview) { preview.src = ''; preview.style.display = 'none'; }
+  if (placeholder) placeholder.style.display = '';
+  if (status) { status.textContent = ''; status.classList.add('hidden'); }
+  if (errEl) errEl.classList.add('hidden');
+
+  window.__ccbdDesignRefState = {
+    type: 'url', url: '', uploadedUrl: '', uploadedFile: null, description: '', note: ''
+  };
+
+  // Reset to URL tab
+  document.querySelectorAll('#designRefModal .drm-tab').forEach(t =>
+    t.classList.toggle('drm-tab-active', t.dataset.type === 'url')
+  );
+  ['Url','Upload','Text'].forEach(suffix => {
+    const el = document.getElementById('drmSection' + suffix);
+    if (el) el.classList.toggle('hidden', suffix !== 'Url');
+  });
+  const commonDesc = document.getElementById('drmCommonDesc');
+  if (commonDesc) commonDesc.classList.remove('hidden');
+
+  setTimeout(() => document.getElementById('drmUrlInput')?.focus(), 100);
+}
+
+window.__ccbdCloseDesignRefModal = function() {
+  const modal = document.getElementById('designRefModal');
+  if (modal) modal.classList.add('hidden');
+  window.__ccbdDesignRefConfig = null;
+};
+
+
+// ================================================================
+// ✅ नোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা (Realtime)
 // ================================================================
 let unreadAdminMessages = [];
 let displayMessages = [];
@@ -104,12 +665,9 @@ function escapeNotifHtml(str) {
 
 function isUnreadAdminMsg(data, userId) {
   if (!data || !userId) return false;
-  // Admin messages only (admin panel uses fromUserId: 'admin')
   const from = String(data.fromUserId || data.from || data.senderId || '').toLowerCase();
   if (from !== 'admin') return false;
-  // Already read? (strict true only — missing/false/null = unread)
   if (data.read === true || data.read === 'true' || data.read === 1) return false;
-  // Must belong to this user's conversation
   const expectedCid = `conv_${userId}_admin`;
   const cid = String(data.conversationId || data.convId || '');
   const to = String(data.toUserId || data.to || '');
@@ -122,8 +680,7 @@ function isUnreadAdminMsg(data, userId) {
   return matchesUser;
 }
 
-// Merge docs from multiple listeners without duplicates
-const _notifDocMap = new Map(); // id -> { id, ...data }
+const _notifDocMap = new Map();
 
 function rebuildUnreadFromMap(user) {
   if (!user) {
@@ -152,7 +709,6 @@ function rebuildUnreadFromMap(user) {
   if (!notifDropdownOpen) {
     updateNotificationList(unreadAdminMessages);
   }
-  // Toast for brand-new messages (skip first snapshot)
   if (notifListenerReady) {
     const brandNew = unreadAdminMessages.filter(m => !prevIds.has(m.id));
     if (brandNew.length > 0 && typeof window.showToast === 'function') {
@@ -164,7 +720,6 @@ function rebuildUnreadFromMap(user) {
     }
   }
   notifListenerReady = true;
-  // Navbar bell + floating support button badges (same unread count)
   if (typeof window.__ccbdUpdateSupportBadge === 'function') {
     window.__ccbdUpdateSupportBadge(count);
   }
@@ -179,14 +734,13 @@ function processNotifSnapshot(snapshot, user) {
       _notifDocMap.set(change.doc.id, change.doc.data());
     }
   });
-  // Full replace also (covers initial + rare missed changes)
   snapshot.forEach((d) => {
     _notifDocMap.set(d.id, d.data());
   });
   rebuildUnreadFromMap(user);
 }
 
-let adminMessageUnsubs = []; // support multiple concurrent listeners
+let adminMessageUnsubs = [];
 
 function stopAllNotifListeners() {
   adminMessageUnsubs.forEach((fn) => {
@@ -217,7 +771,6 @@ function startAdminMessageListener(user) {
   const uid = user.uid;
   console.log('[notif] starting participants listener for uid=', uid);
 
-  // ONLY participants query (rules-safe, no composite index, no permission noise)
   try {
     const qParts = query(
       collection(db, 'messages'),
@@ -228,7 +781,6 @@ function startAdminMessageListener(user) {
       processNotifSnapshot(snapshot, user);
     }, (error) => {
       console.warn('[notif] participants error:', error?.code, error?.message);
-      // Fallback only if primary fails
       try {
         const convId = `conv_${uid}_admin`;
         const q2 = query(collection(db, 'messages'), where('conversationId', '==', convId));
@@ -247,7 +799,6 @@ function startAdminMessageListener(user) {
   adminMessageUnsubscribe = () => stopAllNotifListeners();
 }
 
-// Console helper: window.debugNotif()
 window.debugNotif = function () {
   const u = auth.currentUser;
   console.log('=== NOTIF DEBUG ===');
@@ -261,7 +812,6 @@ window.debugNotif = function () {
     console.warn('Not logged in — login as a normal user, then run debugNotif() again');
     return;
   }
-  // One-shot fetch to prove rules + data
   getDocs(query(collection(db, 'messages'), where('participants', 'array-contains', u.uid)))
     .then((snap) => {
       console.log('[debugNotif] participants getDocs size=', snap.size);
@@ -275,7 +825,6 @@ window.debugNotif = function () {
           isUnread: isUnreadAdminMsg(data, u.uid),
         });
       });
-      // Force rebuild badge from this result
       processNotifSnapshot(snap, u);
     })
     .catch((err) => console.error('[debugNotif] getDocs FAILED — RULES ISSUE:', err.code, err.message));
@@ -283,7 +832,6 @@ window.debugNotif = function () {
 
 function updateNotificationBadge(count) {
   const apply = () => {
-    // Ensure parent (bell area) is visible when logged in
     const authRequired = document.getElementById('authRequiredActions');
     if (authRequired && auth.currentUser) {
       authRequired.style.display = 'flex';
@@ -309,14 +857,12 @@ function updateNotificationBadge(count) {
     if (label) {
       label.textContent = n > 0 ? `${n} new` : '0 new';
     }
-    // Always sync floating chat badge too
     if (typeof window.__ccbdUpdateSupportBadge === 'function') {
       window.__ccbdUpdateSupportBadge(n);
     }
     if (n > 0) console.log('[notif] badge count =', n);
   };
   apply();
-  // Retry — navbar may render after first snapshot
   setTimeout(apply, 80);
   setTimeout(apply, 300);
   setTimeout(apply, 800);
@@ -377,9 +923,6 @@ async function markAllAdminMessagesRead() {
   }
 }
 
-// ================================================================
-// ✅ NOTIFICATION TOGGLE (Mobile-optimized)
-// ================================================================
 window.toggleNotifications = function() {
   const dropdown = document.getElementById('notificationDropdown');
   if (!dropdown) return;
@@ -391,8 +934,6 @@ window.toggleNotifications = function() {
     dropdown.classList.remove('hidden');
     document.body.classList.add('dropdown-open');
     dropdown.style.animation = 'dropdownFade 0.2s ease';
-    // Do NOT mark read on open — only when user opens messages.html
-    // (keeps badge until they actually read the chat)
   } else {
     notifDropdownOpen = false;
     displayMessages = [];
@@ -400,6 +941,7 @@ window.toggleNotifications = function() {
     document.body.classList.remove('dropdown-open');
   }
 };
+
 
 // ================================================================
 // ✅ TOAST NOTIFICATION
@@ -471,12 +1013,12 @@ toastStyles.textContent = `
 document.head.appendChild(toastStyles);
 
 // ================================================================
-// ✅ CART BADGE (রিয়েল-টাইম আপডেটের জন্য পৃথক ফাংশন)
+// ✅ CART BADGE (রিয়েল-টাইম আপডেটের জন্য পৃথক ফাংশন)
 // ================================================================
 export function updateCartBadge() {
   const cartBadge = document.getElementById('cartCount');
   if (!cartBadge) {
-    console.warn('⚠️ cartCount element not found in DOM');
+    // Silently skip on pages without a cart (agency flow)
     return;
   }
   try {
@@ -778,17 +1320,14 @@ function setActiveNavLink() {
   const path = (window.location.pathname || '').toLowerCase();
   const file = path.split('/').pop() || '';
 
-  // Only main public pages get an active nav item.
-  // Profile, orders, settings, messages, admin, etc. → nothing active.
   let key = null;
   if (file === '' || file === 'index.html' || file === 'store') {
     key = 'home';
-  } else if (file.includes('get-new-website') || file.includes('product-detail')) {
+  } else if (file.includes('get-new-website') || file.includes('product-detail') || file.includes('configure-service')) {
     key = 'store';
   } else if (file.includes('fix-website')) {
     key = 'fix';
   }
-  // contact is a modal, not a page — no persistent active state
 
   document.querySelectorAll('[data-nav]').forEach(el => {
     el.classList.toggle('active', key !== null && el.getAttribute('data-nav') === key);
@@ -800,6 +1339,9 @@ function setActiveNavLink() {
 // ================================================================
 export function renderNavbar() {
   renderContactModal();
+
+  // ---- PAGE CONTEXT ----
+  const isAgency = isAgencyServiceFlow();
 
   // Mobile: hide Get Started in top nav (keep Sign In only). Desktop (md+): show both.
   if (!document.getElementById('navGetStartedStyle')) {
@@ -830,6 +1372,30 @@ export function renderNavbar() {
     document.head.appendChild(gsStyle);
   }
 
+  // ---- CONDITIONAL CTA ----
+  // Legacy pages: "Get Started" → signup modal
+  // Agency pages: "Start a Project" → get-new-website.html
+  const ctaHTML = isAgency
+    ? `<button id="navGetStartedBtn" onclick="window.__ccbdStartProject()" class="btn-primary text-xs py-2 px-3.5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap inline-flex items-center gap-1.5">
+         <i class="fas fa-rocket text-[10px]"></i> Start a Project
+       </button>`
+    : `<button id="navGetStartedBtn" onclick="window.openAuthModal('signup')" class="btn-primary text-xs py-2 px-3.5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap inline-flex items-center gap-1.5">
+         <i class="fas fa-rocket text-[10px]"></i> Get Started
+       </button>`;
+
+  // ---- CONDITIONAL CART BUTTON ----
+  const cartButtonHTML = isAgency
+    ? ''
+    : `
+        <div class="relative">
+          <button id="cartBtn" onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cartCount" class="cart-badge" style="display:none;">0</span>
+          </button>
+          <div id="cartPopupContainer"></div>
+        </div>
+      `;
+
   const navbarHTML = `
     <nav id="mainNavbar" class="fixed top-0 left-0 w-full z-50 h-[72px] md:h-[80px] flex items-center px-4 sm:px-8 lg:px-12 transition-all duration-300 ease-out glass shadow-sm border-b border-gray-100/30">
       <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
@@ -840,7 +1406,7 @@ export function renderNavbar() {
         
         <div class="nav-desktop hidden md:flex items-center">
           <a href="index.html" data-nav="home" class="nav-link text-sm">Home</a>
-          <a href="get-new-website.html" data-nav="store" class="nav-link text-sm">Store</a>
+          <a href="get-new-website.html" data-nav="store" class="nav-link text-sm">${isAgency ? 'Designs' : 'Store'}</a>
           <a href="fix-website.html" data-nav="fix" class="nav-link text-sm">Fix</a>
           <a href="#" data-nav="contact" onclick="window.handleContactClick(event)" class="nav-link text-sm">Contact</a>
         </div>
@@ -854,25 +1420,19 @@ export function renderNavbar() {
               <div class="p-4 border-b border-gray-100">
                 <div class="relative">
                   <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                  <input type="text" id="searchInput" placeholder="Search products..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm" autocomplete="off" />
+                  <input type="text" id="searchInput" placeholder="Search ${isAgency ? 'designs' : 'products'}..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm" autocomplete="off" />
                 </div>
               </div>
               <div id="searchResults" class="max-h-[350px] overflow-y-auto">
-                <div class="p-4 text-sm text-gray-400 text-center">Type to search products...</div>
+                <div class="p-4 text-sm text-gray-400 text-center">Type to search ${isAgency ? 'designs' : 'products'}...</div>
               </div>
               <div class="p-2 border-t border-gray-100">
-                <a href="get-new-website.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">Browse all products →</a>
+                <a href="get-new-website.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">Browse all ${isAgency ? 'designs' : 'products'} →</a>
               </div>
             </div>
           </div>
 
-          <div class="relative">
-            <button id="cartBtn" onclick="window.toggleCart()" class="w-10 h-10 rounded-full hover:bg-gray-100/60 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors text-lg relative" title="Cart">
-              <i class="fas fa-shopping-cart"></i>
-              <span id="cartCount" class="cart-badge" style="display:none;">0</span>
-            </button>
-            <div id="cartPopupContainer"></div>
-          </div>
+          ${cartButtonHTML}
 
           <div id="authRequiredActions" class="flex items-center gap-2 md:gap-3" style="display:none;">
             <div class="relative">
@@ -905,9 +1465,7 @@ export function renderNavbar() {
           <div id="auth-buttons" class="hidden flex items-center gap-1.5 md:gap-2 ml-1 md:ml-2">
             <button onclick="window.openAuthModal('signin')" class="text-xs sm:text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg hover:bg-blue-50/50 whitespace-nowrap leading-none md:mr-0.5">Sign In</button>
             <span id="navGetStartedWrap" class="nav-get-started-wrap">
-              <button id="navGetStartedBtn" onclick="window.openAuthModal('signup')" class="btn-primary text-xs py-2 px-3.5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap inline-flex items-center gap-1.5">
-                <i class="fas fa-rocket text-[10px]"></i> Get Started
-              </button>
+              ${ctaHTML}
             </span>
           </div>
 
@@ -935,14 +1493,18 @@ export function renderNavbar() {
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" data-nav="home" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Home</a>
-        <a href="get-new-website.html" data-nav="store" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Store</a>
+        <a href="get-new-website.html" data-nav="store" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">${isAgency ? 'Designs' : 'Store'}</a>
         <a href="fix-website.html" data-nav="fix" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Fix</a>
         <a href="#" data-nav="contact" onclick="window.handleContactClick(event)" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Contact</a>
         <div id="mobileAuthButtons" class="hidden flex flex-col gap-2 mt-2 pt-2 border-t border-gray-100">
           <button type="button" onclick="window.openAuthModal('signin'); window.toggleMobileMenu();" class="w-full text-center text-sm font-medium text-gray-700 py-2.5 px-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap">Sign In</button>
-          <button type="button" onclick="window.openAuthModal('signup'); window.toggleMobileMenu();" class="btn-primary w-full justify-center text-sm py-2.5 px-4 whitespace-nowrap">
-            <i class="fas fa-rocket text-xs"></i> Get Started
-          </button>
+          ${isAgency
+            ? `<button type="button" onclick="window.__ccbdStartProject(); window.toggleMobileMenu();" class="btn-primary w-full justify-center text-sm py-2.5 px-4 whitespace-nowrap">
+                 <i class="fas fa-rocket text-xs"></i> Start a Project
+               </button>`
+            : `<button type="button" onclick="window.openAuthModal('signup'); window.toggleMobileMenu();" class="btn-primary w-full justify-center text-sm py-2.5 px-4 whitespace-nowrap">
+                 <i class="fas fa-rocket text-xs"></i> Get Started
+               </button>`}
         </div>
         <div id="mobileUserLinks" class="hidden flex flex-col gap-1">
           <hr class="my-2 border-gray-100" />
@@ -1003,10 +1565,8 @@ export function renderNavbar() {
 
   updateCartBadge();
 
-  // Instant navbar from cache (no flicker)
   applyCachedNavbarAuth();
 
-  // Single auth listener for navbar + cache + cart
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       syncCart(user.uid);
@@ -1029,11 +1589,13 @@ export function renderNavbar() {
     }
   });
   
-  // Defer cart popup slightly for faster first paint
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(() => renderCartPopup(), { timeout: 800 });
-  } else {
-    setTimeout(() => renderCartPopup(), 50);
+  // Only init cart popup on legacy pages
+  if (!isAgency) {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => renderCartPopup(), { timeout: 800 });
+    } else {
+      setTimeout(() => renderCartPopup(), 50);
+    }
   }
 
   window.toggleSearchDropdown = toggleSearchDropdown;
@@ -1046,12 +1608,21 @@ export function renderNavbar() {
   });
 }
 
+// Global helper for agency CTA — routes to the design selector
+window.__ccbdStartProject = function() {
+  window.location.href = 'get-new-website.html';
+};
+
+
 // ================================================================
 // ✅ CART POPUP
 // ================================================================
 let cartPopupRendered = false;
 
 export function renderCartPopup() {
+  // Guard: only render cart on legacy cart pages
+  if (isAgencyServiceFlow()) return;
+
   const container = document.getElementById('cartPopupContainer');
   if (!container) return;
   
@@ -1221,6 +1792,7 @@ export function renderFooter() {
 }
 
 export function renderCartSidebar() {
+  if (isAgencyServiceFlow()) return;
   if (!cartPopupRendered) renderCartPopup();
 }
 
@@ -1280,12 +1852,12 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (ADVANCE & FULL PAYMENT SYSTEM ADDED)
+// ✅ PAYMENT MODAL & CHECKOUT (ADVANCE & FULL PAYMENT SYSTEM)
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
 let _pendingCheckoutData = null;
-let _duePaymentData = null; // For due payment
+let _duePaymentData = null;
 
 const DEFAULT_USDT_ADDRESS = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
 const QR_IMAGE_PATH = './Deposit USDT.jpeg';
@@ -1348,6 +1920,9 @@ function renderQrZoomModal() {
 }
 
 export function renderPaymentModal() {
+  // Only auto-render on legacy pages (kept for backward compat)
+  if (isAgencyServiceFlow()) return;
+
   renderQrZoomModal();
 
   const existing = document.getElementById('paymentModal');
@@ -1377,7 +1952,6 @@ export function renderPaymentModal() {
         <form id="paymentForm" class="space-y-4">
           <input type="hidden" id="paymentOrderId" />
           
-          <!-- Payment Type Option: Full vs Pay later (500 TK) -->
           <div id="paymentTypeGroup">
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Payment Type *</label>
             <div class="grid grid-cols-2 gap-3">
@@ -1448,7 +2022,6 @@ export function renderPaymentModal() {
     methodSelect.addEventListener('change', () => window.updatePaymentMethodUI());
   }
 
-  // Radio button change listener to recalculate amounts
   document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
     if (!radio.dataset.bound) {
       radio.dataset.bound = '1';
@@ -1466,7 +2039,6 @@ export function renderPaymentModal() {
       const dueData = window._duePaymentData;
       const orderId = document.getElementById('paymentOrderId').value;
 
-      // If due mode, handle due payment update
       if (isDueMode && dueData) {
         const method = document.getElementById('paymentMethodSelect').value;
         const txnId = document.getElementById('transactionId').value.trim();
@@ -1557,7 +2129,6 @@ export function renderPaymentModal() {
           if (typeof window.refreshCampaignPage === 'function') {
             try { await window.refreshCampaignPage(); } catch (_) {}
           }
-          // Refresh the page to update order list
           setTimeout(() => window.location.reload(), 1200);
 
         } catch (err) {
@@ -1571,7 +2142,6 @@ export function renderPaymentModal() {
         return;
       }
 
-      // ===== CAMPAIGN CHECKOUT =====
       const pending = window._pendingCheckoutData;
       if (!pending) {
         showToast('Checkout data missing. Please try again.', 'error');
@@ -1630,19 +2200,16 @@ export function renderPaymentModal() {
 
       const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
 
-      // ===== CAMPAIGN ORDER PATH =====
       if (pending.type === 'campaign' && pending.campaignId) {
         const advanceBDT = Number(pending.amountBDT) || Number(pending.totalBDT) || 500;
         const advanceUSD = Number((advanceBDT / rate).toFixed(2));
         const campaignPrice = Number(pending.campaignPrice) || 0;
-        // Due is set manually by admin later — do NOT auto-calculate from campaign price
         const dueBDT = 0;
         const dueUSD = 0;
         const btn = document.getElementById('paymentSubmitBtn');
         setLoading(btn, true, 'Confirm Payment');
 
         try {
-          // Re-check slots
           const campRef = doc(db, 'campaigns', pending.campaignId);
           const campSnap = await getDoc(campRef);
           if (!campSnap.exists()) throw new Error('Campaign not found.');
@@ -1651,7 +2218,6 @@ export function renderPaymentModal() {
             throw new Error('This campaign is closed or full.');
           }
 
-          // Prevent duplicate join
           const dupQ = query(
             collection(db, 'orders'),
             where('userId', '==', auth.currentUser.uid),
@@ -1705,7 +2271,6 @@ export function renderPaymentModal() {
 
           await addDoc(collection(db, 'orders'), orderData);
 
-          // Decrement slots
           const updates = {
             remainingSlots: increment(-1),
             updatedAt: serverTimestamp()
@@ -1713,7 +2278,6 @@ export function renderPaymentModal() {
           if (isSpecial) updates.specialRemaining = increment(-1);
           await updateDoc(campRef, updates);
 
-          // Auto-close if full
           const afterSnap = await getDoc(campRef);
           if (afterSnap.exists() && (afterSnap.data().remainingSlots ?? 0) <= 0) {
             await updateDoc(campRef, { status: 'closed', closedAt: serverTimestamp() });
@@ -1734,7 +2298,7 @@ export function renderPaymentModal() {
         return;
       }
 
-      // ===== NORMAL CHECKOUT (full or advance) =====
+      // ===== NORMAL CHECKOUT =====
       const totalUSD = Number(_paymentOrderTotalUSD) || 0;
       const totalBDT = Math.round(totalUSD * rate);
 
@@ -1766,6 +2330,8 @@ export function renderPaymentModal() {
           })),
           total: pending.total,
           status: 'pending',
+          type: 'product',
+          orderType: 'product',
           paymentMethod: method,
           paymentType: paymentType,
           transactionId: txnId,
@@ -1813,6 +2379,10 @@ export function renderPaymentModal() {
 
 export function openPaymentModal(data) {
   if (!document.getElementById('paymentModal')) {
+    // Lazy render on first use (covers edge case if page wasn't legacy at load time)
+    renderPaymentModal();
+  }
+  if (!document.getElementById('paymentModal')) {
     showToast('Payment system not ready. Please refresh.', 'error');
     return;
   }
@@ -1826,10 +2396,8 @@ export function openPaymentModal(data) {
     _paymentSettings.usdt = DEFAULT_USDT_ADDRESS;
   }
 
-  // Reset due mode
   document.getElementById('paymentModal').dataset.duemode = 'false';
 
-  // Campaign mode: force advance only
   if (data && data.type === 'campaign') {
     const fullOpt = document.querySelector('input[name="paymentType"][value="full"]');
     const advOpt = document.querySelector('input[name="paymentType"][value="advance"]');
@@ -1849,7 +2417,6 @@ export function openPaymentModal(data) {
     }
   }
 
-  // Enable advance radio
   document.querySelectorAll('input[name="paymentType"]').forEach(el => {
     if (el.value === 'advance') {
       el.disabled = false;
@@ -1857,7 +2424,6 @@ export function openPaymentModal(data) {
     }
   });
 
-  // Default radio to full payment
   const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
   if (fullRadio) fullRadio.checked = true;
 
@@ -1883,11 +2449,13 @@ window.openPaymentModal = openPaymentModal;
 // ================================================================
 window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderData) {
   if (!document.getElementById('paymentModal')) {
+    renderPaymentModal();
+  }
+  if (!document.getElementById('paymentModal')) {
     showToast('Payment system not ready. Please refresh.', 'error');
     return;
   }
 
-  // Store due info globally
   window._duePaymentData = {
     orderId: orderId,
     dueUSD: dueUSD,
@@ -1896,24 +2464,20 @@ window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderDa
     orderData: orderData
   };
 
-  // Set total to due amount
   _paymentOrderTotalUSD = dueUSD;
   _paymentSettings = settings || {};
   if (!_paymentSettings.usdRate || _paymentSettings.usdRate <= 0) _paymentSettings.usdRate = 125;
 
-  // Override payment type radio to force "full" (since it's due payment)
   const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
   if (fullRadio) fullRadio.checked = true;
   const advanceRadio = document.querySelector('input[name="paymentType"][value="advance"]');
   if (advanceRadio) {
-    advanceRadio.disabled = true; // disable pay later option for due
+    advanceRadio.disabled = true;
     advanceRadio.closest('label').style.display = 'none';
   }
 
-  // Set due mode flag
   document.getElementById('paymentModal').dataset.duemode = 'true';
 
-  // Update UI
   document.getElementById('paymentOrderId').value = orderId;
   document.getElementById('paymentTotalUSD').textContent = '$' + dueUSD.toFixed(2);
   document.getElementById('paymentTotalBDTRow').classList.remove('hidden');
@@ -1921,21 +2485,22 @@ window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderDa
   document.getElementById('paymentRateNote').classList.remove('hidden');
   document.getElementById('paymentRateNote').textContent = `Due payment: $${dueUSD.toFixed(2)} USD = ৳${dueBDT.toFixed(0)} (Rate: 1 USD = ৳${_paymentSettings.usdRate})`;
 
-  // Reset form fields
   document.getElementById('paymentMethodSelect').value = '';
   document.getElementById('paymentSenderNumber').value = '';
   document.getElementById('transactionId').value = '';
   document.getElementById('paymentError').classList.add('hidden');
   document.getElementById('paymentMethodDetails').classList.add('hidden');
 
-  // Show modal
   document.getElementById('paymentModal').classList.remove('hidden');
 };
 
 // ================================================================
-// ✅ CAMPAIGN PAYMENT (fixed ৳500 advance)
+// ✅ CAMPAIGN PAYMENT (fixed advance)
 // ================================================================
 window.openCampaignPaymentModal = function(campaign, advanceBDT, advanceUSD, settings) {
+  if (!document.getElementById('paymentModal')) {
+    renderPaymentModal();
+  }
   if (!document.getElementById('paymentModal')) {
     showToast('Payment system not ready. Please refresh.', 'error');
     return;
@@ -1968,7 +2533,6 @@ window.openCampaignPaymentModal = function(campaign, advanceBDT, advanceUSD, set
   if (!(_paymentSettings.usdRate > 0)) _paymentSettings.usdRate = rate;
   _paymentOrderTotalUSD = advUSD;
 
-  // Force advance only
   const fullOpt = document.querySelector('input[name="paymentType"][value="full"]');
   const advOpt = document.querySelector('input[name="paymentType"][value="advance"]');
   if (fullOpt) {
@@ -2007,12 +2571,10 @@ window.closePaymentModal = function() {
     el.classList.add('hidden');
     el.dataset.duemode = 'false';
   }
-  // Re-enable payment type radios
   document.querySelectorAll('input[name="paymentType"]').forEach(el => {
     el.disabled = false;
     if (el.closest('label')) el.closest('label').style.display = '';
   });
-  // Clear due data
   window._duePaymentData = null;
 };
 
@@ -2041,7 +2603,6 @@ window.updatePaymentMethodUI = function() {
   const totalUSD = Number(_paymentOrderTotalUSD) || 0;
   const totalBDT = Math.round(totalUSD * rate);
 
-  // Campaign advance uses the amount set on the campaign; regular products still use ৳500
   const pending = window._pendingCheckoutData;
   const isCampaign = pending && pending.type === 'campaign';
   const campaignAdvanceBDT = isCampaign
@@ -2050,7 +2611,6 @@ window.updatePaymentMethodUI = function() {
   const campaignAdvanceUSD = isCampaign
     ? (Number(pending.amountUSD) || Number((campaignAdvanceBDT / rate).toFixed(2)))
     : Number((500 / rate).toFixed(2));
-  // For campaign, order total (full price) may differ from advance
   const campaignFullBDT = isCampaign
     ? (Number(pending.campaignPrice) || campaignAdvanceBDT)
     : totalBDT;
@@ -2277,6 +2837,8 @@ export async function uploadImage(file) {
 
 export async function syncCart(userId) {
   if (!userId) return;
+  // Skip on agency pages (no cart UI)
+  if (isAgencyServiceFlow()) return;
   const cartRef = doc(db, 'carts', userId);
   try {
     const localCart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -2324,7 +2886,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
 
   if (loadingEl) loadingEl.style.display = 'none';
 
-  // Keep role from cache if caller did not pass it (avoids flicker / admin link loss)
   if (user && (role === null || role === undefined)) {
     const cached = getCachedUser();
     if (cached && cached.uid === user.uid) {
@@ -2334,7 +2895,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
   }
 
   if (user) {
-    // Cancel any pending "logout UI" from a brief null event
     if (_authNullTimer) {
       clearTimeout(_authNullTimer);
       _authNullTimer = null;
@@ -2346,7 +2906,6 @@ export function updateNavbarAuth(user, displayName, role = null) {
     if (mobileAuthButtons) mobileAuthButtons.classList.add('hidden');
     if (mobileUserLinks) mobileUserLinks.classList.remove('hidden');
     if (avatar) {
-      // Keep default profile icon (do not use first letter)
       avatar.innerHTML = '<i class="fas fa-user"></i>';
       avatar.title = displayName || user.email || 'Account';
     }
@@ -2366,19 +2925,15 @@ export function updateNavbarAuth(user, displayName, role = null) {
       mobileAdminLink.classList.toggle('hidden', !isAdmin);
     }
 
-    // Notifications for any logged-in user
     startAdminMessageListener(user);
 
-    // Support floating button on public pages
     if (typeof window.__ccbdMountSupportWidget === 'function') {
       window.__ccbdMountSupportWidget(user);
     }
 
   } else {
-    // Debounce logout UI — token refresh can emit null briefly
     if (_authNullTimer) clearTimeout(_authNullTimer);
     _authNullTimer = setTimeout(() => {
-      // If Firebase still has a user, do NOT clear UI
       if (auth.currentUser) {
         console.log('[auth] ignored brief null — session still active');
         return;
@@ -2464,290 +3019,34 @@ document.addEventListener('keydown', (e) => {
     if (document.getElementById('qrZoomModal') && !document.getElementById('qrZoomModal').classList.contains('hidden')) {
       window.closeQrZoom();
     }
-    // Close payment modal on escape
     const paymentModal = document.getElementById('paymentModal');
     if (paymentModal && !paymentModal.classList.contains('hidden')) {
       window.closePaymentModal();
+    }
+    const designRefModal = document.getElementById('designRefModal');
+    if (designRefModal && !designRefModal.classList.contains('hidden')) {
+      window.__ccbdCloseDesignRefModal && window.__ccbdCloseDesignRefModal();
     }
   }
 });
 
 // ================================================================
-// ✅ COMMON AUTH MODAL SYSTEM (Advanced - Shared across all pages)
+// ✅ COMMON AUTH MODAL SYSTEM
 // ================================================================
-
-let currentAuthMode = 'signin'; // signin | signup | forgot
+let currentAuthMode = 'signin';
 
 export function renderAuthModal() {
   // Auth is a dedicated page now — do not inject popup modal
   return;
-  if (document.getElementById('authModal')) return;
-
-  const modalHTML = `
-    <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[600] hidden p-4">
-      <div class="bg-white rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto" style="animation: scaleIn 0.3s ease forwards;">
-        
-        <div class="flex justify-between items-center mb-5">
-          <h3 id="authModalTitle" class="text-2xl font-bold text-gray-900">Sign In</h3>
-          <button onclick="window.closeAuthModal()" class="text-gray-400 hover:text-gray-600 text-xl transition-colors" aria-label="Close">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-
-        <form id="authForm" class="space-y-4">
-          <div id="nameField" class="hidden">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
-            <input type="text" id="authName" class="form-input" placeholder="Your full name" autocomplete="name" />
-          </div>
-
-          <div id="phoneField" class="hidden">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
-            <input type="tel" id="authPhone" class="form-input" placeholder="+880 1XXX-XXXXXX" autocomplete="tel" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Email *</label>
-            <input type="email" id="authEmail" placeholder="your@email.com" required class="form-input" autocomplete="email" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Password *</label>
-            <div class="relative">
-              <input type="password" id="authPassword" placeholder="••••••••" required class="form-input pr-12" autocomplete="current-password" />
-              <button type="button" onclick="window.toggleAuthPassword('authPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600">
-                <i class="fas fa-eye" id="authPassIcon"></i>
-              </button>
-            </div>
-          </div>
-
-          <div id="confirmPasswordField" class="hidden">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password *</label>
-            <div class="relative">
-              <input type="password" id="authConfirmPassword" placeholder="••••••••" class="form-input pr-12" autocomplete="new-password" />
-              <button type="button" onclick="window.toggleAuthPassword('authConfirmPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600">
-                <i class="fas fa-eye"></i>
-              </button>
-            </div>
-          </div>
-
-          <div id="forgotPasswordLink" class="text-right">
-            <a href="#" onclick="window.openForgotPassword(event)" class="text-sm text-blue-600 hover:underline font-medium">
-              Forgot Password?
-            </a>
-          </div>
-
-          <button type="submit" class="btn-primary w-full justify-center" id="authSubmitBtn">
-            Sign In
-          </button>
-        </form>
-
-        <form id="forgotPasswordForm" class="space-y-4 hidden">
-          <p class="text-sm text-gray-500">
-            Enter your email address and we will send you a link to reset your password.
-          </p>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Email Address *</label>
-            <input type="email" id="forgotEmail" placeholder="your@email.com" required class="form-input" />
-          </div>
-          <button type="submit" class="btn-primary w-full justify-center" id="forgotSubmitBtn">
-            <i class="fas fa-paper-plane"></i> Send Reset Link
-          </button>
-          <button type="button" onclick="window.backToSignIn()" class="btn-outline w-full justify-center text-sm">
-            ← Back to Sign In
-          </button>
-        </form>
-
-        <div id="socialLoginSection" class="mt-5">
-          <div class="relative my-4">
-            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
-            <div class="relative flex justify-center text-sm">
-              <span class="px-3 bg-white text-gray-400">or continue with</span>
-            </div>
-          </div>
-          <button type="button" onclick="window.socialLogin('google')" class="btn-outline w-full justify-center">
-            <i class="fab fa-google text-red-500"></i> Continue with Google
-          </button>
-        </div>
-
-        <p id="authToggleSection" class="mt-5 text-sm text-gray-500 text-center">
-          <span id="authToggleText">Don't have an account?</span>
-          <a href="#" id="authToggleLink" class="text-blue-600 font-medium hover:underline">Sign Up</a>
-        </p>
-
-        <div id="authError" class="text-red-500 text-sm mt-3 hidden text-center p-2 bg-red-50 rounded-lg"></div>
-        <div id="authSuccess" class="text-green-600 text-sm mt-3 hidden text-center p-2 bg-green-50 rounded-lg"></div>
-      </div>
-    </div>
-  `;
-
-  document.body.insertAdjacentHTML('beforeend', modalHTML);
-  initAuthModalEvents();
 }
 
-function updateAuthUI() {
-  const title = document.getElementById('authModalTitle');
-  const nameField = document.getElementById('nameField');
-  const phoneField = document.getElementById('phoneField');
-  const confirmField = document.getElementById('confirmPasswordField');
-  const forgotLink = document.getElementById('forgotPasswordLink');
-  const authForm = document.getElementById('authForm');
-  const forgotForm = document.getElementById('forgotPasswordForm');
-  const socialSection = document.getElementById('socialLoginSection');
-  const toggleSection = document.getElementById('authToggleSection');
-  const toggleText = document.getElementById('authToggleText');
-  const toggleLink = document.getElementById('authToggleLink');
-  const submitBtn = document.getElementById('authSubmitBtn');
-
-  [nameField, phoneField, confirmField, forgotLink, authForm, forgotForm, socialSection, toggleSection].forEach(el => {
-    if (el) el.classList.add('hidden');
-  });
-
-  if (currentAuthMode === 'signin') {
-    title.textContent = 'Sign In';
-    authForm.classList.remove('hidden');
-    forgotLink.classList.remove('hidden');
-    socialSection.classList.remove('hidden');
-    toggleSection.classList.remove('hidden');
-    toggleText.textContent = "Don't have an account?";
-    toggleLink.textContent = 'Sign Up';
-    submitBtn.innerHTML = 'Sign In';
-  } else if (currentAuthMode === 'signup') {
-    title.textContent = 'Create Account';
-    authForm.classList.remove('hidden');
-    nameField.classList.remove('hidden');
-    phoneField.classList.remove('hidden');
-    confirmField.classList.remove('hidden');
-    socialSection.classList.remove('hidden');
-    toggleSection.classList.remove('hidden');
-    toggleText.textContent = 'Already have an account?';
-    toggleLink.textContent = 'Sign In';
-    submitBtn.innerHTML = 'Create Account';
-  } else if (currentAuthMode === 'forgot') {
-    title.textContent = 'Reset Password';
-    forgotForm.classList.remove('hidden');
-  }
-}
-
-function initAuthModalEvents() {
-  document.getElementById('authToggleLink')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
-    updateAuthUI();
-    clearAuthMessages();
-  });
-
-  const authForm = document.getElementById('authForm');
-  if (authForm) authForm.addEventListener('submit', handleAuthSubmit);
-
-  const forgotForm = document.getElementById('forgotPasswordForm');
-  if (forgotForm) forgotForm.addEventListener('submit', handleForgotPassword);
-
-  document.getElementById('authModal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'authModal') window.closeAuthModal();
-  });
-}
-
-function clearAuthMessages() {
-  document.getElementById('authError')?.classList.add('hidden');
-  document.getElementById('authSuccess')?.classList.add('hidden');
-}
-
-async function handleAuthSubmit(e) {
-  e.preventDefault();
-  clearAuthMessages();
-
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const name = document.getElementById('authName')?.value.trim() || '';
-  const phone = document.getElementById('authPhone')?.value.trim() || '';
-  const confirmPassword = document.getElementById('authConfirmPassword')?.value || '';
-  const submitBtn = document.getElementById('authSubmitBtn');
-
-  setLoading(submitBtn, true);
-
-  try {
-    if (currentAuthMode === 'signin') {
-      await signInWithEmailAndPassword(auth, email, password);
-      showToast('✅ Signed in successfully!', 'success');
-      window.closeAuthModal();
-    } else if (currentAuthMode === 'signup') {
-      if (!name) throw new Error('Please enter your full name');
-      if (password.length < 6) throw new Error('Password must be at least 6 characters');
-      if (password !== confirmPassword) throw new Error('Passwords do not match');
-
-      const userCred = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCred.user;
-
-      await setDoc(doc(db, 'users', user.uid), {
-        email,
-        displayName: name,
-        phone: phone || '',
-        role: 'user',
-        createdAt: new Date().toISOString(),
-        isActive: true,
-        emailVerified: false
-      });
-
-      try { await sendEmailVerification(user); } catch (ve) { console.warn('Verification email failed:', ve); }
-
-      showToast('✅ Account created successfully!', 'success');
-      window.closeAuthModal();
-    }
-  } catch (error) {
-    console.error(error);
-    let msg = error.message;
-    if (error.code === 'auth/email-already-in-use') msg = 'This email is already registered';
-    else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') msg = 'Incorrect email or password';
-    else if (error.code === 'auth/user-not-found') msg = 'No account found with this email';
-    else if (error.code === 'auth/weak-password') msg = 'Password is too weak (min 6 characters)';
-    else if (error.code === 'auth/invalid-email') msg = 'Invalid email address';
-    else if (error.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later';
-
-    const errorDiv = document.getElementById('authError');
-    if (errorDiv) {
-      errorDiv.textContent = '⚠️ ' + msg;
-      errorDiv.classList.remove('hidden');
-    }
-  } finally {
-    setLoading(submitBtn, false);
-  }
-}
-
-async function handleForgotPassword(e) {
-  e.preventDefault();
-  clearAuthMessages();
-
-  const email = document.getElementById('forgotEmail').value.trim();
-  if (!email) {
-    const err = document.getElementById('authError');
-    if (err) { err.textContent = 'Please enter your email'; err.classList.remove('hidden'); }
-    return;
-  }
-
-  const btn = document.getElementById('forgotSubmitBtn');
-  setLoading(btn, true, 'Sending...');
-
-  try {
-    await sendPasswordResetEmail(auth, email);
-    const successDiv = document.getElementById('authSuccess');
-    if (successDiv) {
-      successDiv.innerHTML = '✅ Password reset link sent!<br>Check your inbox and spam folder.';
-      successDiv.classList.remove('hidden');
-    }
-    showToast('✅ Reset link sent to your email', 'success');
-  } catch (error) {
-    let msg = error.message;
-    if (error.code === 'auth/user-not-found') msg = 'No account found with this email';
-    else if (error.code === 'auth/invalid-email') msg = 'Invalid email address';
-    const err = document.getElementById('authError');
-    if (err) { err.textContent = '⚠️ ' + msg; err.classList.remove('hidden'); }
-  } finally {
-    setLoading(btn, false);
-  }
-}
+function updateAuthUI() { /* noop — auth is a dedicated page */ }
+function initAuthModalEvents() { /* noop */ }
+function clearAuthMessages() { /* noop */ }
+async function handleAuthSubmit() { /* noop */ }
+async function handleForgotPassword() { /* noop */ }
 
 window.openAuthModal = function(mode = 'signin') {
-  // Redirect to dedicated auth page (popup removed)
   const m = (mode === 'signup' || mode === 'forgot' || mode === 'signin') ? mode : 'signin';
   try {
     const page = (window.location.pathname || '').split('/').pop() || 'index.html';
@@ -2766,15 +3065,11 @@ window.closeAuthModal = function() {
 
 window.openForgotPassword = function(e) {
   if (e) e.preventDefault();
-  currentAuthMode = 'forgot';
-  updateAuthUI();
-  clearAuthMessages();
+  window.openAuthModal('forgot');
 };
 
 window.backToSignIn = function() {
-  currentAuthMode = 'signin';
-  updateAuthUI();
-  clearAuthMessages();
+  window.openAuthModal('signin');
 };
 
 window.toggleAuthPassword = function(id) {
@@ -2839,7 +3134,6 @@ window.handleLogout = async function() {
   }
 };
 
-// Also close auth modal on Escape
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const authModal = document.getElementById('authModal');
@@ -2850,7 +3144,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ================================================================
-// ✅ FLOATING SUPPORT CHAT — ENHANCED WITH IMAGES & SYNC
+// ✅ FLOATING SUPPORT CHAT
 // ================================================================
 let _supportUser = null;
 let _supportUnsub = null;
@@ -3083,7 +3377,6 @@ function _ensureSupportDom() {
   `;
   document.body.appendChild(root);
 
-  // ── Button toggle ──
   document.getElementById('ccbdSupportBtn').addEventListener('click', () => {
     if (!_supportUser) {
       if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
@@ -3102,7 +3395,6 @@ function _ensureSupportDom() {
         if (body) body.scrollTop = body.scrollHeight;
         document.getElementById('ccbdSupportInput')?.focus();
       }, 50);
-      // Mark admin messages as read when opening popup
       markAllAdminMessagesRead().then(() => {
         unreadAdminMessages = [];
         updateNotificationBadge(0);
@@ -3130,7 +3422,6 @@ function _ensureSupportDom() {
     window.location.href = 'messages.html';
   });
 
-  // ── Input & send ──
   const input = document.getElementById('ccbdSupportInput');
   input.addEventListener('input', () => {
     input.style.height = 'auto';
@@ -3144,7 +3435,6 @@ function _ensureSupportDom() {
   });
   document.getElementById('ccbdSupportSend').addEventListener('click', () => _sendSupportMessage());
 
-  // ── File attachment ──
   const fileBtn = document.getElementById('ccbdFileBtn');
   const fileInput = document.getElementById('ccbdFileInput');
   const preview = document.getElementById('ccbdPreview');
@@ -3234,7 +3524,6 @@ async function _sendSupportMessage() {
   try {
     if (hasFile) {
       imageUrl = await uploadImage(_supportPendingImage);
-      // Clear preview
       _supportPendingImage = null;
       document.getElementById('ccbdPreview')?.classList.remove('show');
       document.getElementById('ccbdPreviewImg').src = '#';
@@ -3374,7 +3663,6 @@ window.__ccbdHideSupportWidget = function() {
   _supportMsgs = [];
 };
 
-// Mount launcher even before auth (shows login prompt on open)
 if (typeof document !== 'undefined') {
   const boot = () => {
     if (_supportIsAdminPage() || _supportIsMessagesPage()) return;
@@ -3442,7 +3730,6 @@ export function renderCookieConsent() {
   }
 }
 
-// Expose lightbox for popup images
 window.openImageLightbox = function(url) {
   const lb = document.getElementById('imgLightbox');
   const img = document.getElementById('lbImage');
@@ -3451,9 +3738,8 @@ window.openImageLightbox = function(url) {
     lb.classList.add('open');
     document.body.style.overflow = 'hidden';
   } else {
-    // Fallback: open in new tab
     window.open(url, '_blank');
   }
 };
 
-console.log('✅ components.js: Enhanced support chat with images & archive sync');
+console.log('✅ components.js loaded — agency flow detection active. Files #1 & #2 ready.');

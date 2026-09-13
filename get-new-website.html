@@ -4,405 +4,523 @@
     <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>Buy Website Package Bangladesh | Ready-Made Website Store | CodeCureBD</title>
+    <title>Design Reference & Service Selector | CodeCureBD</title>
+    <meta name="description" content="Pick a design direction and configure your custom website. Tailored builds, transparent estimates, and a proper brief-to-launch workflow. Based in Bangladesh.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
-  <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
-  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
-  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
 
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="tailwind.css" />
-  <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css" />
 
     <style>
-        /* ── reset & base ── */
-        * {
-            box-sizing: border-box;
-        }
+        /* ─── Reset & Base ─── */
+        * { box-sizing: border-box; }
         body {
-            background: #f2f4f7;
+            background: #f0f4f9;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
             min-height: 100vh;
         }
 
-        /* ── glass card ── */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            padding: 1.25rem;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            transition: all 0.3s ease;
-        }
-        .glass-card:hover {
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
-            transform: translateY(-4px);
-        }
-
-        /* ── product card ── */
-        .product-card {
-            transition: all 0.3s ease;
-            overflow: hidden;
-            padding: 0 !important;
-            background: rgba(255, 255, 255, 0.78);
-        }
-        .product-card .img-wrapper {
+        /* ─── Page intro hero ─── */
+        .selector-hero {
+            background:
+                radial-gradient(ellipse 70% 55% at 15% 15%, rgba(37,99,235,0.1), transparent 55%),
+                radial-gradient(ellipse 55% 45% at 85% 25%, rgba(124,58,237,0.09), transparent 55%),
+                linear-gradient(165deg, #f8faff 0%, #f1f5f9 100%);
+            border: 1px solid rgba(15,23,42,0.05);
+            border-radius: 24px;
+            padding: 2rem 1.75rem 2rem;
+            margin: 0 0 2rem;
             position: relative;
-            border-radius: 16px 16px 0 0;
             overflow: hidden;
-            background: #f0f2f5;
-            height: 200px;
+        }
+        .selector-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(37,99,235,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37,99,235,0.035) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: radial-gradient(ellipse 70% 60% at 30% 30%, #000 10%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 30% 30%, #000 10%, transparent 70%);
             pointer-events: none;
         }
-        .product-card .img-wrapper iframe {
+        .selector-hero > * { position: relative; z-index: 1; }
+
+        .selector-hero .sh-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            background: rgba(37,99,235,0.1);
+            color: #2563eb;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            margin-bottom: 0.85rem;
+        }
+        .selector-hero h1 {
+            font-size: clamp(1.6rem, 3.6vw, 2.35rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #0f172a;
+            line-height: 1.15;
+            margin: 0 0 0.75rem;
+        }
+        .selector-hero p {
+            font-size: 1rem;
+            color: #475569;
+            line-height: 1.65;
+            max-width: 640px;
+            margin: 0 0 1.5rem;
+        }
+
+        /* ─── Filter bar ─── */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        .filter-bar .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+        }
+        .filter-bar .search-wrap i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        .filter-bar .search-wrap input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(15,23,42,0.06);
+            background: #fff;
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: #0f172a;
+            outline: none;
+            transition: 0.2s;
+        }
+        .filter-bar .search-wrap input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+        }
+        .filter-bar select {
+            padding: 12px 40px 12px 16px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(15,23,42,0.06);
+            background: #fff;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #334155;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            transition: 0.2s;
+            min-width: 170px;
+        }
+        .filter-bar select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+        }
+        .filter-bar .btn-reset {
+            padding: 12px 18px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(15,23,42,0.06);
+            background: #fff;
+            color: #334155;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .filter-bar .btn-reset:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+            background: rgba(37,99,235,0.03);
+        }
+        @media (max-width: 640px) {
+            .filter-bar select,
+            .filter-bar .btn-reset { min-width: 0; flex: 1; }
+            .filter-bar { gap: 0.5rem; }
+        }
+
+        /* ─── Result meta ─── */
+        .result-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .result-meta strong { color: #0f172a; font-weight: 700; }
+
+        /* ─── Grid ─── */
+        .design-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.35rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 640px) {
+            .design-grid { grid-template-columns: 1fr; gap: 1rem; }
+        }
+
+        /* ─── Design card ─── */
+        .design-card {
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 22px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94),
+                        box-shadow 0.3s ease,
+                        border-color 0.25s ease;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+        }
+        .design-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 48px rgba(15,23,42,0.08);
+            border-color: rgba(37,99,235,0.16);
+        }
+        .design-card .dc-preview {
+            position: relative;
+            aspect-ratio: 16 / 10;
+            background: #f1f5f9;
+            border-bottom: 1px solid rgba(15,23,42,0.05);
+            overflow: hidden;
+        }
+        .design-card .dc-preview iframe,
+        .design-card .dc-preview img {
             width: 100%;
             height: 100%;
             border: none;
             display: block;
             background: #ffffff;
-        }
-        .product-card .img-wrapper img {
-            width: 100%;
-            height: 100%;
             object-fit: cover;
-            display: block;
+            pointer-events: none;
         }
-        .product-card .card-body {
-            padding: 1rem 0.75rem 0.75rem;
+        .design-card .dc-cat-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 12px;
+            background: rgba(15,23,42,0.78);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            z-index: 2;
+            max-width: calc(100% - 24px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
-
-        /* ── discount badge (on image) ── */
-        .discount-badge {
+        .design-card .dc-featured {
             position: absolute;
             top: 12px;
             right: 12px;
-            background: #dc2626;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .design-card .dc-body {
+            padding: 1.15rem 1.2rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+        .design-card .dc-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.015em;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .design-card .dc-desc {
+            font-size: 0.86rem;
+            color: #64748b;
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+        .design-card .dc-estimate {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-top: 0.35rem;
+        }
+        .design-card .dc-estimate .lbl {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .design-card .dc-estimate .amt {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .design-card .dc-estimate .bdt {
+            font-size: 0.78rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .design-card .dc-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 0.9rem;
+        }
+        .design-card .dc-configure {
+            flex: 1;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.22);
+            transition: 0.2s;
+            text-decoration: none;
+        }
+        .design-card .dc-configure:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(37,99,235,0.32);
+        }
+        .design-card .dc-try {
+            padding: 10px 14px;
+            border: 1.5px solid rgba(37,99,235,0.18);
+            background: rgba(37,99,235,0.06);
+            color: #2563eb;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .design-card .dc-try:hover {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        /* ─── Skeleton ─── */
+        .skeleton-card {
+            background: #f3f4f6;
+            border-radius: 22px;
+            overflow: hidden;
+            animation: pulseSk 1.5s ease-in-out infinite;
+        }
+        .skeleton-card .sk-img { width: 100%; aspect-ratio: 16 / 10; background: #e5e7eb; }
+        .skeleton-card .sk-body { padding: 1.1rem 1.2rem 1.25rem; }
+        .skeleton-card .sk-line {
+            height: 14px; background: #e5e7eb; border-radius: 8px; margin-bottom: 0.6rem;
+        }
+        .skeleton-card .sk-line.w60 { width: 60%; }
+        .skeleton-card .sk-line.w40 { width: 40%; }
+        @keyframes pulseSk {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.55; }
+        }
+
+        /* ─── Empty states ─── */
+        .selector-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3.5rem 1.5rem;
+            background: #fff;
+            border: 1px dashed rgba(15,23,42,0.1);
+            border-radius: 22px;
+        }
+        .selector-empty i.big {
+            font-size: 3rem;
+            color: #94a3b8;
+            opacity: 0.3;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        .selector-empty h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #334155;
+            margin: 0 0 0.4rem;
+        }
+        .selector-empty p {
+            font-size: 0.9rem;
+            color: #64748b;
+            max-width: 400px;
+            margin: 0 auto 1.25rem;
+            line-height: 1.55;
+        }
+
+        /* ─── Start from scratch CTA card ─── */
+        .scratch-card {
+            background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(124,58,237,0.08));
+            border: 1.5px dashed rgba(37,99,235,0.22);
+            border-radius: 22px;
+            padding: 1.5rem 1.4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 0.75rem;
+            min-height: 260px;
+            text-align: left;
+        }
+        .scratch-card .sc-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            margin-bottom: 0.15rem;
+            box-shadow: 0 6px 18px rgba(37,99,235,0.28);
+        }
+        .scratch-card h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.015em;
+            line-height: 1.3;
+            margin: 0;
+        }
+        .scratch-card p {
+            font-size: 0.86rem;
+            color: #475569;
+            line-height: 1.55;
+            margin: 0;
+            flex: 1;
+        }
+        .scratch-card .sc-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
             color: #fff;
             font-weight: 700;
             font-size: 0.85rem;
-            padding: 4px 14px;
-            border-radius: 60px;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
-            letter-spacing: 0.3px;
-            z-index: 5;
-            backdrop-filter: blur(2px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            pointer-events: none;
-        }
-        .discount-badge i {
-            font-size: 0.7rem;
-            opacity: 0.9;
-        }
-
-        /* ── price section ── */
-        .price-wrapper {
-            display: flex;
-            align-items: baseline;
-            flex-wrap: wrap;
-            gap: 6px 12px;
-            margin-top: 0.5rem;
-        }
-        .original-price {
-            text-decoration: line-through;
-            color: #9ca3af;
-            font-size: 0.95rem;
-        }
-        .discount-price {
-            color: #16a34a;
-            font-weight: 700;
-            font-size: 1.4rem;
-        }
-        .discount-percent-tag {
-            background: rgba(220, 38, 38, 0.10);
-            color: #dc2626;
-            font-weight: 700;
-            font-size: 0.78rem;
-            padding: 2px 12px;
-            border-radius: 40px;
-            border: 1px solid rgba(220, 38, 38, 0.12);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-        }
-        .discount-percent-tag i {
-            font-size: 0.6rem;
-        }
-        .price-bdt {
-            font-size: 0.9rem;
-            color: #6b7280;
-            font-weight: 500;
-        }
-        .price-bdt span {
-            font-weight: 600;
-            color: #1c1c1e;
-        }
-
-        .product-desc {
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.5;
-            max-height: 1.5em;
-        }
-        .product-title {
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.2;
-            max-height: 1.2em;
-        }
-
-        /* ── skeleton ── */
-        .skeleton-card {
-            background: #f3f4f6;
-            border-radius: 16px;
-            padding: 1.25rem;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        .skeleton-card .skeleton-img {
-            width: 100%;
-            height: 200px;
-            background: #e5e7eb;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-        }
-        .skeleton-card .skeleton-line {
-            height: 16px;
-            background: #e5e7eb;
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-        }
-        .skeleton-card .skeleton-line.short {
-            width: 40%;
-        }
-        .skeleton-card .skeleton-line.medium {
-            width: 70%;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        /* ── form inputs ── */
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid rgba(60, 60, 67, 0.08);
-            border-radius: 12px;
-            font-size: 0.95rem;
-            background: rgba(255, 255, 255, 0.8);
-            transition: all 0.3s ease;
-            outline: none;
-            font-family: 'Inter', sans-serif;
-            color: #1c1c1e;
-        }
-        .form-input:focus {
-            border-color: #007AFF;
-            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
-            background: #ffffff;
-        }
-        .form-input::placeholder {
-            color: #8e8e93;
-            opacity: 0.7;
-        }
-        select.form-input {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238e8e93' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            padding-right: 40px;
-        }
-
-        /* ── buttons ── */
-        .btn-primary {
-            background: linear-gradient(135deg, #007AFF, #5856D6);
-            color: #fff;
-            padding: 10px 22px;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 48px;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
-        }
-        .btn-primary:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: #1c1c1e;
-            padding: 10px 22px;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            border: 1.5px solid rgba(60, 60, 67, 0.08);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.5);
-            min-height: 48px;
-        }
-        .btn-outline:hover {
-            background: rgba(0, 122, 255, 0.04);
-            border-color: #007AFF;
-            color: #007AFF;
-            transform: translateY(-2px);
-        }
-
-        .btn-details {
-            background: rgba(0, 122, 255, 0.06);
-            color: #007AFF;
-            border: 1.5px solid rgba(0, 122, 255, 0.15);
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            min-height: 44px;
-            padding: 8px 18px;
-            flex: 1;
-            font-family: 'Inter', sans-serif;
             text-decoration: none;
-        }
-        .btn-details i {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        .btn-details:hover {
-            background: rgba(0, 122, 255, 0.12);
-            border-color: #007AFF;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.10);
-        }
-        .btn-details:active {
-            transform: scale(0.97);
-        }
-
-        .btn-add-cart {
-            background: linear-gradient(135deg, #34C759, #28A745);
-            color: #fff;
-            border: none;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            min-height: 44px;
-            padding: 8px 18px;
-            flex: 1;
-            font-family: 'Inter', sans-serif;
-            box-shadow: 0 2px 8px rgba(52, 199, 89, 0.20);
-        }
-        .btn-add-cart i {
-            font-size: 0.9rem;
-        }
-        .btn-add-cart:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(52, 199, 89, 0.35);
-        }
-        .btn-add-cart:active {
-            transform: scale(0.97);
-        }
-
-        /* ── rating stars ── */
-        .rating-stars .star {
-            font-size: 1.8rem;
-            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.25);
             transition: 0.2s;
-            color: #d1d5db;
         }
-        .rating-stars .star.active {
-            color: #f59e0b;
-        }
-        .rating-stars .star:hover {
-            transform: scale(1.2);
+        .scratch-card .sc-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(37,99,235,0.35);
         }
 
-        /* ── scroll top ── */
-        .scroll-top-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #007AFF, #5856D6);
-            color: #fff;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            box-shadow: 0 8px 30px rgba(0, 122, 255, 0.35);
-            z-index: 999;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            pointer-events: none;
+        /* ─── Info footnote ─── */
+        .selector-note {
+            margin-top: 2rem;
+            padding: 1.15rem 1.35rem;
+            background: rgba(37,99,235,0.05);
+            border: 1px solid rgba(37,99,235,0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.86rem;
+            color: #334155;
+            line-height: 1.6;
         }
-        .scroll-top-btn.show {
-            opacity: 1;
-            transform: scale(1);
-            pointer-events: auto;
+        .selector-note i {
+            color: #2563eb;
+            font-size: 1.05rem;
+            margin-top: 2px;
+            flex-shrink: 0;
         }
-        .scroll-top-btn:hover {
-            transform: scale(1.05);
-        }
+        .selector-note strong { color: #0f172a; font-weight: 700; }
 
-        /* ── fade-up ── */
+        /* ─── Small fade-up ─── */
         .fade-up {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(16px);
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) {
+            .fade-up { opacity: 1; transform: none; transition: none; }
         }
 
-        /* ── toast ── */
+        /* ─── Toast (safety net) ─── */
         #toast-container {
             position: fixed;
             bottom: 24px;
@@ -425,899 +543,700 @@
             border-radius: 60px;
             font-size: 0.9rem;
             font-weight: 500;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
             display: flex;
             align-items: center;
             gap: 10px;
             animation: slideUp 0.3s ease forwards;
             width: 100%;
-            backdrop-filter: blur(4px);
         }
-        .toast.success {
-            background: #28A745;
-        }
-        .toast.error {
-            background: #dc3545;
-        }
-        .toast.warning {
-            background: #ffc107;
-            color: #1c1c1e;
-        }
-        .toast.hide {
-            animation: slideDown 0.3s ease forwards;
-        }
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @keyframes slideDown {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-        }
-
-        /* ── exchange rate banner ── */
-        .rate-banner {
-            background: rgba(0, 122, 255, 0.06);
-            border: 1px solid rgba(0, 122, 255, 0.12);
-            border-radius: 60px;
-            padding: 6px 18px;
-            font-size: 0.85rem;
-            color: #1c1c1e;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-        }
-        .rate-banner i {
-            color: #007AFF;
-        }
-        .rate-banner strong {
-            font-weight: 700;
-            color: #007AFF;
-        }
-
-        /* ── responsive ── */
-        @media (max-width: 768px) {
-            .product-card .img-wrapper {
-                height: 150px;
-            }
-            .btn-primary,
-            .btn-outline,
-            .btn-details,
-            .btn-add-cart {
-                font-size: 0.82rem;
-                min-height: 40px;
-                padding: 6px 14px;
-            }
-            .rating-stars .star {
-                font-size: 1.5rem;
-            }
-            #toast-container {
-                bottom: 16px;
-                width: 92%;
-                max-width: 360px;
-            }
-            .toast {
-                padding: 10px 18px;
-                font-size: 0.82rem;
-            }
-            .discount-badge {
-                font-size: 0.7rem;
-                padding: 3px 10px;
-                top: 8px;
-                right: 8px;
-            }
-            .discount-price {
-                font-size: 1.2rem;
-            }
-            .discount-percent-tag {
-                font-size: 0.7rem;
-                padding: 1px 10px;
-            }
-            .price-wrapper {
-                gap: 4px 8px;
-            }
-            .price-bdt {
-                font-size: 0.8rem;
-            }
-            .rate-banner {
-                font-size: 0.75rem;
-                padding: 4px 12px;
-            }
-        }
-        @media (max-width: 480px) {
-            .product-card .img-wrapper {
-                height: 120px;
-            }
-            .btn-details,
-            .btn-add-cart {
-                font-size: 0.75rem;
-                min-height: 36px;
-                padding: 4px 12px;
-                gap: 4px;
-            }
-            .btn-details i,
-            .btn-add-cart i {
-                font-size: 0.75rem;
-            }
-            .discount-badge {
-                font-size: 0.65rem;
-                padding: 2px 8px;
-                top: 6px;
-                right: 6px;
-            }
-            .discount-price {
-                font-size: 1.05rem;
-            }
-            .discount-percent-tag {
-                font-size: 0.62rem;
-                padding: 1px 8px;
-            }
-            .original-price {
-                font-size: 0.8rem;
-            }
-            .price-bdt {
-                font-size: 0.7rem;
-            }
-            .rate-banner {
-                font-size: 0.65rem;
-                padding: 2px 10px;
-            }
-        }
-    
-    .btn-try-now {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border: 1.5px solid rgba(0,102,255,0.25);
-      color: #0066FF;
-      background: rgba(0,102,255,0.06);
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn-try-now:hover {
-      background: rgba(0,102,255,0.12);
-      border-color: #0066FF;
-    }
-
-    /* ── Pagination ── */
-    .pagination-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 1.75rem;
-      padding: 14px 18px;
-      background: rgba(255, 255, 255, 0.78);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-    }
-    .pagination-info {
-      font-size: 0.85rem;
-      color: #6b7280;
-      font-weight: 500;
-    }
-    .pagination-info strong {
-      color: #1c1c1e;
-      font-weight: 700;
-    }
-    .pagination-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .page-btn {
-      min-width: 40px;
-      height: 40px;
-      padding: 0 12px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(0, 0, 0, 0.06);
-      background: rgba(255, 255, 255, 0.9);
-      color: #374151;
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-family: inherit;
-    }
-    .page-btn:hover:not(:disabled):not(.active) {
-      border-color: #0066FF;
-      color: #0066FF;
-      background: rgba(0, 102, 255, 0.04);
-    }
-    .page-btn.active {
-      background: linear-gradient(135deg, #0066FF, #8B5CF6);
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 4px 14px rgba(0, 102, 255, 0.25);
-    }
-    .page-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    .page-ellipsis {
-      padding: 0 4px;
-      color: #9ca3af;
-      font-weight: 600;
-      user-select: none;
-    }
-    .per-page-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      color: #6b7280;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .per-page-wrap select {
-      min-width: 72px;
-      padding: 8px 12px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(0, 0, 0, 0.08);
-      background: #fff;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: #1c1c1e;
-      cursor: pointer;
-      outline: none;
-      font-family: inherit;
-    }
-    .per-page-wrap select:focus {
-      border-color: #0066FF;
-      box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.08);
-    }
-    @media (max-width: 640px) {
-      .pagination-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-        padding: 12px 14px;
-      }
-      .pagination-controls { justify-content: center; }
-      .page-btn {
-        min-width: 36px;
-        height: 36px;
-        font-size: 0.82rem;
-        padding: 0 10px;
-      }
-      .pagination-info { text-align: center; font-size: 0.8rem; }
-      .per-page-wrap { justify-content: center; }
-    }
-
-  </style>
+        .toast.success { background: #28A745; }
+        .toast.error { background: #dc3545; }
+        .toast.warning { background: #ffc107; color: #1c1c1e; }
+        .toast.hide { animation: slideDown 0.3s ease forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(30px); } }
+    </style>
 </head>
 <body>
 
-    <div class="page-wrapper">
-        <div id="navbar-placeholder"></div>
+<div class="page-wrapper">
+    <div id="navbar-placeholder"></div>
 
-        <main class="main-content">
-            <section class="pt-4 pb-12 px-6">
-                <div class="max-w-7xl mx-auto">
+    <main class="main-content">
+        <section style="padding: 2rem 1rem 4rem;">
+            <div style="max-width: 1200px; margin: 0 auto;">
 
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <h1 class="text-3xl font-bold text-gray-900 fade-up">Choose Your Website Package</h1>
-                        <!-- Exchange Rate Banner -->
-                        <div id="rateBanner" class="rate-banner fade-up">
-                            <i class="fas fa-exchange-alt"></i>
-                            1 USD = <strong id="displayRate">125</strong> BDT
-                        </div>
+                <!-- ===== HERO ===== -->
+                <div class="selector-hero fade-up">
+                    <span class="sh-eyebrow"><i class="fas fa-palette"></i> Design Reference & Service Selector</span>
+                    <h1>Pick a design direction. Then make it yours.</h1>
+                    <p>
+                        Choose from our curated design templates, add the modules you need, and submit a brief.
+                        Every project starts with a <strong>design reference</strong> — so what we build actually matches your vision.
+                    </p>
+
+                    <div id="stepIndicator" class="step-indicator" style="justify-content:flex-start;margin-bottom:0;">
+                        <span class="step active"><span class="num">1</span><span class="lbl">Choose design</span></span>
+                        <i class="fas fa-chevron-right step-arrow"></i>
+                        <span class="step"><span class="num">2</span><span class="lbl">Configure add-ons</span></span>
+                        <i class="fas fa-chevron-right step-arrow"></i>
+                        <span class="step"><span class="num">3</span><span class="lbl">Submit brief</span></span>
                     </div>
-
-                    <!-- filters (currency toggle removed) -->
-                    <div class="flex flex-wrap gap-4 mt-4 items-center fade-up">
-                        <div class="relative flex-1 min-w-[200px]">
-                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="productSearchInput" placeholder="Search packages..." class="form-input pl-10" />
-                        </div>
-                        <select id="categoryFilter" class="form-input max-w-xs">
-                            <option value="all">All Categories</option>
-                            <option value="static">Static</option>
-                            <option value="spa">SPA</option>
-                            <option value="dynamic">Dynamic</option>
-                            <option value="ecommerce">E-Commerce</option>
-                        </select>
-                        <select id="sortFilter" class="form-input max-w-xs">
-                            <option value="price-asc">Price: Low to High</option>
-                            <option value="price-desc">Price: High to Low</option>
-                            <option value="name">Name: A to Z</option>
-                        </select>
-                        <button onclick="resetFilters()" class="btn-outline text-sm py-2 px-4">
-                            <i class="fas fa-undo"></i> Reset
-                        </button>
-                    </div>
-
-                    <!-- product grid -->
-                    <div id="productGrid" class="grid md:grid-cols-3 gap-6 mt-8">
-                        <!-- rendered by JS -->
-                    </div>
-
-                    <!-- pagination -->
-                    <div id="paginationBar" class="pagination-bar" style="display:none;"></div>
-
                 </div>
-            </section>
-        </main>
 
-        <div id="footer-placeholder"></div>
-    </div>
+                <!-- ===== CATEGORY CHIPS ===== -->
+                <div id="categoryChipsWrap" style="margin-bottom: 1.25rem;">
+                    <!-- Filled by JS -->
+                </div>
 
-    <!-- scroll top -->
-    <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Back to top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
+                <!-- ===== FILTER BAR ===== -->
+                <div class="filter-bar">
+                    <div class="search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search designs by name or feature…" autocomplete="off" />
+                    </div>
+                    <select id="sortFilter">
+                        <option value="featured">Featured first</option>
+                        <option value="newest">Newest first</option>
+                        <option value="name-asc">Name A → Z</option>
+                        <option value="name-desc">Name Z → A</option>
+                        <option value="price-asc">Estimate: low → high</option>
+                        <option value="price-desc">Estimate: high → low</option>
+                    </select>
+                    <button type="button" class="btn-reset" onclick="window.resetSelectorFilters()">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
 
-    <!-- Auth Modal is now rendered by components.js (renderAuthModal) -->
+                <!-- ===== RESULT META ===== -->
+                <div class="result-meta">
+                    <span id="resultCount"><strong>Loading designs…</strong></span>
+                    <span id="activeFilterLabel"></span>
+                </div>
 
-    </div>
+                <!-- ===== DESIGN GRID ===== -->
+                <div id="designGrid" class="design-grid">
+                    <!-- Skeletons will be rendered by JS -->
+                </div>
 
-    <!-- toast container -->
-    <div id="toast-container"></div>
+                <!-- ===== INFO NOTE ===== -->
+                <div class="selector-note">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Estimates are ballpark figures.</strong>
+                        Final pricing is confirmed by our team after reviewing your brief and design references.
+                        You'll see a proper quote before any development begins — no surprises.
+                    </div>
+                </div>
 
-    <!-- ─── MAIN SCRIPT ─── -->
-    <script type="module">
-        import {
-            auth, db, collection, doc, getDoc, getDocs, onSnapshot,
-            addDoc, updateDoc, serverTimestamp,
-            signInWithEmailAndPassword, createUserWithEmailAndPassword,
-            onAuthStateChanged, signOut, setDoc,
-            signInWithPopup, googleProvider,
-            query, where, increment
-        } from './firebase-config.js';
-        import {
-renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
-            renderCartSidebar, setLoading, renderPaymentModal, syncCart, updateCartInFirestore,
-  renderAuthModal
-} from './components.js';
+            </div>
+        </section>
+    </main>
 
-        renderNavbar();
+    <div id="footer-placeholder"></div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+    // ================================================================
+    // IMPORTS
+    // ================================================================
+    import {
+        auth, db, collection, doc, getDoc, getDocs, query, where,
+        onAuthStateChanged, onSnapshot
+    } from './firebase-config.js';
+    import {
+        renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
+        renderCartSidebar, renderPaymentModal, renderAuthModal,
+        listenServiceCategories, listenAddOns, isAgencyServiceFlow
+    } from './components.js';
+
+    // ================================================================
+    // COMMON RENDER (agency-aware in components.js → no cart/payment modal)
+    // ================================================================
+    renderNavbar();
     renderAuthModal();
-        renderFooter();
-        renderCartSidebar();
-        renderPaymentModal();
-        updateCartBadge();
+    renderFooter();
+    renderCartSidebar();   // no-op on agency page
+    renderPaymentModal();  // no-op on agency page
+    updateCartBadge();     // no-op when #cartCount missing
 
-        // ── toast ──
-        window.showToast = (message, type = 'success') => {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const toast = document.createElement('div');
-            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.classList.add('hide');
-                setTimeout(() => toast.remove(), 400); }, 4500);
-        };
+    // ================================================================
+    // TOAST
+    // ================================================================
+    window.showToast = (message, type = 'success') => {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
+    };
 
-        // ── fade-up observer ──
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('visible');
-            });
-        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    // ================================================================
+    // FADE-UP OBSERVER
+    // ================================================================
+    const fadeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) { e.target.classList.add('visible'); fadeObserver.unobserve(e.target); }
         });
+    }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+    function observeFadeUps() {
+        document.querySelectorAll('.fade-up:not(.visible)').forEach(el => fadeObserver.observe(el));
+    }
 
-        // ── scroll top ──
-        const scrollBtn = document.getElementById('scrollTopBtn');
-        window.addEventListener('scroll', () => {
-            scrollBtn.classList.toggle('show', window.scrollY > 400);
-        });
-        scrollBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+    // ================================================================
+    // HELPERS
+    // ================================================================
+    function escapeHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+    function escapeHtmlAttr(str) { return escapeHtml(str); }
 
-        // ── auth ──
-        // Auth handled by components.js (renderAuthModal / openAuthModal)
-// togglePasswordVisibility moved to components.js as toggleAuthPassword
-// socialLogin handled by components.js
-// Auth form handled by components.js
-onAuthStateChanged(auth, async (user) => {
-            let name = null;
-            if (user) {
-                await syncCart(user.uid);
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                name = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
-            }
-            updateNavbarAuth(user, name);
-        });
+    // ================================================================
+    // STATE
+    // ================================================================
+    let allServiceCategories = [];   // from listenServiceCategories
+    let allDesignTemplates = [];     // from designTemplates OR products fallback
+    let allAddOns = [];              // for later (config page uses them directly, but we may hint counts)
+    let usdRate = 125;
+    let activeCategoryId = 'all';
+    let currentSort = 'featured';
+    let currentSearch = '';
+    let templateSource = 'designTemplates'; // 'designTemplates' | 'products'
 
-        // handleLogout handled by components.js
-// ─── CURRENCY & PRICE FORMATTING ──────────────────────────────
-
-        let usdRate = 125; // default, will be overridden by settings
-
-        function formatPriceUSD(priceUSD) {
-            return '$' + priceUSD.toFixed(2);
-        }
-
-        function formatBDT(amountBDT) {
-            return '৳' + Math.round(amountBDT).toLocaleString('en-BD');
-        }
-
-        function getBDT(priceUSD) {
-            return priceUSD * usdRate;
-        }
-
-        // ─── UPDATE RATE BANNER ──────────────────────────────────────
-        function updateRateBanner() {
-            document.getElementById('displayRate').textContent = usdRate;
-        }
-
-        // ─── LOAD SETTINGS FROM FIRESTORE ─────────────────────────────
-
-        async function loadPaymentSettings() {
-            try {
-                const snap = await getDoc(doc(db, 'settings', 'payment'));
-                if (snap.exists()) {
-                    const data = snap.data();
-                    if (data.usdRate && Number(data.usdRate) > 0) {
-                        usdRate = Number(data.usdRate);
-                        updateRateBanner();
-                    }
-                }
-            } catch (err) {
-                console.warn('Could not load payment settings, using default rate 125:', err);
-            }
-        }
-
-        // ─── PRODUCT LOGIC ──────────────────────────────────────────────
-
-        let allProducts = [];
-        let allDiscounts = [];
-        let productsReady = false;
-        let discountsReady = false;
-        let lastRenderKey = '';
-        let currentPage = 1;
-        let pageSize = 9; // default 9 per page
-        const grid = document.getElementById('productGrid');
-        const searchInput = document.getElementById('productSearchInput');
-        const categoryFilter = document.getElementById('categoryFilter');
-        const sortFilter = document.getElementById('sortFilter');
-        const paginationBar = document.getElementById('paginationBar');
-
-        function renderSkeletons(count = 6) {
-            let html = '';
-            for (let i = 0; i < count; i++) {
-                html += `
-              <div class="skeleton-card fade-up">
-                <div class="skeleton-img"></div>
-                <div class="skeleton-line medium"></div>
-                <div class="skeleton-line short"></div>
-                <div class="skeleton-line" style="width:40%;"></div>
-              </div>
-            `;
-            }
-            grid.innerHTML = html;
-            if (paginationBar) paginationBar.style.display = 'none';
-            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-        }
-        renderSkeletons();
-
-        // Debounce snapshot-driven renders so products + discounts + rate
-        // don't cause double/triple full grid rebuild (flicker)
-        function debounce(fn, wait) {
-            let t;
-            return (...args) => {
-                clearTimeout(t);
-                t = setTimeout(() => fn.apply(this, args), wait);
-            };
-        }
-
-        function getRenderKey() {
-            const search = (searchInput?.value || '').toLowerCase();
-            const cat = categoryFilter?.value || 'all';
-            const sort = sortFilter?.value || 'price-asc';
-            return [
-                allProducts.length,
-                allDiscounts.length,
-                usdRate,
-                search,
-                cat,
-                sort,
-                pageSize,
-                currentPage,
-                allProducts.map(p => p.id + ':' + (p.price || 0)).join(',')
-            ].join('|');
-        }
-
-        const scheduleProductRender = debounce(() => {
-            // Wait until products arrived at least once (keep skeleton)
-            if (!productsReady) return;
-            const key = getRenderKey();
-            // Skip identical re-render (stops flicker when discounts/settings fire right after products)
-            if (key === lastRenderKey && grid.children.length > 0 && !grid.querySelector('.skeleton-card')) {
-                return;
-            }
-            lastRenderKey = key;
-            renderProducts();
-        }, 80);
-
-        // ── get best discount for a product ──
-        function getDiscountForProduct(product) {
-            if (!allDiscounts || allDiscounts.length === 0) return null;
-
-            const specific = allDiscounts.filter(d => d.type === 'specific' && d.productId === product.id);
-            if (specific.length > 0) {
-                return specific.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, specific[0]);
-            }
-
-            if (product.category) {
-                const catDiscounts = allDiscounts.filter(d => d.type === 'category' && d.category === product.category);
-                if (catDiscounts.length > 0) {
-                    return catDiscounts.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, catDiscounts[0]);
-                }
-            }
-
-            const all = allDiscounts.filter(d => d.type === 'all');
-            if (all.length > 0) {
-                return all.reduce((max, d) => d.discountPercent > max.discountPercent ? d : max, all[0]);
-            }
-
-            return null;
-        }
-
-        function renderStars(rating) {
-            const full = Math.floor(rating);
-            const half = rating % 1 >= 0.5 ? 1 : 0;
-            let s = '';
-            for (let i = 0; i < full; i++) s += '★';
-            if (half) s += '☆';
-            for (let i = 0; i < 5 - full - half; i++) s += '☆';
-            return s;
-        }
-
-        function escapeHtmlAttr(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
-
-        function getFilteredProducts() {
-            let filtered = [...allProducts];
-            const search = (searchInput?.value || '').toLowerCase();
+    // Read ?search= param from navbar search
+    (function readUrlParams() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const search = params.get('search');
             if (search) {
-                filtered = filtered.filter(p =>
-                    (p.name || '').toLowerCase().includes(search) ||
-                    (p.desc || p.description || '').toLowerCase().includes(search)
-                );
+                currentSearch = String(search).trim();
+                const input = document.getElementById('searchInput');
+                if (input) input.value = currentSearch;
             }
-            const cat = categoryFilter?.value || 'all';
-            if (cat !== 'all') {
-                filtered = filtered.filter(p => p.category?.toLowerCase().trim() === cat);
+            const cat = params.get('cat') || params.get('category');
+            if (cat) activeCategoryId = String(cat);
+        } catch (_) {}
+    })();
+
+    // ================================================================
+    // LOAD RATE
+    // ================================================================
+    async function loadUsdRate() {
+        try {
+            const snap = await getDoc(doc(db, 'settings', 'payment'));
+            if (snap.exists()) {
+                const d = snap.data();
+                if (Number(d.usdRate) > 0) usdRate = Number(d.usdRate);
             }
-            const sort = sortFilter?.value || 'price-asc';
-            if (sort === 'price-asc') filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
-            else if (sort === 'price-desc') filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
-            else if (sort === 'name') filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-            return filtered;
-        }
+        } catch (_) {}
+    }
 
-        function renderPagination(totalItems) {
-            if (!paginationBar) return;
-            const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
-
-            if (totalItems === 0) {
-                paginationBar.style.display = 'none';
-                paginationBar.innerHTML = '';
-                return;
-            }
-
-            const start = (currentPage - 1) * pageSize + 1;
-            const end = Math.min(currentPage * pageSize, totalItems);
-
-            const pages = [];
-            const windowSize = 2;
-            let from = Math.max(1, currentPage - windowSize);
-            let to = Math.min(totalPages, currentPage + windowSize);
-            if (currentPage <= windowSize + 1) to = Math.min(totalPages, windowSize * 2 + 1);
-            if (currentPage >= totalPages - windowSize) from = Math.max(1, totalPages - windowSize * 2);
-
-            if (from > 1) {
-                pages.push(1);
-                if (from > 2) pages.push('…');
-            }
-            for (let i = from; i <= to; i++) pages.push(i);
-            if (to < totalPages) {
-                if (to < totalPages - 1) pages.push('…');
-                pages.push(totalPages);
-            }
-
-            const pageBtns = pages.map(p => {
-                if (p === '…') return `<span class="page-ellipsis">…</span>`;
-                const active = p === currentPage ? 'active' : '';
-                return `<button type="button" class="page-btn ${active}" data-page="${p}" ${p === currentPage ? 'aria-current="page"' : ''}>${p}</button>`;
-            }).join('');
-
-            // Hide bar when only 1 page
-            if (totalPages <= 1) {
-                paginationBar.style.display = 'none';
-                paginationBar.innerHTML = '';
-                return;
-            }
-
-            paginationBar.innerHTML = `
-                <div class="pagination-controls" style="margin-left:auto;margin-right:auto;">
-                    <button type="button" class="page-btn" data-page="prev" ${currentPage <= 1 ? 'disabled' : ''} aria-label="Previous page">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    ${pageBtns}
-                    <button type="button" class="page-btn" data-page="next" ${currentPage >= totalPages ? 'disabled' : ''} aria-label="Next page">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+    // ================================================================
+    // LOAD DESIGN TEMPLATES (with products fallback)
+    // ================================================================
+    function skeletonGrid(count = 6) {
+        const grid = document.getElementById('designGrid');
+        if (!grid) return;
+        let html = '';
+        for (let i = 0; i < count; i++) {
+            html += `
+                <div class="skeleton-card">
+                    <div class="sk-img"></div>
+                    <div class="sk-body">
+                        <div class="sk-line w60"></div>
+                        <div class="sk-line"></div>
+                        <div class="sk-line w40"></div>
+                    </div>
                 </div>
             `;
-            paginationBar.style.display = 'flex';
-
-            paginationBar.querySelectorAll('.page-btn[data-page]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const val = btn.dataset.page;
-                    let next = currentPage;
-                    if (val === 'prev') next = currentPage - 1;
-                    else if (val === 'next') next = currentPage + 1;
-                    else next = parseInt(val, 10);
-                    if (!next || next === currentPage || next < 1 || next > totalPages) return;
-                    currentPage = next;
-                    lastRenderKey = '';
-                    renderProducts();
-                    grid?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                });
-            });
         }
+        grid.innerHTML = html;
+    }
 
-        function renderProducts() {
-            const filtered = getFilteredProducts();
-
-            if (filtered.length === 0) {
-                grid.innerHTML =
-                    `<div class="col-span-full text-center py-12 text-gray-500"><i class="fas fa-box-open text-5xl opacity-30"></i><p class="mt-3 text-lg">No products found.</p><p class="text-sm">Try adjusting your search or filters.</p></div>`;
-                renderPagination(0);
-                return;
-            }
-
-            const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
-
-            const startIdx = (currentPage - 1) * pageSize;
-            const pageItems = filtered.slice(startIdx, startIdx + pageSize);
-
-            grid.innerHTML = pageItems.map(p => {
-                const rating = p.averageRating || 0;
-                const desc = p.desc || p.description || '';
-                const discount = getDiscountForProduct(p);
-                const originalPrice = p.price;
-                let discountedPrice = null;
-                let priceHtml = '';
-                let badgeHtml = '';
-
-                if (discount) {
-                    discountedPrice = originalPrice * (1 - discount.discountPercent / 100);
-                    const percent = Math.round(discount.discountPercent);
-                    const origFormatted = formatPriceUSD(originalPrice);
-                    const discFormatted = formatPriceUSD(discountedPrice);
-                    const discBDT = getBDT(discountedPrice);
-                    priceHtml = `
-                        <span class="original-price">${origFormatted}</span>
-                        <span class="discount-price">${discFormatted}</span>
-                        <span class="discount-percent-tag"><i class="fas fa-tag"></i> -${percent}%</span>
-                        <span class="price-bdt">(BDT <span>${formatBDT(discBDT)}</span>)</span>
-                    `;
-                    badgeHtml = `<div class="discount-badge"><i class="fas fa-tag"></i> -${percent}%</div>`;
-                } else {
-                    const priceFormatted = formatPriceUSD(originalPrice);
-                    const bdtAmount = getBDT(originalPrice);
-                    priceHtml = `
-                        <span class="discount-price" style="font-size:1.4rem;">${priceFormatted}</span>
-                        <span class="price-bdt">(BDT <span>${formatBDT(bdtAmount)}</span>)</span>
-                    `;
-                }
-
-                const hasHtml = p.htmlContent && p.htmlContent.length > 0;
-                let previewHtml = '';
-                if (hasHtml) {
-                    const escaped = escapeHtmlAttr(p.htmlContent);
-                    previewHtml = `
-                        <iframe 
-                            srcdoc="${escaped}" 
-                            scrolling="no" 
-                            loading="lazy" 
-                            sandbox="allow-scripts allow-same-origin"
-                            style="width:100%; height:100%; border:none; display:block; background:#ffffff;"
-                        ></iframe>
-                    `;
-                } else {
-                    const fallbackImg = p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image';
-                    previewHtml = `
-                        <img src="${fallbackImg}" alt="${p.name}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;" />
-                    `;
-                }
-
-                return `
-              <div class="glass-card product-card fade-up">
-                <div class="img-wrapper">
-                  ${previewHtml}
-                  ${badgeHtml}
-                </div>
-                <div class="card-body">
-                  <div class="flex justify-between items-start">
-                    <h3 class="font-bold text-xl text-gray-900 product-title">${p.name}</h3>
-                  </div>
-                  <p class="text-sm text-gray-500 mt-1 product-desc">${desc}</p>
-                  <div class="price-wrapper">${priceHtml}</div>
-                  <div class="mt-1 text-yellow-500 text-sm">${renderStars(rating)} (${p.ratingCount || 0})</div>
-                  <div class="mt-3 flex flex-wrap gap-2">
-                    <a href="product-detail.html?id=${p.id}" class="btn-details">
-                      <i class="fas fa-eye"></i> Details
-                    </a>
-                    <button onclick="window.addToCart('${p.id}')" class="btn-add-cart">
-                      <i class="fas fa-cart-plus"></i> Add
-                    </button>
-                    ${hasHtml ? `<button type="button" onclick="window.openProductDemo('${p.id}')" class="btn-try-now"><i class="fas fa-external-link-alt"></i> Try Now</button>` : ''}
-                  </div>
-                </div>
-              </div>
-            `;
-            }).join('');
-
-            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-            renderPagination(filtered.length);
-        }
-
-        // ── listen to products & discounts (single coordinated render) ──
-        await loadPaymentSettings();
-
-        // Real-time rate updates (skip first paint if rate unchanged)
-        let lastUsdRate = usdRate;
-        onSnapshot(doc(db, 'settings', 'payment'), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.usdRate && Number(data.usdRate) > 0) {
-                    const next = Number(data.usdRate);
-                    if (next !== lastUsdRate) {
-                        lastUsdRate = next;
-                        usdRate = next;
-                        updateRateBanner();
-                        scheduleProductRender();
-                    } else {
-                        usdRate = next;
-                        updateRateBanner();
-                    }
-                }
-            }
-        });
-
-        onSnapshot(collection(db, 'products'), (snapshot) => {
-            allProducts = [];
-            snapshot.forEach(doc => { allProducts.push({ id: doc.id, ...doc.data() }); });
-            productsReady = true;
-            scheduleProductRender();
-        });
-
-        onSnapshot(collection(db, 'discounts'), (snapshot) => {
-            allDiscounts = [];
-            snapshot.forEach(doc => { allDiscounts.push({ id: doc.id, ...doc.data() }); });
-            discountsReady = true;
-            scheduleProductRender();
-        });
-
-        const debouncedSearchRender = debounce(() => {
-            currentPage = 1;
-            lastRenderKey = '';
-            scheduleProductRender();
-        }, 250);
-        searchInput.addEventListener('input', debouncedSearchRender);
-        categoryFilter.addEventListener('change', () => {
-            currentPage = 1;
-            lastRenderKey = '';
-            scheduleProductRender();
-        });
-        sortFilter.addEventListener('change', () => {
-            currentPage = 1;
-            lastRenderKey = '';
-            scheduleProductRender();
-        });
-
-        window.resetFilters = () => {
-            searchInput.value = '';
-            categoryFilter.value = 'all';
-            sortFilter.value = 'price-asc';
-            pageSize = 9;
-            currentPage = 1;
-            lastRenderKey = '';
-            scheduleProductRender();
+    function normalizeTemplate(raw, source) {
+        // unify shape from designTemplates | products
+        const name = raw.name || 'Untitled Design';
+        const description = raw.description || raw.desc || '';
+        const categoryId = raw.categoryId || null;
+        // For products, category is a string slug like 'static'. Not an ID. So we leave categoryId null.
+        const categoryName = raw.categoryName
+            || (raw.categoryId ? (allServiceCategories.find(c => c.id === raw.categoryId)?.name || '') : '')
+            || (raw.category ? raw.category : '')
+            || 'Design';
+        const basePrice = Number(raw.basePrice ?? raw.price ?? 0);
+        const htmlContent = raw.htmlContent || '';
+        const imageUrl = raw.imageUrl || '';
+        const featured = !!raw.featured;
+        const isActive = raw.isActive !== false;
+        const createdAt = raw.createdAt || null;
+        return {
+            id: raw.id,
+            name,
+            description,
+            categoryId,
+            categoryName,
+            basePrice,
+            htmlContent,
+            imageUrl,
+            featured,
+            isActive,
+            createdAt,
+            _source: source
         };
+    }
 
-        // ─── CART ───────────────────────────────────────────────────────
-
-        window.addToCart = async (productId) => {
-            const product = allProducts.find(p => p.id === productId);
-            if (!product) { showToast('Product not found', 'error'); return; }
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const existing = cart.find(item => item.id === productId);
-            if (existing) {
-                existing.quantity = (existing.quantity || 1) + 1;
-            } else {
-                const discount = getDiscountForProduct(product);
-                let price = product.price;
-                if (discount) price = product.price * (1 - discount.discountPercent / 100);
-                cart.push({
-                    id: product.id,
-                    name: product.name,
-                    price: price,
-                    originalPrice: product.price,
-                    imageUrl: product.imageUrl || '',
-                    quantity: 1
-                });
-            }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            const user = auth.currentUser;
-            if (user) await updateCartInFirestore(user.uid, cart);
-
-            updateCartBadge();
-            window.updateCartUI?.();
-
-            showToast(`✅ "${product.name}" added to cart`, 'success');
-        };
-
-        // Try Now → open product HTML demo in a new browser tab
-        window.openProductDemo = function(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            const htmlContent = product?.htmlContent;
-            if (!htmlContent || !String(htmlContent).trim()) {
-                showToast('No demo available for this product.', 'warning');
-                return;
-            }
-            let docHtml = String(htmlContent).trim();
-            const looksFull = /<html[\s>]/i.test(docHtml) || /<!DOCTYPE/i.test(docHtml);
-            if (!looksFull) {
-                const title = (product?.name || 'Demo').replace(/</g, '');
-                docHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{margin:0}</style></head><body>${docHtml}</body></html>`;
-            }
+    async function loadDesignTemplates() {
+        try {
+            // 1. Try designTemplates
+            let items = [];
             try {
-                const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const win = window.open(url, '_blank');
-                if (!win) {
-                    showToast('Please allow pop-ups to view the live demo.', 'warning');
-                    URL.revokeObjectURL(url);
+                const snap = await getDocs(collection(db, 'designTemplates'));
+                snap.forEach(d => {
+                    const t = normalizeTemplate({ id: d.id, ...d.data() }, 'template');
+                    if (t.isActive) items.push(t);
+                });
+                if (items.length > 0) {
+                    templateSource = 'designTemplates';
+                    allDesignTemplates = items;
+                    renderCategoryChips();
+                    renderDesigns();
                     return;
                 }
-                setTimeout(() => URL.revokeObjectURL(url), 60000);
             } catch (err) {
-                console.error(err);
-                showToast('Could not open demo: ' + err.message, 'error');
+                console.warn('[templates] designTemplates read failed:', err?.code || err?.message);
             }
-        };
 
-        console.log('🚀 Store page: fixed 9 products per page + pagination + Try Now demo tab.');
-    </script>
+            // 2. Fallback: products featured
+            try {
+                const fSnap = await getDocs(query(collection(db, 'products'), where('featured', '==', true)));
+                fSnap.forEach(d => items.push(normalizeTemplate({ id: d.id, ...d.data() }, 'product')));
+            } catch (err) {
+                console.warn('[templates] featured products fallback failed:', err?.code || err?.message);
+            }
+
+            // 3. Fallback: any products
+            if (items.length === 0) {
+                try {
+                    const pSnap = await getDocs(collection(db, 'products'));
+                    pSnap.forEach(d => items.push(normalizeTemplate({ id: d.id, ...d.data() }, 'product')));
+                } catch (err) {
+                    console.warn('[templates] products fallback failed:', err?.code || err?.message);
+                }
+            }
+
+            if (items.length > 0) {
+                templateSource = 'products';
+                allDesignTemplates = items;
+                renderCategoryChips();
+                renderDesigns();
+            } else {
+                allDesignTemplates = [];
+                renderCategoryChips();
+                renderDesigns();
+            }
+        } catch (err) {
+            console.error('loadDesignTemplates error:', err);
+            skeletonGrid(0);
+            const grid = document.getElementById('designGrid');
+            if (grid) grid.innerHTML = `
+                <div class="selector-empty">
+                    <i class="big fas fa-exclamation-triangle" style="color:#f87171;opacity:1;"></i>
+                    <h3>Could not load designs</h3>
+                    <p>${escapeHtml(err.message || 'Something went wrong.')}</p>
+                    <button class="btn-primary" onclick="window.location.reload()">
+                        <i class="fas fa-sync"></i> Retry
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    // ================================================================
+    // CATEGORY CHIPS
+    // ================================================================
+    function renderCategoryChips() {
+        const wrap = document.getElementById('categoryChipsWrap');
+        if (!wrap) return;
+
+        // Only show chips if we have a live designTemplates source (categories meaningful)
+        // For products fallback, categories are string slugs → build a synthetic set
+        let chips = [];
+
+        if (templateSource === 'designTemplates' && allServiceCategories.length > 0) {
+            chips = [
+                { id: 'all', name: 'All Designs', icon: 'fa-th-large', count: allDesignTemplates.length },
+                ...allServiceCategories.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    icon: c.icon || 'fa-layer-group',
+                    count: allDesignTemplates.filter(t => t.categoryId === c.id).length
+                }))
+            ];
+        } else if (templateSource === 'products') {
+            // Synthetic category set from products.category string slugs
+            const unique = new Map();
+            allDesignTemplates.forEach(t => {
+                const cat = (t.categoryName || '').toLowerCase() || 'other';
+                if (!unique.has(cat)) unique.set(cat, { name: cat, count: 0 });
+                unique.get(cat).count += 1;
+            });
+            chips = [
+                { id: 'all', name: 'All Designs', icon: 'fa-th-large', count: allDesignTemplates.length },
+                ...Array.from(unique.entries()).map(([slug, obj]) => ({
+                    id: 'cat:' + slug,
+                    name: obj.name.charAt(0).toUpperCase() + obj.name.slice(1),
+                    icon: 'fa-folder',
+                    count: obj.count
+                }))
+            ];
+        } else {
+            // No templates, no products — just show a disabled "All" chip for visual consistency
+            chips = [
+                { id: 'all', name: 'All Designs', icon: 'fa-th-large', count: 0 }
+            ];
+        }
+
+        wrap.innerHTML = `
+            <div class="cat-chips-wrap" style="justify-content:flex-start;margin-bottom:0;">
+                ${chips.map(c => `
+                    <button type="button" class="cat-chip ${activeCategoryId === c.id ? 'active' : ''}" data-cat-id="${escapeHtmlAttr(c.id)}">
+                        <i class="fas ${c.icon}"></i>
+                        ${escapeHtml(c.name)}
+                        <span class="chip-count">${c.count}</span>
+                    </button>
+                `).join('')}
+            </div>
+        `;
+
+        wrap.querySelectorAll('.cat-chip').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.catId;
+                activeCategoryId = id || 'all';
+                wrap.querySelectorAll('.cat-chip').forEach(b => b.classList.toggle('active', b === btn));
+                renderDesigns();
+            });
+        });
+    }
+
+    // ================================================================
+    // FILTER + SORT
+    // ================================================================
+    function getFilteredDesigns() {
+        let list = [...allDesignTemplates];
+
+        // Category filter
+        if (activeCategoryId !== 'all') {
+            if (activeCategoryId.startsWith('cat:')) {
+                const slug = activeCategoryId.slice(4).toLowerCase();
+                list = list.filter(t => (t.categoryName || '').toLowerCase() === slug);
+            } else {
+                list = list.filter(t => t.categoryId === activeCategoryId);
+            }
+        }
+
+        // Search filter
+        if (currentSearch) {
+            const q = currentSearch.toLowerCase().trim();
+            if (q) {
+                list = list.filter(t => {
+                    return (t.name || '').toLowerCase().includes(q) ||
+                           (t.description || '').toLowerCase().includes(q) ||
+                           (t.categoryName || '').toLowerCase().includes(q);
+                });
+            }
+        }
+
+        // Sort
+        const ts = (t) => {
+            if (t.createdAt?.toDate) return t.createdAt.toDate().getTime();
+            if (t.createdAt) return new Date(t.createdAt).getTime();
+            return 0;
+        };
+        switch (currentSort) {
+            case 'featured':
+                list.sort((a, b) => {
+                    if (a.featured && !b.featured) return -1;
+                    if (!a.featured && b.featured) return 1;
+                    return ts(b) - ts(a);
+                });
+                break;
+            case 'newest':
+                list.sort((a, b) => ts(b) - ts(a));
+                break;
+            case 'name-asc':
+                list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                break;
+            case 'name-desc':
+                list.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+                break;
+            case 'price-asc':
+                list.sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0));
+                break;
+            case 'price-desc':
+                list.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0));
+                break;
+        }
+        return list;
+    }
+
+    // ================================================================
+    // RENDER GRID
+    // ================================================================
+    function renderDesigns() {
+        const grid = document.getElementById('designGrid');
+        const countEl = document.getElementById('resultCount');
+        const filterEl = document.getElementById('activeFilterLabel');
+        if (!grid) return;
+
+        const list = getFilteredDesigns();
+
+        // Update counters
+        if (countEl) {
+            const total = allDesignTemplates.length;
+            if (total === 0) {
+                countEl.innerHTML = `<strong>No designs available yet</strong>`;
+            } else {
+                countEl.innerHTML = `Showing <strong>${list.length}</strong> of <strong>${total}</strong> design${total === 1 ? '' : 's'}`;
+            }
+        }
+        if (filterEl) {
+            const parts = [];
+            if (activeCategoryId !== 'all') {
+                const chip = document.querySelector(`.cat-chip[data-cat-id="${CSS.escape(activeCategoryId)}"]`);
+                if (chip) parts.push(chip.textContent.trim().replace(/\s*\d+$/, '').trim());
+            }
+            if (currentSearch) parts.push(`"${currentSearch}"`);
+            filterEl.textContent = parts.length ? `Filtered by: ${parts.join(' · ')}` : '';
+        }
+
+        // Empty states
+        if (allDesignTemplates.length === 0) {
+            grid.innerHTML = `
+                <div class="selector-empty">
+                    <i class="big fas fa-palette"></i>
+                    <h3>No design directions yet</h3>
+                    <p>We're preparing our design library. Start from scratch and we'll craft a custom direction for your project.</p>
+                    <a href="configure-service.html" class="btn-primary">
+                        <i class="fas fa-magic"></i> Start from Scratch
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        if (list.length === 0) {
+            grid.innerHTML = `
+                <div class="selector-empty">
+                    <i class="big fas fa-search"></i>
+                    <h3>No designs match your filters</h3>
+                    <p>Try a different category or clear your search to see all designs.</p>
+                    <button class="btn-primary" onclick="window.resetSelectorFilters()">
+                        <i class="fas fa-undo"></i> Clear Filters
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        // Cards
+        let html = '';
+        list.forEach((t, i) => {
+            const hasHtml = t.htmlContent && String(t.htmlContent).trim().length > 0;
+            let previewHtml = '';
+            if (hasHtml) {
+                const escaped = escapeHtmlAttr(t.htmlContent);
+                previewHtml = `
+                    <iframe
+                        srcdoc="${escaped}"
+                        scrolling="no"
+                        loading="lazy"
+                        sandbox="allow-scripts allow-same-origin"
+                        style="width:100%;height:100%;border:none;display:block;background:#ffffff;pointer-events:none;"
+                    ></iframe>
+                `;
+            } else if (t.imageUrl) {
+                previewHtml = `<img src="${escapeHtmlAttr(t.imageUrl)}" alt="${escapeHtmlAttr(t.name)}" loading="lazy" />`;
+            } else {
+                previewHtml = `
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(124,58,237,0.06));color:#94a3b8;">
+                        <i class="fas fa-file-code" style="font-size:2rem;opacity:0.5;"></i>
+                    </div>
+                `;
+            }
+
+            const price = Number(t.basePrice) || 0;
+            const priceBDT = Math.round(price * usdRate);
+            const estimateHtml = price > 0 ? `
+                <div class="dc-estimate">
+                    <span class="lbl">Starting from</span>
+                    <span class="amt">$${price.toFixed(0)}</span>
+                    <span class="bdt">≈ ৳${priceBDT.toLocaleString('en-BD')}</span>
+                </div>
+            ` : `
+                <div class="dc-estimate">
+                    <span class="lbl">Custom quote</span>
+                </div>
+            `;
+
+            const configureHref = `configure-service.html?id=${encodeURIComponent(t.id)}&src=${encodeURIComponent(t._source)}`;
+
+            html += `
+                <article class="design-card fade-up" style="transition-delay:${Math.min(i * 0.05, 0.3)}s;">
+                    <div class="dc-preview">
+                        <span class="dc-cat-tag">${escapeHtml(t.categoryName || 'Design')}</span>
+                        ${t.featured ? `<span class="dc-featured"><i class="fas fa-star"></i> Featured</span>` : ''}
+                        ${previewHtml}
+                    </div>
+                    <div class="dc-body">
+                        <div class="dc-name">${escapeHtml(t.name)}</div>
+                        <div class="dc-desc">${escapeHtml(t.description || 'A tailored design direction crafted for modern businesses.')}</div>
+                        ${estimateHtml}
+                        <div class="dc-actions">
+                            <a href="${configureHref}" class="dc-configure">
+                                <i class="fas fa-sliders-h"></i> Configure
+                            </a>
+                            ${hasHtml ? `
+                                <button type="button" class="dc-try" onclick="window.__previewDesign('${escapeHtmlAttr(t.id)}')" title="Open live preview">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </article>
+            `;
+        });
+
+        // Add "Start from scratch" card at the end (only when there is at least 1 real card)
+        html += `
+            <div class="scratch-card fade-up" style="transition-delay:0.35s;">
+                <div class="sc-icon"><i class="fas fa-magic"></i></div>
+                <h3>None of these? Start from scratch.</h3>
+                <p>Tell us your vision — we'll design and build a custom direction that fits your brand perfectly.</p>
+                <a href="configure-service.html" class="sc-cta">
+                    <i class="fas fa-rocket"></i> Start a Custom Project
+                </a>
+            </div>
+        `;
+
+        grid.innerHTML = html;
+        observeFadeUps();
+    }
+
+    // ================================================================
+    // PREVIEW IN NEW TAB
+    // ================================================================
+    window.__previewDesign = function(id) {
+        const t = allDesignTemplates.find(x => x.id === id);
+        if (!t || !t.htmlContent) { window.showToast('No preview available.', 'warning'); return; }
+        let html = String(t.htmlContent).trim();
+        const looksFull = /<html[\s>]/i.test(html) || /<!DOCTYPE/i.test(html);
+        if (!looksFull) {
+            html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(t.name)} — Preview</title><style>body{margin:0}</style></head><body>${html}</body></html>`;
+        }
+        try {
+            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const win = window.open(url, '_blank');
+            if (!win) {
+                window.showToast('Please allow pop-ups to view the preview.', 'warning');
+                URL.revokeObjectURL(url);
+                return;
+            }
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+        } catch (err) {
+            console.error(err);
+            window.showToast('Could not open preview: ' + err.message, 'error');
+        }
+    };
+
+    // ================================================================
+    // RESET FILTERS
+    // ================================================================
+    window.resetSelectorFilters = function() {
+        activeCategoryId = 'all';
+        currentSearch = '';
+        currentSort = 'featured';
+        const searchInput = document.getElementById('searchInput');
+        const sortFilter = document.getElementById('sortFilter');
+        if (searchInput) searchInput.value = '';
+        if (sortFilter) sortFilter.value = 'featured';
+        renderCategoryChips();
+        renderDesigns();
+    };
+
+    // ================================================================
+    // FILTER EVENT LISTENERS
+    // ================================================================
+    let searchDebounce = null;
+    document.getElementById('searchInput')?.addEventListener('input', (e) => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+            currentSearch = e.target.value.trim();
+            renderDesigns();
+        }, 220);
+    });
+    document.getElementById('sortFilter')?.addEventListener('change', (e) => {
+        currentSort = e.target.value || 'featured';
+        renderDesigns();
+    });
+
+    // ================================================================
+    // AUTH STATE (navbar only)
+    // ================================================================
+    onAuthStateChanged(auth, async (user) => {
+        let name = null;
+        if (user) {
+            try {
+                const uDoc = await getDoc(doc(db, 'users', user.uid));
+                name = uDoc.exists() ? uDoc.data().displayName : user.email.split('@')[0];
+            } catch (_) {
+                name = user.email?.split('@')[0] || null;
+            }
+        }
+        updateNavbarAuth(user, name);
+    });
+
+    // ================================================================
+    // BOOT
+    // ================================================================
+    (async function boot() {
+        // Show skeletons immediately
+        skeletonGrid(6);
+
+        // Load rate (non-blocking)
+        loadUsdRate();
+
+        // Live listener on serviceCategories → re-render chips when they change
+        try {
+            listenServiceCategories((active, all) => {
+                allServiceCategories = (active && active.length ? active : (all || []));
+                renderCategoryChips();
+                renderDesigns();
+            });
+        } catch (err) {
+            console.warn('[boot] serviceCategories listener failed:', err);
+        }
+
+        // Listen for addOns (used later on the config page but useful here for display hints — no-op for now)
+        try {
+            listenAddOns((active) => { allAddOns = active || []; });
+        } catch (_) {}
+
+        // Load templates/products
+        await loadDesignTemplates();
+
+        console.log('🎨 Design Selector ready — source:', templateSource, '| designs:', allDesignTemplates.length);
+    })();
+</script>
 </body>
 </html>
