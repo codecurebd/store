@@ -418,6 +418,7 @@
             line-height: 1.55;
         }
 
+        /* ===== SCRATCH CARD — Full-width hero at top ===== */
         .scratch-card {
             background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(124,58,237,0.08));
             border: 1.5px dashed rgba(37,99,235,0.22);
@@ -476,6 +477,148 @@
         .scratch-card .sc-cta:hover {
             transform: translateY(-1px);
             box-shadow: 0 8px 22px rgba(37,99,235,0.35);
+        }
+
+        /* ===== SCRATCH FIRST — pinned at top, full width, compact ===== */
+        .scratch-card.scratch-first {
+            grid-column: 1 / -1;
+            min-height: unset;
+            padding: 1.35rem 1.5rem;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.10));
+            border: 1.5px dashed rgba(37,99,235,0.28);
+            margin-bottom: 0.25rem;
+        }
+        .scratch-card.scratch-first .sc-icon {
+            margin-bottom: 0;
+            width: 44px;
+            height: 44px;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+        }
+        .scratch-card.scratch-first .sc-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .scratch-card.scratch-first h3 {
+            font-size: 1.02rem;
+            margin: 0;
+            letter-spacing: -0.015em;
+        }
+        .scratch-card.scratch-first p {
+            font-size: 0.85rem;
+            margin: 0;
+            flex: unset;
+            line-height: 1.5;
+        }
+        .scratch-card.scratch-first .sc-cta {
+            padding: 11px 20px;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        @media (max-width: 640px) {
+            .scratch-card.scratch-first {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+                padding: 1.15rem 1.15rem;
+            }
+            .scratch-card.scratch-first .sc-cta {
+                width: 100%;
+                justify-content: center;
+            }
+            .scratch-card.scratch-first h3 { font-size: 0.95rem; }
+            .scratch-card.scratch-first p { font-size: 0.8rem; }
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1.75rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .pagination-nav .pg-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(15,23,42,0.08);
+            background: #fff;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .pagination-nav .pg-btn:hover:not(:disabled) {
+            border-color: #2563eb;
+            color: #2563eb;
+            background: rgba(37,99,235,0.04);
+            transform: translateY(-1px);
+        }
+        .pagination-nav .pg-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .pagination-nav .pg-numbers {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .pagination-nav .pg-num {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(15,23,42,0.08);
+            background: #fff;
+            color: #334155;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pagination-nav .pg-num:hover:not(.active) {
+            border-color: #2563eb;
+            color: #2563eb;
+            background: rgba(37,99,235,0.04);
+        }
+        .pagination-nav .pg-num.active {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.28);
+        }
+        .pagination-nav .pg-ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 38px;
+            color: #94a3b8;
+            font-weight: 700;
+            user-select: none;
+        }
+        @media (max-width: 480px) {
+            .pagination-nav .pg-num { width: 34px; height: 34px; font-size: 0.78rem; border-radius: 10px; }
+            .pagination-nav .pg-btn { padding: 8px 12px; font-size: 0.78rem; }
+            .pagination-nav .pg-btn .lbl { display: none; }
         }
 
         .selector-note {
@@ -599,6 +742,8 @@
 
                 <div id="designGrid" class="design-grid"></div>
 
+                <nav id="paginationNav" class="pagination-nav" aria-label="Design pagination" style="display:none;"></nav>
+
                 <div class="selector-note">
                     <i class="fas fa-info-circle"></i>
                     <div>
@@ -674,6 +819,10 @@
     let currentSearch = '';
     let templateSource = 'designTemplates';
 
+    // ===== PAGINATION STATE =====
+    let currentPage = 1;
+    const PER_PAGE = 9;
+
     (function readUrlParams() {
         try {
             const params = new URLSearchParams(window.location.search);
@@ -715,6 +864,9 @@
             `;
         }
         grid.innerHTML = html;
+        // Hide pagination during skeleton
+        const nav = document.getElementById('paginationNav');
+        if (nav) { nav.innerHTML = ''; nav.style.display = 'none'; }
     }
 
     function normalizeTemplate(raw, source) {
@@ -747,9 +899,6 @@
         };
     }
 
-    // ============================================================
-    // FIX #2 — Load ALL products as fallback (not just featured)
-    // ============================================================
     async function loadDesignTemplates() {
         try {
             // 1. Try designTemplates collection first
@@ -771,7 +920,7 @@
                 console.warn('[templates] designTemplates read failed:', err?.code || err?.message);
             }
 
-            // 2. Fallback: load ALL products (featured stays a sort priority, not a filter)
+            // 2. Fallback: load ALL products
             try {
                 const pSnap = await getDocs(collection(db, 'products'));
                 pSnap.forEach(d => items.push(normalizeTemplate({ id: d.id, ...d.data() }, 'product')));
@@ -860,6 +1009,7 @@
             btn.addEventListener('click', () => {
                 const id = btn.dataset.catId;
                 activeCategoryId = id || 'all';
+                currentPage = 1;
                 wrap.querySelectorAll('.cat-chip').forEach(b => b.classList.toggle('active', b === btn));
                 renderDesigns();
             });
@@ -928,15 +1078,26 @@
         if (!grid) return;
 
         const list = getFilteredDesigns();
+        const total = allDesignTemplates.length;
 
+        // ── Count display ──
         if (countEl) {
-            const total = allDesignTemplates.length;
             if (total === 0) {
                 countEl.innerHTML = `<strong>No designs available yet</strong>`;
+            } else if (list.length === 0) {
+                countEl.innerHTML = `Showing <strong>0</strong> of <strong>${total}</strong> design${total === 1 ? '' : 's'}`;
             } else {
-                countEl.innerHTML = `Showing <strong>${list.length}</strong> of <strong>${total}</strong> design${total === 1 ? '' : 's'}`;
+                const totalPages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+                if (currentPage > totalPages) currentPage = totalPages;
+                if (currentPage < 1) currentPage = 1;
+                const start = (currentPage - 1) * PER_PAGE;
+                const from = start + 1;
+                const to = Math.min(start + PER_PAGE, list.length);
+                countEl.innerHTML = `Showing <strong>${from}–${to}</strong> of <strong>${list.length}</strong> design${list.length === 1 ? '' : 's'}`;
             }
         }
+
+        // ── Filter label ──
         if (filterEl) {
             const parts = [];
             if (activeCategoryId !== 'all') {
@@ -947,23 +1108,38 @@
             filterEl.textContent = parts.length ? `Filtered by: ${parts.join(' · ')}` : '';
         }
 
-        if (allDesignTemplates.length === 0) {
-            grid.innerHTML = `
-                <div class="selector-empty">
+        // ── Scratch card (always first, full width) ──
+        const scratchHtml = `
+            <div class="scratch-card scratch-first fade-up visible">
+                <div class="sc-icon"><i class="fas fa-magic"></i></div>
+                <div class="sc-content">
+                    <h3>None of these? Start from scratch.</h3>
+                    <p>Tell us your vision — we'll design and build a custom direction that fits your brand perfectly.</p>
+                </div>
+                <a href="configure-service.html" class="sc-cta">
+                    <i class="fas fa-rocket"></i> Start a Custom Project
+                </a>
+            </div>
+        `;
+
+        // ── Case A: No designs in DB at all ──
+        if (total === 0) {
+            grid.innerHTML = scratchHtml + `
+                <div class="selector-empty" style="grid-column: 1/-1;">
                     <i class="big fas fa-palette"></i>
                     <h3>No design directions yet</h3>
                     <p>We're preparing our design library. Start from scratch and we'll craft a custom direction for your project.</p>
-                    <a href="configure-service.html" class="btn-primary">
-                        <i class="fas fa-magic"></i> Start from Scratch
-                    </a>
                 </div>
             `;
+            renderPagination(0);
+            observeFadeUps();
             return;
         }
 
+        // ── Case B: No matches after filters ──
         if (list.length === 0) {
-            grid.innerHTML = `
-                <div class="selector-empty">
+            grid.innerHTML = scratchHtml + `
+                <div class="selector-empty" style="grid-column: 1/-1;">
                     <i class="big fas fa-search"></i>
                     <h3>No designs match your filters</h3>
                     <p>Try a different category or clear your search to see all designs.</p>
@@ -972,11 +1148,20 @@
                     </button>
                 </div>
             `;
+            renderPagination(0);
+            observeFadeUps();
             return;
         }
 
-        let html = '';
-        list.forEach((t, i) => {
+        // ── Case C: Normal render with pagination ──
+        const totalPages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+        const start = (currentPage - 1) * PER_PAGE;
+        const pageList = list.slice(start, start + PER_PAGE);
+
+        let html = scratchHtml;
+        pageList.forEach((t, i) => {
             const hasHtml = t.htmlContent && String(t.htmlContent).trim().length > 0;
             let previewHtml = '';
             if (hasHtml) {
@@ -1042,19 +1227,78 @@
             `;
         });
 
-        html += `
-            <div class="scratch-card fade-up" style="transition-delay:0.35s;">
-                <div class="sc-icon"><i class="fas fa-magic"></i></div>
-                <h3>None of these? Start from scratch.</h3>
-                <p>Tell us your vision — we'll design and build a custom direction that fits your brand perfectly.</p>
-                <a href="configure-service.html" class="sc-cta">
-                    <i class="fas fa-rocket"></i> Start a Custom Project
-                </a>
-            </div>
-        `;
-
         grid.innerHTML = html;
+        renderPagination(totalPages);
         observeFadeUps();
+    }
+
+    // ===== PAGINATION RENDERER =====
+    function renderPagination(totalPages) {
+        const nav = document.getElementById('paginationNav');
+        if (!nav) return;
+
+        // Hide if 0 or 1 page
+        if (!totalPages || totalPages <= 1) {
+            nav.innerHTML = '';
+            nav.style.display = 'none';
+            return;
+        }
+        nav.style.display = 'flex';
+
+        const cur = currentPage;
+
+        // Build page-number window with ellipsis
+        const numbers = [];
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) numbers.push(i);
+        } else {
+            numbers.push(1);
+            let startN = Math.max(2, cur - 1);
+            let endN = Math.min(totalPages - 1, cur + 1);
+            if (cur <= 3) { startN = 2; endN = 4; }
+            if (cur >= totalPages - 2) { startN = totalPages - 3; endN = totalPages - 1; }
+            if (startN > 2) numbers.push('…');
+            for (let i = startN; i <= endN; i++) numbers.push(i);
+            if (endN < totalPages - 1) numbers.push('…');
+            numbers.push(totalPages);
+        }
+
+        let html = '';
+
+        html += `<button type="button" class="pg-btn" data-page="${cur - 1}" ${cur === 1 ? 'disabled' : ''} aria-label="Previous page">
+            <i class="fas fa-chevron-left"></i> <span class="lbl">Prev</span>
+        </button>`;
+
+        html += '<div class="pg-numbers">';
+        numbers.forEach(n => {
+            if (n === '…') {
+                html += `<span class="pg-ellipsis">…</span>`;
+            } else {
+                html += `<button type="button" class="pg-num ${n === cur ? 'active' : ''}" data-page="${n}">${n}</button>`;
+            }
+        });
+        html += '</div>';
+
+        html += `<button type="button" class="pg-btn" data-page="${cur + 1}" ${cur === totalPages ? 'disabled' : ''} aria-label="Next page">
+            <span class="lbl">Next</span> <i class="fas fa-chevron-right"></i>
+        </button>`;
+
+        nav.innerHTML = html;
+
+        nav.querySelectorAll('[data-page]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const p = parseInt(btn.dataset.page, 10);
+                if (isNaN(p) || p === currentPage || p < 1 || p > totalPages) return;
+                currentPage = p;
+                renderDesigns();
+                // Smooth-scroll back to the top of the grid
+                const grid = document.getElementById('designGrid');
+                if (grid) {
+                    const top = grid.getBoundingClientRect().top + window.scrollY - 110;
+                    window.scrollTo({ top, behavior: 'smooth' });
+                }
+            });
+        });
     }
 
     window.__previewDesign = function(id) {
@@ -1085,6 +1329,7 @@
         activeCategoryId = 'all';
         currentSearch = '';
         currentSort = 'featured';
+        currentPage = 1;
         const searchInput = document.getElementById('searchInput');
         const sortFilter = document.getElementById('sortFilter');
         if (searchInput) searchInput.value = '';
@@ -1098,11 +1343,13 @@
         clearTimeout(searchDebounce);
         searchDebounce = setTimeout(() => {
             currentSearch = e.target.value.trim();
+            currentPage = 1;
             renderDesigns();
         }, 220);
     });
     document.getElementById('sortFilter')?.addEventListener('change', (e) => {
         currentSort = e.target.value || 'featured';
+        currentPage = 1;
         renderDesigns();
     });
 
@@ -1139,7 +1386,7 @@
 
         await loadDesignTemplates();
 
-        console.log('🎨 Design Selector ready — source:', templateSource, '| designs:', allDesignTemplates.length);
+        console.log('🎨 Design Selector ready — source:', templateSource, '| designs:', allDesignTemplates.length, '| per page:', PER_PAGE);
     })();
 </script>
 </body>
