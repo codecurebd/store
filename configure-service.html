@@ -135,6 +135,7 @@
             line-height: 1.55;
         }
 
+        /* ===== DESIGN PREVIEW / CUSTOM INFO ===== */
         .cfg-preview {
             background: #f1f5f9;
             border: 1px solid rgba(15,23,42,0.06);
@@ -167,25 +168,177 @@
         }
         .cfg-preview .preview-empty i { font-size: 2.25rem; opacity: 0.4; }
 
-        .template-meta {
-            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-            margin-bottom: 0.75rem;
+        /* ===== CUSTOM BASE PACKAGE CARD ===== */
+        .custom-base-card {
+            background:
+                radial-gradient(ellipse 70% 60% at 100% 0%, rgba(37,99,235,0.08), transparent 55%),
+                radial-gradient(ellipse 60% 50% at 0% 100%, rgba(124,58,237,0.08), transparent 55%),
+                #ffffff;
+            border: 1px solid rgba(37,99,235,0.12);
+            border-radius: 16px;
+            padding: 1.5rem 1.5rem 1.35rem;
         }
-        .template-meta .tag {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 4px 12px; border-radius: 999px;
-            font-size: 0.7rem; font-weight: 700;
-            letter-spacing: 0.03em; text-transform: uppercase;
+        .custom-base-card .cbc-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 1rem;
         }
-        .template-meta .tag.cat {
-            background: rgba(37,99,235,0.1); color: #2563eb;
+        .custom-base-card .cbc-head .cbc-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 6px 20px rgba(37,99,235,0.25);
+            flex-shrink: 0;
         }
-        .template-meta .tag.featured {
-            background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff;
+        .custom-base-card .cbc-head .cbc-text h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            margin: 0 0 2px;
         }
-        .template-meta .tag.custom {
-            background: rgba(124,58,237,0.1); color: #7c3aed;
+        .custom-base-card .cbc-head .cbc-text p {
+            font-size: 0.84rem;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.45;
         }
+        .custom-base-card .cbc-price {
+            margin-left: auto;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .custom-base-card .cbc-price .amt {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #2563eb;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .custom-base-card .cbc-price .lbl {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-top: 2px;
+        }
+        .custom-base-card .cbc-includes {
+            background: #f8fafc;
+            border: 1px solid rgba(15,23,42,0.05);
+            border-radius: 12px;
+            padding: 1rem 1.1rem;
+            margin-top: 0.5rem;
+        }
+        .custom-base-card .cbc-includes .ci-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #2563eb;
+            margin-bottom: 0.6rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .custom-base-card .cbc-includes ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 8px 18px;
+        }
+        .custom-base-card .cbc-includes li {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 0.86rem;
+            color: #334155;
+            line-height: 1.4;
+        }
+        .custom-base-card .cbc-includes li .tick {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(22,163,74,0.12);
+            color: #16a34a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.62rem;
+            flex-shrink: 0;
+        }
+        @media (max-width: 560px) {
+            .custom-base-card .cbc-head { flex-wrap: wrap; }
+            .custom-base-card .cbc-price { margin-left: 0; text-align: left; width: 100%; }
+            .custom-base-card .cbc-price .amt { font-size: 1.65rem; }
+        }
+
+        /* ===== ADD-ON CATEGORIES ===== */
+        .addon-category {
+            margin-bottom: 1.5rem;
+        }
+        .addon-category:last-child { margin-bottom: 0; }
+        .addon-cat-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border: 1px solid rgba(15,23,42,0.05);
+            border-radius: 12px;
+            margin-bottom: 0.6rem;
+            cursor: pointer;
+            user-select: none;
+            transition: 0.2s;
+        }
+        .addon-cat-head:hover {
+            background: #f1f5f9;
+            border-color: rgba(37,99,235,0.15);
+        }
+        .addon-cat-head .ac-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12));
+            color: #2563eb;
+            font-size: 0.82rem;
+            flex-shrink: 0;
+        }
+        .addon-cat-head .ac-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.01em;
+            flex: 1;
+        }
+        .addon-cat-head .ac-count {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #94a3b8;
+            background: #f1f5f9;
+            padding: 2px 10px;
+            border-radius: 999px;
+        }
+        .addon-cat-head .ac-toggle {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            transition: transform 0.25s;
+        }
+        .addon-category.collapsed .ac-toggle { transform: rotate(-90deg); }
+        .addon-category.collapsed .addon-cat-body { display: none; }
 
         .addon-list { display: flex; flex-direction: column; gap: 0.5rem; }
         .addon-row {
@@ -249,6 +402,7 @@
         }
         .addon-empty i { font-size: 1.75rem; opacity: 0.35; display: block; margin-bottom: 8px; }
 
+        /* ===== DESIGN REFERENCES ===== */
         .cfg-textarea {
             width: 100%;
             padding: 14px 16px;
@@ -339,6 +493,7 @@
             line-height: 1.5;
         }
 
+        /* ===== PRICE SUMMARY ===== */
         .price-summary {
             position: sticky;
             top: 100px;
@@ -349,6 +504,8 @@
             box-shadow: 0 6px 22px rgba(15,23,42,0.06);
             position: relative;
             overflow: hidden;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
         }
         .price-summary::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
@@ -370,6 +527,15 @@
         .price-summary .ps-row.addon .label {
             font-size: 0.82rem;
             color: #334155;
+            padding-left: 12px;
+            position: relative;
+        }
+        .price-summary .ps-row.addon .label::before {
+            content: '+';
+            position: absolute;
+            left: 0;
+            color: #2563eb;
+            font-weight: 800;
         }
         .price-summary .ps-row.addon .value {
             font-size: 0.84rem;
@@ -435,11 +601,13 @@
             font-family: inherit; cursor: pointer;
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             transition: 0.2s; min-height: 44px;
+            text-decoration: none;
         }
         .ps-btn-outline:hover {
             border-color: #2563eb; color: #2563eb; background: #fff;
         }
 
+        /* ===== SUCCESS / LOADING / ERROR ===== */
         .cfg-success {
             max-width: 620px; margin: 3rem auto;
             background: #fff; border: 1px solid rgba(15,23,42,0.06);
@@ -575,6 +743,29 @@
             text-decoration: none; border: none; cursor: pointer;
             font-family: inherit;
         }
+
+        .template-meta {
+            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .template-meta .tag {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 999px;
+            font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.03em; text-transform: uppercase;
+        }
+        .template-meta .tag.cat {
+            background: rgba(37,99,235,0.1); color: #2563eb;
+        }
+        .template-meta .tag.featured {
+            background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff;
+        }
+        .template-meta .tag.custom {
+            background: rgba(124,58,237,0.1); color: #7c3aed;
+        }
+        .template-meta .tag.base {
+            background: rgba(22,163,74,0.1); color: #16a34a;
+        }
     </style>
 </head>
 <body>
@@ -624,19 +815,15 @@
                             <div class="cfg-panel fade-up">
                                 <div class="cp-title">
                                     <span class="ico"><i class="fas fa-desktop"></i></span>
-                                    <span>Design preview</span>
+                                    <span id="previewPanelTitle">Design preview</span>
                                 </div>
                                 <div class="template-meta" id="templateMeta"></div>
-                                <div class="cfg-preview" id="previewWrap">
-                                    <div class="preview-toolbar">
-                                        <span class="dots"><span></span><span></span><span></span></span>
-                                        <span style="margin-left:8px;">Live preview · read-only</span>
-                                    </div>
-                                    <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
+                                <div id="previewArea">
+                                    <!-- Filled by JS: iframe for template, custom base card for custom -->
                                 </div>
                                 <p style="font-size:0.78rem;color:#94a3b8;margin-top:10px;line-height:1.55;">
                                     <i class="fas fa-info-circle"></i>
-                                    This is a starting point — we tailor every detail to your brand and brief.
+                                    <span id="previewNote">This is a starting point — we tailor every detail to your brand and brief.</span>
                                 </p>
                             </div>
 
@@ -646,8 +833,8 @@
                                     <span>Add-ons</span>
                                     <span id="addonCount" style="margin-left:auto;font-size:0.75rem;color:#94a3b8;font-weight:600;">0 selected</span>
                                 </div>
-                                <p class="cp-sub">Select the modules you need. The estimate updates live.</p>
-                                <div class="addon-list" id="addonList"></div>
+                                <p class="cp-sub">Supercharge your website with powerful features. Select what you need — the estimate updates live.</p>
+                                <div id="addonList"></div>
                             </div>
 
                             <div class="cfg-panel fade-up">
@@ -691,8 +878,11 @@
                                 <div class="ps-title">Your estimate</div>
 
                                 <div class="ps-row">
-                                    <span class="label">Base — <span id="sumBaseName">Design</span></span>
-                                    <span class="value" id="sumBasePrice">$0</span>
+                                    <span class="label" id="sumBaseLabel">Base Package</span>
+                                    <span class="value" id="sumBasePrice">$50</span>
+                                </div>
+                                <div style="font-size:0.72rem;color:#94a3b8;padding:0 0 8px;margin-top:-2px;line-height:1.45;" id="sumBaseDesc">
+                                    Landing, About &amp; Contact pages + responsive + SEO
                                 </div>
 
                                 <div id="sumAddOnsContainer"></div>
@@ -701,10 +891,10 @@
 
                                 <div class="ps-total">
                                     <span class="lbl">Estimate</span>
-                                    <span class="amt" id="sumTotal">$0</span>
+                                    <span class="amt" id="sumTotal">$50</span>
                                 </div>
                                 <div class="ps-bdt">
-                                    ≈ <strong id="sumBDT">৳0</strong>
+                                    ≈ <strong id="sumBDT">৳6,250</strong>
                                 </div>
 
                                 <div class="ps-note">
@@ -789,9 +979,6 @@
         setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // ============================================================
-    // FIX #3 — Fade-up observer (was missing → page appeared blank)
-    // ============================================================
     const fadeObserver = new IntersectionObserver((entries) => {
         entries.forEach(e => {
             if (e.isIntersecting) {
@@ -821,13 +1008,80 @@
         });
     }
 
+    // ================================================================
+    // CONSTANTS — Base Package + Curated Add-Ons
+    // ================================================================
+    const CUSTOM_BASE_PRICE = 50; // USD
+
+    const BASE_PACKAGE_INCLUDES = [
+        { icon: 'fa-home', label: 'Landing Page (hero, features, CTA)' },
+        { icon: 'fa-info-circle', label: 'About Page' },
+        { icon: 'fa-envelope', label: 'Contact Page' },
+        { icon: 'fa-sitemap', label: 'Navigation & Routing' },
+        { icon: 'fa-mobile-alt', label: 'Mobile Responsive Design' },
+        { icon: 'fa-search', label: 'Basic SEO Meta Tags' },
+        { icon: 'fa-bolt', label: 'Fast Loading (basic optimization)' }
+    ];
+
+    const ADDON_CATEGORIES = [
+        { key: 'ecommerce', label: 'E-Commerce', icon: 'fa-shopping-bag' },
+        { key: 'admin',     label: 'Admin Panel & Management', icon: 'fa-shield-alt' },
+        { key: 'user',      label: 'User Features', icon: 'fa-user-circle' },
+        { key: 'landing',   label: 'Landing Page Enhancements', icon: 'fa-window-maximize' },
+        { key: 'advanced',  label: 'Advanced & Optimization', icon: 'fa-rocket' }
+    ];
+
+    const DEFAULT_ADDONS = [
+        // ── E-Commerce ──
+        { id: 'adn-ecom-catalog',   cat: 'ecommerce', name: 'Product Catalog',          description: 'Grid product listing with filters & search',    price: 50, icon: 'fa-th-large' },
+        { id: 'adn-ecom-cart',      cat: 'ecommerce', name: 'Shopping Cart',            description: 'Add-to-cart, quantity management, subtotal',     price: 40, icon: 'fa-shopping-cart' },
+        { id: 'adn-ecom-checkout',  cat: 'ecommerce', name: 'Checkout & Payment Gateway', description: 'bKash, Nagad, USDT payment integration',         price: 60, icon: 'fa-credit-card' },
+        { id: 'adn-ecom-track',     cat: 'ecommerce', name: 'Order Tracking',           description: 'Customer order status tracking page',            price: 30, icon: 'fa-truck' },
+        { id: 'adn-ecom-wishlist',  cat: 'ecommerce', name: 'Wishlist / Favorites',     description: 'Save products for later purchase',               price: 25, icon: 'fa-heart' },
+
+        // ── Admin Panel ──
+        { id: 'adn-admin-panel',    cat: 'admin', name: 'Admin Panel',                  description: 'Full admin dashboard & control center',          price: 80, icon: 'fa-shield-alt' },
+        { id: 'adn-admin-cms',      cat: 'admin', name: 'Content Management (CMS)',     description: 'Manage pages, text, and images from admin',       price: 40, icon: 'fa-edit' },
+        { id: 'adn-admin-orders',   cat: 'admin', name: 'Order Management',            description: 'View, update, and process customer orders',       price: 40, icon: 'fa-clipboard-list' },
+        { id: 'adn-admin-users',    cat: 'admin', name: 'User Management',             description: 'Manage users, roles & permissions',               price: 30, icon: 'fa-users-cog' },
+        { id: 'adn-admin-analytics', cat: 'admin', name: 'Analytics Dashboard',        description: 'Sales, orders & visitor insights (charts)',       price: 35, icon: 'fa-chart-line' },
+
+        // ── User Features ──
+        { id: 'adn-user-auth',      cat: 'user', name: 'User Registration & Login',    description: 'Email + Google sign-in with password reset',      price: 40, icon: 'fa-user-plus' },
+        { id: 'adn-user-profile',   cat: 'user', name: 'User Profile & Dashboard',     description: 'Personal account area with order history',         price: 35, icon: 'fa-id-card' },
+        { id: 'adn-user-ratings',   cat: 'user', name: 'Ratings & Reviews',            description: 'Star ratings + written review system',            price: 30, icon: 'fa-star' },
+        { id: 'adn-user-notify',    cat: 'user', name: 'User Notifications',           description: 'In-app & email order updates',                    price: 25, icon: 'fa-bell' },
+
+        // ── Landing Enhancements ──
+        { id: 'adn-land-blog',      cat: 'landing', name: 'Blog Section',               description: 'Post listing + single post view with categories',  price: 35, icon: 'fa-newspaper' },
+        { id: 'adn-land-portfolio', cat: 'landing', name: 'Portfolio / Gallery',       description: 'Image gallery or project showcase with lightbox',  price: 30, icon: 'fa-images' },
+        { id: 'adn-land-testi',     cat: 'landing', name: 'Testimonials Carousel',     description: 'Client reviews slider with photos',               price: 20, icon: 'fa-quote-right' },
+        { id: 'adn-land-faq',       cat: 'landing', name: 'FAQ Accordion',             description: 'Collapsible questions section',                   price: 15, icon: 'fa-question-circle' },
+        { id: 'adn-land-news',      cat: 'landing', name: 'Newsletter Signup',         description: 'Email capture form with validation',              price: 15, icon: 'fa-envelope-open-text' },
+        { id: 'adn-land-chat',      cat: 'landing', name: 'Live Chat Support',         description: 'Real-time chat widget with admin reply',          price: 40, icon: 'fa-comments' },
+
+        // ── Advanced ──
+        { id: 'adn-adv-multilang',  cat: 'advanced', name: 'Multi-Language Support',   description: 'Switch between 2+ languages (EN/BN/etc.)',        price: 60, icon: 'fa-language' },
+        { id: 'adn-adv-anim',       cat: 'advanced', name: 'Custom Animations',        description: 'Scroll & hover effects, micro-interactions',       price: 35, icon: 'fa-magic' },
+        { id: 'adn-adv-seo',        cat: 'advanced', name: 'Advanced SEO Optimization', description: 'Sitemap, schema markup, meta optimization',       price: 45, icon: 'fa-search-plus' },
+        { id: 'adn-adv-perf',       cat: 'advanced', name: 'Performance Optimization', description: 'Lighthouse 90+ score, image & code optimization',  price: 30, icon: 'fa-tachometer-alt' },
+        { id: 'adn-adv-security',   cat: 'advanced', name: 'Security Hardening',       description: 'Firewall, XSS/SQLi protection, HTTPS setup',      price: 40, icon: 'fa-lock' },
+        { id: 'adn-adv-api',        cat: 'advanced', name: 'Third-Party API Integration', description: 'Connect external services (maps, SMS, etc.)',    price: 50, icon: 'fa-plug' },
+        { id: 'adn-adv-email',      cat: 'advanced', name: 'Email Notifications',      description: 'Order/contact auto emails via SMTP',              price: 25, icon: 'fa-envelope' },
+        { id: 'adn-adv-social',     cat: 'advanced', name: 'Social Media Integration', description: 'Share buttons & social feed embed',               price: 20, icon: 'fa-share-alt' },
+        { id: 'adn-adv-ga',         cat: 'advanced', name: 'Google Analytics Setup',   description: 'GA4 + conversion tracking installed',              price: 15, icon: 'fa-chart-pie' }
+    ];
+
+    // ================================================================
+    // STATE
+    // ================================================================
     let allServiceCategories = [];
-    let allAddOns = [];
+    let firestoreAddOns = []; // from admin panel (optional)
     let usdRate = 125;
     let currentUser = null;
 
     let currentTemplate = null;
-    let applicableAddOns = [];
+    let mergedAddOns = [];       // default + Firestore merged
     let selectedAddOnIds = new Set();
     let designReferences = [];
 
@@ -835,6 +1089,32 @@
     const templateId = params.get('id') || '';
     const sourceHint = params.get('src') || 'template';
 
+    // ================================================================
+    // MERGE DEFAULT + FIRESTORE ADD-ONS (dedupe by name)
+    // ================================================================
+    function buildMergedAddOns() {
+        const merged = [...DEFAULT_ADDONS];
+        const usedNames = new Set(DEFAULT_ADDONS.map(a => (a.name || '').toLowerCase()));
+        (firestoreAddOns || []).forEach(a => {
+            const name = (a.name || '').toLowerCase();
+            if (!usedNames.has(name)) {
+                merged.push({
+                    id: a.id,
+                    cat: 'advanced', // custom ones go into "Advanced" bucket
+                    name: a.name || 'Custom Add-On',
+                    description: a.description || '',
+                    price: Number(a.price) || 0,
+                    icon: a.icon || 'fa-puzzle-piece'
+                });
+                usedNames.add(name);
+            }
+        });
+        return merged;
+    }
+
+    // ================================================================
+    // LOAD USD RATE
+    // ================================================================
     async function loadUsdRate() {
         try {
             const snap = await getDoc(doc(db, 'settings', 'payment'));
@@ -847,21 +1127,26 @@
         }
     }
 
+    // ================================================================
+    // LOAD TEMPLATE (if any)
+    // ================================================================
     async function loadTemplateFromFirestore() {
+        // No ID → Custom direction
         if (!templateId) {
             return {
                 id: null,
-                name: 'Custom Direction',
-                description: 'A fully custom design built to your brief.',
+                name: 'Custom Website',
+                description: 'A fully custom website built from scratch around your brand, brief and design references.',
                 htmlContent: '',
                 imageUrl: '',
                 categoryId: null,
                 categoryName: 'Custom',
-                basePrice: 0,
+                basePrice: CUSTOM_BASE_PRICE,
                 _source: 'custom'
             };
         }
 
+        // Try designTemplates first
         if (sourceHint === 'template' || sourceHint !== 'product') {
             try {
                 const s = await getDoc(doc(db, 'designTemplates', templateId));
@@ -876,7 +1161,7 @@
                         imageUrl: d.imageUrl || '',
                         categoryId: d.categoryId || null,
                         categoryName: cat?.name || 'Design',
-                        basePrice: Number(d.basePrice) || 0,
+                        basePrice: Math.max(CUSTOM_BASE_PRICE, Number(d.basePrice) || 0),
                         _source: 'template'
                     };
                 }
@@ -885,6 +1170,7 @@
             }
         }
 
+        // Fallback: products collection
         try {
             const s = await getDoc(doc(db, 'products', templateId));
             if (s.exists()) {
@@ -897,7 +1183,7 @@
                     imageUrl: d.imageUrl || '',
                     categoryId: null,
                     categoryName: d.category || 'Design',
-                    basePrice: Number(d.price) || 0,
+                    basePrice: Math.max(CUSTOM_BASE_PRICE, Number(d.price) || 0),
                     _source: 'product'
                 };
             }
@@ -908,95 +1194,178 @@
         return null;
     }
 
+    // ================================================================
+    // RENDER TEMPLATE INFO + PREVIEW AREA
+    // ================================================================
     function renderTemplateInfo() {
         const meta = document.getElementById('templateMeta');
-        if (!meta || !currentTemplate) return;
+        const previewArea = document.getElementById('previewArea');
+        const previewNote = document.getElementById('previewNote');
+        const previewTitle = document.getElementById('previewPanelTitle');
+        if (!meta || !previewArea || !currentTemplate) return;
 
+        const isCustom = currentTemplate._source === 'custom';
+
+        // ── Tags ──
         const tags = [];
         if (currentTemplate.categoryName) {
             tags.push(`<span class="tag cat"><i class="fas fa-folder"></i> ${escapeHtml(currentTemplate.categoryName)}</span>`);
         }
-        if (currentTemplate._source === 'custom') {
+        if (isCustom) {
             tags.push(`<span class="tag custom"><i class="fas fa-magic"></i> Custom</span>`);
         }
-
+        tags.push(`<span class="tag base"><i class="fas fa-check-circle"></i> Base from $${CUSTOM_BASE_PRICE}</span>`);
         meta.innerHTML = tags.join('');
 
         document.getElementById('pageTitle').textContent = currentTemplate.name;
         document.getElementById('pageSub').textContent = currentTemplate.description || 'Configure your add-ons and share design references below.';
 
-        const frame = document.getElementById('previewFrame');
-        const wrap = document.getElementById('previewWrap');
-        const html = String(currentTemplate.htmlContent || '').trim();
+        // ── Preview area ──
+        if (isCustom) {
+            // Custom: show base package card
+            previewTitle.textContent = 'Base package';
+            previewNote.innerHTML = 'Every project includes these pages &amp; features. Add extras below to expand.';
 
-        if (html) {
-            let doc = html;
-            if (!/<html[\s>]/i.test(doc) && !/<!DOCTYPE/i.test(doc)) {
-                doc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>${doc}</body></html>`;
-            }
-            frame.srcdoc = doc;
-            frame.style.display = 'block';
+            const includeListHtml = BASE_PACKAGE_INCLUDES.map(it => `
+                <li>
+                    <span class="tick"><i class="fas fa-check"></i></span>
+                    <span>${escapeHtml(it.label)}</span>
+                </li>
+            `).join('');
+
+            previewArea.innerHTML = `
+                <div class="custom-base-card">
+                    <div class="cbc-head">
+                        <div class="cbc-icon"><i class="fas fa-rocket"></i></div>
+                        <div class="cbc-text">
+                            <h3>Custom Website</h3>
+                            <p>We'll craft a unique design around your brief and references.</p>
+                        </div>
+                        <div class="cbc-price">
+                            <div class="amt">$${CUSTOM_BASE_PRICE}</div>
+                            <span class="lbl">starting</span>
+                        </div>
+                    </div>
+                    <div class="cbc-includes">
+                        <div class="ci-label"><i class="fas fa-box-open"></i> What's included</div>
+                        <ul>${includeListHtml}</ul>
+                    </div>
+                </div>
+            `;
         } else {
-            frame.style.display = 'none';
-            if (wrap) {
-                const existing = wrap.querySelector('.preview-empty');
-                if (!existing) {
-                    const ph = document.createElement('div');
-                    ph.className = 'preview-empty';
-                    ph.innerHTML = `
-                        <i class="fas fa-magic"></i>
-                        <div style="font-weight:700;color:#334155;font-size:0.95rem;">Custom design</div>
-                        <div style="font-size:0.82rem;max-width:260px;line-height:1.5;">We'll craft this one-of-a-kind direction based on your brief and references.</div>
-                    `;
-                    wrap.appendChild(ph);
+            // Template: show iframe preview
+            previewTitle.textContent = 'Design preview';
+            previewNote.innerHTML = 'This is a starting point — we tailor every detail to your brand and brief.';
+
+            const html = String(currentTemplate.htmlContent || '').trim();
+            if (html) {
+                let doc = html;
+                if (!/<html[\s>]/i.test(doc) && !/<!DOCTYPE/i.test(doc)) {
+                    doc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>${doc}</body></html>`;
                 }
+                previewArea.innerHTML = `
+                    <div class="cfg-preview">
+                        <div class="preview-toolbar">
+                            <span class="dots"><span></span><span></span><span></span></span>
+                            <span style="margin-left:8px;">Live preview · read-only</span>
+                        </div>
+                        <iframe class="preview-frame" sandbox="allow-scripts allow-same-origin" loading="lazy" srcdoc="${escapeHtmlAttr(doc)}"></iframe>
+                    </div>
+                `;
+            } else if (currentTemplate.imageUrl) {
+                previewArea.innerHTML = `
+                    <div class="cfg-preview">
+                        <img src="${escapeHtmlAttr(currentTemplate.imageUrl)}" alt="${escapeHtmlAttr(currentTemplate.name)}" style="width:100%;display:block;border-radius:0;" />
+                    </div>
+                `;
+            } else {
+                previewArea.innerHTML = `
+                    <div class="cfg-preview">
+                        <div class="preview-empty">
+                            <i class="fas fa-image"></i>
+                            <div style="font-weight:700;color:#334155;font-size:0.95rem;">Preview not available</div>
+                            <div style="font-size:0.82rem;max-width:260px;line-height:1.5;">We'll tailor this direction to your brand and brief.</div>
+                        </div>
+                    </div>
+                `;
             }
         }
     }
 
-    function filterApplicableAddOns() {
-        if (!currentTemplate) return [];
-        const catId = currentTemplate.categoryId;
-        if (!catId) {
-            return allAddOns.filter(a => a.appliesToAll);
-        }
-        return allAddOns.filter(a => a.appliesToAll || a.categoryId === catId);
-    }
-
+    // ================================================================
+    // RENDER ADD-ONS (grouped by category)
+    // ================================================================
     function renderAddOns() {
         const wrap = document.getElementById('addonList');
         if (!wrap) return;
-        const list = applicableAddOns;
 
-        if (!list.length) {
+        if (!mergedAddOns.length) {
             wrap.innerHTML = `
                 <div class="addon-empty">
                     <i class="fas fa-puzzle-piece"></i>
-                    No add-ons available for this category yet.<br/>
+                    No add-ons available right now.<br/>
                     You can still submit your brief — we'll quote the extras for you.
                 </div>
             `;
             return;
         }
 
-        wrap.innerHTML = list.map(a => {
-            const checked = selectedAddOnIds.has(a.id);
-            const icon = a.icon || 'fa-puzzle-piece';
-            const price = Number(a.price) || 0;
-            const priceLabel = price > 0 ? `$${price.toFixed(0)}` : 'Free';
-            return `
-                <div class="addon-row ${checked ? 'selected' : ''}" data-id="${escapeHtmlAttr(a.id)}" role="checkbox" aria-checked="${checked}" tabindex="0">
-                    <div class="addon-icon"><i class="fas ${icon}"></i></div>
-                    <div class="addon-info">
-                        <div class="addon-name">${escapeHtml(a.name || 'Add-on')}</div>
-                        ${a.description ? `<div class="addon-desc">${escapeHtml(a.description)}</div>` : ''}
+        let html = '';
+        ADDON_CATEGORIES.forEach(cat => {
+            const items = mergedAddOns.filter(a => a.cat === cat.key);
+            if (!items.length) return;
+
+            const selectedCount = items.filter(a => selectedAddOnIds.has(a.id)).length;
+
+            html += `
+                <div class="addon-category" data-cat="${cat.key}">
+                    <div class="addon-cat-head">
+                        <span class="ac-icon"><i class="fas ${cat.icon}"></i></span>
+                        <span class="ac-label">${escapeHtml(cat.label)}</span>
+                        <span class="ac-count" data-count-for="${cat.key}">${selectedCount}/${items.length}</span>
+                        <i class="fas fa-chevron-down ac-toggle"></i>
                     </div>
-                    <div class="addon-price">${priceLabel}</div>
-                    <div class="addon-check"><i class="fas fa-check"></i></div>
+                    <div class="addon-cat-body">
+                        <div class="addon-list">
+                            ${items.map(a => renderAddOnRow(a)).join('')}
+                        </div>
+                    </div>
                 </div>
             `;
-        }).join('');
+        });
 
+        // Custom add-ons that don't fit any category
+        const uncategorized = mergedAddOns.filter(a => !ADDON_CATEGORIES.some(c => c.key === a.cat));
+        if (uncategorized.length) {
+            html += `
+                <div class="addon-category" data-cat="other">
+                    <div class="addon-cat-head">
+                        <span class="ac-icon"><i class="fas fa-ellipsis-h"></i></span>
+                        <span class="ac-label">Other Add-Ons</span>
+                        <span class="ac-count">${uncategorized.filter(a => selectedAddOnIds.has(a.id)).length}/${uncategorized.length}</span>
+                        <i class="fas fa-chevron-down ac-toggle"></i>
+                    </div>
+                    <div class="addon-cat-body">
+                        <div class="addon-list">
+                            ${uncategorized.map(a => renderAddOnRow(a)).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        wrap.innerHTML = html;
+
+        // Wire toggle collapse
+        wrap.querySelectorAll('.addon-cat-head').forEach(head => {
+            head.addEventListener('click', (e) => {
+                // don't toggle if clicking the count toggle icon in a way that user intended selection... fine
+                const parent = head.closest('.addon-category');
+                if (parent) parent.classList.toggle('collapsed');
+            });
+        });
+
+        // Wire add-on row toggle
         wrap.querySelectorAll('.addon-row').forEach(row => {
             const toggle = () => {
                 const id = row.dataset.id;
@@ -1004,6 +1373,18 @@
                 else selectedAddOnIds.add(id);
                 row.classList.toggle('selected', selectedAddOnIds.has(id));
                 row.setAttribute('aria-checked', selectedAddOnIds.has(id));
+
+                // Update category count
+                const catKey = row.dataset.cat;
+                if (catKey) {
+                    const catBox = wrap.querySelector(`[data-cat="${catKey}"]`);
+                    if (catBox) {
+                        const rows = catBox.querySelectorAll('.addon-row');
+                        const sel = Array.from(rows).filter(r => r.classList.contains('selected')).length;
+                        const countEl = catBox.querySelector('[data-count-for]');
+                        if (countEl) countEl.textContent = `${sel}/${rows.length}`;
+                    }
+                }
                 updatePriceSummary();
             };
             row.addEventListener('click', toggle);
@@ -1013,6 +1394,27 @@
         });
     }
 
+    function renderAddOnRow(a) {
+        const checked = selectedAddOnIds.has(a.id);
+        const icon = a.icon || 'fa-puzzle-piece';
+        const price = Number(a.price) || 0;
+        const priceLabel = price > 0 ? `$${price.toFixed(0)}` : 'Free';
+        return `
+            <div class="addon-row ${checked ? 'selected' : ''}" data-id="${escapeHtmlAttr(a.id)}" data-cat="${escapeHtmlAttr(a.cat || '')}" role="checkbox" aria-checked="${checked}" tabindex="0">
+                <div class="addon-icon"><i class="fas ${icon}"></i></div>
+                <div class="addon-info">
+                    <div class="addon-name">${escapeHtml(a.name || 'Add-on')}</div>
+                    ${a.description ? `<div class="addon-desc">${escapeHtml(a.description)}</div>` : ''}
+                </div>
+                <div class="addon-price">${priceLabel}</div>
+                <div class="addon-check"><i class="fas fa-check"></i></div>
+            </div>
+        `;
+    }
+
+    // ================================================================
+    // DESIGN REFERENCES
+    // ================================================================
     function renderRefChips() {
         const wrap = document.getElementById('refChipList');
         if (!wrap) return;
@@ -1058,21 +1460,39 @@
         });
     }
 
+    // ================================================================
+    // PRICE SUMMARY
+    // ================================================================
     function updatePriceSummary() {
         if (!currentTemplate) return;
 
-        const basePrice = Number(currentTemplate.basePrice) || 0;
-        const calc = computeConfigTotal(basePrice, applicableAddOns, selectedAddOnIds, usdRate);
+        const basePrice = Number(currentTemplate.basePrice) || CUSTOM_BASE_PRICE;
+        const calc = computeConfigTotal(basePrice, mergedAddOns, selectedAddOnIds, usdRate);
 
-        document.getElementById('sumBaseName').textContent = currentTemplate.name || 'Design';
-        document.getElementById('sumBasePrice').textContent = basePrice > 0 ? `$${basePrice.toFixed(2)}` : 'Custom';
+        // Base label + price
+        const isCustom = currentTemplate._source === 'custom';
+        const baseLabelEl = document.getElementById('sumBaseLabel');
+        const basePriceEl = document.getElementById('sumBasePrice');
+        const baseDescEl = document.getElementById('sumBaseDesc');
 
+        if (isCustom) {
+            baseLabelEl.textContent = 'Base Package';
+            baseDescEl.textContent = 'Landing, About & Contact pages + responsive + SEO';
+            baseDescEl.style.display = '';
+        } else {
+            baseLabelEl.textContent = `Base — ${currentTemplate.name || 'Design'}`;
+            baseDescEl.textContent = 'Selected design template';
+            baseDescEl.style.display = '';
+        }
+        basePriceEl.textContent = `$${basePrice.toFixed(2)}`;
+
+        // Add-ons breakdown
         const addonsWrap = document.getElementById('sumAddOnsContainer');
-        const selected = applicableAddOns.filter(a => selectedAddOnIds.has(a.id));
+        const selected = mergedAddOns.filter(a => selectedAddOnIds.has(a.id));
         if (selected.length) {
             addonsWrap.innerHTML = selected.map(a => `
                 <div class="ps-row addon">
-                    <span class="label">+ ${escapeHtml(a.name || 'Add-on')}</span>
+                    <span class="label">${escapeHtml(a.name || 'Add-on')}</span>
                     <span class="value">$${(Number(a.price) || 0).toFixed(2)}</span>
                 </div>
             `).join('');
@@ -1080,26 +1500,29 @@
             addonsWrap.innerHTML = '';
         }
 
-        if (basePrice > 0 || calc.addOnsUSD > 0) {
-            document.getElementById('sumTotal').textContent = `$${calc.totalUSD.toFixed(2)}`;
-            document.getElementById('sumBDT').textContent = `৳${calc.totalBDT.toLocaleString('en-BD')}`;
-        } else {
-            document.getElementById('sumTotal').textContent = 'Custom';
-            document.getElementById('sumBDT').textContent = 'Quote after review';
-        }
+        // Total
+        document.getElementById('sumTotal').textContent = `$${calc.totalUSD.toFixed(2)}`;
+        document.getElementById('sumBDT').textContent = `৳${calc.totalBDT.toLocaleString('en-BD')}`;
 
+        // Add-on count
         const countEl = document.getElementById('addonCount');
         if (countEl) {
             countEl.textContent = `${selectedAddOnIds.size} selected`;
         }
     }
 
+    // ================================================================
+    // BRIEF TEXTAREA COUNTER
+    // ================================================================
     const briefArea = document.getElementById('briefTextarea');
     const briefCount = document.getElementById('briefCount');
     briefArea?.addEventListener('input', () => {
         if (briefCount) briefCount.textContent = briefArea.value.length;
     });
 
+    // ================================================================
+    // ADD DESIGN REFERENCE
+    // ================================================================
     document.getElementById('addRefBtn')?.addEventListener('click', () => {
         if (!currentUser) {
             window.showToast('Please sign in to add references.', 'warning');
@@ -1130,6 +1553,9 @@
         });
     });
 
+    // ================================================================
+    // SUBMIT
+    // ================================================================
     document.getElementById('submitBtn')?.addEventListener('click', async () => {
         if (!currentUser) {
             window.showToast('Please sign in to submit.', 'warning');
@@ -1143,7 +1569,7 @@
         btn.innerHTML = '<span class="spinner"></span> Submitting…';
 
         try {
-            const selectedAddOnsSnapshot = applicableAddOns
+            const selectedAddOnsSnapshot = mergedAddOns
                 .filter(a => selectedAddOnIds.has(a.id))
                 .map(a => ({
                     id: a.id,
@@ -1161,8 +1587,8 @@
                 serviceCategoryId: currentTemplate?.categoryId || null,
                 serviceCategoryName: currentTemplate?.categoryName || '',
                 designTemplateId: currentTemplate?.id || null,
-                designTemplateName: currentTemplate?.name || 'Custom Direction',
-                basePrice: Number(currentTemplate?.basePrice) || 0,
+                designTemplateName: currentTemplate?.name || 'Custom Website',
+                basePrice: Number(currentTemplate?.basePrice) || CUSTOM_BASE_PRICE,
                 selectedAddOns: selectedAddOnsSnapshot,
                 designReferences: designReferences.map(r => ({
                     id: r.id || null,
@@ -1195,6 +1621,9 @@
         }
     });
 
+    // ================================================================
+    // AUTH STATE
+    // ================================================================
     onAuthStateChanged(auth, async (user) => {
         currentUser = user || null;
         let name = null;
@@ -1221,11 +1650,15 @@
         }
     });
 
+    // ================================================================
+    // BOOT
+    // ================================================================
     (async function boot() {
         showState('loadingState');
 
         await loadUsdRate();
 
+        // ── Load service categories (one-time-ish) ──
         await new Promise((resolve) => {
             let settled = false;
             try {
@@ -1239,11 +1672,15 @@
             setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
         });
 
+        // ── Load Firestore add-ons (optional) ──
         await new Promise((resolve) => {
             let settled = false;
             try {
                 listenAddOns((active) => {
-                    allAddOns = active || [];
+                    firestoreAddOns = active || [];
+                    mergedAddOns = buildMergedAddOns();
+                    renderAddOns();
+                    updatePriceSummary();
                     if (!settled) { settled = true; resolve(); }
                 });
             } catch (_) {
@@ -1252,6 +1689,12 @@
             setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
         });
 
+        // Ensure merged add-ons exist even if Firestore failed
+        if (!mergedAddOns.length) {
+            mergedAddOns = buildMergedAddOns();
+        }
+
+        // ── Load template ──
         let tmpl = null;
         try {
             tmpl = await loadTemplateFromFirestore();
@@ -1269,25 +1712,26 @@
         if (!tmpl) {
             tmpl = {
                 id: null,
-                name: 'Custom Direction',
-                description: 'A fully custom design built to your brief.',
+                name: 'Custom Website',
+                description: 'A fully custom website built from scratch around your brand, brief and design references.',
                 htmlContent: '',
                 imageUrl: '',
                 categoryId: null,
                 categoryName: 'Custom',
-                basePrice: 0,
+                basePrice: CUSTOM_BASE_PRICE,
                 _source: 'custom'
             };
         }
 
         currentTemplate = tmpl;
-        applicableAddOns = filterApplicableAddOns();
 
+        // ── Render everything ──
         renderTemplateInfo();
         renderAddOns();
         renderRefChips();
         updatePriceSummary();
 
+        // ── Live update Firestore add-ons (if admin changes them) ──
         try {
             const q = query(collection(db, 'addOns'));
             onSnapshot(q, (snap) => {
@@ -1296,22 +1740,17 @@
                     const data = d.data();
                     if (data.isActive !== false) list.push({ id: d.id, ...data });
                 });
-                allAddOns = list;
-                applicableAddOns = filterApplicableAddOns();
-                const applicableIds = new Set(applicableAddOns.map(a => a.id));
-                [...selectedAddOnIds].forEach(id => {
-                    if (!applicableIds.has(id)) selectedAddOnIds.delete(id);
-                });
+                firestoreAddOns = list;
+                mergedAddOns = buildMergedAddOns();
                 renderAddOns();
                 updatePriceSummary();
             }, (err) => console.warn('[cfg] live addOns listener:', err?.code || err?.message));
         } catch (_) {}
 
-        // ===== FIX #3 — reveal fade-up elements after mainState is shown =====
+        // ── Show main state + reveal fade-up elements ──
         showState('mainState');
         observeFadeUps();
 
-        // Safety net: force-reveal anything already in viewport
         setTimeout(() => {
             document.querySelectorAll('#mainState .fade-up:not(.visible)').forEach(el => {
                 const rect = el.getBoundingClientRect();
@@ -1321,7 +1760,7 @@
             });
         }, 120);
 
-        console.log('⚙️ Configure page ready | template:', tmpl.name, '| source:', tmpl._source, '| add-ons applicable:', applicableAddOns.length);
+        console.log('⚙️ Configure page ready | template:', tmpl.name, '| source:', tmpl._source, '| base: $' + tmpl.basePrice, '| add-ons:', mergedAddOns.length);
     })();
 </script>
 </body>
