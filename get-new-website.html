@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="style.css" />
 
     <style>
-        /* ─── Reset & Base ─── */
         * { box-sizing: border-box; }
         body {
             background: #f0f4f9;
@@ -30,7 +29,6 @@
             min-height: 100vh;
         }
 
-        /* ─── Page intro hero ─── */
         .selector-hero {
             background:
                 radial-gradient(ellipse 70% 55% at 15% 15%, rgba(37,99,235,0.1), transparent 55%),
@@ -87,7 +85,6 @@
             margin: 0 0 1.5rem;
         }
 
-        /* ─── Filter bar ─── */
         .filter-bar {
             display: flex;
             flex-wrap: wrap;
@@ -174,7 +171,6 @@
             .filter-bar { gap: 0.5rem; }
         }
 
-        /* ─── Result meta ─── */
         .result-meta {
             display: flex;
             align-items: center;
@@ -187,7 +183,6 @@
         }
         .result-meta strong { color: #0f172a; font-weight: 700; }
 
-        /* ─── Grid ─── */
         .design-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -198,7 +193,6 @@
             .design-grid { grid-template-columns: 1fr; gap: 1rem; }
         }
 
-        /* ─── Design card ─── */
         .design-card {
             background: #fff;
             border: 1px solid rgba(15,23,42,0.06);
@@ -377,7 +371,6 @@
             transform: translateY(-1px);
         }
 
-        /* ─── Skeleton ─── */
         .skeleton-card {
             background: #f3f4f6;
             border-radius: 22px;
@@ -396,7 +389,6 @@
             50% { opacity: 0.55; }
         }
 
-        /* ─── Empty states ─── */
         .selector-empty {
             grid-column: 1 / -1;
             text-align: center;
@@ -426,7 +418,6 @@
             line-height: 1.55;
         }
 
-        /* ─── Start from scratch CTA card ─── */
         .scratch-card {
             background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(124,58,237,0.08));
             border: 1.5px dashed rgba(37,99,235,0.22);
@@ -487,7 +478,6 @@
             box-shadow: 0 8px 22px rgba(37,99,235,0.35);
         }
 
-        /* ─── Info footnote ─── */
         .selector-note {
             margin-top: 2rem;
             padding: 1.15rem 1.35rem;
@@ -509,7 +499,6 @@
         }
         .selector-note strong { color: #0f172a; font-weight: 700; }
 
-        /* ─── Small fade-up ─── */
         .fade-up {
             opacity: 0;
             transform: translateY(16px);
@@ -520,7 +509,6 @@
             .fade-up { opacity: 1; transform: none; transition: none; }
         }
 
-        /* ─── Toast (safety net) ─── */
         #toast-container {
             position: fixed;
             bottom: 24px;
@@ -567,7 +555,6 @@
         <section style="padding: 2rem 1rem 4rem;">
             <div style="max-width: 1200px; margin: 0 auto;">
 
-                <!-- ===== HERO ===== -->
                 <div class="selector-hero fade-up">
                     <span class="sh-eyebrow"><i class="fas fa-palette"></i> Design Reference & Service Selector</span>
                     <h1>Pick a design direction. Then make it yours.</h1>
@@ -585,12 +572,8 @@
                     </div>
                 </div>
 
-                <!-- ===== CATEGORY CHIPS ===== -->
-                <div id="categoryChipsWrap" style="margin-bottom: 1.25rem;">
-                    <!-- Filled by JS -->
-                </div>
+                <div id="categoryChipsWrap" style="margin-bottom: 1.25rem;"></div>
 
-                <!-- ===== FILTER BAR ===== -->
                 <div class="filter-bar">
                     <div class="search-wrap">
                         <i class="fas fa-search"></i>
@@ -609,18 +592,13 @@
                     </button>
                 </div>
 
-                <!-- ===== RESULT META ===== -->
                 <div class="result-meta">
                     <span id="resultCount"><strong>Loading designs…</strong></span>
                     <span id="activeFilterLabel"></span>
                 </div>
 
-                <!-- ===== DESIGN GRID ===== -->
-                <div id="designGrid" class="design-grid">
-                    <!-- Skeletons will be rendered by JS -->
-                </div>
+                <div id="designGrid" class="design-grid"></div>
 
-                <!-- ===== INFO NOTE ===== -->
                 <div class="selector-note">
                     <i class="fas fa-info-circle"></i>
                     <div>
@@ -640,9 +618,6 @@
 <div id="toast-container"></div>
 
 <script type="module">
-    // ================================================================
-    // IMPORTS
-    // ================================================================
     import {
         auth, db, collection, doc, getDoc, getDocs, query, where,
         onAuthStateChanged, onSnapshot
@@ -653,19 +628,13 @@
         listenServiceCategories, listenAddOns, isAgencyServiceFlow
     } from './components.js';
 
-    // ================================================================
-    // COMMON RENDER (agency-aware in components.js → no cart/payment modal)
-    // ================================================================
     renderNavbar();
     renderAuthModal();
     renderFooter();
-    renderCartSidebar();   // no-op on agency page
-    renderPaymentModal();  // no-op on agency page
-    updateCartBadge();     // no-op when #cartCount missing
+    renderCartSidebar();
+    renderPaymentModal();
+    updateCartBadge();
 
-    // ================================================================
-    // TOAST
-    // ================================================================
     window.showToast = (message, type = 'success') => {
         const container = document.getElementById('toast-container');
         if (!container) return;
@@ -677,9 +646,6 @@
         setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // ================================================================
-    // FADE-UP OBSERVER
-    // ================================================================
     const fadeObserver = new IntersectionObserver((entries) => {
         entries.forEach(e => {
             if (e.isIntersecting) { e.target.classList.add('visible'); fadeObserver.unobserve(e.target); }
@@ -688,10 +654,8 @@
     function observeFadeUps() {
         document.querySelectorAll('.fade-up:not(.visible)').forEach(el => fadeObserver.observe(el));
     }
+    document.addEventListener('DOMContentLoaded', observeFadeUps);
 
-    // ================================================================
-    // HELPERS
-    // ================================================================
     function escapeHtml(str) {
         return String(str || '')
             .replace(/&/g, '&amp;')
@@ -701,19 +665,15 @@
     }
     function escapeHtmlAttr(str) { return escapeHtml(str); }
 
-    // ================================================================
-    // STATE
-    // ================================================================
-    let allServiceCategories = [];   // from listenServiceCategories
-    let allDesignTemplates = [];     // from designTemplates OR products fallback
-    let allAddOns = [];              // for later (config page uses them directly, but we may hint counts)
+    let allServiceCategories = [];
+    let allDesignTemplates = [];
+    let allAddOns = [];
     let usdRate = 125;
     let activeCategoryId = 'all';
     let currentSort = 'featured';
     let currentSearch = '';
-    let templateSource = 'designTemplates'; // 'designTemplates' | 'products'
+    let templateSource = 'designTemplates';
 
-    // Read ?search= param from navbar search
     (function readUrlParams() {
         try {
             const params = new URLSearchParams(window.location.search);
@@ -728,9 +688,6 @@
         } catch (_) {}
     })();
 
-    // ================================================================
-    // LOAD RATE
-    // ================================================================
     async function loadUsdRate() {
         try {
             const snap = await getDoc(doc(db, 'settings', 'payment'));
@@ -741,9 +698,6 @@
         } catch (_) {}
     }
 
-    // ================================================================
-    // LOAD DESIGN TEMPLATES (with products fallback)
-    // ================================================================
     function skeletonGrid(count = 6) {
         const grid = document.getElementById('designGrid');
         if (!grid) return;
@@ -764,11 +718,9 @@
     }
 
     function normalizeTemplate(raw, source) {
-        // unify shape from designTemplates | products
         const name = raw.name || 'Untitled Design';
         const description = raw.description || raw.desc || '';
         const categoryId = raw.categoryId || null;
-        // For products, category is a string slug like 'static'. Not an ID. So we leave categoryId null.
         const categoryName = raw.categoryName
             || (raw.categoryId ? (allServiceCategories.find(c => c.id === raw.categoryId)?.name || '') : '')
             || (raw.category ? raw.category : '')
@@ -795,9 +747,12 @@
         };
     }
 
+    // ============================================================
+    // FIX #2 — Load ALL products as fallback (not just featured)
+    // ============================================================
     async function loadDesignTemplates() {
         try {
-            // 1. Try designTemplates
+            // 1. Try designTemplates collection first
             let items = [];
             try {
                 const snap = await getDocs(collection(db, 'designTemplates'));
@@ -816,22 +771,12 @@
                 console.warn('[templates] designTemplates read failed:', err?.code || err?.message);
             }
 
-            // 2. Fallback: products featured
+            // 2. Fallback: load ALL products (featured stays a sort priority, not a filter)
             try {
-                const fSnap = await getDocs(query(collection(db, 'products'), where('featured', '==', true)));
-                fSnap.forEach(d => items.push(normalizeTemplate({ id: d.id, ...d.data() }, 'product')));
+                const pSnap = await getDocs(collection(db, 'products'));
+                pSnap.forEach(d => items.push(normalizeTemplate({ id: d.id, ...d.data() }, 'product')));
             } catch (err) {
-                console.warn('[templates] featured products fallback failed:', err?.code || err?.message);
-            }
-
-            // 3. Fallback: any products
-            if (items.length === 0) {
-                try {
-                    const pSnap = await getDocs(collection(db, 'products'));
-                    pSnap.forEach(d => items.push(normalizeTemplate({ id: d.id, ...d.data() }, 'product')));
-                } catch (err) {
-                    console.warn('[templates] products fallback failed:', err?.code || err?.message);
-                }
+                console.warn('[templates] products fallback failed:', err?.code || err?.message);
             }
 
             if (items.length > 0) {
@@ -861,15 +806,10 @@
         }
     }
 
-    // ================================================================
-    // CATEGORY CHIPS
-    // ================================================================
     function renderCategoryChips() {
         const wrap = document.getElementById('categoryChipsWrap');
         if (!wrap) return;
 
-        // Only show chips if we have a live designTemplates source (categories meaningful)
-        // For products fallback, categories are string slugs → build a synthetic set
         let chips = [];
 
         if (templateSource === 'designTemplates' && allServiceCategories.length > 0) {
@@ -883,7 +823,6 @@
                 }))
             ];
         } else if (templateSource === 'products') {
-            // Synthetic category set from products.category string slugs
             const unique = new Map();
             allDesignTemplates.forEach(t => {
                 const cat = (t.categoryName || '').toLowerCase() || 'other';
@@ -900,7 +839,6 @@
                 }))
             ];
         } else {
-            // No templates, no products — just show a disabled "All" chip for visual consistency
             chips = [
                 { id: 'all', name: 'All Designs', icon: 'fa-th-large', count: 0 }
             ];
@@ -928,13 +866,9 @@
         });
     }
 
-    // ================================================================
-    // FILTER + SORT
-    // ================================================================
     function getFilteredDesigns() {
         let list = [...allDesignTemplates];
 
-        // Category filter
         if (activeCategoryId !== 'all') {
             if (activeCategoryId.startsWith('cat:')) {
                 const slug = activeCategoryId.slice(4).toLowerCase();
@@ -944,7 +878,6 @@
             }
         }
 
-        // Search filter
         if (currentSearch) {
             const q = currentSearch.toLowerCase().trim();
             if (q) {
@@ -956,7 +889,6 @@
             }
         }
 
-        // Sort
         const ts = (t) => {
             if (t.createdAt?.toDate) return t.createdAt.toDate().getTime();
             if (t.createdAt) return new Date(t.createdAt).getTime();
@@ -989,9 +921,6 @@
         return list;
     }
 
-    // ================================================================
-    // RENDER GRID
-    // ================================================================
     function renderDesigns() {
         const grid = document.getElementById('designGrid');
         const countEl = document.getElementById('resultCount');
@@ -1000,7 +929,6 @@
 
         const list = getFilteredDesigns();
 
-        // Update counters
         if (countEl) {
             const total = allDesignTemplates.length;
             if (total === 0) {
@@ -1019,7 +947,6 @@
             filterEl.textContent = parts.length ? `Filtered by: ${parts.join(' · ')}` : '';
         }
 
-        // Empty states
         if (allDesignTemplates.length === 0) {
             grid.innerHTML = `
                 <div class="selector-empty">
@@ -1048,7 +975,6 @@
             return;
         }
 
-        // Cards
         let html = '';
         list.forEach((t, i) => {
             const hasHtml = t.htmlContent && String(t.htmlContent).trim().length > 0;
@@ -1116,7 +1042,6 @@
             `;
         });
 
-        // Add "Start from scratch" card at the end (only when there is at least 1 real card)
         html += `
             <div class="scratch-card fade-up" style="transition-delay:0.35s;">
                 <div class="sc-icon"><i class="fas fa-magic"></i></div>
@@ -1132,9 +1057,6 @@
         observeFadeUps();
     }
 
-    // ================================================================
-    // PREVIEW IN NEW TAB
-    // ================================================================
     window.__previewDesign = function(id) {
         const t = allDesignTemplates.find(x => x.id === id);
         if (!t || !t.htmlContent) { window.showToast('No preview available.', 'warning'); return; }
@@ -1159,9 +1081,6 @@
         }
     };
 
-    // ================================================================
-    // RESET FILTERS
-    // ================================================================
     window.resetSelectorFilters = function() {
         activeCategoryId = 'all';
         currentSearch = '';
@@ -1174,9 +1093,6 @@
         renderDesigns();
     };
 
-    // ================================================================
-    // FILTER EVENT LISTENERS
-    // ================================================================
     let searchDebounce = null;
     document.getElementById('searchInput')?.addEventListener('input', (e) => {
         clearTimeout(searchDebounce);
@@ -1190,9 +1106,6 @@
         renderDesigns();
     });
 
-    // ================================================================
-    // AUTH STATE (navbar only)
-    // ================================================================
     onAuthStateChanged(auth, async (user) => {
         let name = null;
         if (user) {
@@ -1206,17 +1119,10 @@
         updateNavbarAuth(user, name);
     });
 
-    // ================================================================
-    // BOOT
-    // ================================================================
     (async function boot() {
-        // Show skeletons immediately
         skeletonGrid(6);
-
-        // Load rate (non-blocking)
         loadUsdRate();
 
-        // Live listener on serviceCategories → re-render chips when they change
         try {
             listenServiceCategories((active, all) => {
                 allServiceCategories = (active && active.length ? active : (all || []));
@@ -1227,12 +1133,10 @@
             console.warn('[boot] serviceCategories listener failed:', err);
         }
 
-        // Listen for addOns (used later on the config page but useful here for display hints — no-op for now)
         try {
             listenAddOns((active) => { allAddOns = active || []; });
         } catch (_) {}
 
-        // Load templates/products
         await loadDesignTemplates();
 
         console.log('🎨 Design Selector ready — source:', templateSource, '| designs:', allDesignTemplates.length);

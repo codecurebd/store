@@ -30,7 +30,6 @@
             color: #0f172a;
         }
 
-        /* ===== TOP HEADER ===== */
         .cfg-topbar {
             display: flex;
             align-items: center;
@@ -70,7 +69,6 @@
             margin: 3px 0 0;
         }
 
-        /* ===== STEP INDICATOR (shared) ===== */
         .step-indicator {
             display: flex; align-items: center; gap: 10px;
             margin-bottom: 1.75rem; justify-content: flex-start; flex-wrap: wrap;
@@ -102,7 +100,6 @@
             .step-indicator .step-arrow { display: none; }
         }
 
-        /* ===== GRID LAYOUT ===== */
         .cfg-layout {
             display: grid;
             grid-template-columns: 1fr 380px;
@@ -113,7 +110,6 @@
             .cfg-layout { grid-template-columns: 1fr; }
         }
 
-        /* ===== PANELS ===== */
         .cfg-panel {
             background: #fff;
             border: 1px solid rgba(15,23,42,0.06);
@@ -139,7 +135,6 @@
             line-height: 1.55;
         }
 
-        /* ===== PREVIEW ===== */
         .cfg-preview {
             background: #f1f5f9;
             border: 1px solid rgba(15,23,42,0.06);
@@ -172,7 +167,6 @@
         }
         .cfg-preview .preview-empty i { font-size: 2.25rem; opacity: 0.4; }
 
-        /* ===== TEMPLATE INFO ===== */
         .template-meta {
             display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
             margin-bottom: 0.75rem;
@@ -193,7 +187,6 @@
             background: rgba(124,58,237,0.1); color: #7c3aed;
         }
 
-        /* ===== ADD-ON LIST ===== */
         .addon-list { display: flex; flex-direction: column; gap: 0.5rem; }
         .addon-row {
             display: flex; align-items: center; gap: 14px;
@@ -256,7 +249,6 @@
         }
         .addon-empty i { font-size: 1.75rem; opacity: 0.35; display: block; margin-bottom: 8px; }
 
-        /* ===== BRIEF TEXTAREA ===== */
         .cfg-textarea {
             width: 100%;
             padding: 14px 16px;
@@ -284,7 +276,6 @@
             margin-top: 4px;
         }
 
-        /* ===== DESIGN REFERENCES BLOCK ===== */
         .ref-actions {
             display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
             margin-bottom: 0.75rem;
@@ -348,7 +339,6 @@
             line-height: 1.5;
         }
 
-        /* ===== PRICE SUMMARY ===== */
         .price-summary {
             position: sticky;
             top: 100px;
@@ -450,7 +440,6 @@
             border-color: #2563eb; color: #2563eb; background: #fff;
         }
 
-        /* ===== SUCCESS SCREEN ===== */
         .cfg-success {
             max-width: 620px; margin: 3rem auto;
             background: #fff; border: 1px solid rgba(15,23,42,0.06);
@@ -504,7 +493,6 @@
         }
         .cfg-success .actions .outline:hover { border-color: #2563eb; color: #2563eb; }
 
-        /* ===== LOADING / ERROR STATES ===== */
         .cfg-loading, .cfg-error {
             max-width: 620px; margin: 3rem auto;
             background: #fff; border: 1px solid rgba(15,23,42,0.06);
@@ -530,7 +518,6 @@
         }
         .cfg-error p { color: #64748b; font-size: 0.9rem; margin: 0 0 1.25rem; line-height: 1.55; }
 
-        /* ===== SKELETON BLOCK ===== */
         .sk {
             background: linear-gradient(90deg, #e8edf3 25%, #f1f5f9 50%, #e8edf3 75%);
             background-size: 200% 100%;
@@ -542,7 +529,6 @@
             100% { background-position: -200% 0; }
         }
 
-        /* ===== TOAST ===== */
         #toast-container {
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
             z-index: 9999; display: flex; flex-direction: column; align-items: center;
@@ -562,7 +548,6 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(30px); } }
 
-        /* ===== AUTH GATE ===== */
         .cfg-auth-gate {
             max-width: 520px; margin: 0 auto;
             background: #fff; border: 1px solid rgba(15,23,42,0.06);
@@ -601,7 +586,6 @@
         <section style="padding: 1.5rem 1rem 4rem;">
             <div style="max-width: 1200px; margin: 0 auto;">
 
-                <!-- ===== TOP BAR ===== -->
                 <div class="cfg-topbar fade-up">
                     <a href="get-new-website.html" class="back-link" aria-label="Back to design selector">
                         <i class="fas fa-arrow-left"></i>
@@ -612,7 +596,6 @@
                     </div>
                 </div>
 
-                <!-- ===== STEP INDICATOR ===== -->
                 <div class="step-indicator fade-up">
                     <span class="step done"><span class="num"><i class="fas fa-check"></i></span><span class="lbl">Choose design</span></span>
                     <i class="fas fa-chevron-right step-arrow"></i>
@@ -621,13 +604,11 @@
                     <span class="step"><span class="num">3</span><span class="lbl">Submit brief</span></span>
                 </div>
 
-                <!-- ===== LOADING ===== -->
                 <div id="loadingState" class="cfg-loading">
                     <div class="cfg-spinner"></div>
                     <p style="color:#64748b;font-weight:600;">Loading your configuration…</p>
                 </div>
 
-                <!-- ===== ERROR ===== -->
                 <div id="errorState" class="cfg-error" style="display:none;">
                     <i class="big fas fa-exclamation-circle"></i>
                     <h2>Could not load this design</h2>
@@ -637,13 +618,9 @@
                     </a>
                 </div>
 
-                <!-- ===== MAIN ===== -->
                 <div id="mainState" style="display:none;">
                     <div class="cfg-layout">
-
-                        <!-- ============ LEFT: Config blocks ============ -->
                         <div>
-                            <!-- Template preview panel -->
                             <div class="cfg-panel fade-up">
                                 <div class="cp-title">
                                     <span class="ico"><i class="fas fa-desktop"></i></span>
@@ -663,7 +640,6 @@
                                 </p>
                             </div>
 
-                            <!-- Add-ons panel -->
                             <div class="cfg-panel fade-up">
                                 <div class="cp-title">
                                     <span class="ico"><i class="fas fa-puzzle-piece"></i></span>
@@ -671,12 +647,9 @@
                                     <span id="addonCount" style="margin-left:auto;font-size:0.75rem;color:#94a3b8;font-weight:600;">0 selected</span>
                                 </div>
                                 <p class="cp-sub">Select the modules you need. The estimate updates live.</p>
-                                <div class="addon-list" id="addonList">
-                                    <!-- Filled by JS -->
-                                </div>
+                                <div class="addon-list" id="addonList"></div>
                             </div>
 
-                            <!-- Design references panel -->
                             <div class="cfg-panel fade-up">
                                 <div class="cp-title">
                                     <span class="ico"><i class="fas fa-palette"></i></span>
@@ -688,16 +661,13 @@
                                         <i class="fas fa-plus"></i> Add Design Reference
                                     </button>
                                 </div>
-                                <div class="ref-chip-list" id="refChipList">
-                                    <!-- Filled by JS -->
-                                </div>
+                                <div class="ref-chip-list" id="refChipList"></div>
                                 <p class="ref-hint">
                                     <i class="fas fa-lightbulb" style="color:#f59e0b;"></i>
                                     A URL, an image, or a few words is enough. We'll combine them with your brief.
                                 </p>
                             </div>
 
-                            <!-- Brief panel -->
                             <div class="cfg-panel fade-up">
                                 <div class="cp-title">
                                     <span class="ico"><i class="fas fa-clipboard-list"></i></span>
@@ -716,7 +686,6 @@
                             </div>
                         </div>
 
-                        <!-- ============ RIGHT: Sticky summary ============ -->
                         <aside>
                             <div class="price-summary fade-up">
                                 <div class="ps-title">Your estimate</div>
@@ -762,11 +731,9 @@
                                 </div>
                             </div>
                         </aside>
-
                     </div>
                 </div>
 
-                <!-- ===== SUCCESS ===== -->
                 <div id="successState" class="cfg-success" style="display:none;">
                     <div class="check-circle"><i class="fas fa-check"></i></div>
                     <h2>Request submitted!</h2>
@@ -793,9 +760,6 @@
 <div id="toast-container"></div>
 
 <script type="module">
-    // ================================================================
-    // IMPORTS
-    // ================================================================
     import {
         auth, db, doc, getDoc, getDocs, collection, query, where,
         onAuthStateChanged, onSnapshot
@@ -807,19 +771,13 @@
         openDesignReferenceModal, submitServiceRequest
     } from './components.js';
 
-    // ================================================================
-    // COMMON RENDER
-    // ================================================================
     renderNavbar();
     renderAuthModal();
     renderFooter();
-    renderCartSidebar();   // no-op on agency page
-    renderPaymentModal();  // no-op on agency page
-    updateCartBadge();     // no-op when #cartCount missing
+    renderCartSidebar();
+    renderPaymentModal();
+    updateCartBadge();
 
-    // ================================================================
-    // TOAST
-    // ================================================================
     window.showToast = (message, type = 'success') => {
         const container = document.getElementById('toast-container');
         if (!container) return;
@@ -831,9 +789,22 @@
         setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // ================================================================
-    // UTILITIES
-    // ================================================================
+    // ============================================================
+    // FIX #3 — Fade-up observer (was missing → page appeared blank)
+    // ============================================================
+    const fadeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                fadeObserver.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+
+    function observeFadeUps() {
+        document.querySelectorAll('.fade-up:not(.visible)').forEach(el => fadeObserver.observe(el));
+    }
+
     function escapeHtml(str) {
         return String(str || '')
             .replace(/&/g, '&amp;')
@@ -850,27 +821,20 @@
         });
     }
 
-    // ================================================================
-    // STATE
-    // ================================================================
     let allServiceCategories = [];
     let allAddOns = [];
     let usdRate = 125;
     let currentUser = null;
 
-    let currentTemplate = null;             // { id, name, description, htmlContent, imageUrl, categoryId, categoryName, basePrice, _source }
-    let applicableAddOns = [];              // filtered by categoryId OR universal
-    let selectedAddOnIds = new Set();       // Set<string>
-    let designReferences = [];              // [{ id, type, url, imageUrl, description }]
+    let currentTemplate = null;
+    let applicableAddOns = [];
+    let selectedAddOnIds = new Set();
+    let designReferences = [];
 
-    // URL params
     const params = new URLSearchParams(window.location.search);
     const templateId = params.get('id') || '';
-    const sourceHint = params.get('src') || 'template'; // 'template' | 'product'
+    const sourceHint = params.get('src') || 'template';
 
-    // ================================================================
-    // LOAD BASE DATA
-    // ================================================================
     async function loadUsdRate() {
         try {
             const snap = await getDoc(doc(db, 'settings', 'payment'));
@@ -885,7 +849,6 @@
 
     async function loadTemplateFromFirestore() {
         if (!templateId) {
-            // No ID → "start from scratch" mode
             return {
                 id: null,
                 name: 'Custom Direction',
@@ -899,7 +862,6 @@
             };
         }
 
-        // Try designTemplates first
         if (sourceHint === 'template' || sourceHint !== 'product') {
             try {
                 const s = await getDoc(doc(db, 'designTemplates', templateId));
@@ -923,7 +885,6 @@
             }
         }
 
-        // Fallback to products
         try {
             const s = await getDoc(doc(db, 'products', templateId));
             if (s.exists()) {
@@ -947,9 +908,6 @@
         return null;
     }
 
-    // ================================================================
-    // RENDER: TEMPLATE INFO + PREVIEW
-    // ================================================================
     function renderTemplateInfo() {
         const meta = document.getElementById('templateMeta');
         if (!meta || !currentTemplate) return;
@@ -964,11 +922,9 @@
 
         meta.innerHTML = tags.join('');
 
-        // Sub header
         document.getElementById('pageTitle').textContent = currentTemplate.name;
         document.getElementById('pageSub').textContent = currentTemplate.description || 'Configure your add-ons and share design references below.';
 
-        // Preview
         const frame = document.getElementById('previewFrame');
         const wrap = document.getElementById('previewWrap');
         const html = String(currentTemplate.htmlContent || '').trim();
@@ -982,7 +938,6 @@
             frame.style.display = 'block';
         } else {
             frame.style.display = 'none';
-            // Insert placeholder next to frame
             if (wrap) {
                 const existing = wrap.querySelector('.preview-empty');
                 if (!existing) {
@@ -999,14 +954,10 @@
         }
     }
 
-    // ================================================================
-    // RENDER: ADD-ONS
-    // ================================================================
     function filterApplicableAddOns() {
         if (!currentTemplate) return [];
         const catId = currentTemplate.categoryId;
         if (!catId) {
-            // Custom direction → only universal add-ons
             return allAddOns.filter(a => a.appliesToAll);
         }
         return allAddOns.filter(a => a.appliesToAll || a.categoryId === catId);
@@ -1062,9 +1013,6 @@
         });
     }
 
-    // ================================================================
-    // RENDER: DESIGN REFERENCES
-    // ================================================================
     function renderRefChips() {
         const wrap = document.getElementById('refChipList');
         if (!wrap) return;
@@ -1110,20 +1058,15 @@
         });
     }
 
-    // ================================================================
-    // PRICE SUMMARY
-    // ================================================================
     function updatePriceSummary() {
         if (!currentTemplate) return;
 
         const basePrice = Number(currentTemplate.basePrice) || 0;
         const calc = computeConfigTotal(basePrice, applicableAddOns, selectedAddOnIds, usdRate);
 
-        // Base
         document.getElementById('sumBaseName').textContent = currentTemplate.name || 'Design';
         document.getElementById('sumBasePrice').textContent = basePrice > 0 ? `$${basePrice.toFixed(2)}` : 'Custom';
 
-        // Add-ons breakdown
         const addonsWrap = document.getElementById('sumAddOnsContainer');
         const selected = applicableAddOns.filter(a => selectedAddOnIds.has(a.id));
         if (selected.length) {
@@ -1137,7 +1080,6 @@
             addonsWrap.innerHTML = '';
         }
 
-        // Total
         if (basePrice > 0 || calc.addOnsUSD > 0) {
             document.getElementById('sumTotal').textContent = `$${calc.totalUSD.toFixed(2)}`;
             document.getElementById('sumBDT').textContent = `৳${calc.totalBDT.toLocaleString('en-BD')}`;
@@ -1146,25 +1088,18 @@
             document.getElementById('sumBDT').textContent = 'Quote after review';
         }
 
-        // Count
         const countEl = document.getElementById('addonCount');
         if (countEl) {
             countEl.textContent = `${selectedAddOnIds.size} selected`;
         }
     }
 
-    // ================================================================
-    // BRIEF TEXTAREA COUNTER
-    // ================================================================
     const briefArea = document.getElementById('briefTextarea');
     const briefCount = document.getElementById('briefCount');
     briefArea?.addEventListener('input', () => {
         if (briefCount) briefCount.textContent = briefArea.value.length;
     });
 
-    // ================================================================
-    // ADD DESIGN REFERENCE (uses modal from components.js)
-    // ================================================================
     document.getElementById('addRefBtn')?.addEventListener('click', () => {
         if (!currentUser) {
             window.showToast('Please sign in to add references.', 'warning');
@@ -1175,7 +1110,6 @@
             serviceCategoryId: currentTemplate?.categoryId || null,
             serviceCategoryName: currentTemplate?.categoryName || '',
             onSave: async (payload) => {
-                // Save to Firestore via components helper
                 const { saveDesignReference } = await import('./components.js');
                 const res = await saveDesignReference({
                     ...payload,
@@ -1183,7 +1117,6 @@
                     serviceCategoryName: currentTemplate?.categoryName || ''
                 });
                 if (!res.success) throw new Error(res.error || 'Failed to save reference.');
-                // Add to local list for chips display
                 designReferences.push({
                     id: res.id,
                     type: payload.type,
@@ -1197,9 +1130,6 @@
         });
     });
 
-    // ================================================================
-    // SUBMIT
-    // ================================================================
     document.getElementById('submitBtn')?.addEventListener('click', async () => {
         if (!currentUser) {
             window.showToast('Please sign in to submit.', 'warning');
@@ -1213,7 +1143,6 @@
         btn.innerHTML = '<span class="spinner"></span> Submitting…';
 
         try {
-            // Build snapshot of selected add-ons
             const selectedAddOnsSnapshot = applicableAddOns
                 .filter(a => selectedAddOnIds.has(a.id))
                 .map(a => ({
@@ -1253,7 +1182,6 @@
                 throw new Error(result.error || 'Submission failed.');
             }
 
-            // Success
             document.getElementById('successOrderId').textContent = '#' + (result.orderId || '').slice(0, 10).toUpperCase();
             showState('successState');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1267,9 +1195,6 @@
         }
     });
 
-    // ================================================================
-    // AUTH STATE
-    // ================================================================
     onAuthStateChanged(auth, async (user) => {
         currentUser = user || null;
         let name = null;
@@ -1283,7 +1208,6 @@
         }
         updateNavbarAuth(user, name);
 
-        // Toggle auth gate under submit button
         const gate = document.getElementById('authGate');
         const submitBtn = document.getElementById('submitBtn');
         if (gate && submitBtn) {
@@ -1297,17 +1221,11 @@
         }
     });
 
-    // ================================================================
-    // BOOT
-    // ================================================================
     (async function boot() {
         showState('loadingState');
 
-        // 1. Rate
         await loadUsdRate();
 
-        // 2. Live listeners for categories + add-ons
-        // We need categories first to resolve the template's categoryName
         await new Promise((resolve) => {
             let settled = false;
             try {
@@ -1318,7 +1236,6 @@
             } catch (_) {
                 if (!settled) { settled = true; resolve(); }
             }
-            // Safety timeout in case listener is slow
             setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
         });
 
@@ -1335,7 +1252,6 @@
             setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
         });
 
-        // 3. Template
         let tmpl = null;
         try {
             tmpl = await loadTemplateFromFirestore();
@@ -1344,14 +1260,12 @@
         }
 
         if (!tmpl && templateId) {
-            // ID given but not found
             document.getElementById('errorMsg').textContent =
                 'This design could not be found. It may have been removed. Please pick another from the selector.';
             showState('errorState');
             return;
         }
 
-        // If no ID → custom mode
         if (!tmpl) {
             tmpl = {
                 id: null,
@@ -1369,14 +1283,11 @@
         currentTemplate = tmpl;
         applicableAddOns = filterApplicableAddOns();
 
-        // 4. Render
         renderTemplateInfo();
         renderAddOns();
         renderRefChips();
         updatePriceSummary();
 
-        // 5. Live re-render when add-ons change in Firestore
-        //    (optional — keep state consistent)
         try {
             const q = query(collection(db, 'addOns'));
             onSnapshot(q, (snap) => {
@@ -1387,7 +1298,6 @@
                 });
                 allAddOns = list;
                 applicableAddOns = filterApplicableAddOns();
-                // Prune selections that are no longer applicable
                 const applicableIds = new Set(applicableAddOns.map(a => a.id));
                 [...selectedAddOnIds].forEach(id => {
                     if (!applicableIds.has(id)) selectedAddOnIds.delete(id);
@@ -1397,7 +1307,20 @@
             }, (err) => console.warn('[cfg] live addOns listener:', err?.code || err?.message));
         } catch (_) {}
 
+        // ===== FIX #3 — reveal fade-up elements after mainState is shown =====
         showState('mainState');
+        observeFadeUps();
+
+        // Safety net: force-reveal anything already in viewport
+        setTimeout(() => {
+            document.querySelectorAll('#mainState .fade-up:not(.visible)').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    el.classList.add('visible');
+                }
+            });
+        }, 120);
+
         console.log('⚙️ Configure page ready | template:', tmpl.name, '| source:', tmpl._source, '| add-ons applicable:', applicableAddOns.length);
     })();
 </script>

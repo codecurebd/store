@@ -12,12 +12,6 @@ import {
 // ================================================================
 // ✅ PAGE CONTEXT — agency/service flow detection
 // ================================================================
-/**
- * Returns true when the current page is part of the new
- * Agency / Service Selector flow (no cart, no instant checkout).
- * Legacy pages (product-detail.html, campaign.html, my-orders.html)
- * keep the cart + payment modal exactly as before.
- */
 export function isAgencyServiceFlow() {
   try {
     const raw = (window.location.pathname || '').split('/').pop() || '';
@@ -26,7 +20,8 @@ export function isAgencyServiceFlow() {
       '', 'index.html',
       'get-new-website.html',
       'configure-service.html',
-      'design-reference.html'
+      'design-reference.html',
+      'fix-website.html'   // ← ADDED: Fix flow is part of agency suite
     ];
     return AGENCY_PAGES.includes(file);
   } catch {
@@ -85,7 +80,6 @@ export function clearCachedUser() {
   try { localStorage.removeItem(AUTH_CACHE_KEY); } catch {}
 }
 
-/** Apply cached auth to navbar immediately (before Firebase responds) */
 export function applyCachedNavbarAuth() {
   const cached = getCachedUser();
   if (!cached) return false;
@@ -95,20 +89,14 @@ export function applyCachedNavbarAuth() {
 
 
 // ================================================================
-// ✅ SERVICE FLOW HELPERS (NEW)
+// ✅ SERVICE FLOW HELPERS
 // ================================================================
-
-/**
- * Live listener for service categories.
- * Returns unsubscribe fn. Callback receives a sorted array.
- */
 export function listenServiceCategories(callback) {
   try {
     const q = query(collection(db, 'serviceCategories'));
     return onSnapshot(q, (snap) => {
       const list = [];
       snap.forEach(d => list.push({ id: d.id, ...d.data() }));
-      // Only active categories for public pages
       const activeOnly = list.filter(c => c.isActive !== false);
       activeOnly.sort((a, b) => (a.order || 0) - (b.order || 0));
       callback(activeOnly, list);
@@ -123,10 +111,6 @@ export function listenServiceCategories(callback) {
   }
 }
 
-/**
- * Live listener for add-ons.
- * Returns unsubscribe fn. Callback receives a sorted array.
- */
 export function listenAddOns(callback) {
   try {
     const q = query(collection(db, 'addOns'));
@@ -147,13 +131,6 @@ export function listenAddOns(callback) {
   }
 }
 
-/**
- * Compute the running total for a service configuration.
- * @param {number} basePrice       – design template base price (USD)
- * @param {Array}  addOns          – full add-ons list
- * @param {Set|Array} selectedIds  – currently selected add-on IDs
- * @param {number} usdRate         – BDT per USD (default 125)
- */
 export function computeConfigTotal(basePrice, addOns, selectedIds, usdRate = 125) {
   const selected = new Set(
     Array.isArray(selectedIds) ? selectedIds : Array.from(selectedIds || [])
@@ -175,21 +152,6 @@ export function computeConfigTotal(basePrice, addOns, selectedIds, usdRate = 125
   };
 }
 
-/**
- * Creates a service request order with the new schema.
- * Backward compatible — legacy orders don't use this path.
- *
- * @param {Object} payload
- *   userId, userEmail, userName
- *   serviceCategoryId, serviceCategoryName
- *   designTemplateId, designTemplateName
- *   basePrice, selectedAddOns (array of {id,name,price,icon}),
- *   designReferences (array of designReference doc snapshots),
- *   projectDescription
- *   quoteRequested (bool)
- *   usdRate
- * @returns {Promise<{success:boolean, orderId?:string, error?:string}>}
- */
 export async function submitServiceRequest(payload) {
   if (!auth.currentUser) {
     return { success: false, error: 'Not signed in.' };
@@ -204,14 +166,11 @@ export async function submitServiceRequest(payload) {
     const totalBDT = Math.round(totalUSD * rate);
 
     const orderData = {
-      // Standard fields (kept compatible with admin panel renderers)
       userId: auth.currentUser.uid,
       userEmail: auth.currentUser.email || '',
       userName: payload.userName || auth.currentUser.email?.split('@')[0] || 'Customer',
-      // NEW: order type discriminator
       type: 'service',
       orderType: 'service',
-      // Service-specific snapshot
       serviceCategoryId: payload.serviceCategoryId || null,
       serviceCategoryName: payload.serviceCategoryName || '',
       designTemplateId: payload.designTemplateId || null,
@@ -232,12 +191,10 @@ export async function submitServiceRequest(payload) {
         description: r.description || ''
       })),
       projectDescription: payload.projectDescription || '',
-      // Estimate shown to client — final quote comes from admin
       total: totalUSD,
       estimateUSD: totalUSD,
       estimateBDT: totalBDT,
       usdRate: rate,
-      // Lifecycle: pending → reviewing → quoted → approved → processing → completed
       status: 'pending',
       paymentMethod: null,
       paymentType: null,
@@ -255,10 +212,6 @@ export async function submitServiceRequest(payload) {
   }
 }
 
-/**
- * Saves a design reference doc.
- * Returns { success, id, ref } or { success: false, error }.
- */
 export async function saveDesignReference(refData) {
   if (!auth.currentUser) {
     return { success: false, error: 'Not signed in.' };
@@ -270,7 +223,7 @@ export async function saveDesignReference(refData) {
       orderId: refData.orderId || null,
       serviceCategoryId: refData.serviceCategoryId || null,
       serviceCategoryName: refData.serviceCategoryName || '',
-      type: refData.type || 'url', // 'url' | 'upload' | 'text'
+      type: refData.type || 'url',
       url: refData.url || '',
       imageUrl: refData.imageUrl || '',
       description: refData.description || '',
@@ -286,7 +239,7 @@ export async function saveDesignReference(refData) {
 
 
 // ================================================================
-// ✅ DESIGN REFERENCE MODAL (NEW)
+// ✅ DESIGN REFERENCE MODAL
 // ================================================================
 function renderDesignReferenceModalDom() {
   if (document.getElementById('designRefModal')) return;
@@ -316,14 +269,12 @@ function renderDesignReferenceModalDom() {
           </button>
         </div>
 
-        <!-- URL MODE -->
         <div id="drmSectionUrl" class="drm-section">
           <label class="block text-sm font-medium text-gray-700 mb-1.5">Reference URL</label>
           <input type="url" id="drmUrlInput" class="form-input" placeholder="https://example.com/design-you-like" autocomplete="off" />
           <p class="text-xs text-gray-400 mt-1">Paste a link to a site, Dribbble shot, Figma file, or any design you like.</p>
         </div>
 
-        <!-- UPLOAD MODE -->
         <div id="drmSectionUpload" class="drm-section hidden">
           <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Screenshot / Inspiration</label>
           <div id="drmUploadZone" class="relative" style="border:2px dashed #cbd5e1;border-radius:14px;padding:1.5rem;text-align:center;background:#f8fafc;cursor:pointer;transition:0.2s;">
@@ -338,13 +289,11 @@ function renderDesignReferenceModalDom() {
           <p id="drmUploadStatus" class="text-xs text-gray-400 mt-2 hidden"></p>
         </div>
 
-        <!-- TEXT MODE -->
         <div id="drmSectionText" class="drm-section hidden">
           <label class="block text-sm font-medium text-gray-700 mb-1.5">Describe your design vision</label>
           <textarea id="drmDescriptionInput" rows="4" class="form-input" placeholder="e.g. Clean SaaS landing page, dark hero with blue accent, glassy cards…"></textarea>
         </div>
 
-        <!-- COMMON DESCRIPTION (URL + Upload modes) -->
         <div id="drmCommonDesc">
           <label class="block text-sm font-medium text-gray-700 mb-1.5 mt-4">Optional note</label>
           <textarea id="drmNoteInput" rows="2" class="form-input" placeholder="What do you like about this reference?"></textarea>
@@ -416,7 +365,6 @@ function renderDesignReferenceModalDom() {
     document.head.appendChild(s);
   }
 
-  // ---- Modal state ----
   const state = {
     type: 'url',
     url: '',
@@ -444,7 +392,6 @@ function renderDesignReferenceModalDom() {
   }
   tabs.forEach(t => t.addEventListener('click', () => switchType(t.dataset.type)));
 
-  // Upload handling
   const uploadZone = document.getElementById('drmUploadZone');
   const fileInput = document.getElementById('drmFileInput');
   const preview = document.getElementById('drmUploadPreview');
@@ -487,30 +434,19 @@ function renderDesignReferenceModalDom() {
     }
   });
 
-  // Save button
   document.getElementById('drmSaveBtn').addEventListener('click', async () => {
     const errEl = document.getElementById('drmError');
     errEl.classList.add('hidden');
     const t = state.type;
 
-    // Collect values
     const urlVal = document.getElementById('drmUrlInput').value.trim();
     const descVal = document.getElementById('drmDescriptionInput').value.trim();
     const noteVal = document.getElementById('drmNoteInput').value.trim();
 
-    const payload = {
-      type: t,
-      url: '',
-      imageUrl: '',
-      description: ''
-    };
+    const payload = { type: t, url: '', imageUrl: '', description: '' };
 
     if (t === 'url') {
-      if (!urlVal) {
-        errEl.textContent = 'Please enter a URL.';
-        errEl.classList.remove('hidden');
-        return;
-      }
+      if (!urlVal) { errEl.textContent = 'Please enter a URL.'; errEl.classList.remove('hidden'); return; }
       try { new URL(urlVal); } catch {
         errEl.textContent = 'Please enter a valid URL (including https://).';
         errEl.classList.remove('hidden');
@@ -535,7 +471,6 @@ function renderDesignReferenceModalDom() {
       payload.description = descVal;
     }
 
-    // Hand off to the caller's callback (if provided)
     const cfg = window.__ccbdDesignRefConfig || {};
     const saveBtn = document.getElementById('drmSaveBtn');
     const origHtml = saveBtn.innerHTML;
@@ -546,7 +481,6 @@ function renderDesignReferenceModalDom() {
       if (typeof cfg.onSave === 'function') {
         await cfg.onSave(payload);
       } else {
-        // No callback → save to Firestore directly
         const result = await saveDesignReference({
           ...payload,
           orderId: cfg.orderId || null,
@@ -567,18 +501,15 @@ function renderDesignReferenceModalDom() {
     }
   });
 
-  // Click outside to close
   document.getElementById('designRefModal').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) window.__ccbdCloseDesignRefModal();
   });
 }
 
-/** Opens the design reference modal (optionally with a callback). */
 export function openDesignReferenceModal(config = {}) {
   renderDesignReferenceModalDom();
   window.__ccbdDesignRefConfig = config || {};
 
-  // Reset state
   const modal = document.getElementById('designRefModal');
   modal.classList.remove('hidden');
 
@@ -604,7 +535,6 @@ export function openDesignReferenceModal(config = {}) {
     type: 'url', url: '', uploadedUrl: '', uploadedFile: null, description: '', note: ''
   };
 
-  // Reset to URL tab
   document.querySelectorAll('#designRefModal .drm-tab').forEach(t =>
     t.classList.toggle('drm-tab-active', t.dataset.type === 'url')
   );
@@ -626,7 +556,7 @@ window.__ccbdCloseDesignRefModal = function() {
 
 
 // ================================================================
-// ✅ नোটিফিকেশন: অ্যাডমিনের পাঠানো আনরিড মেসেজ ট্র্যাক করা (Realtime)
+// ✅ NOTIFICATIONS (unchanged)
 // ================================================================
 let unreadAdminMessages = [];
 let displayMessages = [];
@@ -944,7 +874,7 @@ window.toggleNotifications = function() {
 
 
 // ================================================================
-// ✅ TOAST NOTIFICATION
+// ✅ TOAST
 // ================================================================
 window.showToast = function(message, type = 'success') {
   let container = document.getElementById('toast-container');
@@ -1013,14 +943,11 @@ toastStyles.textContent = `
 document.head.appendChild(toastStyles);
 
 // ================================================================
-// ✅ CART BADGE (রিয়েল-টাইম আপডেটের জন্য পৃথক ফাংশন)
+// ✅ CART BADGE
 // ================================================================
 export function updateCartBadge() {
   const cartBadge = document.getElementById('cartCount');
-  if (!cartBadge) {
-    // Silently skip on pages without a cart (agency flow)
-    return;
-  }
+  if (!cartBadge) return;
   try {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
@@ -1034,7 +961,7 @@ export function updateCartBadge() {
 }
 
 // ================================================================
-// ✅ MOBILE MENU TOGGLE
+// ✅ MOBILE MENU
 // ================================================================
 window.toggleMobileMenu = function() {
   const menu = document.getElementById('mobileMenu');
@@ -1061,7 +988,7 @@ window.toggleMobileMenu = function() {
 };
 
 // ================================================================
-// ✅ CONTACT MODAL (NEW)
+// ✅ CONTACT MODAL
 // ================================================================
 function renderContactModal() {
   if (document.getElementById('contactModal')) return;
@@ -1159,9 +1086,6 @@ window.closeContactModal = function() {
   if (modal) modal.classList.add('hidden');
 };
 
-// ================================================================
-// ✅ HANDLE CONTACT CLICK
-// ================================================================
 window.handleContactClick = function(e) {
   e.preventDefault();
   const isIndexPage = window.location.pathname.endsWith('index.html') || 
@@ -1276,7 +1200,7 @@ function performSearch(query) {
 }
 
 // ================================================================
-// ✅ LANDING NAVBAR
+// ✅ NAVBAR
 // ================================================================
 function setupLandingNavbar() {
   const nav = document.getElementById('mainNavbar');
@@ -1313,9 +1237,6 @@ function setupLandingNavbar() {
   window.addEventListener('scroll', updateNav, { passive: true });
 }
 
-// ================================================================
-// ✅ ACTIVE NAV LINK (current page highlight)
-// ================================================================
 function setActiveNavLink() {
   const path = (window.location.pathname || '').toLowerCase();
   const file = path.split('/').pop() || '';
@@ -1334,16 +1255,11 @@ function setActiveNavLink() {
   });
 }
 
-// ================================================================
-// ✅ NAVBAR
-// ================================================================
 export function renderNavbar() {
   renderContactModal();
 
-  // ---- PAGE CONTEXT ----
   const isAgency = isAgencyServiceFlow();
 
-  // Mobile: hide Get Started in top nav (keep Sign In only). Desktop (md+): show both.
   if (!document.getElementById('navGetStartedStyle')) {
     const gsStyle = document.createElement('style');
     gsStyle.id = 'navGetStartedStyle';
@@ -1372,9 +1288,6 @@ export function renderNavbar() {
     document.head.appendChild(gsStyle);
   }
 
-  // ---- CONDITIONAL CTA ----
-  // Legacy pages: "Get Started" → signup modal
-  // Agency pages: "Start a Project" → get-new-website.html
   const ctaHTML = isAgency
     ? `<button id="navGetStartedBtn" onclick="window.__ccbdStartProject()" class="btn-primary text-xs py-2 px-3.5 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 whitespace-nowrap inline-flex items-center gap-1.5">
          <i class="fas fa-rocket text-[10px]"></i> Start a Project
@@ -1383,7 +1296,6 @@ export function renderNavbar() {
          <i class="fas fa-rocket text-[10px]"></i> Get Started
        </button>`;
 
-  // ---- CONDITIONAL CART BUTTON ----
   const cartButtonHTML = isAgency
     ? ''
     : `
@@ -1406,7 +1318,7 @@ export function renderNavbar() {
         
         <div class="nav-desktop hidden md:flex items-center">
           <a href="index.html" data-nav="home" class="nav-link text-sm">Home</a>
-          <a href="get-new-website.html" data-nav="store" class="nav-link text-sm">${isAgency ? 'Designs' : 'Store'}</a>
+          <a href="get-new-website.html" data-nav="store" class="nav-link text-sm">Designs</a>
           <a href="fix-website.html" data-nav="fix" class="nav-link text-sm">Fix</a>
           <a href="#" data-nav="contact" onclick="window.handleContactClick(event)" class="nav-link text-sm">Contact</a>
         </div>
@@ -1420,14 +1332,14 @@ export function renderNavbar() {
               <div class="p-4 border-b border-gray-100">
                 <div class="relative">
                   <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                  <input type="text" id="searchInput" placeholder="Search ${isAgency ? 'designs' : 'products'}..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm" autocomplete="off" />
+                  <input type="text" id="searchInput" placeholder="Search products..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm" autocomplete="off" />
                 </div>
               </div>
               <div id="searchResults" class="max-h-[350px] overflow-y-auto">
-                <div class="p-4 text-sm text-gray-400 text-center">Type to search ${isAgency ? 'designs' : 'products'}...</div>
+                <div class="p-4 text-sm text-gray-400 text-center">Type to search products...</div>
               </div>
               <div class="p-2 border-t border-gray-100">
-                <a href="get-new-website.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">Browse all ${isAgency ? 'designs' : 'products'} →</a>
+                <a href="get-new-website.html" class="block text-center text-sm text-blue-600 hover:bg-gray-50 py-2 rounded-lg transition-colors">Browse all products →</a>
               </div>
             </div>
           </div>
@@ -1493,7 +1405,7 @@ export function renderNavbar() {
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" data-nav="home" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Home</a>
-        <a href="get-new-website.html" data-nav="store" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">${isAgency ? 'Designs' : 'Store'}</a>
+        <a href="get-new-website.html" data-nav="store" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Designs</a>
         <a href="fix-website.html" data-nav="fix" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Fix</a>
         <a href="#" data-nav="contact" onclick="window.handleContactClick(event)" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Contact</a>
         <div id="mobileAuthButtons" class="hidden flex flex-col gap-2 mt-2 pt-2 border-t border-gray-100">
@@ -1589,7 +1501,6 @@ export function renderNavbar() {
     }
   });
   
-  // Only init cart popup on legacy pages
   if (!isAgency) {
     if ('requestIdleCallback' in window) {
       requestIdleCallback(() => renderCartPopup(), { timeout: 800 });
@@ -1608,7 +1519,6 @@ export function renderNavbar() {
   });
 }
 
-// Global helper for agency CTA — routes to the design selector
 window.__ccbdStartProject = function() {
   window.location.href = 'get-new-website.html';
 };
@@ -1620,7 +1530,6 @@ window.__ccbdStartProject = function() {
 let cartPopupRendered = false;
 
 export function renderCartPopup() {
-  // Guard: only render cart on legacy cart pages
   if (isAgencyServiceFlow()) return;
 
   const container = document.getElementById('cartPopupContainer');
@@ -1751,7 +1660,7 @@ export function renderFooter() {
             <h4 class="font-semibold text-gray-700 mb-3">Quick Links</h4>
             <div class="space-y-1 text-sm">
               <a href="index.html" class="block hover:text-blue-600 transition-colors">Home</a>
-              <a href="get-new-website.html" class="block hover:text-blue-600 transition-colors">Store</a>
+              <a href="get-new-website.html" class="block hover:text-blue-600 transition-colors">Designs</a>
               <a href="fix-website.html" class="block hover:text-blue-600 transition-colors">Fix</a>
               <a href="messages.html" class="block hover:text-blue-600 transition-colors">Support Chat</a>
             </div>
@@ -1852,7 +1761,7 @@ export function setLoading(button, isLoading, originalText = null) {
 }
 
 // ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT (ADVANCE & FULL PAYMENT SYSTEM)
+// ✅ PAYMENT MODAL & CHECKOUT
 // ================================================================
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
@@ -1920,7 +1829,6 @@ function renderQrZoomModal() {
 }
 
 export function renderPaymentModal() {
-  // Only auto-render on legacy pages (kept for backward compat)
   if (isAgencyServiceFlow()) return;
 
   renderQrZoomModal();
@@ -2379,7 +2287,6 @@ export function renderPaymentModal() {
 
 export function openPaymentModal(data) {
   if (!document.getElementById('paymentModal')) {
-    // Lazy render on first use (covers edge case if page wasn't legacy at load time)
     renderPaymentModal();
   }
   if (!document.getElementById('paymentModal')) {
@@ -2444,9 +2351,6 @@ export function openPaymentModal(data) {
 }
 window.openPaymentModal = openPaymentModal;
 
-// ================================================================
-// ✅ DUE PAYMENT MODAL (Pay remaining due)
-// ================================================================
 window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderData) {
   if (!document.getElementById('paymentModal')) {
     renderPaymentModal();
@@ -2494,9 +2398,6 @@ window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderDa
   document.getElementById('paymentModal').classList.remove('hidden');
 };
 
-// ================================================================
-// ✅ CAMPAIGN PAYMENT (fixed advance)
-// ================================================================
 window.openCampaignPaymentModal = function(campaign, advanceBDT, advanceUSD, settings) {
   if (!document.getElementById('paymentModal')) {
     renderPaymentModal();
@@ -2837,7 +2738,6 @@ export async function uploadImage(file) {
 
 export async function syncCart(userId) {
   if (!userId) return;
-  // Skip on agency pages (no cart UI)
   if (isAgencyServiceFlow()) return;
   const cartRef = doc(db, 'carts', userId);
   try {
@@ -2869,7 +2769,7 @@ export async function updateCartInFirestore(userId, cart) {
   }
 }
 
-// Prevent auth UI flicker: ignore brief null during token refresh if we still have a session
+// Prevent auth UI flicker
 let _lastAuthUid = null;
 let _authNullTimer = null;
 
@@ -3031,16 +2931,15 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ================================================================
-// ✅ COMMON AUTH MODAL SYSTEM
+// ✅ AUTH MODAL SYSTEM
 // ================================================================
 let currentAuthMode = 'signin';
 
 export function renderAuthModal() {
-  // Auth is a dedicated page now — do not inject popup modal
   return;
 }
 
-function updateAuthUI() { /* noop — auth is a dedicated page */ }
+function updateAuthUI() { /* noop */ }
 function initAuthModalEvents() { /* noop */ }
 function clearAuthMessages() { /* noop */ }
 async function handleAuthSubmit() { /* noop */ }
@@ -3675,9 +3574,9 @@ if (typeof document !== 'undefined') {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// 🍪 COOKIE CONSENT BANNER
-// ─────────────────────────────────────────────────────────────
+// ================================================================
+// COOKIE CONSENT
+// ================================================================
 export function renderCookieConsent() {
   const consentKey = 'ccbd_cookie_consent_v1';
   const status = localStorage.getItem(consentKey);
@@ -3742,4 +3641,4 @@ window.openImageLightbox = function(url) {
   }
 };
 
-console.log('✅ components.js loaded — agency flow detection active. Files #1 & #2 ready.');
+console.log('✅ components.js loaded — agency flow includes fix-website.html; nav label = "Designs".');
