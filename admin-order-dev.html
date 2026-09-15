@@ -220,6 +220,368 @@
         }
         .card .card-title i { color: #60a5fa; }
 
+        /* ── BRIEF CARD (new) ── */
+        .brief-card {
+            background:
+                radial-gradient(ellipse 60% 50% at 100% 0%, rgba(96,165,250,0.06), transparent 55%),
+                radial-gradient(ellipse 50% 50% at 0% 100%, rgba(167,139,250,0.05), transparent 55%),
+                #ffffff;
+            border: 1.5px solid rgba(96,165,250,0.18);
+        }
+        .brief-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+        .brief-head .bh-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
+            color: #2563eb;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .brief-head .bh-title i { color: #2563eb; }
+        .brief-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-left: auto;
+        }
+        .brief-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+        .brief-chip.type {
+            background: rgba(37,99,235,0.12);
+            color: #2563eb;
+        }
+        .brief-chip.cat {
+            background: rgba(124,58,237,0.12);
+            color: #7c3aed;
+        }
+        .brief-chip.template {
+            background: rgba(15,23,42,0.06);
+            color: #475569;
+        }
+        .brief-chip.pipeline {
+            background: rgba(217,119,6,0.12);
+            color: #d97706;
+        }
+        .brief-chip.pipeline.reviewing { background: rgba(124,58,237,0.12); color: #7c3aed; }
+        .brief-chip.pipeline.quoted    { background: rgba(217,119,6,0.18); color: #d97706; }
+        .brief-chip.pipeline.approved  { background: rgba(37,99,235,0.12); color: #1d4ed8; }
+        .brief-chip.pipeline.processing{ background: rgba(37,99,235,0.12); color: #2563eb; }
+        .brief-chip.pipeline.completed { background: rgba(22,163,74,0.12); color: #059669; }
+        .brief-chip.pipeline.cancelled { background: rgba(220,38,38,0.12); color: #dc2626; }
+
+        .brief-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 22px;
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+        .brief-meta-row .bmi {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .brief-meta-row .bmi i { color: #94a3b8; font-size: 0.78rem; }
+        .brief-meta-row .bmi strong { color: #0b1a33; font-weight: 600; }
+
+        /* Brief description */
+        .brief-desc-wrap {
+            background: #f8fafc;
+            border: 1px solid rgba(15,23,42,0.05);
+            border-left: 3px solid #2563eb;
+            border-radius: 12px;
+            padding: 1rem 1.15rem;
+            margin-bottom: 1rem;
+        }
+        .brief-desc-wrap .bd-head {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #2563eb;
+            margin-bottom: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .brief-desc {
+            font-size: 0.9rem;
+            color: #334155;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .brief-desc-empty {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        /* Add-ons list */
+        .brief-subtitle {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .brief-subtitle .count {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .brief-addon-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 1rem;
+        }
+        .brief-addon-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            background: #f8fafc;
+            border: 1px solid rgba(15,23,42,0.05);
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+        .brief-addon-row:hover {
+            background: #ffffff;
+            border-color: rgba(37,99,235,0.2);
+        }
+        .brief-addon-row .ba-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.1));
+            color: #2563eb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .brief-addon-row .ba-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .brief-addon-row .ba-name {
+            font-weight: 700;
+            font-size: 0.86rem;
+            color: #0b1a33;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+        .brief-addon-row .ba-desc {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            margin-top: 1px;
+        }
+        .brief-addon-row .ba-price {
+            font-weight: 800;
+            font-size: 0.88rem;
+            color: #0b1a33;
+            white-space: nowrap;
+        }
+        .brief-addon-row .ba-tick {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(22,163,74,0.12);
+            color: #16a34a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            flex-shrink: 0;
+        }
+
+        /* Design refs grid */
+        .brief-ref-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        .brief-ref-card {
+            background: #ffffff;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: 0.2s;
+        }
+        .brief-ref-card:hover {
+            border-color: rgba(37,99,235,0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15,23,42,0.05);
+        }
+        .brief-ref-card .thumb {
+            aspect-ratio: 16 / 10;
+            background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(124,58,237,0.05));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #94a3b8;
+            position: relative;
+        }
+        .brief-ref-card .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .brief-ref-card .thumb i { font-size: 1.5rem; opacity: 0.5; }
+        .brief-ref-card .thumb .type-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 2px 8px;
+            background: rgba(15,23,42,0.78);
+            color: #fff;
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            backdrop-filter: blur(6px);
+        }
+        .brief-ref-card .thumb .type-badge.url { background: rgba(37,99,235,0.85); }
+        .brief-ref-card .thumb .type-badge.upload { background: rgba(124,58,237,0.85); }
+        .brief-ref-card .thumb .type-badge.text { background: rgba(217,119,6,0.85); }
+        .brief-ref-card .meta {
+            padding: 8px 10px 10px;
+            font-size: 0.72rem;
+        }
+        .brief-ref-card .meta .t {
+            font-weight: 700;
+            color: #334155;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-size: 0.6rem;
+        }
+        .brief-ref-card .meta .d {
+            color: #64748b;
+            margin-top: 3px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.35;
+        }
+        .brief-ref-card .meta a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            font-size: 0.65rem;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .brief-ref-card .meta a:hover { text-decoration: underline; }
+
+        /* Quote block */
+        .brief-quote-block {
+            background: linear-gradient(135deg, rgba(254,243,199,0.6), rgba(255,255,255,0.9));
+            border: 1.5px solid rgba(217,119,6,0.25);
+            border-radius: 14px;
+            padding: 1rem 1.15rem;
+            margin-bottom: 1rem;
+        }
+        .brief-quote-block .qb-head {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #92400e;
+            margin-bottom: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .brief-quote-block .qb-amount {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0b1a33;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .brief-quote-block .qb-amount .cur { color: #16a34a; }
+        .brief-quote-block .qb-bdt {
+            font-size: 0.82rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .brief-quote-block .qb-bdt strong { color: #16a34a; font-weight: 800; }
+        .brief-quote-block .qb-note {
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 1.55;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.75);
+            border-radius: 8px;
+            border: 1px solid rgba(217,119,6,0.12);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .brief-quote-block .qb-status {
+            margin-top: 8px;
+            font-size: 0.78rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .brief-quote-block .qb-status.approved { color: #059669; font-weight: 700; }
+
+        /* Empty state */
+        .brief-empty {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-style: italic;
+            padding: 0.85rem 1rem;
+            background: #f8fafc;
+            border: 1px dashed rgba(15,23,42,0.08);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
         /* ── Progress ── */
         .progress-wrap {
             display: flex;
@@ -849,6 +1211,9 @@
                 <small>Admin</small>
             </div>
             <div class="meta-order" id="sidebarOrderMeta">Order —</div>
+            <div id="sidebarServiceBadge" class="hidden" style="font-size:0.68rem;color:#60a5fa;background:rgba(96,165,250,0.1);padding:5px 10px;border-radius:8px;border:1px solid rgba(96,165,250,0.2);word-break:break-word;">
+                <i class="fas fa-palette"></i> <span id="sidebarServiceText">Service Project</span>
+            </div>
 
             <div class="toolbar">
                 <button type="button" class="btn-primary btn-sm" id="btnNewFile"><i class="fas fa-plus"></i> New</button>
@@ -878,6 +1243,34 @@
                     <button type="button" class="btn-primary" id="btnSaveFile" disabled><i class="fas fa-save"></i> Save</button>
                     <button type="button" class="btn-secondary" id="btnPreview"><i class="fas fa-eye"></i> Preview</button>
                 </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════ -->
+            <!-- NEW: BRIEF CARD                                         -->
+            <!-- Only rendered for type:'service' orders                 -->
+            <!-- ═══════════════════════════════════════════════════════ -->
+            <div class="card brief-card hidden" id="briefCard">
+                <div class="brief-head">
+                    <span class="bh-title"><i class="fas fa-clipboard-list"></i> Client Brief &amp; Requirements</span>
+                    <div class="brief-chips" id="briefChips"></div>
+                </div>
+
+                <div class="brief-meta-row" id="briefMetaRow"></div>
+
+                <!-- Project description -->
+                <div class="brief-desc-wrap" id="briefDescWrap">
+                    <div class="bd-head"><i class="fas fa-file-alt"></i> Project description</div>
+                    <div class="brief-desc" id="briefDescContent"></div>
+                </div>
+
+                <!-- Quote block (rendered dynamically if quoted) -->
+                <div id="briefQuoteSlot"></div>
+
+                <!-- Add-ons -->
+                <div id="briefAddOnsSlot"></div>
+
+                <!-- Design references -->
+                <div id="briefRefsSlot"></div>
             </div>
 
             <!-- Progress -->
@@ -1013,6 +1406,18 @@
             if (!str) return false;
             const t = String(str).trim();
             return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(t) || t.includes('res.cloudinary.com');
+        }
+
+        function isServiceOrder(o) {
+            if (!o) return false;
+            return o.type === 'service' || o.orderType === 'service';
+        }
+
+        function formatDateTime(ts) {
+            if (!ts) return '—';
+            const d = ts.toDate ? ts.toDate() : new Date(ts);
+            if (isNaN(d.getTime())) return '—';
+            return d.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
         // ─── Gate ───────────────────────────────────────────────────
@@ -1161,6 +1566,178 @@
             });
         }
 
+        // ─── BRIEF PANEL (new) ──────────────────────────────────────
+        function renderBriefPanel(o) {
+            const card = document.getElementById('briefCard');
+            const chips = document.getElementById('briefChips');
+            const metaRow = document.getElementById('briefMetaRow');
+            const descWrap = document.getElementById('briefDescWrap');
+            const descContent = document.getElementById('briefDescContent');
+            const quoteSlot = document.getElementById('briefQuoteSlot');
+            const addOnsSlot = document.getElementById('briefAddOnsSlot');
+            const refsSlot = document.getElementById('briefRefsSlot');
+
+            // Only show the brief card for service orders
+            if (!isServiceOrder(o)) {
+                card.classList.add('hidden');
+                return;
+            }
+            card.classList.remove('hidden');
+
+            // Clear slots
+            quoteSlot.innerHTML = '';
+            addOnsSlot.innerHTML = '';
+            refsSlot.innerHTML = '';
+
+            // ── Chips ──
+            const status = String(o.status || 'pending').toLowerCase();
+            const chipsHtml = [];
+            chipsHtml.push(`<span class="brief-chip type"><i class="fas fa-palette"></i> Service</span>`);
+            if (o.serviceCategoryName) {
+                chipsHtml.push(`<span class="brief-chip cat"><i class="fas fa-folder"></i> ${escapeHtml(o.serviceCategoryName)}</span>`);
+            }
+            if (o.designTemplateName) {
+                chipsHtml.push(`<span class="brief-chip template"><i class="fas fa-drafting-compass"></i> ${escapeHtml(o.designTemplateName)}</span>`);
+            }
+            chipsHtml.push(`<span class="brief-chip pipeline ${escapeHtml(status)}"><i class="fas fa-circle" style="font-size:0.4rem;"></i> ${escapeHtml(status)}</span>`);
+            chips.innerHTML = chipsHtml.join('');
+
+            // ── Meta row ──
+            const metaItems = [];
+            metaItems.push(`<span class="bmi"><i class="fas fa-hashtag"></i> <strong>${escapeHtml(o.id.slice(0, 10).toUpperCase())}</strong></span>`);
+            if (o.userName) {
+                metaItems.push(`<span class="bmi"><i class="fas fa-user"></i> <strong>${escapeHtml(o.userName)}</strong></span>`);
+            } else if (o.userEmail) {
+                metaItems.push(`<span class="bmi"><i class="fas fa-user"></i> <strong>${escapeHtml(o.userEmail)}</strong></span>`);
+            }
+            if (o.createdAt) {
+                metaItems.push(`<span class="bmi"><i class="far fa-clock"></i> Submitted ${formatDateTime(o.createdAt)}</span>`);
+            }
+            metaRow.innerHTML = metaItems.join('');
+
+            // ── Project description ──
+            const brief = (o.projectDescription || '').trim();
+            if (brief) {
+                descContent.innerHTML = escapeHtml(brief);
+                descWrap.classList.remove('hidden');
+            } else {
+                descContent.innerHTML = `<div class="brief-desc-empty">No project description provided.</div>`;
+            }
+
+            // ── Quote block (only when admin has quoted) ──
+            const quotedUSD = Number(o.quotedPriceUSD) || Number(o.quotedPrice) || 0;
+            const usdRate = Number(o.usdRate) > 0 ? Number(o.usdRate) : 125;
+            const hasQuote = quotedUSD > 0;
+            if (hasQuote) {
+                const bdt = Math.round(quotedUSD * usdRate);
+                const approved = status === 'approved' || status === 'processing' || status === 'completed';
+                const statusLine = approved
+                    ? `<div class="qb-status approved"><i class="fas fa-check-circle"></i> Client approved · development authorized</div>`
+                    : `<div class="qb-status"><i class="fas fa-hourglass-half"></i> Awaiting client approval</div>`;
+                quoteSlot.innerHTML = `
+                    <div class="brief-quote-block">
+                        <div class="qb-head"><i class="fas fa-file-invoice-dollar"></i> Admin Quote</div>
+                        <div class="qb-amount"><span class="cur">$</span>${quotedUSD.toFixed(2)}</div>
+                        <div class="qb-bdt">≈ <strong>৳${bdt.toLocaleString('en-BD')}</strong> · at ৳${usdRate}/$</div>
+                        ${o.quoteNote ? `<div class="qb-note">${escapeHtml(o.quoteNote)}</div>` : ''}
+                        ${statusLine}
+                    </div>
+                `;
+            }
+
+            // ── Add-ons ──
+            const addOns = Array.isArray(o.selectedAddOns) ? o.selectedAddOns : [];
+            const addOnsTotal = addOns.reduce((s, a) => s + (Number(a.price) || 0), 0);
+            let addOnsHtml = `
+                <div class="brief-subtitle">
+                    <span><i class="fas fa-puzzle-piece" style="color:#2563eb;margin-right:6px;"></i> Add-ons to include</span>
+                    <span class="count">${addOns.length} item${addOns.length === 1 ? '' : 's'}${addOns.length ? ` · $${addOnsTotal.toFixed(2)}` : ''}</span>
+                </div>
+            `;
+            if (addOns.length) {
+                addOnsHtml += `<div class="brief-addon-list">`;
+                addOns.forEach(a => {
+                    addOnsHtml += `
+                        <div class="brief-addon-row">
+                            <span class="ba-icon"><i class="fas ${a.icon || 'fa-puzzle-piece'}"></i></span>
+                            <div class="ba-info">
+                                <div class="ba-name">${escapeHtml(a.name || 'Add-on')}</div>
+                            </div>
+                            <div class="ba-price">$${(Number(a.price) || 0).toFixed(2)}</div>
+                            <span class="ba-tick"><i class="fas fa-check"></i></span>
+                        </div>
+                    `;
+                });
+                addOnsHtml += `</div>`;
+            } else {
+                addOnsHtml += `<div class="brief-empty">No add-ons selected. Deliver the base design only.</div>`;
+            }
+            addOnsSlot.innerHTML = addOnsHtml;
+
+            // ── Design references ──
+            const refs = Array.isArray(o.designReferences) ? o.designReferences : [];
+            let refsHtml = `
+                <div class="brief-subtitle">
+                    <span><i class="fas fa-palette" style="color:#7c3aed;margin-right:6px;"></i> Design references</span>
+                    <span class="count">${refs.length} reference${refs.length === 1 ? '' : 's'}</span>
+                </div>
+            `;
+            if (refs.length) {
+                refsHtml += `<div class="brief-ref-grid">`;
+                refs.forEach(r => {
+                    const type = r.type || 'url';
+                    if (type === 'upload' && r.imageUrl) {
+                        refsHtml += `
+                            <div class="brief-ref-card">
+                                <div class="thumb">
+                                    <span class="type-badge upload">Image</span>
+                                    <img src="${escapeHtml(r.imageUrl)}" alt="" loading="lazy" />
+                                </div>
+                                <div class="meta">
+                                    <div class="t">Uploaded image</div>
+                                    ${r.description ? `<div class="d">${escapeHtml(r.description)}</div>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    } else if (type === 'url' && r.url) {
+                        let host = r.url;
+                        try { host = new URL(r.url).hostname.replace(/^www\./, ''); } catch {}
+                        refsHtml += `
+                            <div class="brief-ref-card">
+                                <div class="thumb">
+                                    <span class="type-badge url">URL</span>
+                                    <i class="fas fa-link"></i>
+                                </div>
+                                <div class="meta">
+                                    <div class="t">Reference URL</div>
+                                    <a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">
+                                        <i class="fas fa-external-link-alt"></i> ${escapeHtml(host)}
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        refsHtml += `
+                            <div class="brief-ref-card">
+                                <div class="thumb">
+                                    <span class="type-badge text">Note</span>
+                                    <i class="fas fa-align-left"></i>
+                                </div>
+                                <div class="meta">
+                                    <div class="t">Design note</div>
+                                    <div class="d">${escapeHtml(r.description || 'No description')}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                refsHtml += `</div>`;
+            } else {
+                refsHtml += `<div class="brief-empty">No design references shared. Ask the client for moodboards or reference sites if needed.</div>`;
+            }
+            refsSlot.innerHTML = refsHtml;
+        }
+
         // ─── Load order ─────────────────────────────────────────────
         async function loadOrderData() {
             if (!orderId) {
@@ -1174,21 +1751,55 @@
                     return;
                 }
                 orderData = { id: snap.id, ...snap.data() };
-                const isCampaign = !!(orderData.campaignId || orderData.type === 'campaign' || orderData.isCampaign ||
+
+                const isService = isServiceOrder(orderData);
+                const isCampaign = !isService && !!(orderData.campaignId || orderData.type === 'campaign' || orderData.isCampaign ||
                     orderData.orderType === 'campaign');
-                const campLabel = isCampaign ? (orderData.campaignTitle || orderData.items?.[0]?.name || 'Campaign') : '';
-                document.getElementById('pageTitle').textContent = isCampaign ?
-                    `Campaign Dev · #${orderId.slice(0, 8).toUpperCase()}` :
-                    `Dev · #${orderId.slice(0, 8).toUpperCase()}`;
-                document.getElementById('sidebarOrderMeta').textContent = isCampaign ?
-                    `Campaign · ${campLabel} · #${orderId.slice(0, 8).toUpperCase()} · ${orderData.status || 'pending'}` :
-                    `Order #${orderId.slice(0, 8).toUpperCase()} · ${orderData.status || 'pending'}`;
+
+                // Sidebar meta text
+                let sidebarText;
+                if (isService) {
+                    sidebarText = `Service · #${orderId.slice(0, 8).toUpperCase()} · ${orderData.status || 'pending'}`;
+                } else if (isCampaign) {
+                    const campLabel = orderData.campaignTitle || orderData.items?.[0]?.name || 'Campaign';
+                    sidebarText = `Campaign · ${campLabel} · #${orderId.slice(0, 8).toUpperCase()} · ${orderData.status || 'pending'}`;
+                } else {
+                    sidebarText = `Order #${orderId.slice(0, 8).toUpperCase()} · ${orderData.status || 'pending'}`;
+                }
+                document.getElementById('sidebarOrderMeta').textContent = sidebarText;
+
+                // Sidebar service badge (only for service orders)
+                const badge = document.getElementById('sidebarServiceBadge');
+                const badgeText = document.getElementById('sidebarServiceText');
+                if (isService) {
+                    badge.classList.remove('hidden');
+                    const bits = [];
+                    if (orderData.designTemplateName) bits.push(orderData.designTemplateName);
+                    if (orderData.serviceCategoryName) bits.push(orderData.serviceCategoryName);
+                    badgeText.textContent = bits.length ? bits.join(' · ') : 'Service Project';
+                } else {
+                    badge.classList.add('hidden');
+                }
+
+                // Page title
+                const titleEl = document.getElementById('pageTitle');
+                if (isService) {
+                    titleEl.textContent = `Service Dev · #${orderId.slice(0, 8).toUpperCase()}`;
+                } else if (isCampaign) {
+                    titleEl.textContent = `Campaign Dev · #${orderId.slice(0, 8).toUpperCase()}`;
+                } else {
+                    titleEl.textContent = `Dev · #${orderId.slice(0, 8).toUpperCase()}`;
+                }
+
+                // Progress controls
                 document.getElementById('progressRange').value = Number(orderData.progressPercent) || 0;
                 document.getElementById('pctLabel').textContent = String(Number(orderData.progressPercent) || 0);
                 document.getElementById('progressStatus').value = orderData.progressStatus || '';
                 document.getElementById('progressNote').value = orderData.progressNote || '';
+
+                // Chat header label
                 document.getElementById('chatUserLabel').textContent =
-                    orderData.userEmail || orderData.userId || 'Customer';
+                    orderData.userName || orderData.userEmail || orderData.userId || 'Customer';
                 if (orderData.userId) {
                     getDoc(doc(db, 'users', orderData.userId)).then((u) => {
                         if (u.exists()) {
@@ -1197,6 +1808,25 @@
                         }
                     }).catch(() => {});
                 }
+
+                // Render brief panel
+                renderBriefPanel(orderData);
+
+                // Listen for order changes so brief updates live (e.g. client approves quote)
+                try {
+                    onSnapshot(doc(db, 'orders', orderId), (s) => {
+                        if (!s.exists()) return;
+                        orderData = { id: s.id, ...s.data() };
+                        // Re-render brief on change
+                        renderBriefPanel(orderData);
+                        // Also update sidebar meta
+                        if (isServiceOrder(orderData)) {
+                            document.getElementById('sidebarOrderMeta').textContent =
+                                `Service · #${orderId.slice(0, 8).toUpperCase()} · ${orderData.status || 'pending'}`;
+                        }
+                    });
+                } catch (_) {}
+
             } catch (err) {
                 console.error(err);
                 document.getElementById('sidebarOrderMeta').textContent =
@@ -1226,7 +1856,6 @@
             if (!html) return;
             const modal = document.getElementById('previewModal');
             const iframe = document.getElementById('previewFrame');
-            // Revoke previous blob
             if (previewBlobUrl) {
                 URL.revokeObjectURL(previewBlobUrl);
                 previewBlobUrl = null;
@@ -1235,9 +1864,7 @@
             previewBlobUrl = URL.createObjectURL(blob);
             iframe.src = previewBlobUrl;
             modal.classList.remove('hidden');
-            // set default size (Desktop)
             setPreviewSize(1366, 768);
-            // highlight active preset
             document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
             document.querySelector('.btn-preset[data-width="1366"]')?.classList.add('active');
             document.getElementById('customWidth').value = 1366;
@@ -1354,10 +1981,10 @@
             } catch (err) { showToast(err.message, 'error'); }
         });
 
-        // ─── Preview Button ─────────────────────────────────────────
+        // Preview Button
         document.getElementById('btnPreview')?.addEventListener('click', openPreviewModal);
 
-        // ─── Preview Modal Controls ────────────────────────────────
+        // Preview Modal Controls
         document.getElementById('closePreviewModal')?.addEventListener('click', closePreviewModal);
         document.getElementById('previewModal')?.addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closePreviewModal();

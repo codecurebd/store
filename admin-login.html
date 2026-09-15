@@ -4,16 +4,18 @@
    <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>Admin Login – CodeCureBD</title>
-  
+  <meta name="description" content="Restricted admin access for CodeCureBD. Authorized personnel only." />
+  <meta name="robots" content="noindex, nofollow" />
+
   <!-- ✅ Preconnect for faster font loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="tailwind.css" />
   <link rel="stylesheet" href="style.css" />
-  
+
   <style>
     /* ===== BASE ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -149,6 +151,24 @@
       cursor: pointer;
     }
 
+    /* ===== FOOTER BACK LINK ===== */
+    .back-site-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      color: #8e8e93;
+      text-decoration: none;
+      margin-top: 6px;
+      transition: color 0.15s;
+    }
+    .back-site-link:hover {
+      color: #0066FF;
+    }
+    .back-site-link i {
+      font-size: 0.7rem;
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 480px) {
       .glass { padding: 1.5rem; border-radius: 24px; }
@@ -165,7 +185,7 @@
         <i class="fas fa-shield-alt text-2xl text-white"></i>
       </div>
       <h2 class="text-2xl font-bold text-gray-900 mt-4">Admin Login</h2>
-      <p class="text-sm text-gray-500 mt-1">Access the admin dashboard</p>
+      <p class="text-sm text-gray-500 mt-1">Restricted access · Authorized personnel only</p>
     </div>
 
     <!-- Form -->
@@ -174,7 +194,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
         <input type="email" id="adminEmail" placeholder="admin@example.com" required class="form-input" autocomplete="email" />
       </div>
-      
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
         <div class="relative">
@@ -201,6 +221,9 @@
 
     <div class="mt-6 text-center text-sm text-gray-400 border-t border-gray-200/50 pt-4">
       <p>Authorized admin access only</p>
+      <a href="index.html" class="back-site-link">
+        <i class="fas fa-arrow-left"></i> Back to site
+      </a>
     </div>
   </div>
 
@@ -244,7 +267,7 @@
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const email = document.getElementById('adminEmail').value.trim();
       const password = document.getElementById('adminPassword').value.trim();
       const remember = document.getElementById('rememberMe').checked;

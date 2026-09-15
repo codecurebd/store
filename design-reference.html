@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Design References – CodeCureBD</title>
+    <meta name="description" content="Save and manage design references for your CodeCureBD projects — URLs, screenshots, and notes in one place.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="tailwind.css" />
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #f0f4f9;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: #0f172a;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .dr-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 1.75rem;
+        }
+        .dr-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+        .dr-header-left .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            color: #334155;
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: 0.2s;
+        }
+        .dr-header-left .back-link:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+            transform: translateX(-2px);
+        }
+        .dr-header-left h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin: 0;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+        .dr-header-left .sub {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 3px 0 0;
+        }
+
+        .btn-add-ref {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(37,99,235,0.25);
+            transition: 0.22s;
+            min-height: 46px;
+        }
+        .btn-add-ref:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(37,99,235,0.35);
+        }
+        .btn-add-ref:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
+        .btn-add-ref i { font-size: 0.9rem; }
+
+        /* ===== FILTER BAR ===== */
+        .dr-filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding: 0.85rem 1rem;
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.03);
+        }
+        .dr-filter-bar .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        .dr-filter-bar .search-wrap i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.88rem;
+            pointer-events: none;
+        }
+        .dr-filter-bar .search-wrap input {
+            width: 100%;
+            padding: 11px 16px 11px 40px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(15,23,42,0.06);
+            background: #f8fafc;
+            font-size: 0.9rem;
+            font-family: inherit;
+            color: #0f172a;
+            outline: none;
+            transition: 0.2s;
+        }
+        .dr-filter-bar .search-wrap input:focus {
+            border-color: #2563eb;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+        }
+        .dr-filter-bar select {
+            padding: 11px 38px 11px 14px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(15,23,42,0.06);
+            background: #f8fafc;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #334155;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            transition: 0.2s;
+            min-width: 150px;
+        }
+        .dr-filter-bar select:focus {
+            border-color: #2563eb;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+        }
+
+        /* ===== STATS ===== */
+        .dr-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .dr-stat {
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dr-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(15,23,42,0.05);
+        }
+        .dr-stat .stat-icon {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .dr-stat .stat-num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+        .dr-stat .stat-lbl {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 3px;
+        }
+
+        /* ===== GRID ===== */
+        .dr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+        @media (max-width: 640px) {
+            .dr-grid { grid-template-columns: 1fr; gap: 1rem; }
+        }
+
+        /* ===== REFERENCE CARD ===== */
+        .ref-card {
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.22s ease;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+            position: relative;
+        }
+        .ref-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 40px rgba(15,23,42,0.07);
+            border-color: rgba(37,99,235,0.15);
+        }
+        .ref-card .rc-preview {
+            position: relative;
+            aspect-ratio: 16 / 10;
+            background: #f1f5f9;
+            border-bottom: 1px solid rgba(15,23,42,0.05);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ref-card .rc-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .ref-card .rc-preview .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #94a3b8;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        .ref-card .rc-preview .placeholder i {
+            font-size: 2.1rem;
+            opacity: 0.4;
+        }
+        .ref-card .rc-preview .placeholder span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .ref-card .rc-type {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 10px;
+            background: rgba(15,23,42,0.78);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            backdrop-filter: blur(6px);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 2;
+        }
+        .ref-card .rc-type.url { background: rgba(37,99,235,0.85); }
+        .ref-card .rc-type.upload { background: rgba(124,58,237,0.85); }
+        .ref-card .rc-type.text { background: rgba(217,119,6,0.85); }
+
+        .ref-card .rc-menu-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            color: #334155;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            transition: 0.15s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 2;
+            backdrop-filter: blur(6px);
+        }
+        .ref-card .rc-menu-btn:hover {
+            background: #fff;
+            color: #dc2626;
+        }
+
+        .ref-card .rc-body {
+            padding: 1rem 1.1rem 1.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+        .ref-card .rc-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.01em;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .ref-card .rc-desc {
+            font-size: 0.82rem;
+            color: #64748b;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+        .ref-card .rc-link {
+            font-size: 0.78rem;
+            color: #2563eb;
+            text-decoration: none;
+            word-break: break-all;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+        .ref-card .rc-link:hover { text-decoration: underline; }
+
+        .ref-card .rc-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 0.35rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(15,23,42,0.05);
+            font-size: 0.72rem;
+            color: #94a3b8;
+        }
+        .ref-card .rc-order-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #7c3aed;
+            text-decoration: none;
+            padding: 3px 10px;
+            background: rgba(124,58,237,0.08);
+            border-radius: 999px;
+            transition: 0.15s;
+        }
+        .ref-card .rc-order-link:hover {
+            background: rgba(124,58,237,0.15);
+        }
+        .ref-card .rc-cat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #2563eb;
+            padding: 3px 10px;
+            background: rgba(37,99,235,0.08);
+            border-radius: 999px;
+        }
+
+        /* ===== EMPTY / LOADING ===== */
+        .dr-empty, .dr-loading, .dr-error {
+            text-align: center;
+            padding: 4rem 1.5rem;
+            background: #fff;
+            border: 1px dashed rgba(15,23,42,0.1);
+            border-radius: 22px;
+        }
+        .dr-empty i.big, .dr-error i.big {
+            font-size: 3rem;
+            opacity: 0.3;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        .dr-empty h3, .dr-error h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #334155;
+            margin: 0 0 0.4rem;
+        }
+        .dr-empty p, .dr-error p {
+            font-size: 0.9rem;
+            color: #64748b;
+            max-width: 420px;
+            margin: 0 auto 1.5rem;
+            line-height: 1.6;
+        }
+
+        .dr-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(37,99,235,0.1);
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: drSpin 0.85s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes drSpin { to { transform: rotate(360deg); } }
+
+        /* ===== SKELETON ===== */
+        .sk-card {
+            background: #f3f4f6;
+            border-radius: 20px;
+            overflow: hidden;
+            animation: skPulse 1.5s ease-in-out infinite;
+        }
+        .sk-card .sk-img { width: 100%; aspect-ratio: 16/10; background: #e5e7eb; }
+        .sk-card .sk-body { padding: 1rem 1.1rem 1.1rem; }
+        .sk-card .sk-line { height: 13px; background: #e5e7eb; border-radius: 8px; margin-bottom: 0.6rem; }
+        .sk-card .sk-line.w60 { width: 60%; }
+        .sk-card .sk-line.w40 { width: 40%; }
+        @keyframes skPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.55; }
+        }
+
+        /* ===== AUTH GATE ===== */
+        .dr-auth-gate {
+            max-width: 520px;
+            margin: 2rem auto;
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 22px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 8px 28px rgba(15,23,42,0.05);
+        }
+        .dr-auth-gate .gate-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 24px rgba(37,99,235,0.25);
+        }
+        .dr-auth-gate h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 0.4rem;
+            letter-spacing: -0.02em;
+        }
+        .dr-auth-gate p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0 0 1.5rem;
+            line-height: 1.6;
+        }
+        .dr-auth-gate .btn-signin {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 26px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.92rem;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(37,99,235,0.25);
+            transition: 0.2s;
+            min-height: 48px;
+        }
+        .dr-auth-gate .btn-signin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(37,99,235,0.35);
+        }
+
+        /* ===== FADE-UP ===== */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) {
+            .fade-up { opacity: 1; transform: none; transition: none; }
+        }
+
+        /* ===== TOAST (safety net — components.js injects its own if missing) ===== */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+            width: 90%;
+            max-width: 400px;
+        }
+        .toast {
+            pointer-events: auto;
+            background: #1c1c1e;
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.3s ease forwards;
+            width: 100%;
+        }
+        .toast.success { background: #28A745; }
+        .toast.error { background: #dc3545; }
+        .toast.warning { background: #ffc107; color: #1c1c1e; }
+        .toast.hide { animation: slideDown 0.3s ease forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(30px); } }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <div id="navbar-placeholder"></div>
+
+    <main class="main-content">
+        <section style="padding: 1.5rem 1rem 4rem;">
+            <div style="max-width: 1200px; margin: 0 auto;">
+
+                <!-- ===== AUTH GATE ===== -->
+                <div id="authGate" class="dr-auth-gate" style="display:none;">
+                    <div class="gate-icon"><i class="fas fa-palette"></i></div>
+                    <h3>Sign in to manage your design references</h3>
+                    <p>Save URLs, screenshots, and inspiration notes — and attach them to any project you submit.</p>
+                    <button type="button" class="btn-signin" onclick="window.openAuthModal && window.openAuthModal('signin')">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </div>
+
+                <!-- ===== MAIN CONTENT ===== -->
+                <div id="mainContent" style="display:none;">
+
+                    <!-- HEADER -->
+                    <div class="dr-header fade-up">
+                        <div class="dr-header-left">
+                            <a href="index.html" class="back-link" aria-label="Back to home">
+                                <i class="fas fa-arrow-left"></i>
+                            </a>
+                            <div class="min-w-0">
+                                <h1>My Design References</h1>
+                                <p class="sub">Curate URLs, screenshots, and notes you want us to draw from.</p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-ref" id="addRefBtn">
+                            <i class="fas fa-plus"></i> Add Reference
+                        </button>
+                    </div>
+
+                    <!-- STATS -->
+                    <div class="dr-stats fade-up">
+                        <div class="dr-stat">
+                            <span class="stat-icon">📚</span>
+                            <div class="stat-num" id="statTotal">0</div>
+                            <div class="stat-lbl">Total</div>
+                        </div>
+                        <div class="dr-stat">
+                            <span class="stat-icon">🔗</span>
+                            <div class="stat-num" id="statUrls">0</div>
+                            <div class="stat-lbl">URLs</div>
+                        </div>
+                        <div class="dr-stat">
+                            <span class="stat-icon">🖼️</span>
+                            <div class="stat-num" id="statImages">0</div>
+                            <div class="stat-lbl">Images</div>
+                        </div>
+                        <div class="dr-stat">
+                            <span class="stat-icon">📝</span>
+                            <div class="stat-num" id="statNotes">0</div>
+                            <div class="stat-lbl">Notes</div>
+                        </div>
+                    </div>
+
+                    <!-- FILTER BAR -->
+                    <div class="dr-filter-bar fade-up">
+                        <div class="search-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search references by name, URL, or note…" autocomplete="off" />
+                        </div>
+                        <select id="typeFilter">
+                            <option value="all">All types</option>
+                            <option value="url">🔗 URLs</option>
+                            <option value="upload">🖼️ Images</option>
+                            <option value="text">📝 Notes</option>
+                        </select>
+                        <select id="sortFilter">
+                            <option value="newest">Newest first</option>
+                            <option value="oldest">Oldest first</option>
+                        </select>
+                    </div>
+
+                    <!-- LIST -->
+                    <div id="refList">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+    // ================================================================
+    // IMPORTS
+    // ================================================================
+    import {
+        auth, db, collection, doc, getDoc, getDocs, deleteDoc,
+        query, where, onSnapshot, onAuthStateChanged
+    } from './firebase-config.js';
+    import {
+        renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
+        renderCartSidebar, renderPaymentModal, renderAuthModal,
+        listenServiceCategories, openDesignReferenceModal,
+        saveDesignReference
+    } from './components.js';
+
+    // ================================================================
+    // COMMON RENDER
+    // ================================================================
+    renderNavbar();
+    renderAuthModal();
+    renderFooter();
+    renderCartSidebar();
+    renderPaymentModal();
+    updateCartBadge();
+
+    // ================================================================
+    // TOAST
+    // ================================================================
+    window.showToast = (message, type = 'success') => {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
+    };
+
+    // ================================================================
+    // FADE-UP OBSERVER
+    // ================================================================
+    const fadeObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) { e.target.classList.add('visible'); fadeObs.unobserve(e.target); }
+        });
+    }, { threshold: 0.08 });
+    function observeFadeUps() {
+        document.querySelectorAll('.fade-up:not(.visible)').forEach(el => fadeObs.observe(el));
+    }
+
+    // ================================================================
+    // HELPERS
+    // ================================================================
+    function escapeHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function formatDate(ts) {
+        if (!ts) return '';
+        const d = ts.toDate ? ts.toDate() : new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        const now = Date.now();
+        const diff = now - d.getTime();
+        if (diff < 60000) return 'Just now';
+        if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+        if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+        if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function hostnameOf(url) {
+        try { return new URL(url).hostname.replace(/^www\./, ''); }
+        catch { return url; }
+    }
+
+    // ================================================================
+    // STATE
+    // ================================================================
+    let currentUser = null;
+    let allRefs = [];          // [{ id, type, url, imageUrl, description, orderId, serviceCategoryId, createdAt, ... }]
+    let categoriesMap = {};    // id → { name, icon }
+    let searchQuery = '';
+    let typeFilter = 'all';
+    let sortMode = 'newest';
+    let unsubRefs = null;
+
+    // ================================================================
+    // RENDER
+    // ================================================================
+    function getFilteredRefs() {
+        let list = [...allRefs];
+
+        // Type filter
+        if (typeFilter !== 'all') {
+            list = list.filter(r => (r.type || 'url') === typeFilter);
+        }
+
+        // Search filter
+        if (searchQuery.trim()) {
+            const q = searchQuery.trim().toLowerCase();
+            list = list.filter(r => {
+                const desc = (r.description || '').toLowerCase();
+                const url = (r.url || '').toLowerCase();
+                const cat = (categoriesMap[r.serviceCategoryId]?.name || '').toLowerCase();
+                return desc.includes(q) || url.includes(q) || cat.includes(q);
+            });
+        }
+
+        // Sort
+        list.sort((a, b) => {
+            const ta = a.createdAt?.toDate?.()?.getTime() || (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+            const tb = b.createdAt?.toDate?.()?.getTime() || (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+            return sortMode === 'oldest' ? ta - tb : tb - ta;
+        });
+
+        return list;
+    }
+
+    function updateStats() {
+        const total = allRefs.length;
+        const urls = allRefs.filter(r => (r.type || 'url') === 'url').length;
+        const images = allRefs.filter(r => r.type === 'upload').length;
+        const notes = allRefs.filter(r => r.type === 'text').length;
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statUrls').textContent = urls;
+        document.getElementById('statImages').textContent = images;
+        document.getElementById('statNotes').textContent = notes;
+    }
+
+    function renderCard(r, idx) {
+        const type = r.type || 'url';
+        const created = formatDate(r.createdAt);
+
+        // Preview block
+        let previewHtml = '';
+        if (type === 'upload' && r.imageUrl) {
+            previewHtml = `<img src="${escapeHtml(r.imageUrl)}" alt="Reference" loading="lazy" />`;
+        } else if (type === 'url' && r.url) {
+            previewHtml = `
+                <div class="placeholder">
+                    <i class="fas fa-link"></i>
+                    <span>${escapeHtml(hostnameOf(r.url))}</span>
+                </div>
+            `;
+        } else {
+            previewHtml = `
+                <div class="placeholder">
+                    <i class="fas fa-align-left"></i>
+                    <span>Text note</span>
+                </div>
+            `;
+        }
+
+        // Type badge
+        const typeIcons = { url: 'fa-link', upload: 'fa-image', text: 'fa-align-left' };
+        const typeLabels = { url: 'URL', upload: 'Image', text: 'Note' };
+        const typeClass = ['url', 'upload', 'text'].includes(type) ? type : 'url';
+
+        // Title
+        let title = '';
+        if (type === 'url') title = hostnameOf(r.url || 'Reference URL');
+        else if (type === 'upload') title = 'Uploaded image';
+        else title = 'Design note';
+
+        // Description
+        const desc = (r.description || '').trim();
+
+        // Category chip
+        let catChip = '';
+        if (r.serviceCategoryId && categoriesMap[r.serviceCategoryId]) {
+            const c = categoriesMap[r.serviceCategoryId];
+            catChip = `
+                <span class="rc-cat-chip">
+                    <i class="fas ${c.icon || 'fa-folder'}"></i>
+                    ${escapeHtml(c.name)}
+                </span>
+            `;
+        }
+
+        // Order link
+        let orderLink = '';
+        if (r.orderId) {
+            orderLink = `
+                <a class="rc-order-link" href="order-progress.html?id=${encodeURIComponent(r.orderId)}" title="View linked order">
+                    <i class="fas fa-external-link-alt"></i> #${escapeHtml(String(r.orderId).slice(0, 8).toUpperCase())}
+                </a>
+            `;
+        }
+
+        // Footer: created date + order link (if any)
+        const footerLeft = created ? `<span><i class="far fa-clock"></i> ${created}</span>` : '<span></span>';
+
+        // Source link
+        let srcLink = '';
+        if (type === 'url' && r.url) {
+            srcLink = `<a class="rc-link" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">
+                <i class="fas fa-external-link-alt"></i> ${escapeHtml(r.url.length > 45 ? r.url.slice(0, 45) + '…' : r.url)}
+            </a>`;
+        }
+
+        return `
+            <article class="ref-card fade-up" style="transition-delay:${Math.min(idx * 0.04, 0.32)}s;" data-id="${escapeHtml(r.id)}">
+                <div class="rc-preview">
+                    <span class="rc-type ${typeClass}"><i class="fas ${typeIcons[type]}"></i> ${typeLabels[type]}</span>
+                    <button type="button" class="rc-menu-btn" data-delete-id="${escapeHtml(r.id)}" title="Delete reference" aria-label="Delete reference">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    ${previewHtml}
+                </div>
+                <div class="rc-body">
+                    <div class="rc-title">${escapeHtml(title)}</div>
+                    ${desc ? `<div class="rc-desc">${escapeHtml(desc)}</div>` : ''}
+                    ${srcLink}
+                    <div class="rc-footer">
+                        ${footerLeft}
+                        ${catChip || orderLink ? `<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">${catChip}${orderLink}</div>` : ''}
+                    </div>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderList() {
+        const wrap = document.getElementById('refList');
+        if (!wrap) return;
+
+        if (allRefs.length === 0) {
+            wrap.innerHTML = `
+                <div class="dr-empty fade-up visible">
+                    <i class="big fas fa-palette"></i>
+                    <h3>No design references yet</h3>
+                    <p>Save a URL, upload a screenshot, or jot down a note — then attach it to any project you submit.</p>
+                    <button type="button" class="btn-add-ref" onclick="document.getElementById('addRefBtn').click()" style="display:inline-flex;">
+                        <i class="fas fa-plus"></i> Add Your First Reference
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        const list = getFilteredRefs();
+        if (list.length === 0) {
+            wrap.innerHTML = `
+                <div class="dr-empty fade-up visible">
+                    <i class="big fas fa-search"></i>
+                    <h3>No references match your filters</h3>
+                    <p>Try a different search term or clear the type filter.</p>
+                    <button type="button" class="btn-add-ref" onclick="window.clearRefFilters()" style="display:inline-flex;background:#f1f5f9;color:#334155;box-shadow:none;border:1.5px solid rgba(15,23,42,0.08);">
+                        <i class="fas fa-undo"></i> Clear Filters
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        wrap.innerHTML = `
+            <div class="dr-grid">
+                ${list.map((r, i) => renderCard(r, i)).join('')}
+            </div>
+        `;
+
+        // Wire delete buttons
+        wrap.querySelectorAll('[data-delete-id]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const id = btn.dataset.deleteId;
+                if (id) deleteReference(id);
+            });
+        });
+
+        observeFadeUps();
+    }
+
+    function renderSkeletons(count = 6) {
+        const wrap = document.getElementById('refList');
+        if (!wrap) return;
+        let html = '<div class="dr-grid">';
+        for (let i = 0; i < count; i++) {
+            html += `
+                <div class="sk-card">
+                    <div class="sk-img"></div>
+                    <div class="sk-body">
+                        <div class="sk-line w60"></div>
+                        <div class="sk-line"></div>
+                        <div class="sk-line w40"></div>
+                    </div>
+                </div>
+            `;
+        }
+        html += '</div>';
+        wrap.innerHTML = html;
+    }
+
+    // ================================================================
+    // DELETE REFERENCE
+    // ================================================================
+    async function deleteReference(id) {
+        const r = allRefs.find(x => x.id === id);
+        if (!r) return;
+
+        if (!confirm('Delete this design reference? This cannot be undone.')) return;
+
+        try {
+            await deleteDoc(doc(db, 'designReferences', id));
+            window.showToast('✅ Reference deleted.', 'success');
+            // onSnapshot will auto-remove from list
+        } catch (err) {
+            console.error('Delete failed:', err);
+            window.showToast('⚠️ ' + (err.message || 'Delete failed'), 'error');
+        }
+    }
+
+    // ================================================================
+    // ADD REFERENCE
+    // ================================================================
+    function wireAddButton() {
+        const btn = document.getElementById('addRefBtn');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            if (!currentUser) {
+                window.showToast('Please sign in first.', 'warning');
+                if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
+                return;
+            }
+            openDesignReferenceModal({
+                serviceCategoryId: null,
+                serviceCategoryName: '',
+                onSave: async (payload) => {
+                    const res = await saveDesignReference({
+                        ...payload,
+                        serviceCategoryId: null,
+                        serviceCategoryName: ''
+                    });
+                    if (!res.success) throw new Error(res.error || 'Failed to save.');
+                    window.showToast('✅ Reference saved.', 'success');
+                    // onSnapshot refreshes list automatically
+                }
+            });
+        });
+    }
+
+    // ================================================================
+    // FILTER EVENTS
+    // ================================================================
+    let searchDebounce = null;
+    document.getElementById('searchInput')?.addEventListener('input', (e) => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+            searchQuery = e.target.value || '';
+            renderList();
+        }, 220);
+    });
+    document.getElementById('typeFilter')?.addEventListener('change', (e) => {
+        typeFilter = e.target.value || 'all';
+        renderList();
+    });
+    document.getElementById('sortFilter')?.addEventListener('change', (e) => {
+        sortMode = e.target.value || 'newest';
+        renderList();
+    });
+
+    window.clearRefFilters = function() {
+        searchQuery = '';
+        typeFilter = 'all';
+        sortMode = 'newest';
+        const s = document.getElementById('searchInput');
+        const t = document.getElementById('typeFilter');
+        const so = document.getElementById('sortFilter');
+        if (s) s.value = '';
+        if (t) t.value = 'all';
+        if (so) so.value = 'newest';
+        renderList();
+    };
+
+    // ================================================================
+    // LIVE REFS LISTENER
+    // ================================================================
+    function startRefsListener(user) {
+        if (unsubRefs) { try { unsubRefs(); } catch (_) {} unsubRefs = null; }
+        if (!user) { allRefs = []; renderList(); updateStats(); return; }
+
+        // Sort locally; Firestore can't orderBy a missing field without an index
+        const q = query(collection(db, 'designReferences'), where('userId', '==', user.uid));
+
+        unsubRefs = onSnapshot(q, (snap) => {
+            allRefs = [];
+            snap.forEach(d => {
+                allRefs.push({ id: d.id, ...d.data() });
+            });
+            updateStats();
+            renderList();
+        }, (err) => {
+            console.warn('[designReferences] listener:', err?.code, err?.message);
+            const wrap = document.getElementById('refList');
+            if (wrap) {
+                wrap.innerHTML = `
+                    <div class="dr-error fade-up visible">
+                        <i class="big fas fa-exclamation-triangle" style="color:#f87171;opacity:1;"></i>
+                        <h3>Could not load references</h3>
+                        <p>${escapeHtml(err.message || 'Permission issue or network problem.')}</p>
+                        <button class="btn-add-ref" onclick="window.location.reload()" style="display:inline-flex;">
+                            <i class="fas fa-sync"></i> Retry
+                        </button>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    // ================================================================
+    // CATEGORIES MAP (for chip labels)
+    // ================================================================
+    try {
+        listenServiceCategories((active, all) => {
+            const list = (active && active.length ? active : (all || []));
+            categoriesMap = {};
+            list.forEach(c => { categoriesMap[c.id] = { name: c.name, icon: c.icon }; });
+            renderList(); // re-render to pick up new labels
+        });
+    } catch (err) {
+        console.warn('[design-reference] categories listener failed:', err);
+    }
+
+    // ================================================================
+    // AUTH STATE
+    // ================================================================
+    onAuthStateChanged(auth, async (user) => {
+        currentUser = user || null;
+
+        let name = null;
+        if (user) {
+            try {
+                const uDoc = await getDoc(doc(db, 'users', user.uid));
+                name = uDoc.exists() ? uDoc.data().displayName : user.email.split('@')[0];
+            } catch (_) {
+                name = user.email?.split('@')[0] || null;
+            }
+        }
+        updateNavbarAuth(user, name);
+
+        const gate = document.getElementById('authGate');
+        const main = document.getElementById('mainContent');
+
+        if (user) {
+            if (gate) gate.style.display = 'none';
+            if (main) main.style.display = 'block';
+            observeFadeUps();
+            renderSkeletons(4);
+            startRefsListener(user);
+        } else {
+            if (gate) gate.style.display = 'block';
+            if (main) main.style.display = 'none';
+            if (unsubRefs) { try { unsubRefs(); } catch (_) {} unsubRefs = null; }
+        }
+    });
+
+    // Wire the add button after initial DOM paint
+    wireAddButton();
+    observeFadeUps();
+
+    // Cleanup
+    window.addEventListener('beforeunload', () => {
+        if (unsubRefs) { try { unsubRefs(); } catch (_) {} }
+    });
+
+    console.log('🎨 Design Reference Manager ready.');
+</script>
+</body>
+</html>

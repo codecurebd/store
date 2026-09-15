@@ -36,6 +36,9 @@ import {
   arrayUnion,
   arrayRemove,
   increment,
+  deleteField,
+  writeBatch,
+  runTransaction,
   initializeFirestore,
   persistentLocalCache,
   persistentSingleTabManager,
@@ -213,5 +216,8 @@ export {
   updateEmail,
   collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, addDoc,
   query, where, orderBy, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, increment,
+  deleteField,
+  writeBatch,
+  runTransaction,
   initializeFirestore, persistentLocalCache, persistentSingleTabManager,
 };

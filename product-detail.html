@@ -4,7 +4,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>Product Detail – CodeCureBD</title>
+  <title>Product – CodeCureBD</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,8 +14,7 @@
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="tailwind.css" />
   <link rel="stylesheet" href="style.css" />
 
@@ -59,14 +58,9 @@
       box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.08);
       background: #ffffff;
     }
-    .form-input::placeholder {
-      color: #8e8e93;
-      opacity: 0.7;
-    }
-    textarea.form-input {
-      resize: vertical;
-      min-height: 80px;
-    }
+    .form-input::placeholder { color: #8e8e93; opacity: 0.7; }
+    textarea.form-input { resize: vertical; min-height: 80px; }
+
     .btn-primary {
       background: linear-gradient(135deg, #007AFF, #5856D6);
       color: #fff;
@@ -142,14 +136,10 @@
       transition: 0.2s;
       color: #d1d5db;
     }
-    .rating-stars .star.active {
-      color: #f59e0b;
-    }
-    .rating-stars .star:hover {
-      transform: scale(1.2);
-    }
+    .rating-stars .star.active { color: #f59e0b; }
+    .rating-stars .star:hover { transform: scale(1.2); }
 
-    /* ===== STATIC PREVIEW (fixed sizing) ===== */
+    /* ===== STATIC PREVIEW ===== */
     .static-preview {
       width: 100%;
       height: 400px;
@@ -194,12 +184,8 @@
       pointer-events: none;
       border: 1px solid rgba(255,255,255,0.1);
     }
-    @media (max-width: 768px) {
-      .static-preview { height: 300px; }
-    }
-    @media (max-width: 480px) {
-      .static-preview { height: 240px; }
-    }
+    @media (max-width: 768px) { .static-preview { height: 300px; } }
+    @media (max-width: 480px) { .static-preview { height: 240px; } }
 
     .discount-badge {
       background: #dc2626;
@@ -244,10 +230,7 @@
       color: #6b7280;
       font-weight: 500;
     }
-    .price-bdt span {
-      font-weight: 600;
-      color: #1c1c1e;
-    }
+    .price-bdt span { font-weight: 600; color: #1c1c1e; }
     .action-buttons {
       display: flex;
       flex-wrap: wrap;
@@ -255,7 +238,7 @@
       margin-top: 1rem;
     }
 
-    /* ===== RATE BANNER (inside detail) ===== */
+    /* ===== RATE BANNER ===== */
     .rate-banner {
       background: rgba(0, 122, 255, 0.06);
       border: 1px solid rgba(0, 122, 255, 0.12);
@@ -268,164 +251,8 @@
       gap: 8px;
       white-space: nowrap;
     }
-    .rate-banner i {
-      color: #007AFF;
-    }
-    .rate-banner strong {
-      font-weight: 700;
-      color: #007AFF;
-    }
-
-    /* ===== TRY NOW OVERLAY ===== */
-    .trynow-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(16px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      overflow-y: auto;
-    }
-    .trynow-overlay.open {
-      display: flex;
-    }
-    .trynow-overlay .overlay-inner {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 32px;
-      max-width: 1100px;
-      width: 100%;
-      max-height: 92vh;
-      height: 92vh;
-      overflow: hidden;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.2);
-      border: 1px solid rgba(255,255,255,0.5);
-      position: relative;
-      animation: scaleIn 0.3s ease;
-      display: flex;
-      flex-direction: column;
-    }
-    @keyframes scaleIn {
-      from { transform: scale(0.95); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .trynow-overlay .close-overlay {
-      position: absolute;
-      top: 16px;
-      right: 20px;
-      z-index: 10;
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(4px);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-    }
-    .trynow-overlay .close-overlay:hover {
-      background: rgba(0,0,0,0.5);
-      transform: scale(1.05);
-    }
-    .trynow-overlay .demo-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0;
-      background: #fff;
-    }
-    .trynow-overlay .demo-content iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-    }
-    .trynow-overlay .bottom-bar {
-      flex-shrink: 0;
-      background: rgba(255,255,255,0.55);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255,255,255,0.3);
-      padding: 12px 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      position: relative;
-      z-index: 5;
-      box-shadow: 0 -8px 32px rgba(0,0,0,0.04);
-    }
-    .trynow-overlay .bottom-bar::before {
-      content: '';
-      position: absolute;
-      bottom: 100%;
-      left: 0;
-      right: 0;
-      height: 50px;
-      background: linear-gradient(to top, rgba(255,255,255,0.7) 0%, transparent 100%);
-      pointer-events: none;
-    }
-    .trynow-overlay .bottom-bar button {
-      padding: 8px 20px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      border: none;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      min-height: 40px;
-      font-family: 'Inter', sans-serif;
-    }
-    .trynow-overlay .bottom-bar .btn-buy {
-      background: linear-gradient(135deg, #34C759, #28A745);
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(52, 199, 89, 0.25);
-    }
-    .trynow-overlay .bottom-bar .btn-buy:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(52, 199, 89, 0.35);
-    }
-    .trynow-overlay .bottom-bar .btn-cart {
-      background: linear-gradient(135deg, #007AFF, #5856D6);
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(0, 122, 255, 0.2);
-    }
-    .trynow-overlay .bottom-bar .btn-cart:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(0, 122, 255, 0.3);
-    }
-    .trynow-overlay .bottom-bar .btn-close {
-      background: rgba(0,0,0,0.04);
-      color: #1c1c1e;
-      border: 1px solid rgba(0,0,0,0.06);
-      backdrop-filter: blur(4px);
-    }
-    .trynow-overlay .bottom-bar .btn-close:hover {
-      background: rgba(0,0,0,0.08);
-      transform: translateY(-2px);
-    }
-    @media (max-width: 640px) {
-      .trynow-overlay { padding: 0.5rem; }
-      .trynow-overlay .overlay-inner { border-radius: 20px; max-height: 96vh; height: 96vh; }
-      .trynow-overlay .bottom-bar { padding: 8px 10px; gap: 4px; }
-      .trynow-overlay .bottom-bar button { padding: 6px 14px; font-size: 0.75rem; min-height: 32px; gap: 4px; }
-      .trynow-overlay .close-overlay { top: 10px; right: 12px; width: 34px; height: 34px; font-size: 1.2rem; }
-    }
-    @media (max-width: 480px) {
-      .trynow-overlay .bottom-bar button { padding: 4px 10px; font-size: 0.65rem; min-height: 28px; gap: 3px; }
-    }
+    .rate-banner i { color: #007AFF; }
+    .rate-banner strong { font-weight: 700; color: #007AFF; }
 
     /* ===== SKELETON ===== */
     .skeleton-img {
@@ -444,19 +271,15 @@
     }
     .skeleton-line.short { width: 40%; }
     .skeleton-line.medium { width: 70%; }
-    @keyframes pulse {
-      0%,100% { opacity:1; }
-      50% { opacity:0.5; }
-    }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
     .fade-up {
       opacity: 0;
       transform: translateY(20px);
       transition: opacity 0.5s ease, transform 0.5s ease;
     }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
     .scroll-top-btn {
       position: fixed;
       bottom: 30px;
@@ -487,11 +310,84 @@
       border-bottom: 1px solid #f3f4f6;
       padding: 12px 0;
     }
-    .review-item:last-child {
-      border-bottom: none;
+    .review-item:last-child { border-bottom: none; }
+
+    /* ===== REDIRECT OVERLAY (brief) ===== */
+    #redirectOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(242, 244, 247, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 9998;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      opacity: 1;
+      transition: opacity 0.25s ease;
+      pointer-events: auto;
+    }
+    #redirectOverlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+    #redirectOverlay .ro-spinner {
+      width: 46px;
+      height: 46px;
+      border: 4px solid rgba(37,99,235,0.12);
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: roSpin 0.85s linear infinite;
+    }
+    @keyframes roSpin { to { transform: rotate(360deg); } }
+    #redirectOverlay .ro-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #475569;
+    }
+    #redirectOverlay .ro-sub {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-top: -6px;
     }
 
-    /* Toast */
+    /* ===== NOT-FOUND STATE ===== */
+    .not-found {
+      text-align: center;
+      padding: 3.5rem 1.5rem;
+    }
+    .not-found i.big {
+      font-size: 3rem;
+      color: #94a3b8;
+      opacity: 0.35;
+      display: block;
+      margin-bottom: 1rem;
+    }
+    .not-found h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .not-found p {
+      font-size: 0.92rem;
+      color: #64748b;
+      max-width: 420px;
+      margin: 0 auto 1.5rem;
+      line-height: 1.6;
+    }
+    .not-found .nf-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    /* ===== TOAST ===== */
     #toast-container {
       position: fixed;
       bottom: 30px;
@@ -525,9 +421,7 @@
       width: 100%;
       justify-content: center;
     }
-    #toast-container .toast.hide {
-      animation: slideDown 0.35s ease forwards;
-    }
+    #toast-container .toast.hide { animation: slideDown 0.35s ease forwards; }
     #toast-container .toast.success { border-left: 4px solid #34C759; }
     #toast-container .toast.error { border-left: 4px solid #FF3B30; }
     #toast-container .toast.warning { border-left: 4px solid #FF9500; }
@@ -542,18 +436,25 @@
   </style>
 </head>
 <body>
+  <!-- ===== BRIEF REDIRECT OVERLAY ===== -->
+  <div id="redirectOverlay" class="hidden" aria-live="polite">
+    <div class="ro-spinner"></div>
+    <div class="ro-label" id="redirectLabel">Loading…</div>
+    <div class="ro-sub" id="redirectSub"></div>
+  </div>
+
   <div class="page-wrapper">
     <div id="navbar-placeholder"></div>
     <main class="main-content">
       <section class="pt-4 pb-16 px-6 max-w-4xl mx-auto">
-        <!-- Rate banner at top -->
+        <!-- Rate banner -->
         <div id="detailRateBanner" class="rate-banner mb-4 fade-up">
           <i class="fas fa-exchange-alt"></i>
           1 USD = <strong id="detailDisplayRate">125</strong> BDT
         </div>
 
         <div id="productDetailContainer">
-          <!-- Skeleton -->
+          <!-- Skeleton (shown while checking / loading) -->
           <div class="fade-up">
             <div class="skeleton-img"></div>
             <div class="skeleton-line medium" style="margin-top:1rem;"></div>
@@ -570,58 +471,42 @@
     <div id="footer-placeholder"></div>
   </div>
 
-  <!-- ===== BACK TO TOP ===== -->
   <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
-
-  <!-- Auth Modal is now rendered by components.js (renderAuthModal) -->
-
-  </div>
-
   <div id="toast-container"></div>
-
-  <!-- ===== TRY NOW OVERLAY ===== -->
-  <div class="trynow-overlay" id="trynowOverlay">
-    <div class="overlay-inner">
-      <button class="close-overlay" onclick="closeTryNow()" aria-label="Close">&times;</button>
-      <div class="demo-content" id="demoContent">
-        <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#94a3b8; font-size:1.2rem;">
-          <i class="fas fa-spinner fa-spin mr-2"></i> Loading demo...
-        </div>
-      </div>
-      <div class="bottom-bar">
-        <button class="btn-buy" onclick="window.handleTryNowBuy()"><i class="fas fa-bolt"></i> Buy Now</button>
-        <button class="btn-cart" onclick="window.handleTryNowCart()"><i class="fas fa-cart-plus"></i> Add to Cart</button>
-        <button class="btn-close" onclick="closeTryNow()"><i class="fas fa-times"></i> Close</button>
-      </div>
-    </div>
-  </div>
 
   <script type="module">
     // ================================================================
     // IMPORTS
     // ================================================================
     import {
-renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
+      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
       renderCartSidebar, setLoading, renderPaymentModal,
-  renderAuthModal
-} from './components.js';
+      renderAuthModal
+    } from './components.js';
     import {
       auth, db, collection, doc, getDoc, getDocs, addDoc, updateDoc,
-      query, where, serverTimestamp, onAuthStateChanged, signOut,
+      query, where, serverTimestamp, onAuthStateChanged,
       signInWithEmailAndPassword, createUserWithEmailAndPassword,
-      signInWithPopup, googleProvider, setDoc, onSnapshot
+      signInWithPopup, googleProvider, setDoc
     } from './firebase-config.js';
 
     // ================================================================
-    // RENDER COMMON
+    // COMMON RENDER
+    // ----------------------------------------------------------------
+    // product-detail.html is a LEGACY page (not in AGENCY_PAGES), so
+    // cart + payment modal will still render here for genuine product
+    // fallbacks. If we end up redirecting, the redirect clears it.
     // ================================================================
     renderNavbar();
     renderAuthModal();
     renderFooter();
     renderCartSidebar();
-    renderPaymentModal();
     updateCartBadge();
+    // Payment modal — rendered lazily below, only if we show a legacy product
 
+    // ================================================================
+    // TOAST
+    // ================================================================
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -633,7 +518,9 @@ renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // ===== SCROLL OBSERVER =====
+    // ================================================================
+    // SCROLL OBSERVER + BACK TO TOP
+    // ================================================================
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
     }, { threshold: 0.1 });
@@ -641,7 +528,6 @@ renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     });
 
-    // ===== BACK TO TOP =====
     const scrollBtn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => {
       scrollBtn.classList.toggle('show', window.scrollY > 400);
@@ -651,45 +537,50 @@ renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
     });
 
     // ================================================================
-    // AUTH MODAL
+    // AUTH NAVBAR HOOK
     // ================================================================
-    // Auth handled by components.js (renderAuthModal / openAuthModal)
-// togglePasswordVisibility moved to components.js as toggleAuthPassword
-// socialLogin handled by components.js
-// Auth form handled by components.js
-// handleLogout handled by components.js
-onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
-        updateNavbarAuth(user, displayName);
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          const displayName = userDoc.exists() ? userDoc.data().displayName : user.email.split('@')[0];
+          updateNavbarAuth(user, displayName);
+        } catch (_) {
+          updateNavbarAuth(user, user.email?.split('@')[0] || null);
+        }
       } else {
         updateNavbarAuth(null, null);
       }
     });
 
     // ================================================================
-    // CURRENCY & PRICE FORMATTING
+    // REDIRECT OVERLAY HELPERS
+    // ================================================================
+    function showRedirectOverlay(label = 'Loading…', sub = '') {
+      const overlay = document.getElementById('redirectOverlay');
+      if (!overlay) return;
+      document.getElementById('redirectLabel').textContent = label;
+      document.getElementById('redirectSub').textContent = sub;
+      overlay.classList.remove('hidden');
+    }
+    function hideRedirectOverlay() {
+      const overlay = document.getElementById('redirectOverlay');
+      if (!overlay) return;
+      overlay.classList.add('hidden');
+    }
+
+    // ================================================================
+    // CURRENCY UTILITIES (for legacy product page)
     // ================================================================
     let usdRate = 125;
-
-    function formatPriceUSD(priceUSD) {
-      return '$' + priceUSD.toFixed(2);
-    }
-
-    function formatBDT(amountBDT) {
-      return '৳' + Math.round(amountBDT).toLocaleString('en-BD');
-    }
-
-    function getBDT(priceUSD) {
-      return priceUSD * usdRate;
-    }
-
+    function formatPriceUSD(priceUSD) { return '$' + Number(priceUSD).toFixed(2); }
+    function formatBDT(amountBDT) { return '৳' + Math.round(amountBDT).toLocaleString('en-BD'); }
+    function getBDT(priceUSD) { return Number(priceUSD) * usdRate; }
     function updateDetailRateBanner() {
-      document.getElementById('detailDisplayRate').textContent = usdRate;
+      const el = document.getElementById('detailDisplayRate');
+      if (el) el.textContent = usdRate;
     }
 
-    // ─── LOAD SETTINGS ─────────────────────────────────
     async function loadPaymentSettings() {
       try {
         const snap = await getDoc(doc(db, 'settings', 'payment'));
@@ -706,7 +597,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     // ================================================================
-    // PRODUCT DETAIL LOGIC
+    // PRODUCT DETAIL LOGIC (LEGACY)
     // ================================================================
     const container = document.getElementById('productDetailContainer');
     let currentProductId = null;
@@ -715,45 +606,118 @@ onAuthStateChanged(auth, async (user) => {
 
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
+    const srcHint = (urlParams.get('src') || '').toLowerCase(); // 'template' | 'product' | ''
 
-    if (!productId) {
-      container.innerHTML = `
-        <div class="glass-card text-center py-12 fade-up">
-          <i class="fas fa-exclamation-circle text-4xl text-red-400 mb-4"></i>
-          <h2 class="text-2xl font-bold text-gray-900">No product specified</h2>
-          <p class="text-gray-500 mt-2">Please go back to the store and select a product.</p>
-          <a href="get-new-website.html" class="btn-primary mt-4 inline-block">← Back to Store</a>
-        </div>
-      `;
-    } else {
-      currentProductId = productId;
-      await loadPaymentSettings();
+    // ================================================================
+    // SMART ROUTER
+    // ----------------------------------------------------------------
+    // Rules:
+    //   ?src=template  → skip products check, redirect to configure
+    //   ?src=product   → skip templates check, render legacy product
+    //   (no hint)      → try designTemplates first; if found, redirect.
+    //                    else try products; if found, render legacy.
+    //                    else not-found.
+    // ================================================================
+    async function smartBoot() {
+      // No ID → not found state
+      if (!productId) {
+        renderNotFound();
+        return;
+      }
 
-      // Listen for settings changes
-      onSnapshot(doc(db, 'settings', 'payment'), (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.usdRate && Number(data.usdRate) > 0) {
-            usdRate = Number(data.usdRate);
-            updateDetailRateBanner();
-            if (currentProductData) {
-              renderProductDetail(currentProductData);
+      showRedirectOverlay('Loading…', 'Checking this item');
+
+      // ============ TEMPLATE-FIRST PATH ============
+      if (srcHint === 'template') {
+        redirectToConfigure(productId, 'template');
+        return;
+      }
+
+      if (srcHint !== 'product') {
+        // Try designTemplates
+        try {
+          const tSnap = await getDoc(doc(db, 'designTemplates', productId));
+          if (tSnap.exists()) {
+            const data = tSnap.data();
+            if (data.isActive !== false) {
+              redirectToConfigure(productId, 'template');
+              return;
             }
           }
+        } catch (err) {
+          // Collection may not exist yet → silently continue
+          console.warn('[product-detail] designTemplates check skipped:', err?.code || err?.message);
         }
-      });
+      }
 
-      getDocs(collection(db, 'discounts')).then(snap => {
-        allDiscounts = [];
-        snap.forEach(doc => allDiscounts.push({ id: doc.id, ...doc.data() }));
-        loadProduct(productId);
-      }).catch(err => {
-        console.error('Error loading discounts:', err);
-        allDiscounts = [];
-        loadProduct(productId);
-      });
+      // ============ PRODUCT FALLBACK PATH ============
+      try {
+        const pSnap = await getDoc(doc(db, 'products', productId));
+        if (pSnap.exists()) {
+          currentProductId = productId;
+          currentProductData = { id: productId, ...pSnap.data() };
+
+          // Hide overlay right before legacy render
+          hideRedirectOverlay();
+
+          // Now safe to render payment modal (this is a legacy product page)
+          try { renderPaymentModal(); } catch (_) {}
+
+          // Load discounts for legacy product rendering
+          try {
+            const dSnap = await getDocs(collection(db, 'discounts'));
+            allDiscounts = [];
+            dSnap.forEach(d => allDiscounts.push({ id: d.id, ...d.data() }));
+          } catch (_) { allDiscounts = []; }
+
+          renderProductDetail(currentProductData);
+          loadReviews(currentProductId);
+          document.title = `${currentProductData.name} – CodeCureBD`;
+          return;
+        }
+      } catch (err) {
+        console.warn('[product-detail] products check failed:', err?.code || err?.message);
+      }
+
+      // ============ NOT FOUND ============
+      renderNotFound();
     }
 
+    function redirectToConfigure(id, source) {
+      // Fire redirect with clean history replace
+      const target = `configure-service.html?id=${encodeURIComponent(id)}&src=${encodeURIComponent(source)}`;
+      showRedirectOverlay('Redirecting…', 'Opening the design configurator');
+      // Small delay so the overlay renders before navigation
+      setTimeout(() => {
+        window.location.replace(target);
+      }, 80);
+    }
+
+    function renderNotFound() {
+      hideRedirectOverlay();
+      const banner = document.getElementById('detailRateBanner');
+      if (banner) banner.style.display = 'none';
+
+      container.innerHTML = `
+        <div class="glass-card not-found fade-up visible">
+          <i class="big fas fa-search"></i>
+          <h2>We couldn't find that item</h2>
+          <p>The product or design you're looking for may have been removed, renamed, or the link may be broken.</p>
+          <div class="nf-actions">
+            <a href="get-new-website.html" class="btn-primary">
+              <i class="fas fa-palette"></i> Browse Designs
+            </a>
+            <a href="index.html" class="btn-outline">
+              <i class="fas fa-home"></i> Back Home
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    // ================================================================
+    // PRODUCT RENDER (LEGACY — UNCHANGED BEHAVIOR)
+    // ================================================================
     function getDiscountForProduct(product) {
       if (!allDiscounts || allDiscounts.length === 0) return null;
       const specific = allDiscounts.filter(d => d.type === 'specific' && d.productId === product.id);
@@ -783,84 +747,6 @@ onAuthStateChanged(auth, async (user) => {
       return s;
     }
 
-    async function loadProduct(id) {
-      try {
-        const docSnap = await getDoc(doc(db, 'products', id));
-        if (!docSnap.exists()) {
-          container.innerHTML = `
-            <div class="glass-card text-center py-12 fade-up">
-              <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
-              <h2 class="text-2xl font-bold text-gray-900">Product not found</h2>
-              <p class="text-gray-500 mt-2">The product you are looking for does not exist.</p>
-              <a href="get-new-website.html" class="btn-primary mt-4 inline-block">← Back to Store</a>
-            </div>
-          `;
-          return;
-        }
-        currentProductData = { id, ...docSnap.data() };
-        renderProductDetail(currentProductData);
-        loadReviews(id);
-        document.title = `${currentProductData.name} – CodeCureBD`;
-      } catch (err) {
-        console.error('Error loading product:', err);
-        container.innerHTML = `
-          <div class="glass-card text-center py-12 fade-up">
-            <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
-            <h2 class="text-2xl font-bold text-gray-900">Error loading product</h2>
-            <p class="text-gray-500 mt-2">${err.message}</p>
-            <button onclick="window.location.reload()" class="btn-primary mt-4 inline-block">Retry</button>
-          </div>
-        `;
-      }
-    }
-
-    // ===== TRY NOW → open product demo in a new browser tab =====
-    function openTryNow() {
-      const htmlContent = currentProductData?.htmlContent;
-      if (!htmlContent || !String(htmlContent).trim()) {
-        showToast('No demo available for this product.', 'warning');
-        return;
-      }
-
-      let docHtml = String(htmlContent).trim();
-      // If content is a fragment, wrap as full document
-      const looksFull = /<html[\s>]/i.test(docHtml) || /<!DOCTYPE/i.test(docHtml);
-      if (!looksFull) {
-        docHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${(currentProductData?.name || 'Demo').replace(/</g,'')}</title><style>body{margin:0;}</style></head><body>${docHtml}</body></html>`;
-      }
-
-      try {
-        const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const win = window.open(url, '_blank');
-        if (!win) {
-          showToast('Please allow pop-ups to view the live demo.', 'warning');
-          URL.revokeObjectURL(url);
-          return;
-        }
-        // Revoke after the new tab has a chance to load
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
-      } catch (err) {
-        console.error('Try Now error:', err);
-        showToast('Could not open demo: ' + err.message, 'error');
-      }
-    }
-
-    function closeTryNow() {
-      const overlay = document.getElementById('trynowOverlay');
-      if (overlay) overlay.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    window.openTryNow = openTryNow;
-    window.closeTryNow = closeTryNow;
-    window.addToCart = addToCart;
-    window.buyNow = buyNow;
-    window.submitRating = submitRating;
-
-    // ================================================================
-    // RENDER PRODUCT DETAIL with both USD & BDT
-    // ================================================================
     function renderProductDetail(product) {
       const discount = getDiscountForProduct(product);
       const desc = product.desc || product.description || '';
@@ -874,7 +760,6 @@ onAuthStateChanged(auth, async (user) => {
         const discounted = product.price * (1 - discount.discountPercent / 100);
         const origFormatted = formatPriceUSD(product.price);
         const discFormatted = formatPriceUSD(discounted);
-        const origBDT = getBDT(product.price);
         const discBDT = getBDT(discounted);
         priceHtml = `
           <span class="original-price">${origFormatted}</span>
@@ -894,7 +779,6 @@ onAuthStateChanged(auth, async (user) => {
 
       const hasHtml = product.htmlContent && product.htmlContent.length > 0;
 
-      // ─── STATIC PREVIEW ────────────────────────────────────────
       let previewHtml = '';
       if (hasHtml) {
         const escaped = product.htmlContent.replace(/"/g, '&quot;');
@@ -915,7 +799,7 @@ onAuthStateChanged(auth, async (user) => {
       }
 
       container.innerHTML = `
-        <div class="fade-up">
+        <div class="fade-up visible">
           <div class="glass-card" style="padding:0; overflow:hidden;">
             ${previewHtml}
             <div style="padding:1.5rem;">
@@ -953,7 +837,6 @@ onAuthStateChanged(auth, async (user) => {
         </div>
       `;
 
-      // Star rating handler
       document.querySelectorAll('#ratingStars .star').forEach(el => {
         el.addEventListener('click', () => {
           const val = parseInt(el.dataset.val);
@@ -969,7 +852,41 @@ onAuthStateChanged(auth, async (user) => {
 
     window.selectedRating = 0;
 
-    async function addToCart() {
+    // ================================================================
+    // TRY NOW — opens demo in new tab
+    // ================================================================
+    function openTryNow() {
+      const htmlContent = currentProductData?.htmlContent;
+      if (!htmlContent || !String(htmlContent).trim()) {
+        showToast('No demo available for this product.', 'warning');
+        return;
+      }
+      let docHtml = String(htmlContent).trim();
+      const looksFull = /<html[\s>]/i.test(docHtml) || /<!DOCTYPE/i.test(docHtml);
+      if (!looksFull) {
+        docHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${(currentProductData?.name || 'Demo').replace(/</g,'')}</title><style>body{margin:0;}</style></head><body>${docHtml}</body></html>`;
+      }
+      try {
+        const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const win = window.open(url, '_blank');
+        if (!win) {
+          showToast('Please allow pop-ups to view the live demo.', 'warning');
+          URL.revokeObjectURL(url);
+          return;
+        }
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      } catch (err) {
+        console.error('Try Now error:', err);
+        showToast('Could not open demo: ' + err.message, 'error');
+      }
+    }
+    window.openTryNow = openTryNow;
+
+    // ================================================================
+    // CART / BUY / RATE
+    // ================================================================
+    window.addToCart = async function() {
       if (!currentProductData) { showToast('Product not loaded', 'error'); return; }
       const product = currentProductData;
       const discount = getDiscountForProduct(product);
@@ -998,15 +915,15 @@ onAuthStateChanged(auth, async (user) => {
       updateCartBadge();
       window.updateCartUI?.();
       showToast(`✅ "${product.name}" added to cart`, 'success');
-    }
+    };
 
-    async function buyNow() {
-      await addToCart();
+    window.buyNow = async function() {
+      await window.addToCart();
       setTimeout(() => {
         if (typeof window.checkout === 'function') window.checkout();
         else window.location.href = 'get-new-website.html?checkout=1';
       }, 500);
-    }
+    };
 
     async function loadReviews(productId) {
       const reviewsContainer = document.getElementById('reviewsList');
@@ -1039,7 +956,7 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
-    async function submitRating() {
+    window.submitRating = async function() {
       if (!currentProductData) { showToast('Product not loaded', 'error'); return; }
       if (!window.selectedRating || window.selectedRating < 1) {
         showToast('Please select a rating', 'warning');
@@ -1072,9 +989,17 @@ onAuthStateChanged(auth, async (user) => {
       } catch (err) {
         showToast('⚠️ ' + err.message, 'error');
       }
-    }
+    };
 
-    console.log('📄 Product detail: currency toggle removed, rate banner added.');
+    // ================================================================
+    // BOOT
+    // ================================================================
+    (async function boot() {
+      await loadPaymentSettings();
+      await smartBoot();
+    })();
+
+    console.log('🔀 product-detail.html loaded — smart router active (designTemplates → configure-service, products → legacy detail).');
   </script>
 </body>
 </html>

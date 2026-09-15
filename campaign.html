@@ -4,8 +4,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>Campaign Offer – CodeCureBD</title>
-  <meta name="description" content="Limited special campaign offer from CodeCureBD. Join now with advance payment." />
+  <title>Studio Campaign Offer – CodeCureBD</title>
+  <meta name="description" content="Limited studio campaign from CodeCureBD — join with a small advance, get a fully-built website, pay the rest after confirmation." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -130,10 +130,12 @@
       text-align: center;
       padding: 4rem 1.5rem;
     }
-    .empty-campaign i {
+    .empty-campaign i.big-icon {
       font-size: 4rem;
       opacity: 0.25;
       color: #64748b;
+      display: block;
+      margin-bottom: 0.5rem;
     }
 
     /* ─── CAMPAIGN IMAGE – full view with contain ─── */
@@ -183,6 +185,47 @@
     @media (max-width: 640px) {
       .campaign-hero { padding: 1.5rem 1.15rem; border-radius: 18px; }
     }
+
+    /* ─── Custom project ribbon (new — subtle, non-intrusive) ─── */
+    .custom-ribbon {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(37,99,235,0.14);
+      border-radius: 14px;
+      margin-bottom: 1.25rem;
+      font-size: 0.85rem;
+      color: #475569;
+      flex-wrap: wrap;
+    }
+    .custom-ribbon .cr-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .custom-ribbon .cr-text i {
+      color: #7c3aed;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .custom-ribbon .cr-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #2563eb;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: gap 0.2s ease;
+    }
+    .custom-ribbon .cr-cta:hover { gap: 10px; }
+    .custom-ribbon .cr-cta i { font-size: 0.72rem; }
   </style>
 </head>
 <body>
@@ -191,6 +234,18 @@
 
     <main class="main-content">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 pb-16 pt-2">
+
+        <!-- ─── Custom project ribbon (new, subtle) ─── -->
+        <div class="custom-ribbon">
+          <div class="cr-text">
+            <i class="fas fa-palette"></i>
+            <span>Prefer a fully custom project instead of this campaign?</span>
+          </div>
+          <a href="configure-service.html" class="cr-cta">
+            Start one <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
         <div id="campaignRoot">
           <!-- Loading skeleton -->
           <div class="campaign-hero mb-8 animate-pulse">
@@ -252,10 +307,13 @@
       const root = document.getElementById('campaignRoot');
       root.innerHTML = `
         <div class="empty-campaign glass-card">
-          <i class="fas fa-bullhorn"></i>
+          <i class="fas fa-bullhorn big-icon"></i>
           <h2 class="text-2xl font-bold text-gray-900 mt-4">No Active Campaign</h2>
-          <p class="text-gray-500 mt-2 max-w-md mx-auto">There is no special campaign running right now. Check back later or explore our regular packages.</p>
-          <a href="get-new-website.html" class="btn-primary mt-6 inline-flex"><i class="fas fa-store"></i> Browse Store</a>
+          <p class="text-gray-500 mt-2 max-w-md mx-auto">There is no special campaign running right now. Explore our design directions or start a fully custom project.</p>
+          <div class="mt-6 flex flex-wrap justify-center gap-3">
+            <a href="get-new-website.html" class="btn-primary inline-flex"><i class="fas fa-palette"></i> Browse Designs</a>
+            <a href="configure-service.html" class="btn-outline inline-flex"><i class="fas fa-rocket"></i> Start a Custom Project</a>
+          </div>
         </div>
       `;
       document.title = 'No Campaign – CodeCureBD';
@@ -620,7 +678,7 @@
     await loadUsdRate();
     listenCampaign();
 
-    console.log('📢 Campaign page loaded – full image with contain');
+    console.log('📢 Campaign page loaded – copy polished for agency tone.');
   </script>
 </body>
 </html>
