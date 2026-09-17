@@ -1122,7 +1122,6 @@
       font-size: 0.65rem;
       font-weight: 600;
     }
-    /* NEW: service order lifecycle badges */
     .badge-reviewing {
       background: rgba(139, 92, 246, 0.12);
       color: #7c3aed;
@@ -1179,7 +1178,6 @@
       font-size: 0.6rem;
       font-weight: 600;
     }
-    /* NEW: order-type chip */
     .badge-type-service {
       background: rgba(0, 102, 255, 0.12);
       color: #0066FF;
@@ -1962,6 +1960,24 @@
       background: rgba(52, 199, 89, 0.04);
     }
 
+    /* ===== SERVICE PRICING TAB (NEW) ===== */
+    .pricing-input {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      border-radius: 10px;
+      border: 1.5px solid rgba(0, 102, 255, 0.1);
+      background: #fff;
+      outline: none;
+      transition: 0.2s;
+      font-weight: 600;
+      color: #1a1a2e;
+      font-family: inherit;
+    }
+    .pricing-input:focus {
+      border-color: #0066FF;
+      box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.06);
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
       .dashboard-grid { grid-template-columns: repeat(3, 1fr); }
@@ -2119,11 +2135,10 @@
             <button class="nav-item" data-tab="discounts"><i class="fas fa-tags"></i> Discounts</button>
             <button class="nav-item" data-tab="bannerad"><i class="fas fa-ad"></i> Banner Ad</button>
             <button class="nav-item" data-tab="campaign"><i class="fas fa-bullhorn"></i> Campaign</button>
-            <!-- ===== NEW TABS (additive) ===== -->
             <button class="nav-item" data-tab="servicecategories"><i class="fas fa-layer-group"></i> Service Categories</button>
             <button class="nav-item" data-tab="addons"><i class="fas fa-puzzle-piece"></i> Add-Ons</button>
+            <button class="nav-item" data-tab="servicepricing"><i class="fas fa-dollar-sign"></i> Service Pricing</button>
             <button class="nav-item" data-tab="designrefs"><i class="fas fa-palette"></i> Design References</button>
-            <!-- ===== /NEW ===== -->
             <button class="nav-item" data-tab="settings"><i class="fas fa-cog"></i> Settings</button>
             <button class="nav-item" data-tab="supportchat"><i class="fas fa-comments"></i> Support Chat</button>
         </div>
@@ -2184,7 +2199,6 @@
                     <div class="dash-mini"><div class="dm-label">Unread Chats</div><div class="dm-value purple" id="dashUnreadChats">0</div></div>
                 </div>
 
-                <!-- NEW: Service Pipeline stat row -->
                 <h3 class="text-lg font-semibold mt-6 mb-2" style="color:#1c1c1e;"><i class="fas fa-layer-group text-blue-600"></i> Service Requests</h3>
                 <div class="dashboard-grid-secondary">
                     <div class="dash-mini"><div class="dm-label">Reviewing</div><div class="dm-value purple" id="dashServiceReviewing">0</div></div>
@@ -2212,7 +2226,7 @@
                 </div>
             </div>
 
-            <!-- PRODUCTS (unchanged) -->
+            <!-- PRODUCTS -->
             <div id="tab-products" class="tab-content">
                 <div class="flex flex-wrap justify-between items-center gap-3 mb-3">
                     <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Products</h2>
@@ -2242,7 +2256,7 @@
                 <div id="productContainer"></div>
             </div>
 
-            <!-- ORDERS (updated with type filter + new columns) -->
+            <!-- ORDERS -->
             <div id="tab-orders" class="tab-content">
                 <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
                     <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Orders</h2>
@@ -2253,7 +2267,6 @@
                     <input type="date" id="orderDateTo" class="form-input" title="To date" />
                     <input type="number" id="orderPriceMin" class="form-input" placeholder="Min $" />
                     <input type="number" id="orderPriceMax" class="form-input" placeholder="Max $" />
-                    <!-- NEW: Order type filter -->
                     <select id="orderTypeFilter" class="form-input">
                         <option value="all">All types</option>
                         <option value="service">Service</option>
@@ -2316,7 +2329,7 @@
                 </div>
             </div>
 
-            <!-- USERS (unchanged) -->
+            <!-- USERS -->
             <div id="tab-users" class="tab-content">
                 <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
                     <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Users</h2>
@@ -2433,7 +2446,7 @@
                 </div>
             </div>
 
-            <!-- MESSAGES (unchanged) -->
+            <!-- MESSAGES -->
             <div id="tab-messages" class="tab-content">
                 <div class="flex flex-wrap justify-between items-center gap-2">
                     <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Contact Messages</h2>
@@ -2451,7 +2464,7 @@
                 <div id="messageList" class="space-y-3"></div>
             </div>
 
-            <!-- FIX REQUESTS (unchanged) -->
+            <!-- FIX REQUESTS -->
             <div id="tab-fixrequests" class="tab-content">
                 <div class="flex flex-wrap justify-between items-center gap-2">
                     <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Fix Requests</h2>
@@ -2475,7 +2488,7 @@
                 <div id="fixRequestList" class="space-y-3"></div>
             </div>
 
-            <!-- RATINGS (unchanged) -->
+            <!-- RATINGS -->
             <div id="tab-ratings" class="tab-content">
                 <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Ratings &amp; Reviews</h2>
                 <p class="text-sm text-gray-500 mt-1">View and manage all product ratings. Admin can also add ratings.</p>
@@ -2531,7 +2544,7 @@
                 </div>
             </div>
 
-            <!-- DISCOUNTS (unchanged) -->
+            <!-- DISCOUNTS -->
             <div id="tab-discounts" class="tab-content">
                 <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Discount Management</h2>
                 <p class="text-sm text-gray-500 mt-1">Add discounts to products. The best applicable discount will be shown on the store.</p>
@@ -2571,7 +2584,7 @@
                 </div>
             </div>
 
-            <!-- BANNER AD (unchanged) -->
+            <!-- BANNER AD -->
             <div id="tab-bannerad" class="tab-content">
                 <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Banner Ad</h2>
                 <p class="text-sm text-gray-500 mb-4">Top banner on the landing page. Desktop 728×90 · Mobile 300×50. Leave empty to hide.</p>
@@ -2607,7 +2620,7 @@
                 </div>
             </div>
 
-            <!-- CAMPAIGN (unchanged) -->
+            <!-- CAMPAIGN -->
             <div id="tab-campaign" class="tab-content">
                 <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Campaign</h2>
                 <p class="text-sm text-gray-500 mb-4">Only one campaign at a time. Users pay advance from the campaign page. Due amount is set manually per order.</p>
@@ -2812,6 +2825,88 @@
             </div>
 
             <!-- ============================================================ -->
+            <!-- NEW TAB: SERVICE PRICING                                     -->
+            <!-- ============================================================ -->
+            <div id="tab-servicepricing" class="tab-content">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Service Pricing</h2>
+                        <p class="text-sm text-gray-500 mt-1">Set the base package price and add-on prices used in the configure-service page.</p>
+                    </div>
+                </div>
+
+                <!-- Base Package Card -->
+                <div class="glass-card mb-5" style="max-width:720px;">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="icon-preview" style="background:linear-gradient(135deg,#2563eb,#7c3aed); color:#fff;">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Base Package</h3>
+                            <p class="text-sm text-gray-500">Paid as advance when the client submits a service request.</p>
+                        </div>
+                    </div>
+
+                    <form id="basePackageForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Base Package Price (USD) *</label>
+                            <input type="number" id="basePriceUSD" class="form-input" min="1" step="1" required placeholder="50" />
+                            <p class="text-xs text-gray-400 mt-1" id="basePriceBDTPreview">≈ ৳6,250 at ৳125/$</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Base Package Includes
+                                <span class="text-xs text-gray-400 font-normal">(one feature per line)</span>
+                            </label>
+                            <textarea id="baseIncludes" class="form-input" rows="7" placeholder="Landing Page (hero, features, CTA)&#10;About Page&#10;Contact Page&#10;Navigation &amp; Routing&#10;Mobile Responsive Design&#10;Basic SEO Meta Tags&#10;Fast Loading (basic optimization)"></textarea>
+                            <p class="text-xs text-gray-400 mt-1">These lines appear on the client's configure-service page.</p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            <button type="submit" class="btn-primary" id="saveBasePackageBtn">
+                                <i class="fas fa-save"></i> Save Base Package
+                            </button>
+                            <button type="button" class="btn-outline" id="resetBasePackageBtn">
+                                <i class="fas fa-undo"></i> Reset to Default
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Add-ons pricing card -->
+                <div class="glass-card" style="max-width:900px;">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="icon-preview" style="background:linear-gradient(135deg,#f59e0b,#dc2626); color:#fff;">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <h3 class="text-lg font-bold text-gray-900">Add-ons Pricing</h3>
+                            <p class="text-sm text-gray-500">Quickly update add-on prices. These are stored in the <code>addOns</code> collection.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-toolbar">
+                        <input type="text" id="pricingAddonSearch" class="form-input" placeholder="Search add-ons…" />
+                        <button type="button" class="btn-outline btn-sm" id="pricingAddonSyncBtn" title="Copy default add-ons into Firestore">
+                            <i class="fas fa-cloud-upload-alt"></i> Seed Defaults
+                        </button>
+                    </div>
+
+                    <div id="pricingAddonsList" class="space-y-2">
+                        <div class="text-center py-6 text-gray-400"><i class="fas fa-spinner fa-spin"></i> Loading add-ons…</div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t">
+                        <button type="button" class="btn-primary" id="saveAllAddonPricesBtn">
+                            <i class="fas fa-save"></i> Save All Prices
+                        </button>
+                        <span class="text-xs text-gray-400 self-center" id="pricingAddonStatus"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
             <!-- NEW TAB: DESIGN REFERENCES                                   -->
             <!-- ============================================================ -->
             <div id="tab-designrefs" class="tab-content">
@@ -2841,7 +2936,7 @@
                 </div>
             </div>
 
-            <!-- SETTINGS (unchanged) -->
+            <!-- SETTINGS -->
             <div id="tab-settings" class="tab-content">
                 <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Settings</h2>
 
@@ -2890,7 +2985,7 @@
                 </div>
             </div>
 
-            <!-- SUPPORT CHAT (unchanged) -->
+            <!-- SUPPORT CHAT -->
             <div id="tab-supportchat" class="tab-content">
                 <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
                     <h2 class="text-2xl font-bold" style="color:#1c1c1e;">Support Chat</h2>
@@ -2938,7 +3033,7 @@
         </div><!-- /main-content-inner -->
     </div><!-- /main -->
 
-    <!-- ===== PRODUCT MODAL (unchanged) ===== -->
+    <!-- ===== PRODUCT MODAL ===== -->
     <div class="modal-overlay" id="productModal">
         <div class="modal-box">
             <div class="modal-header"><h3 id="productModalTitle">Add Product</h3><button class="modal-close" onclick="closeProductModal()">&times;</button></div>
@@ -2978,9 +3073,7 @@
         </div>
     </div>
 
-    <!-- ================================================================ -->
-    <!-- NEW MODAL: SERVICE CATEGORY                                      -->
-    <!-- ================================================================ -->
+    <!-- ===== SERVICE CATEGORY MODAL ===== -->
     <div class="modal-overlay" id="serviceCategoryModal">
         <div class="modal-box" style="max-width:560px;">
             <div class="modal-header">
@@ -3004,9 +3097,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Icon</label>
-                    <div class="icon-picker" id="scIconPicker">
-                        <!-- filled by JS -->
-                    </div>
+                    <div class="icon-picker" id="scIconPicker"></div>
                     <input type="hidden" id="scIcon" value="fa-layer-group" />
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -3030,9 +3121,7 @@
         </div>
     </div>
 
-    <!-- ================================================================ -->
-    <!-- NEW MODAL: ADD-ON                                                -->
-    <!-- ================================================================ -->
+    <!-- ===== ADD-ON MODAL ===== -->
     <div class="modal-overlay" id="addOnModal">
         <div class="modal-box" style="max-width:560px;">
             <div class="modal-header">
@@ -3068,9 +3157,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Icon</label>
-                    <div class="icon-picker" id="aoIconPicker">
-                        <!-- filled by JS -->
-                    </div>
+                    <div class="icon-picker" id="aoIconPicker"></div>
                     <input type="hidden" id="aoIcon" value="fa-puzzle-piece" />
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -3098,7 +3185,7 @@
         </div>
     </div>
 
-    <!-- ===== PRODUCT DOWNLOAD MODAL (unchanged) ===== -->
+    <!-- ===== PRODUCT DOWNLOAD MODAL ===== -->
     <div class="modal-overlay" id="productDownloadModal">
         <div class="modal-box" style="max-width:420px;">
             <div class="modal-header">
@@ -3128,7 +3215,7 @@
         </div>
     </div>
 
-    <!-- ===== USER MODAL (unchanged) ===== -->
+    <!-- ===== USER MODAL ===== -->
     <div class="modal-overlay" id="userModal">
         <div class="modal-box">
             <div class="modal-header"><h3 id="userModalTitle">Add User</h3><button class="modal-close" onclick="closeUserModal()">&times;</button></div>
@@ -3146,7 +3233,7 @@
         </div>
     </div>
 
-    <!-- ===== USER DETAIL MODAL (unchanged) ===== -->
+    <!-- ===== USER DETAIL MODAL ===== -->
     <div class="modal-overlay" id="userDetailModal">
         <div class="modal-box" style="max-width:640px;">
             <div class="modal-header">
@@ -3158,7 +3245,7 @@
         </div>
     </div>
 
-    <!-- ===== ORDER DETAIL MODAL (enhanced to render add-ons & refs) ===== -->
+    <!-- ===== ORDER DETAIL MODAL ===== -->
     <div class="modal-overlay" id="orderDetailModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -3174,7 +3261,7 @@
         </div>
     </div>
 
-    <!-- ===== CONFIRM MODAL (unchanged) ===== -->
+    <!-- ===== CONFIRM MODAL ===== -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal-box confirm-modal-box">
             <div class="confirm-icon" id="confirmIcon"><i class="fas fa-exclamation-triangle"></i></div>
@@ -3383,7 +3470,7 @@
                 allContactMessages = [];
             let conversationsMap = {};
 
-            // ===== NEW: Service-side state =====
+            // NEW: Service-side state
             let allServiceCategories = [];
             let allAddOns = [];
             let allDesignReferences = [];
@@ -3456,7 +3543,7 @@
                 set('dashCampCompleted', campCompleted);
                 set('dashCampRevenue', '৳' + campRevenueBDT.toLocaleString('en-BD'));
 
-                // NEW: Service pipeline stats
+                // Service pipeline stats
                 const svc = allOrders.filter(isServiceOrder);
                 set('dashServiceReviewing', svc.filter(o => o.status === 'reviewing').length);
                 set('dashServiceQuoted', svc.filter(o => o.status === 'quoted').length);
@@ -3650,7 +3737,7 @@
             });
 
             // ==============================================================
-            // NEW: SERVICE CATEGORIES LISTENER
+            // SERVICE CATEGORIES LISTENER
             // ==============================================================
             onSnapshot(collection(db, 'serviceCategories'), (snapshot) => {
                 allServiceCategories = [];
@@ -3664,15 +3751,18 @@
             });
 
             // ==============================================================
-            // NEW: ADD-ONS LISTENER
+            // ADD-ONS LISTENER
             // ==============================================================
             onSnapshot(collection(db, 'addOns'), (snapshot) => {
                 allAddOns = [];
                 snapshot.forEach(doc => allAddOns.push({ id: doc.id, ...doc.data() }));
                 allAddOns.sort((a, b) => (a.order || 0) - (b.order || 0));
                 renderAddOnsTable();
-                // keep dropdown in sync with latest categories
                 populateAddOnCategoryDropdown();
+                // Refresh pricing list if already loaded
+                if (typeof _servicePricingLoaded !== 'undefined' && _servicePricingLoaded) {
+                    try { renderPricingAddonsList(); } catch (_) {}
+                }
             }, (err) => {
                 console.warn('addOns listener:', err?.code, err?.message);
                 const tb = document.getElementById('addOnTableBody');
@@ -3680,7 +3770,7 @@
             });
 
             // ==============================================================
-            // NEW: DESIGN REFERENCES LISTENER
+            // DESIGN REFERENCES LISTENER
             // ==============================================================
             onSnapshot(collection(db, 'designReferences'), (snapshot) => {
                 allDesignReferences = [];
@@ -3694,7 +3784,7 @@
             });
 
             // ==============================================================
-            // NEW: SERVICE CATEGORIES — CRUD
+            // SERVICE CATEGORIES — CRUD
             // ==============================================================
             const SC_ICON_CHOICES = [
                 'fa-layer-group','fa-globe','fa-shopping-cart','fa-blog','fa-store',
@@ -3727,15 +3817,13 @@
 
             function slugify(str) {
                 return String(str || '')
-                    .toLowerCase()
-                    .trim()
+                    .toLowerCase().trim()
                     .replace(/[^a-z0-9\s-]/g, '')
                     .replace(/\s+/g, '-')
                     .replace(/-+/g, '-')
                     .slice(0, 60);
             }
 
-            // auto-slug on name field
             document.getElementById('scName')?.addEventListener('input', (e) => {
                 const slugEl = document.getElementById('scSlug');
                 if (slugEl && !slugEl._touched) slugEl.value = slugify(e.target.value);
@@ -3815,7 +3903,6 @@
             window.deleteServiceCategory = async function(id) {
                 const c = allServiceCategories.find(x => x.id === id);
                 if (!c) return;
-                // Count dependent add-ons
                 const dependent = allAddOns.filter(a => a.categoryId === id).length;
                 const warn = dependent
                     ? `\n\n⚠️ ${dependent} add-on(s) reference this category. They will remain but become orphaned.`
@@ -3849,7 +3936,6 @@
 
                 if (!name || !slug) { showToast('Name and slug are required.', 'warning'); return; }
 
-                // Slug uniqueness check
                 const dup = allServiceCategories.find(c => c.slug === slug && c.id !== id);
                 if (dup) { showToast('Slug already used. Pick a different one.', 'error'); return; }
 
@@ -3874,7 +3960,7 @@
             });
 
             // ==============================================================
-            // NEW: ADD-ONS — CRUD
+            // ADD-ONS — CRUD
             // ==============================================================
             function populateAddOnCategoryDropdown() {
                 const sel = document.getElementById('aoCategoryId');
@@ -3883,7 +3969,6 @@
                 sel.innerHTML = '<option value="">— Select a category —</option>' +
                     allServiceCategories.map(c => `<option value="${c.id}">${(c.name || '—').replace(/</g,'&lt;')}</option>`).join('');
 
-                // filter dropdown in toolbar
                 const f = document.getElementById('addOnCategoryFilter');
                 if (f) {
                     const prev = f.value;
@@ -3904,7 +3989,6 @@
                 document.getElementById('aoActive').textContent = active;
                 document.getElementById('aoUniversal').textContent = universal;
 
-                // Apply filters
                 const q = (document.getElementById('addOnSearchInput')?.value || '').trim().toLowerCase();
                 const catF = document.getElementById('addOnCategoryFilter')?.value || 'all';
                 const activeF = document.getElementById('addOnActiveFilter')?.value || 'all';
@@ -3956,7 +4040,6 @@
                 }).join('');
             }
 
-            // wire toolbar filters
             document.getElementById('addOnSearchInput')?.addEventListener('input', renderAddOnsTable);
             document.getElementById('addOnCategoryFilter')?.addEventListener('change', renderAddOnsTable);
             document.getElementById('addOnActiveFilter')?.addEventListener('change', renderAddOnsTable);
@@ -4065,7 +4148,326 @@
             });
 
             // ==============================================================
-            // NEW: DESIGN REFERENCES — READ-ONLY INBOX
+            // NEW: SERVICE PRICING — Base Package + Add-ons quick edit
+            // ==============================================================
+            const DEFAULT_SERVICE_PRICING = {
+                basePackagePrice: 50,
+                basePackageIncludes: [
+                    'Landing Page (hero, features, CTA)',
+                    'About Page',
+                    'Contact Page',
+                    'Navigation & Routing',
+                    'Mobile Responsive Design',
+                    'Basic SEO Meta Tags',
+                    'Fast Loading (basic optimization)'
+                ]
+            };
+
+            const DEFAULT_ADDON_PRICING = [
+                { name: 'Product Catalog', price: 50 },
+                { name: 'Shopping Cart', price: 40 },
+                { name: 'Checkout & Payment Gateway', price: 60 },
+                { name: 'Order Tracking', price: 30 },
+                { name: 'Wishlist / Favorites', price: 25 },
+                { name: 'Admin Panel', price: 80 },
+                { name: 'Content Management (CMS)', price: 40 },
+                { name: 'Order Management', price: 40 },
+                { name: 'User Management', price: 30 },
+                { name: 'Analytics Dashboard', price: 35 },
+                { name: 'User Registration & Login', price: 40 },
+                { name: 'User Profile & Dashboard', price: 35 },
+                { name: 'Ratings & Reviews', price: 30 },
+                { name: 'User Notifications', price: 25 },
+                { name: 'Blog Section', price: 35 },
+                { name: 'Portfolio / Gallery', price: 30 },
+                { name: 'Testimonials Carousel', price: 20 },
+                { name: 'FAQ Accordion', price: 15 },
+                { name: 'Newsletter Signup', price: 15 },
+                { name: 'Live Chat Support', price: 40 },
+                { name: 'Multi-Language Support', price: 60 },
+                { name: 'Custom Animations', price: 35 },
+                { name: 'Advanced SEO Optimization', price: 45 },
+                { name: 'Performance Optimization', price: 30 },
+                { name: 'Security Hardening', price: 40 },
+                { name: 'Third-Party API Integration', price: 50 },
+                { name: 'Email Notifications', price: 25 },
+                { name: 'Social Media Integration', price: 20 },
+                { name: 'Google Analytics Setup', price: 15 }
+            ];
+
+            let _servicePricingUsdRate = 125;
+            let _servicePricingLoaded = false;
+            let _pricingDraft = {}; // name-key → price
+
+            async function loadServicePricing() {
+                try {
+                    const [configSnap, paymentSnap] = await Promise.all([
+                        getDoc(doc(db, 'settings', 'serviceConfig')),
+                        getDoc(doc(db, 'settings', 'payment'))
+                    ]);
+
+                    if (paymentSnap.exists() && Number(paymentSnap.data().usdRate) > 0) {
+                        _servicePricingUsdRate = Number(paymentSnap.data().usdRate);
+                    }
+
+                    let basePrice = DEFAULT_SERVICE_PRICING.basePackagePrice;
+                    let includes = DEFAULT_SERVICE_PRICING.basePackageIncludes.slice();
+                    if (configSnap.exists()) {
+                        const d = configSnap.data();
+                        if (Number(d.basePackagePrice) > 0) basePrice = Number(d.basePackagePrice);
+                        if (Array.isArray(d.basePackageIncludes) && d.basePackageIncludes.length) {
+                            includes = d.basePackageIncludes;
+                        }
+                    }
+
+                    document.getElementById('basePriceUSD').value = basePrice;
+                    document.getElementById('baseIncludes').value = includes.join('\n');
+                    updateBasePriceBDTPreview();
+
+                    _servicePricingLoaded = true;
+                    renderPricingAddonsList();
+                } catch (err) {
+                    console.error('loadServicePricing error:', err);
+                    showToast('Error loading service pricing: ' + (err.message || ''), 'error');
+                }
+            }
+
+            function updateBasePriceBDTPreview() {
+                const usd = parseFloat(document.getElementById('basePriceUSD').value) || 0;
+                const bdt = Math.round(usd * _servicePricingUsdRate);
+                const el = document.getElementById('basePriceBDTPreview');
+                if (el) el.textContent = `≈ ৳${bdt.toLocaleString('en-BD')} at ৳${_servicePricingUsdRate}/$`;
+            }
+
+            document.getElementById('basePriceUSD')?.addEventListener('input', updateBasePriceBDTPreview);
+
+            document.getElementById('basePackageForm')?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('saveBasePackageBtn');
+                const price = parseFloat(document.getElementById('basePriceUSD').value);
+                if (!price || price <= 0) { showToast('Please enter a valid base price.', 'warning'); return; }
+                const includesRaw = document.getElementById('baseIncludes').value;
+                const includes = includesRaw.split('\n').map(s => s.trim()).filter(Boolean);
+
+                setLoading(btn, true, 'Saving…');
+                try {
+                    await setDoc(doc(db, 'settings', 'serviceConfig'), {
+                        basePackagePrice: price,
+                        basePackageIncludes: includes,
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+                    showToast('✅ Base package saved!', 'success');
+                } catch (err) {
+                    showToast('Error: ' + err.message, 'error');
+                } finally {
+                    setLoading(btn, false);
+                }
+            });
+
+            document.getElementById('resetBasePackageBtn')?.addEventListener('click', () => {
+                if (!confirm('Reset base package to defaults?')) return;
+                document.getElementById('basePriceUSD').value = DEFAULT_SERVICE_PRICING.basePackagePrice;
+                document.getElementById('baseIncludes').value = DEFAULT_SERVICE_PRICING.basePackageIncludes.join('\n');
+                updateBasePriceBDTPreview();
+                showToast('Reset to defaults. Click "Save Base Package" to apply.', 'info');
+            });
+
+            // ─── Add-ons pricing quick edit ───
+            function renderPricingAddonsList() {
+                const wrap = document.getElementById('pricingAddonsList');
+                if (!wrap) return;
+                const q = (document.getElementById('pricingAddonSearch')?.value || '').trim().toLowerCase();
+
+                const fsByName = {};
+                (allAddOns || []).forEach(a => {
+                    const key = (a.name || '').toLowerCase().trim();
+                    if (key) fsByName[key] = a;
+                });
+
+                const combined = [];
+                const usedNames = new Set();
+
+                DEFAULT_ADDON_PRICING.forEach(d => {
+                    const key = d.name.toLowerCase();
+                    const fs = fsByName[key];
+                    combined.push({
+                        name: d.name,
+                        defaultPrice: d.price,
+                        currentPrice: fs ? Number(fs.price) : null,
+                        firestoreId: fs ? fs.id : null,
+                        icon: fs?.icon || 'fa-puzzle-piece'
+                    });
+                    usedNames.add(key);
+                });
+
+                (allAddOns || []).forEach(a => {
+                    const key = (a.name || '').toLowerCase().trim();
+                    if (!key || usedNames.has(key)) return;
+                    combined.push({
+                        name: a.name,
+                        defaultPrice: null,
+                        currentPrice: Number(a.price) || 0,
+                        firestoreId: a.id,
+                        icon: a.icon || 'fa-puzzle-piece'
+                    });
+                    usedNames.add(key);
+                });
+
+                const filtered = q ? combined.filter(c => c.name.toLowerCase().includes(q)) : combined;
+
+                if (!filtered.length) {
+                    wrap.innerHTML = `<div class="text-center py-6 text-gray-400">No add-ons match.</div>`;
+                    return;
+                }
+
+                let html = '';
+                filtered.forEach(c => {
+                    const key = c.name.toLowerCase();
+                    const draftVal = _pricingDraft[key] !== undefined
+                        ? _pricingDraft[key]
+                        : (c.currentPrice !== null ? c.currentPrice : c.defaultPrice || 0);
+                    const isDefault = c.currentPrice === null;
+                    html += `
+                        <div class="flex flex-wrap items-center gap-3 p-3 rounded-xl" style="background:#f8fafc; border:1px solid rgba(15,23,42,0.05);">
+                            <span class="icon-preview" style="width:36px;height:36px;font-size:0.85rem;flex-shrink:0;">
+                                <i class="fas ${c.icon}"></i>
+                            </span>
+                            <div style="flex:1; min-width:200px;">
+                                <div class="font-medium text-gray-900 text-sm">${(c.name || '').replace(/</g,'&lt;')}</div>
+                                <div class="text-xs text-gray-400">
+                                    ${isDefault ? 'Using default price — will be created when you save' : 'Managed in Add-ons tab'}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <span class="text-xs text-gray-400">$</span>
+                                <input type="number" min="0" step="1" class="pricing-input"
+                                       data-key="${key}"
+                                       value="${draftVal}"
+                                       style="width:90px; text-align:right;" />
+                            </div>
+                        </div>
+                    `;
+                });
+                wrap.innerHTML = html;
+
+                wrap.querySelectorAll('.pricing-input').forEach(inp => {
+                    inp.addEventListener('input', () => {
+                        const key = inp.dataset.key;
+                        const v = parseFloat(inp.value);
+                        if (!isNaN(v)) _pricingDraft[key] = v;
+                    });
+                });
+            }
+
+            document.getElementById('pricingAddonSearch')?.addEventListener('input', renderPricingAddonsList);
+
+            document.getElementById('pricingAddonSyncBtn')?.addEventListener('click', async () => {
+                const fsByName = {};
+                (allAddOns || []).forEach(a => {
+                    const key = (a.name || '').toLowerCase().trim();
+                    if (key) fsByName[key] = a;
+                });
+
+                const toCreate = DEFAULT_ADDON_PRICING.filter(d => !fsByName[d.name.toLowerCase()]);
+                if (!toCreate.length) {
+                    showToast('All default add-ons already exist in Firestore.', 'info');
+                    return;
+                }
+
+                if (!confirm(`Create ${toCreate.length} default add-on(s) in Firestore?`)) return;
+
+                setLoading(document.getElementById('pricingAddonSyncBtn'), true, 'Seeding…');
+                try {
+                    for (const d of toCreate) {
+                        await addDoc(collection(db, 'addOns'), {
+                            name: d.name,
+                            description: '',
+                            categoryId: null,
+                            price: d.price,
+                            priceBDT: Math.round(d.price * _servicePricingUsdRate),
+                            icon: 'fa-puzzle-piece',
+                            order: 999,
+                            isActive: true,
+                            appliesToAll: true,
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
+                        });
+                    }
+                    showToast(`✅ Seeded ${toCreate.length} add-on(s).`, 'success');
+                } catch (err) {
+                    showToast('Error seeding: ' + err.message, 'error');
+                } finally {
+                    setLoading(document.getElementById('pricingAddonSyncBtn'), false);
+                }
+            });
+
+            document.getElementById('saveAllAddonPricesBtn')?.addEventListener('click', async () => {
+                const btn = document.getElementById('saveAllAddonPricesBtn');
+                const status = document.getElementById('pricingAddonStatus');
+                const keys = Object.keys(_pricingDraft);
+                if (!keys.length) { showToast('No price changes to save.', 'info'); return; }
+
+                setLoading(btn, true, 'Saving…');
+                if (status) status.textContent = '';
+
+                let created = 0, updated = 0, failed = 0;
+                try {
+                    for (const key of keys) {
+                        const price = _pricingDraft[key];
+                        const existing = (allAddOns || []).find(a => (a.name || '').toLowerCase().trim() === key);
+                        const def = DEFAULT_ADDON_PRICING.find(d => d.name.toLowerCase() === key);
+
+                        try {
+                            if (existing) {
+                                if (Number(existing.price) !== price) {
+                                    await updateDoc(doc(db, 'addOns', existing.id), {
+                                        price: price,
+                                        priceBDT: Math.round(price * _servicePricingUsdRate),
+                                        updatedAt: serverTimestamp()
+                                    });
+                                    updated++;
+                                }
+                            } else if (def) {
+                                await addDoc(collection(db, 'addOns'), {
+                                    name: def.name,
+                                    description: '',
+                                    categoryId: null,
+                                    price: price,
+                                    priceBDT: Math.round(price * _servicePricingUsdRate),
+                                    icon: 'fa-puzzle-piece',
+                                    order: 999,
+                                    isActive: true,
+                                    appliesToAll: true,
+                                    createdAt: serverTimestamp(),
+                                    updatedAt: serverTimestamp()
+                                });
+                                created++;
+                            }
+                        } catch (err) {
+                            console.error('Save failed for', key, err);
+                            failed++;
+                        }
+                    }
+                    _pricingDraft = {};
+                    showToast(`✅ Saved — Created: ${created}, Updated: ${updated}, Failed: ${failed}`, failed ? 'warning' : 'success');
+                    if (status) status.textContent = `Created ${created} · Updated ${updated}` + (failed ? ` · ${failed} failed` : '');
+                } finally {
+                    setLoading(btn, false);
+                }
+            });
+
+            // Load when Service Pricing tab is opened
+            (function hookServicePricingTab() {
+                const btn = document.querySelector('.nav-item[data-tab="servicepricing"]');
+                if (!btn) return;
+                btn.addEventListener('click', () => {
+                    if (!_servicePricingLoaded) loadServicePricing();
+                    else renderPricingAddonsList();
+                });
+            })();
+
+            // ==============================================================
+            // DESIGN REFERENCES — READ-ONLY INBOX
             // ==============================================================
             function renderDesignReferencesList() {
                 const list = document.getElementById('designRefList');
@@ -5289,7 +5691,7 @@
             }
 
             // ==============================================================
-            // ORDERS (updated with type filter + add-on/ref columns)
+            // ORDERS
             // ==============================================================
             let filteredOrders = [];
             const orderTableBody = document.getElementById('orderTableBody');
@@ -5363,10 +5765,8 @@
 
                 const searchQ = (document.getElementById('orderSearchInput')?.value || '').trim().toLowerCase();
                 filteredOrders = orders.filter(o => {
-                    // Campaign orders live only under Campaign tab
                     if (isCampaignOrder(o)) return false;
 
-                    // NEW: Order type filter
                     if (typeFilter !== 'all' && getOrderType(o) !== typeFilter) return false;
 
                     const oDate = o.createdAt?.toDate?.() || new Date(o.createdAt);
@@ -5410,7 +5810,6 @@
                     const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                     const payment = o.paymentMethod || '—';
                     const status = o.status || 'pending';
-                    // Status class map with new service statuses
                     const statusClassMap = {
                         pending: 'badge-pending',
                         reviewing: 'badge-reviewing',
@@ -5422,7 +5821,6 @@
                     };
                     const statusClass = statusClassMap[status] || 'badge-pending';
 
-                    // Order type badge
                     const oType = getOrderType(o);
                     const typeBadgeClass = {
                         service: 'badge-type-service',
@@ -5451,13 +5849,11 @@
                         ? '<span class="badge-verified">✓ Verified</span>'
                         : '<span class="badge-unverified">Unverified</span>';
 
-                    // NEW: add-on count
                     const addOnCount = Array.isArray(o.selectedAddOns) ? o.selectedAddOns.length : 0;
                     const addOnCell = addOnCount
                         ? `<span class="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">${addOnCount}</span>`
                         : `<span class="text-xs text-gray-300">—</span>`;
 
-                    // NEW: design ref count
                     const refCount = Array.isArray(o.designReferences) ? o.designReferences.length : 0;
                     const refCell = refCount
                         ? `<span class="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">${refCount}</span>`
@@ -5598,24 +5994,27 @@
                     ? order.verifiedAt.toDate().toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
                     : (order.verifiedAt ? new Date(order.verifiedAt).toLocaleString() : '');
 
-                // ===== NEW: SERVICE-SPECIFIC BLOCKS =====
                 const oType = getOrderType(order);
                 let serviceBlock = '';
                 if (oType === 'service') {
-                    // Add-ons snapshot
                     let addOnsHtml = '';
                     if (Array.isArray(order.selectedAddOns) && order.selectedAddOns.length) {
-                        addOnsHtml = order.selectedAddOns.map(a => `
-                            <div class="detail-item">
-                                <span><i class="fas ${a.icon || 'fa-puzzle-piece'} text-blue-500 mr-1"></i>${(a.name || 'Add-on').replace(/</g,'&lt;')}</span>
-                                <span class="font-medium">$${(Number(a.price) || 0).toFixed(2)}</span>
-                            </div>
-                        `).join('');
+                        addOnsHtml = order.selectedAddOns.map(a => {
+                            const isPaid = a.paymentStatus === 'paid';
+                            const statusBadge = isPaid
+                                ? '<span class="badge-verified">✓ Paid</span>'
+                                : '<span class="badge-unverified">Pending</span>';
+                            return `
+                                <div class="detail-item">
+                                    <span><i class="fas ${a.icon || 'fa-puzzle-piece'} text-blue-500 mr-1"></i>${(a.name || 'Add-on').replace(/</g,'&lt;')} ${statusBadge}</span>
+                                    <span class="font-medium">$${(Number(a.price) || 0).toFixed(2)}</span>
+                                </div>
+                            `;
+                        }).join('');
                     } else {
                         addOnsHtml = '<div class="text-gray-400 text-sm">No add-ons selected.</div>';
                     }
 
-                    // Design references snapshot
                     let refsHtml = '';
                     if (Array.isArray(order.designReferences) && order.designReferences.length) {
                         refsHtml = order.designReferences.map(r => {
@@ -5949,7 +6348,7 @@
             };
 
             // ==============================================================
-            // CAMPAIGN ORDERS (unchanged)
+            // CAMPAIGN ORDERS
             // ==============================================================
             window.renderCampaignOrdersTable = function() {
                 const body = document.getElementById('campaignOrdersBody');
@@ -6383,7 +6782,7 @@
             };
 
             // ==============================================================
-            // MESSAGES & FIX REQUESTS (unchanged)
+            // MESSAGES & FIX REQUESTS
             // ==============================================================
             const messageList = document.getElementById('messageList');
             let msgSearchQ = '';
@@ -6627,7 +7026,7 @@
             };
 
             // ==============================================================
-            // SETTINGS (unchanged)
+            // SETTINGS
             // ==============================================================
             const settingsForm = document.getElementById('settingsForm');
             const settingsBtn = settingsForm.querySelector('button[type="submit"]');
@@ -6660,7 +7059,7 @@
             });
 
             // ==============================================================
-            // TESTIMONIALS & FAQS (unchanged)
+            // TESTIMONIALS & FAQS
             // ==============================================================
             const testimonialForm = document.getElementById('testimonialForm');
             const testimonialList = document.getElementById('testimonialList');
@@ -6803,7 +7202,7 @@
             };
 
             // ==============================================================
-            // DISCOUNTS (unchanged)
+            // DISCOUNTS
             // ==============================================================
             const discountForm = document.getElementById('discountForm');
             const discountType = document.getElementById('discountType');
@@ -6904,7 +7303,7 @@
             };
 
             // ==============================================================
-            // SUPPORT CHAT (unchanged)
+            // SUPPORT CHAT
             // ==============================================================
             const convListEl = document.getElementById('convList');
             const chatMessagesEl = document.getElementById('chatMessages');
@@ -7204,7 +7603,7 @@
 
 
             // ==============================================================
-            // BANNER AD + CAMPAIGN ADMIN (unchanged)
+            // BANNER AD + CAMPAIGN ADMIN
             // ==============================================================
             (function initBannerAndCampaign() {
                 const bannerStatus = document.getElementById('bannerStatus');
@@ -7590,10 +7989,6 @@
                     if (tab === 'products') {
                         renderProductView();
                     }
-                    if (tab === 'ratings') {
-                        // re-render ratings (already live via snapshot)
-                    }
-                    // NEW: fresh render for new tabs
                     if (tab === 'servicecategories') {
                         populateAddOnCategoryDropdown();
                         renderServiceCategoriesTable();
@@ -7617,7 +8012,7 @@
             });
 
             renderUsersPage(allUsers);
-            console.log('✅ Admin Panel loaded — Service Categories, Add-Ons, Design References tabs added.');
+            console.log('✅ Admin Panel loaded — Service Pricing tab added.');
         }
     </script>
 </body>
