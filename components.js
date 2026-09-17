@@ -1245,9 +1245,11 @@ function setActiveNavLink() {
   if (file === '' || file === 'index.html' || file === 'store') {
     key = 'home';
   } else if (file.includes('get-new-website') || file.includes('product-detail') || file.includes('configure-service')) {
-    key = 'store';
+    key = 'build';
   } else if (file.includes('fix-website')) {
     key = 'fix';
+  } else if (file.includes('mainta')) {
+    key = 'maintenance';
   }
 
   document.querySelectorAll('[data-nav]').forEach(el => {
@@ -1318,8 +1320,9 @@ export function renderNavbar() {
         
         <div class="nav-desktop hidden md:flex items-center">
           <a href="index.html" data-nav="home" class="nav-link text-sm">Home</a>
-          <a href="get-new-website.html" data-nav="store" class="nav-link text-sm">Designs</a>
+          <a href="get-new-website.html" data-nav="build" class="nav-link text-sm">Build</a>
           <a href="fix-website.html" data-nav="fix" class="nav-link text-sm">Fix</a>
+          <a href="mainta.html" data-nav="maintenance" class="nav-link text-sm">Maintenance</a>
           <a href="#" data-nav="contact" onclick="window.handleContactClick(event)" class="nav-link text-sm">Contact</a>
         </div>
 
@@ -1405,8 +1408,9 @@ export function renderNavbar() {
     <div id="mobileMenu" class="fixed top-[72px] md:top-[80px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg z-40 hidden md:hidden overflow-hidden transition-all duration-300 border-b border-gray-100/30" style="max-height:0; opacity:0;">
       <div class="flex flex-col p-4 gap-1">
         <a href="index.html" data-nav="home" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Home</a>
-        <a href="get-new-website.html" data-nav="store" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Designs</a>
+        <a href="get-new-website.html" data-nav="build" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Build</a>
         <a href="fix-website.html" data-nav="fix" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Fix</a>
+        <a href="mainta.html" data-nav="maintenance" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Maintenance</a>
         <a href="#" data-nav="contact" onclick="window.handleContactClick(event)" class="nav-link py-3 px-4 rounded-xl font-medium text-gray-700">Contact</a>
         <div id="mobileAuthButtons" class="hidden flex flex-col gap-2 mt-2 pt-2 border-t border-gray-100">
           <button type="button" onclick="window.openAuthModal('signin'); window.toggleMobileMenu();" class="w-full text-center text-sm font-medium text-gray-700 py-2.5 px-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap">Sign In</button>
@@ -3641,4 +3645,4 @@ window.openImageLightbox = function(url) {
   }
 };
 
-console.log('✅ components.js loaded — agency flow includes fix-website.html; nav label = "Designs".');
+console.log('✅ components.js loaded — agency flow includes fix-website.html; nav label = "Build"; Maintenance added.');
