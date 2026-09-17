@@ -57,7 +57,6 @@
     .status-badge.processing { background: #dbeafe; color: #2563eb; }
     .status-badge.completed { background: #d1fae5; color: #059669; }
     .status-badge.cancelled { background: #fee2e2; color: #dc2626; }
-    /* NEW: service lifecycle */
     .status-badge.reviewing { background: #ede9fe; color: #7c3aed; }
     .status-badge.quoted { background: #fed7aa; color: #d97706; }
     .status-badge.approved { background: #dbeafe; color: #1d4ed8; }
@@ -496,7 +495,7 @@
       .service-order-card .estimate-block { text-align: left; margin-top: 8px; }
     }
 
-    /* ===== MODALS (kept from original) ===== */
+    /* ===== MODALS ===== */
     .skeleton-card {
       background: #f3f4f6;
       border-radius: 16px;
@@ -857,7 +856,7 @@
           </div>
         </div>
 
-        <!-- ===== CAMPAIGN NOTICE (legacy — kept) ===== -->
+        <!-- ===== CAMPAIGN NOTICE ===== -->
         <div id="campaignOrdersNotice" class="hidden mb-6 fade-up">
           <div class="glass-card" style="padding:1rem 1.25rem; border:1px solid rgba(139,92,246,0.2); background:linear-gradient(135deg,rgba(239,246,255,0.9) 0%,rgba(248,250,252,0.95) 100%);">
             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -974,7 +973,7 @@
       updateDoc, deleteDoc, getDocs
     } from './firebase-config.js';
 
-    console.log('📦 my-orders.html loaded (service + legacy unified)');
+    console.log('📦 my-orders.html loaded (service + legacy unified + add-on payments)');
 
     // ================================================================
     // COMMON RENDER
@@ -1033,7 +1032,7 @@
     }
 
     // ================================================================
-    // CONFIRM MODAL (kept from original)
+    // CONFIRM MODAL
     // ================================================================
     let confirmModalResolve = null;
     let confirmRequiresCheckbox = false;
@@ -1096,7 +1095,7 @@
     });
 
     // ================================================================
-    // PASSWORD MODAL (kept for legacy flows)
+    // PASSWORD MODAL
     // ================================================================
     let passwordModalResolve = null;
     window.showPasswordModal = function(title, description) {
@@ -1248,7 +1247,6 @@
       const addOns = Array.isArray(o.selectedAddOns) ? o.selectedAddOns : [];
       const refs = Array.isArray(o.designReferences) ? o.designReferences : [];
 
-      // Total estimate or quote
       const estimateUSD = Number(o.estimateUSD ?? o.total) || 0;
       const quotedUSD = Number(o.quotedPriceUSD) || Number(o.quotedPrice) || 0;
       const hasQuote = quotedUSD > 0 && (status === 'quoted' || status === 'approved' || status === 'processing' || status === 'completed');
@@ -1258,7 +1256,10 @@
       const displayPriceLabel = hasQuote ? 'Quoted' : 'Estimate';
       const displayBDT = Math.round(displayPrice * usdRate);
 
-      // Design ref mini strip (show up to 4)
+      // Unpaid add-ons count
+      const unpaidAddOns = addOns.filter(a => a.paymentStatus !== 'paid').length;
+
+      // Design ref mini strip
       let refStripHtml = '';
       if (refs.length) {
         const refItems = refs.slice(0, 4).map(r => {
@@ -1275,7 +1276,7 @@
         `;
       }
 
-      // Add-on chips (show up to 3)
+      // Add-on chips
       let addonChipsHtml = '';
       if (addOns.length) {
         addonChipsHtml = `
@@ -1292,12 +1293,17 @@
         `;
       }
 
-      // Brief snippet
       const brief = (o.projectDescription || '').trim();
 
       // Actions
       let actionsHtml = '';
       actionsHtml += `<button onclick="viewOrderDetail('${o.id}')" class="btn-action details"><i class="fas fa-eye"></i> Details</button>`;
+
+      // Add "Pay Add-ons" quick action if any unpaid
+      if (unpaidAddOns > 0) {
+        actionsHtml += `<button onclick="viewOrderDetail('${o.id}')" class="btn-action pay-due"><i class="fas fa-credit-card"></i> Pay Add-ons (${unpaidAddOns})</button>`;
+      }
+
       if (status === 'pending' || status === 'reviewing' || status === 'quoted') {
         actionsHtml += `<button onclick="addOrderReference('${o.id}')" class="btn-action add-ref"><i class="fas fa-plus"></i> Add Reference</button>`;
       }
@@ -1315,7 +1321,6 @@
         <div class="glass-card order-card service-order-card fade-up" style="transition-delay: ${(index % 6) * 0.05}s">
           <div class="flex flex-wrap justify-between items-start gap-3">
             <div class="flex-1 min-w-[220px]">
-              <!-- Header row -->
               <div class="service-header">
                 <p class="font-bold text-gray-900 text-lg">#${shortId}</p>
                 <span class="badge-type-service"><i class="fas fa-palette"></i> Service</span>
@@ -1323,17 +1328,13 @@
                   <i class="fas fa-circle" style="font-size:0.4rem;"></i> ${escapeHtml(status)}
                 </span>
               </div>
-              <!-- Meta -->
               <div class="service-meta">
                 ${o.designTemplateName ? `<span><i class="fas fa-drafting-compass"></i>${escapeHtml(o.designTemplateName)}</span>` : ''}
                 ${o.serviceCategoryName ? `<span><i class="fas fa-folder"></i>${escapeHtml(o.serviceCategoryName)}</span>` : ''}
                 <span><i class="far fa-calendar-alt"></i>${date}${time ? ` · ${time}` : ''}</span>
               </div>
-              <!-- Brief snippet -->
               ${brief ? `<p class="brief-snippet">${escapeHtml(brief)}</p>` : ''}
-              <!-- Add-ons -->
               ${addonChipsHtml}
-              <!-- Design refs -->
               ${refStripHtml}
             </div>
             <div class="text-right min-w-[130px]">
@@ -1352,7 +1353,7 @@
     }
 
     // ================================================================
-    // RENDER: STORE ORDER CARD (LEGACY)
+    // RENDER: STORE ORDER CARD
     // ================================================================
     function renderStoreOrderCard(o, index) {
       const status = o.status || 'pending';
@@ -1413,7 +1414,7 @@
     }
 
     // ================================================================
-    // RENDER: CAMPAIGN ORDER CARD (LEGACY — kept for completeness)
+    // RENDER: CAMPAIGN ORDER CARD
     // ================================================================
     function renderCampaignOrderCard(o, index) {
       const status = o.status || 'pending';
@@ -1510,15 +1511,12 @@
       const status = statusFilter.value;
       const type = typeFilter.value;
 
-      // Hide campaign notice — campaign orders now show inline as cards
       const notice = document.getElementById('campaignOrdersNotice');
       if (notice) notice.classList.add('hidden');
 
       filteredOrders = allOrders.filter(o => {
-        // Type filter
         if (type !== 'all' && getOrderType(o) !== type) return false;
 
-        // Search
         if (search) {
           const id = (o.id || '').toLowerCase();
           const template = (o.designTemplateName || '').toLowerCase();
@@ -1536,7 +1534,6 @@
           if (!matches) return false;
         }
 
-        // Status filter
         if (status !== 'all') {
           const s = (o.status || 'pending').toLowerCase();
           if (s !== status) return false;
@@ -1562,7 +1559,7 @@
     typeFilter.addEventListener('change', applyFilters);
 
     // ================================================================
-    // FORCE RELOAD (legacy fallback — kept)
+    // FORCE RELOAD
     // ================================================================
     window.forceReloadOrders = async function() {
       if (!currentUser) { showToast('Not logged in', 'error'); return; }
@@ -1629,24 +1626,43 @@
       }
     };
 
-    // ===== SERVICE ORDER DETAIL =====
+    // ================================================================
+    // SERVICE ORDER DETAIL — with Payments & History + Add-on Payment
+    // ================================================================
     function renderServiceOrderDetail(o) {
       const content = document.getElementById('orderDetailContent');
       const status = (o.status || 'pending').toLowerCase();
       const dateStr = formatDateTime(o.createdAt);
       const shortId = (o.id || '').slice(0, 10).toUpperCase();
+      const usdRate = Number(o.usdRate) > 0 ? Number(o.usdRate) : 125;
 
-      // Add-ons block
+      // Add-ons block — with per-item payment status
       const addOns = Array.isArray(o.selectedAddOns) ? o.selectedAddOns : [];
       const addOnsTotal = addOns.reduce((s, a) => s + (Number(a.price) || 0), 0);
+      const paidAddOns = addOns.filter(a => a.paymentStatus === 'paid');
+      const pendingAddOns = addOns.filter(a => a.paymentStatus !== 'paid');
+      const paidAddOnsTotal = paidAddOns.reduce((s, a) => s + (Number(a.price) || 0), 0);
+      const pendingAddOnsTotal = pendingAddOns.reduce((s, a) => s + (Number(a.price) || 0), 0);
+
       let addOnsHtml = '';
       if (addOns.length) {
-        addOnsHtml = addOns.map(a => `
-          <div class="sd-addon-row">
-            <span class="an"><i class="fas ${a.icon || 'fa-puzzle-piece'}"></i>${escapeHtml(a.name || 'Add-on')}</span>
-            <span class="ap">$${(Number(a.price) || 0).toFixed(2)}</span>
-          </div>
-        `).join('');
+        addOnsHtml = addOns.map((a, idx) => {
+          const isPaid = a.paymentStatus === 'paid';
+          const statusBadge = isPaid
+            ? `<span style="font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(22,163,74,0.12);color:#16a34a;">✓ Paid</span>`
+            : `<span style="font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(217,119,6,0.12);color:#d97706;">Pending</span>`;
+
+          return `
+            <div class="sd-addon-row" style="gap:10px;">
+              <span class="an" style="flex:1;">
+                <i class="fas ${a.icon || 'fa-puzzle-piece'}"></i>
+                <span style="flex:1;">${escapeHtml(a.name || 'Add-on')}</span>
+                ${statusBadge}
+              </span>
+              <span class="ap">$${(Number(a.price) || 0).toFixed(2)}</span>
+            </div>
+          `;
+        }).join('');
       } else {
         addOnsHtml = '<p style="color:#94a3b8;font-size:0.85rem;margin:0;">No add-ons selected.</p>';
       }
@@ -1704,7 +1720,7 @@
       // Summary block
       const basePrice = Number(o.basePrice) || 0;
       const estimateUSD = Number(o.estimateUSD ?? o.total) || 0;
-      const estimateBDT = Number(o.estimateBDT) || Math.round(estimateUSD * (Number(o.usdRate) || 125));
+      const estimateBDT = Number(o.estimateBDT) || Math.round(estimateUSD * usdRate);
       const quotedUSD = Number(o.quotedPriceUSD) || Number(o.quotedPrice) || 0;
       const hasQuote = quotedUSD > 0;
 
@@ -1716,7 +1732,102 @@
             <span>${hasQuote ? 'Quoted total' : 'Estimated total'}</span>
             <span class="amount">$${(hasQuote ? quotedUSD : estimateUSD).toFixed(2)}</span>
           </div>
-          <div class="bdt">≈ <strong>৳${(hasQuote ? Math.round(quotedUSD * (Number(o.usdRate) || 125)) : estimateBDT).toLocaleString('en-BD')}</strong></div>
+          <div class="bdt">≈ <strong>৳${(hasQuote ? Math.round(quotedUSD * usdRate) : estimateBDT).toLocaleString('en-BD')}</strong></div>
+        </div>
+      `;
+
+      // ══════════════════════════════════════════════════════════════
+      // PAYMENTS & HISTORY section
+      // ══════════════════════════════════════════════════════════════
+      const advancePaidUSD = Number(o.amountUSD) || Number(o.advancePaymentUSD) || 0;
+      const advancePaidBDT = Number(o.amountBDT) || Number(o.advancePaymentBDT) || 0;
+      const advanceVerified = !!o.paymentVerified;
+
+      const addOnsDueUSD = pendingAddOnsTotal;
+      const addOnsDueBDT = Math.round(addOnsDueUSD * usdRate);
+
+      let paymentsHistoryHtml = `
+        <div class="sd-block" style="background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(124,58,237,0.04)); border:1px solid rgba(37,99,235,0.12);">
+          <h4 style="color:#2563eb;"><i class="fas fa-receipt" style="color:#2563eb;"></i> Payments &amp; History</h4>
+
+          <!-- Base package advance -->
+          <div style="padding:12px 14px; background:#fff; border-radius:12px; margin-bottom:8px; border:1px solid rgba(15,23,42,0.05);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px;">
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; color:#0f172a; font-size:0.9rem;">Base Package Advance</div>
+                <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">Paid at submission · initiates your project</div>
+              </div>
+              <div style="text-align:right; flex-shrink:0;">
+                <div style="font-weight:800; color:${advanceVerified ? '#16a34a' : '#d97706'}; font-size:1.05rem;">$${advancePaidUSD.toFixed(2)}</div>
+                <div style="font-size:0.72rem; color:#94a3b8;">৳${advancePaidBDT.toLocaleString('en-BD')}</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; padding-top:6px; border-top:1px dashed rgba(15,23,42,0.08);">
+              ${advanceVerified
+                ? `<span style="font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:999px; background:rgba(22,163,74,0.12); color:#16a34a;"><i class="fas fa-check-circle"></i> Verified by admin</span>`
+                : `<span style="font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:999px; background:rgba(217,119,6,0.12); color:#d97706;"><i class="fas fa-clock"></i> Awaiting verification</span>`}
+              ${o.transactionId ? `<span style="font-size:0.7rem; color:#64748b; padding:3px 8px;">Txn: ${escapeHtml(o.transactionId)}</span>` : ''}
+              ${o.paymentMethod ? `<span style="font-size:0.7rem; color:#64748b; padding:3px 8px;">via ${escapeHtml(o.paymentMethod)}</span>` : ''}
+            </div>
+          </div>
+
+          <!-- Add-ons payments -->
+          ${addOns.length ? `
+            <div style="padding:12px 14px; background:#fff; border-radius:12px; border:1px solid rgba(15,23,42,0.05);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-weight:700; color:#0f172a; font-size:0.9rem;">Add-ons Payment</div>
+                <div style="font-size:0.72rem; color:#64748b;">${paidAddOns.length}/${addOns.length} paid</div>
+              </div>
+              <div style="font-size:0.78rem; color:#64748b; line-height:1.55; margin-bottom:10px;">
+                Pay each add-on individually after its work is completed. Click <strong>Pay Now</strong> next to any pending item.
+              </div>
+
+              ${addOns.map((a, i) => {
+                const isPaid = a.paymentStatus === 'paid';
+                const priceUSD = Number(a.price) || 0;
+                const priceBDT = Math.round(priceUSD * usdRate);
+                return `
+                  <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 0; ${i > 0 ? 'border-top:1px dashed rgba(15,23,42,0.06);' : ''}">
+                    <div style="flex:1; min-width:0;">
+                      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <i class="fas ${a.icon || 'fa-puzzle-piece'}" style="color:${isPaid ? '#16a34a' : '#2563eb'}; font-size:0.85rem;"></i>
+                        <span style="font-weight:600; color:#0f172a; font-size:0.88rem;">${escapeHtml(a.name || 'Add-on')}</span>
+                        ${isPaid
+                          ? `<span style="font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(22,163,74,0.12); color:#16a34a;">Paid</span>`
+                          : `<span style="font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(217,119,6,0.12); color:#d97706;">Pending</span>`}
+                      </div>
+                      ${isPaid && a.paidAt
+                        ? `<div style="font-size:0.7rem; color:#94a3b8; margin-top:3px;">Paid ${formatDateTime(a.paidAt)}${a.paymentTxnId ? ' · Txn: ' + escapeHtml(a.paymentTxnId) : ''}</div>`
+                        : `<div style="font-size:0.7rem; color:#94a3b8; margin-top:3px;">$${priceUSD.toFixed(2)} · ৳${priceBDT.toLocaleString('en-BD')}</div>`}
+                    </div>
+                    <div style="text-align:right; flex-shrink:0;">
+                      ${isPaid
+                        ? `<div style="font-weight:800; color:#16a34a; font-size:0.95rem;">$${priceUSD.toFixed(2)}</div>`
+                        : `<button type="button" onclick="payAddOn('${o.id}', ${i})" class="btn-primary" style="font-size:0.72rem; padding:6px 12px; min-height:auto; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706);">
+                             <i class="fas fa-credit-card"></i> Pay $${priceUSD.toFixed(0)}
+                           </button>`}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+
+              ${pendingAddOns.length > 0 ? `
+                <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(15,23,42,0.08); display:flex; justify-content:space-between; font-size:0.85rem;">
+                  <span style="color:#64748b;">Total due</span>
+                  <span style="font-weight:800; color:#d97706;">$${addOnsDueUSD.toFixed(2)} <span style="font-size:0.72rem; color:#94a3b8; font-weight:600;">(৳${addOnsDueBDT.toLocaleString('en-BD')})</span></span>
+                </div>
+              ` : `
+                <div style="margin-top:12px; padding:8px 12px; background:rgba(22,163,74,0.08); border-radius:8px; font-size:0.78rem; color:#16a34a; font-weight:600; text-align:center;">
+                  <i class="fas fa-check-circle"></i> All add-ons paid
+                </div>
+              `}
+            </div>
+          ` : ''}
+
+          <div style="margin-top:10px; padding:10px 12px; background:rgba(37,99,235,0.05); border-radius:10px; font-size:0.72rem; color:#475569; line-height:1.5; display:flex; gap:8px;">
+            <i class="fas fa-info-circle" style="color:#2563eb; margin-top:2px; flex-shrink:0;"></i>
+            <span>Payments are verified by our team within 24 hours. If a payment doesn't update, please contact support.</span>
+          </div>
         </div>
       `;
 
@@ -1725,15 +1836,8 @@
       let timelineHtml = '<p style="color:#94a3b8;font-size:0.85rem;margin:0;">No status updates yet.</p>';
       if (history.length || o.createdAt) {
         const items = [];
-        // Initial
-        items.push({
-          status: history[0]?.status || 'pending',
-          at: o.createdAt
-        });
-        history.forEach(h => items.push({
-          status: h.status,
-          at: h.changedAt || h.at
-        }));
+        items.push({ status: history[0]?.status || 'pending', at: o.createdAt });
+        history.forEach(h => items.push({ status: h.status, at: h.changedAt || h.at }));
         timelineHtml = `
           <ul class="sd-timeline">
             ${items.map(it => `
@@ -1746,7 +1850,7 @@
         `;
       }
 
-      // Quoted info
+      // Quote block
       let quoteBlock = '';
       if (hasQuote && (status === 'quoted' || status === 'approved')) {
         quoteBlock = `
@@ -1764,7 +1868,6 @@
       }
 
       content.innerHTML = `
-        <!-- Header -->
         <div class="flex flex-wrap justify-between items-start gap-3">
           <div>
             <p class="text-sm text-gray-500">Service Request</p>
@@ -1778,7 +1881,6 @@
           </div>
         </div>
 
-        <!-- Meta -->
         <div class="grid grid-cols-2 gap-4">
           <div>
             <p class="text-sm text-gray-500">Submitted</p>
@@ -1809,7 +1911,6 @@
 
         ${quoteBlock}
 
-        <!-- Brief -->
         ${o.projectDescription ? `
           <div class="sd-block">
             <h4><i class="fas fa-clipboard-list"></i> Project Brief</h4>
@@ -1817,24 +1918,22 @@
           </div>
         ` : ''}
 
-        <!-- Add-ons -->
         <div class="sd-block">
           <h4><i class="fas fa-puzzle-piece"></i> Add-ons (${addOns.length})</h4>
           ${addOnsHtml}
         </div>
 
-        <!-- Design references -->
         <div class="sd-block">
           <h4><i class="fas fa-palette"></i> Design References (${refs.length})</h4>
           ${refsHtml}
         </div>
 
-        <!-- Summary -->
+        ${paymentsHistoryHtml}
+
         <div class="sd-block" style="padding:0;background:transparent;border:none;">
           ${summaryHtml}
         </div>
 
-        <!-- Timeline -->
         <div class="sd-block">
           <h4><i class="fas fa-history"></i> Status Timeline</h4>
           ${timelineHtml}
@@ -1844,7 +1943,9 @@
       document.getElementById('detailOrderTitle').textContent = `Service Request #${shortId}`;
     }
 
-    // ===== LEGACY STORE ORDER DETAIL =====
+    // ================================================================
+    // LEGACY STORE ORDER DETAIL
+    // ================================================================
     function renderLegacyOrderDetail(o) {
       const content = document.getElementById('orderDetailContent');
       const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
@@ -1983,7 +2084,63 @@
     });
 
     // ================================================================
-    // PAY DUE (legacy — store orders only)
+    // PAY AN ADD-ON (individually)
+    // ================================================================
+    window.payAddOn = async (orderId, addOnIndex) => {
+      const order = allOrders.find(o => o.id === orderId) || (currentOrderData && currentOrderData.id === orderId ? currentOrderData : null);
+      if (!order) { showToast('Order not found', 'error'); return; }
+      const addOns = Array.isArray(order.selectedAddOns) ? [...order.selectedAddOns] : [];
+      const target = addOns[addOnIndex];
+      if (!target) { showToast('Add-on not found', 'error'); return; }
+      if (target.paymentStatus === 'paid') {
+        showToast('This add-on is already paid.', 'info');
+        return;
+      }
+
+      const priceUSD = Number(target.price) || 0;
+      const usdRate = Number(order.usdRate) > 0 ? Number(order.usdRate) : 125;
+      const priceBDT = Math.round(priceUSD * usdRate);
+
+      // Load payment settings
+      let settings = {};
+      try {
+        const snap = await getDoc(doc(db, 'settings', 'payment'));
+        settings = snap.exists() ? snap.data() : {};
+      } catch (_) {}
+
+      if (typeof window.openDuePaymentModal !== 'function') {
+        showToast('Payment system not ready. Please refresh.', 'error');
+        return;
+      }
+
+      // Store context (components.js reads `_addOnMode` + `_addOnIndex`)
+      window._addOnPaymentContext = {
+        orderId,
+        addOnIndex,
+        addOnName: target.name,
+        priceUSD,
+        priceBDT
+      };
+
+      // Close order detail modal before opening payment
+      window.closeOrderDetail();
+
+      // Open payment modal for the add-on amount
+      window.openDuePaymentModal(
+        orderId,
+        priceUSD,
+        priceBDT,
+        settings,
+        {
+          ...order,
+          _addOnMode: true,
+          _addOnIndex: addOnIndex
+        }
+      );
+    };
+
+    // ================================================================
+    // PAY DUE (store orders)
     // ================================================================
     window.payDue = async (orderId) => {
       const order = allOrders.find(o => o.id === orderId);
@@ -2018,7 +2175,7 @@
     };
 
     // ================================================================
-    // CANCEL ORDER (store orders — pending only; service orders — pending only)
+    // CANCEL ORDER
     // ================================================================
     window.deleteOrder = async (orderId) => {
       const order = allOrders.find(o => o.id === orderId);
@@ -2027,7 +2184,6 @@
       const status = (order.status || 'pending').toLowerCase();
       const type = getOrderType(order);
 
-      // Service order — simpler cancel flow (pending only)
       if (type === 'service') {
         if (status !== 'pending') {
           showToast('Only pending service requests can be cancelled. Contact support if you need to change it.', 'warning');
@@ -2051,7 +2207,6 @@
         return;
       }
 
-      // Legacy store order — keep original logic
       if (status !== 'pending') {
         showToast('Only pending orders can be cancelled. No refund during processing/development.', 'warning');
         return;
@@ -2088,7 +2243,7 @@
     };
 
     // ================================================================
-    // SERVICE: ADD REFERENCE TO EXISTING ORDER
+    // SERVICE: ADD REFERENCE
     // ================================================================
     window.addOrderReference = async (orderId) => {
       const order = allOrders.find(o => o.id === orderId);
@@ -2103,7 +2258,6 @@
         serviceCategoryId: order.serviceCategoryId || null,
         serviceCategoryName: order.serviceCategoryName || '',
         onSave: async (payload) => {
-          // 1. Save doc in designReferences
           const res = await saveDesignReference({
             ...payload,
             orderId: orderId,
@@ -2112,7 +2266,6 @@
           });
           if (!res.success) throw new Error(res.error || 'Failed to save reference.');
 
-          // 2. Append to order's designReferences array
           const existing = Array.isArray(order.designReferences) ? [...order.designReferences] : [];
           existing.push({
             id: res.id,
@@ -2128,7 +2281,6 @@
           });
 
           showToast('✅ Reference added to your request.', 'success');
-          // onSnapshot will refresh the list automatically
         }
       });
     };
@@ -2176,7 +2328,7 @@
     };
 
     // ================================================================
-    // INVOICE & PRINT (kept from original — works for both)
+    // INVOICE & PRINT
     // ================================================================
     window.downloadInvoice = () => {
       const o = currentOrderData;
@@ -2285,7 +2437,7 @@ Thank you for choosing CodeCureBD!
     };
 
     // ================================================================
-    // LOAD ORDERS — onSnapshot with fallback
+    // LOAD ORDERS
     // ================================================================
     function loadOrders(userId) {
       if (!userId) {
@@ -2326,7 +2478,6 @@ Thank you for choosing CodeCureBD!
         fallbackLoadOrders(userId);
       });
 
-      // Timeout fallback
       setTimeout(() => {
         if (allOrders.length === 0 && !isLoading) {
           console.log('⏳ onSnapshot seems stuck, trying fallback...');
@@ -2384,10 +2535,9 @@ Thank you for choosing CodeCureBD!
       const role = userDoc.exists() ? userDoc.data().role : 'user';
       updateNavbarAuth(user, displayName, role);
 
-      // Load orders — do NOT call syncCart here (prevents cart restore after payment)
       loadOrders(user.uid);
 
-      // Safety: clear any lingering local cart
+      // Safety: clear lingering local cart
       const localCart = JSON.parse(localStorage.getItem('cart')) || [];
       if (localCart.length > 0) {
         console.log('⚠️ Clearing lingering cart on my-orders page');
@@ -2401,7 +2551,7 @@ Thank you for choosing CodeCureBD!
       if (unsubOrders) unsubOrders();
     });
 
-    console.log('📦 My Orders page ready — service + store + campaign unified.');
+    console.log('📦 My Orders page ready — Payments & History + per-add-on pay.');
   </script>
 </body>
 </html>
