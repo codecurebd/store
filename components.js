@@ -21,7 +21,7 @@ export function isAgencyServiceFlow() {
       'get-new-website.html',
       'configure-service.html',
       'design-reference.html',
-      'fix-website.html'   // ← ADDED: Fix flow is part of agency suite
+      'fix-website.html'
     ];
     return AGENCY_PAGES.includes(file);
   } catch {
@@ -180,9 +180,14 @@ export async function submitServiceRequest(payload) {
         id: a.id,
         name: a.name,
         price: Number(a.price) || 0,
-        icon: a.icon || 'fa-puzzle-piece'
+        icon: a.icon || 'fa-puzzle-piece',
+        paymentStatus: 'pending',
+        paidAt: null,
+        paymentTxnId: null,
+        paymentMethod: null
       })),
       addOnsTotal,
+      addOnsPaymentLater: true,
       designReferences: (payload.designReferences || []).map(r => ({
         id: r.id || null,
         type: r.type || 'url',
@@ -556,7 +561,7 @@ window.__ccbdCloseDesignRefModal = function() {
 
 
 // ================================================================
-// ✅ NOTIFICATIONS (unchanged)
+// ✅ NOTIFICATIONS
 // ================================================================
 let unreadAdminMessages = [];
 let displayMessages = [];
@@ -1664,8 +1669,9 @@ export function renderFooter() {
             <h4 class="font-semibold text-gray-700 mb-3">Quick Links</h4>
             <div class="space-y-1 text-sm">
               <a href="index.html" class="block hover:text-blue-600 transition-colors">Home</a>
-              <a href="get-new-website.html" class="block hover:text-blue-600 transition-colors">Designs</a>
+              <a href="get-new-website.html" class="block hover:text-blue-600 transition-colors">Build</a>
               <a href="fix-website.html" class="block hover:text-blue-600 transition-colors">Fix</a>
+              <a href="mainta.html" class="block hover:text-blue-600 transition-colors">Maintenance</a>
               <a href="messages.html" class="block hover:text-blue-600 transition-colors">Support Chat</a>
             </div>
           </div>
@@ -1951,6 +1957,9 @@ export function renderPaymentModal() {
       const dueData = window._duePaymentData;
       const orderId = document.getElementById('paymentOrderId').value;
 
+      // ══════════════════════════════════════════════════════════════
+      // DUE PAYMENT MODE (Add-on payment + general due payment)
+      // ══════════════════════════════════════════════════════════════
       if (isDueMode && dueData) {
         const method = document.getElementById('paymentMethodSelect').value;
         const txnId = document.getElementById('transactionId').value.trim();
@@ -2035,6 +2044,38 @@ export function renderPaymentModal() {
             } : {})
           });
 
+          // ══════════════════════════════════════════════════════════
+          // NEW: ADD-ON SPECIFIC PAYMENT HANDLING
+          // If this due payment was for a specific add-on, mark it paid
+          // ══════════════════════════════════════════════════════════
+          if (dueData.orderData && dueData.orderData._addOnMode && typeof dueData.orderData._addOnIndex === 'number') {
+            try {
+              const currentOrderSnap = await getDoc(orderRef);
+              if (currentOrderSnap.exists()) {
+                const currentData = currentOrderSnap.data();
+                const updatedAddOns = Array.isArray(currentData.selectedAddOns)
+                  ? [...currentData.selectedAddOns]
+                  : [];
+                const idx = dueData.orderData._addOnIndex;
+                if (updatedAddOns[idx]) {
+                  updatedAddOns[idx] = {
+                    ...updatedAddOns[idx],
+                    paymentStatus: 'paid',
+                    paidAt: new Date().toISOString(),
+                    paymentTxnId: txnId,
+                    paymentMethod: method
+                  };
+                }
+                await updateDoc(orderRef, {
+                  selectedAddOns: updatedAddOns,
+                  updatedAt: serverTimestamp()
+                });
+              }
+            } catch (err) {
+              console.warn('Add-on payment update failed:', err);
+            }
+          }
+
           window.showToast('✅ Due payment successful! Order updated.', 'success');
           window.closePaymentModal();
           window._duePaymentData = null;
@@ -2045,6 +2086,141 @@ export function renderPaymentModal() {
 
         } catch (err) {
           console.error('Due payment error:', err);
+          errorDiv.textContent = '⚠️ ' + err.message;
+          errorDiv.classList.remove('hidden');
+          window.showToast('⚠️ ' + err.message, 'error');
+        } finally {
+          setLoading(btn, false);
+        }
+        return;
+      }
+
+      // ══════════════════════════════════════════════════════════════
+      // SERVICE ADVANCE PAYMENT MODE
+      // When user submits configure-service.html, base package only
+      // is charged as advance. Add-ons are paid later per-item.
+      // ══════════════════════════════════════════════════════════════
+      const _pendingSvc = window._pendingCheckoutData;
+      if (_pendingSvc && _pendingSvc.type === 'service' && _pendingSvc.isServiceAdvance && _pendingSvc._servicePayload) {
+        const method = document.getElementById('paymentMethodSelect').value;
+        const txnId = document.getElementById('transactionId').value.trim();
+        const senderNumber = document.getElementById('paymentSenderNumber').value.trim();
+        const errorDiv = document.getElementById('paymentError');
+        errorDiv.classList.add('hidden');
+        document.querySelectorAll('#paymentForm .form-input').forEach(el => el.classList.remove('error'));
+
+        // Validation
+        if (!method) {
+          errorDiv.textContent = '⚠️ Please select a payment method.';
+          errorDiv.classList.remove('hidden');
+          methodSelect.classList.add('error');
+          return;
+        }
+        if (method === 'USDT') {
+          if (!senderNumber || senderNumber.length < 10) {
+            errorDiv.textContent = '⚠️ Please enter your valid BEP20 sender address.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('paymentSenderNumber').classList.add('error');
+            return;
+          }
+          if (!txnId || txnId.length < 5) {
+            errorDiv.textContent = '⚠️ Please enter a valid USDT transaction ID.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('transactionId').classList.add('error');
+            return;
+          }
+        } else {
+          if (!senderNumber) {
+            errorDiv.textContent = '⚠️ Please enter the number you paid from.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('paymentSenderNumber').classList.add('error');
+            return;
+          }
+          if (!txnId) {
+            errorDiv.textContent = '⚠️ Please enter transaction ID.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('transactionId').classList.add('error');
+            return;
+          }
+        }
+
+        if (!auth.currentUser) {
+          errorDiv.textContent = '⚠️ You are not logged in.';
+          errorDiv.classList.remove('hidden');
+          return;
+        }
+
+        const sp = _pendingSvc._servicePayload;
+        const rate = Number(sp.usdRate) > 0 ? Number(sp.usdRate) : 125;
+        const baseUSD = Number(sp.basePrice) || 0;
+        const baseBDT = Math.round(baseUSD * rate);
+        const addOnsUSD = Number(sp.addOnsTotal) || 0;
+        const addOnsBDT = Math.round(addOnsUSD * rate);
+
+        const btn = document.getElementById('paymentSubmitBtn');
+        setLoading(btn, true, 'Submitting…');
+
+        try {
+          const orderData = {
+            userId: auth.currentUser.uid,
+            userEmail: auth.currentUser.email || '',
+            userName: sp.userName || auth.currentUser.email?.split('@')[0] || 'Customer',
+            type: 'service',
+            orderType: 'service',
+            serviceCategoryId: sp.serviceCategoryId || null,
+            serviceCategoryName: sp.serviceCategoryName || '',
+            designTemplateId: sp.designTemplateId || null,
+            designTemplateName: sp.designTemplateName || '',
+            basePrice: baseUSD,
+            // Each add-on has its own payment status
+            selectedAddOns: (sp.selectedAddOns || []).map(a => ({
+              id: a.id,
+              name: a.name,
+              price: Number(a.price) || 0,
+              icon: a.icon || 'fa-puzzle-piece',
+              paymentStatus: 'pending',
+              paidAt: null,
+              paymentTxnId: null,
+              paymentMethod: null
+            })),
+            addOnsTotal: addOnsUSD,
+            addOnsPaymentLater: true,
+            designReferences: sp.designReferences || [],
+            projectDescription: sp.projectDescription || '',
+            total: Number(sp.totalUSD) || (baseUSD + addOnsUSD),
+            estimateUSD: Number(sp.totalUSD) || (baseUSD + addOnsUSD),
+            estimateBDT: Number(sp.totalBDT) || Math.round((baseUSD + addOnsUSD) * rate),
+            advancePaymentUSD: baseUSD,
+            advancePaymentBDT: baseBDT,
+            amountUSD: baseUSD,
+            amountBDT: baseBDT,
+            dueAmountUSD: addOnsUSD,
+            dueAmountBDT: addOnsBDT,
+            usdRate: rate,
+            status: 'pending',
+            paymentMethod: method,
+            paymentType: 'advance',
+            transactionId: txnId,
+            senderNumber: senderNumber,
+            paymentVerified: false,
+            quoteRequested: true,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          };
+          if (method === 'USDT') orderData.senderAddress = senderNumber;
+
+          const ref = await addDoc(collection(db, 'orders'), orderData);
+
+          window.showToast('✅ Service request submitted! We\'ll review it soon.', 'success');
+          window.closePaymentModal();
+          window._pendingCheckoutData = null;
+
+          // Trigger success callback from configure page
+          if (typeof _pendingSvc.onSuccess === 'function') {
+            _pendingSvc.onSuccess({ orderId: ref.id, orderData });
+          }
+        } catch (err) {
+          console.error('Service advance payment error:', err);
           errorDiv.textContent = '⚠️ ' + err.message;
           errorDiv.classList.remove('hidden');
           window.showToast('⚠️ ' + err.message, 'error');
@@ -2309,7 +2485,21 @@ export function openPaymentModal(data) {
 
   document.getElementById('paymentModal').dataset.duemode = 'false';
 
-  if (data && data.type === 'campaign') {
+  // Service advance payment — force full (base only), disable Pay Later
+  if (data && data.type === 'service' && data.isServiceAdvance) {
+    const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
+    const advanceRadio = document.querySelector('input[name="paymentType"][value="advance"]');
+    if (fullRadio) {
+      fullRadio.checked = true;
+      fullRadio.disabled = false;
+      if (fullRadio.closest('label')) fullRadio.closest('label').style.display = '';
+    }
+    if (advanceRadio) {
+      advanceRadio.disabled = true;
+      advanceRadio.checked = false;
+      if (advanceRadio.closest('label')) advanceRadio.closest('label').style.display = 'none';
+    }
+  } else if (data && data.type === 'campaign') {
     const fullOpt = document.querySelector('input[name="paymentType"][value="full"]');
     const advOpt = document.querySelector('input[name="paymentType"][value="advance"]');
     if (fullOpt) {
@@ -2328,15 +2518,19 @@ export function openPaymentModal(data) {
     }
   }
 
-  document.querySelectorAll('input[name="paymentType"]').forEach(el => {
-    if (el.value === 'advance') {
-      el.disabled = false;
-      el.closest('label').style.display = '';
-    }
-  });
+  if (!(data && data.type === 'service' && data.isServiceAdvance)) {
+    document.querySelectorAll('input[name="paymentType"]').forEach(el => {
+      if (el.value === 'advance') {
+        el.disabled = false;
+        if (el.closest('label')) el.closest('label').style.display = '';
+      }
+    });
+  }
 
-  const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
-  if (fullRadio) fullRadio.checked = true;
+  if (!(data && data.type === 'campaign')) {
+    const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
+    if (fullRadio) fullRadio.checked = true;
+  }
 
   document.getElementById('paymentOrderId').value = '';
   document.getElementById('paymentTotalUSD').textContent = '$' + _paymentOrderTotalUSD.toFixed(2);
@@ -2510,6 +2704,7 @@ window.updatePaymentMethodUI = function() {
 
   const pending = window._pendingCheckoutData;
   const isCampaign = pending && pending.type === 'campaign';
+  const isServiceAdv = pending && pending.type === 'service' && pending.isServiceAdvance;
   const campaignAdvanceBDT = isCampaign
     ? (Number(pending.amountBDT) || Number(pending.totalBDT) || 500)
     : 500;
@@ -2523,7 +2718,7 @@ window.updatePaymentMethodUI = function() {
   let payableBDT = totalBDT;
   let payableUSD = totalUSD;
 
-  if (paymentType === 'advance' && !isDueMode) {
+  if (paymentType === 'advance' && !isDueMode && !isServiceAdv) {
     payableBDT = campaignAdvanceBDT;
     payableUSD = campaignAdvanceUSD;
   }
@@ -2533,6 +2728,8 @@ window.updatePaymentMethodUI = function() {
     let bdtText;
     if (isDueMode) {
       bdtText = '৳' + totalBDT.toLocaleString('en-BD') + ' (Due)';
+    } else if (isServiceAdv) {
+      bdtText = '৳' + totalBDT.toLocaleString('en-BD') + ' (Base Advance)';
     } else if (paymentType === 'advance') {
       bdtText = '৳' + payableBDT.toLocaleString('en-BD') + ' (Advance)';
     } else {
@@ -2543,6 +2740,8 @@ window.updatePaymentMethodUI = function() {
     rateNote.classList.remove('hidden');
     if (isDueMode) {
       rateNote.textContent = `Due Payment: Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
+    } else if (isServiceAdv) {
+      rateNote.textContent = `Base Package Advance: ৳${totalBDT.toLocaleString('en-BD')} · Add-ons paid later from My Orders`;
     } else if (paymentType === 'advance') {
       const dueBase = isCampaign ? campaignFullBDT : totalBDT;
       const dueBDT = Math.max(0, dueBase - payableBDT);
@@ -2600,6 +2799,8 @@ window.updatePaymentMethodUI = function() {
     rateNote.classList.remove('hidden');
     if (isDueMode) {
       rateNote.textContent = `Due payment: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+    } else if (isServiceAdv) {
+      rateNote.textContent = `Base Package Advance: $${totalUSD.toFixed(2)} USD (send exactly this amount on BEP20)`;
     } else if (paymentType === 'advance') {
       const dueUSD = Math.max(0, Number((totalUSD - payableUSD).toFixed(2)));
       rateNote.textContent = `Advance Payment: $${payableUSD.toFixed(2)} USD · Remaining Due: $${dueUSD.toFixed(2)} USD`;
@@ -3645,4 +3846,4 @@ window.openImageLightbox = function(url) {
   }
 };
 
-console.log('✅ components.js loaded — agency flow includes fix-website.html; nav label = "Build"; Maintenance added.');
+console.log('✅ components.js loaded — Service advance payment + add-on payment modes active.');

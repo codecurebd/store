@@ -106,8 +106,19 @@
             gap: 1.5rem;
             align-items: start;
         }
+        .cfg-layout > aside {
+            align-self: stretch;
+        }
         @media (max-width: 980px) {
             .cfg-layout { grid-template-columns: 1fr; }
+            .cfg-layout > aside { align-self: auto; }
+            /* Mobile: estimate stays in flow, no sticky */
+            .price-summary {
+                position: static !important;
+                top: auto !important;
+                max-height: none !important;
+                overflow-y: visible !important;
+            }
         }
 
         .cfg-panel {
@@ -135,7 +146,6 @@
             line-height: 1.55;
         }
 
-        /* ===== DESIGN PREVIEW / CUSTOM INFO ===== */
         .cfg-preview {
             background: #f1f5f9;
             border: 1px solid rgba(15,23,42,0.06);
@@ -168,7 +178,6 @@
         }
         .cfg-preview .preview-empty i { font-size: 2.25rem; opacity: 0.4; }
 
-        /* ===== CUSTOM BASE PACKAGE CARD ===== */
         .custom-base-card {
             background:
                 radial-gradient(ellipse 70% 60% at 100% 0%, rgba(37,99,235,0.08), transparent 55%),
@@ -179,103 +188,56 @@
             padding: 1.5rem 1.5rem 1.35rem;
         }
         .custom-base-card .cbc-head {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 14px; margin-bottom: 1rem;
         }
         .custom-base-card .cbc-head .cbc-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
+            width: 52px; height: 52px; border-radius: 14px;
             background: linear-gradient(135deg, #2563eb, #7c3aed);
-            color: #fff;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: 0 6px 20px rgba(37,99,235,0.25);
-            flex-shrink: 0;
+            color: #fff; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; box-shadow: 0 6px 20px rgba(37,99,235,0.25); flex-shrink: 0;
         }
         .custom-base-card .cbc-head .cbc-text h3 {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: -0.02em;
-            margin: 0 0 2px;
+            font-size: 1.15rem; font-weight: 800; color: #0f172a;
+            letter-spacing: -0.02em; margin: 0 0 2px;
         }
         .custom-base-card .cbc-head .cbc-text p {
-            font-size: 0.84rem;
-            color: #64748b;
-            margin: 0;
-            line-height: 1.45;
+            font-size: 0.84rem; color: #64748b; margin: 0; line-height: 1.45;
         }
         .custom-base-card .cbc-price {
-            margin-left: auto;
-            text-align: right;
-            flex-shrink: 0;
+            margin-left: auto; text-align: right; flex-shrink: 0;
         }
         .custom-base-card .cbc-price .amt {
-            font-size: 1.9rem;
-            font-weight: 800;
-            color: #2563eb;
-            letter-spacing: -0.03em;
-            line-height: 1;
+            font-size: 1.9rem; font-weight: 800; color: #2563eb;
+            letter-spacing: -0.03em; line-height: 1;
         }
         .custom-base-card .cbc-price .lbl {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            display: block;
-            margin-top: 2px;
+            font-size: 0.7rem; color: #94a3b8; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            display: block; margin-top: 2px;
         }
         .custom-base-card .cbc-includes {
-            background: #f8fafc;
-            border: 1px solid rgba(15,23,42,0.05);
-            border-radius: 12px;
-            padding: 1rem 1.1rem;
-            margin-top: 0.5rem;
+            background: #f8fafc; border: 1px solid rgba(15,23,42,0.05);
+            border-radius: 12px; padding: 1rem 1.1rem; margin-top: 0.5rem;
         }
         .custom-base-card .cbc-includes .ci-label {
-            font-size: 0.72rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #2563eb;
-            margin-bottom: 0.6rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.06em; color: #2563eb; margin-bottom: 0.6rem;
+            display: inline-flex; align-items: center; gap: 6px;
         }
         .custom-base-card .cbc-includes ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            list-style: none; padding: 0; margin: 0;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 8px 18px;
         }
         .custom-base-card .cbc-includes li {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            font-size: 0.86rem;
-            color: #334155;
-            line-height: 1.4;
+            display: flex; align-items: center; gap: 9px;
+            font-size: 0.86rem; color: #334155; line-height: 1.4;
         }
         .custom-base-card .cbc-includes li .tick {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: rgba(22,163,74,0.12);
-            color: #16a34a;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.62rem;
-            flex-shrink: 0;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: rgba(22,163,74,0.12); color: #16a34a;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.62rem; flex-shrink: 0;
         }
         @media (max-width: 560px) {
             .custom-base-card .cbc-head { flex-wrap: wrap; }
@@ -283,102 +245,57 @@
             .custom-base-card .cbc-price .amt { font-size: 1.65rem; }
         }
 
-        /* ===== ADD-ON CATEGORIES ===== */
-        .addon-category {
-            margin-bottom: 1.5rem;
-        }
+        .addon-category { margin-bottom: 1.5rem; }
         .addon-category:last-child { margin-bottom: 0; }
         .addon-cat-head {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            background: #f8fafc;
-            border: 1px solid rgba(15,23,42,0.05);
-            border-radius: 12px;
-            margin-bottom: 0.6rem;
-            cursor: pointer;
-            user-select: none;
-            transition: 0.2s;
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 12px; background: #f8fafc;
+            border: 1px solid rgba(15,23,42,0.05); border-radius: 12px;
+            margin-bottom: 0.6rem; cursor: pointer; user-select: none; transition: 0.2s;
         }
-        .addon-cat-head:hover {
-            background: #f1f5f9;
-            border-color: rgba(37,99,235,0.15);
-        }
+        .addon-cat-head:hover { background: #f1f5f9; border-color: rgba(37,99,235,0.15); }
         .addon-cat-head .ac-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 9px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            width: 30px; height: 30px; border-radius: 9px;
+            display: inline-flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12));
-            color: #2563eb;
-            font-size: 0.82rem;
-            flex-shrink: 0;
+            color: #2563eb; font-size: 0.82rem; flex-shrink: 0;
         }
         .addon-cat-head .ac-label {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #0f172a;
-            letter-spacing: -0.01em;
-            flex: 1;
+            font-size: 0.9rem; font-weight: 700; color: #0f172a;
+            letter-spacing: -0.01em; flex: 1;
         }
         .addon-cat-head .ac-count {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: #94a3b8;
-            background: #f1f5f9;
-            padding: 2px 10px;
-            border-radius: 999px;
+            font-size: 0.72rem; font-weight: 700; color: #94a3b8;
+            background: #f1f5f9; padding: 2px 10px; border-radius: 999px;
         }
-        .addon-cat-head .ac-toggle {
-            color: #94a3b8;
-            font-size: 0.75rem;
-            transition: transform 0.25s;
-        }
+        .addon-cat-head .ac-toggle { color: #94a3b8; font-size: 0.75rem; transition: transform 0.25s; }
         .addon-category.collapsed .ac-toggle { transform: rotate(-90deg); }
         .addon-category.collapsed .addon-cat-body { display: none; }
 
         .addon-list { display: flex; flex-direction: column; gap: 0.5rem; }
         .addon-row {
             display: flex; align-items: center; gap: 14px;
-            padding: 14px 16px;
-            background: #f8fafc;
-            border: 1.5px solid transparent;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: 0.22s;
-            user-select: none;
+            padding: 14px 16px; background: #f8fafc;
+            border: 1.5px solid transparent; border-radius: 16px;
+            cursor: pointer; transition: 0.22s; user-select: none;
         }
-        .addon-row:hover {
-            background: #fff;
-            border-color: rgba(37,99,235,0.2);
-            transform: translateX(2px);
-        }
+        .addon-row:hover { background: #fff; border-color: rgba(37,99,235,0.2); transform: translateX(2px); }
         .addon-row.selected {
-            background: #fff;
-            border-color: #2563eb;
+            background: #fff; border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
         .addon-row .addon-icon {
             width: 40px; height: 40px; border-radius: 12px;
             background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.1));
-            color: #2563eb;
-            display: inline-flex; align-items: center; justify-content: center;
+            color: #2563eb; display: inline-flex; align-items: center; justify-content: center;
             font-size: 0.95rem; flex-shrink: 0; transition: 0.22s;
         }
         .addon-row.selected .addon-icon {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-            color: #fff;
+            background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff;
         }
         .addon-row .addon-info { flex: 1; min-width: 0; }
-        .addon-row .addon-name {
-            font-weight: 700; font-size: 0.92rem; color: #0f172a; line-height: 1.3;
-        }
-        .addon-row .addon-desc {
-            font-size: 0.78rem; color: #94a3b8; margin-top: 2px; line-height: 1.45;
-        }
+        .addon-row .addon-name { font-weight: 700; font-size: 0.92rem; color: #0f172a; line-height: 1.3; }
+        .addon-row .addon-desc { font-size: 0.78rem; color: #94a3b8; margin-top: 2px; line-height: 1.45; }
         .addon-row .addon-price {
             font-weight: 800; font-size: 0.95rem; color: #0f172a;
             white-space: nowrap; flex-shrink: 0;
@@ -387,12 +304,9 @@
             width: 24px; height: 24px; border-radius: 8px;
             border: 2px solid rgba(15,23,42,0.14);
             display: inline-flex; align-items: center; justify-content: center;
-            color: transparent; font-size: 0.7rem;
-            transition: 0.2s; flex-shrink: 0; background: #fff;
+            color: transparent; font-size: 0.7rem; transition: 0.2s; flex-shrink: 0; background: #fff;
         }
-        .addon-row.selected .addon-check {
-            background: #2563eb; border-color: #2563eb; color: #fff;
-        }
+        .addon-row.selected .addon-check { background: #2563eb; border-color: #2563eb; color: #fff; }
 
         .addon-empty {
             text-align: center; padding: 2rem 1rem;
@@ -402,54 +316,30 @@
         }
         .addon-empty i { font-size: 1.75rem; opacity: 0.35; display: block; margin-bottom: 8px; }
 
-        /* ===== DESIGN REFERENCES ===== */
         .cfg-textarea {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1.5px solid rgba(15,23,42,0.08);
-            border-radius: 14px;
-            font-size: 0.92rem;
-            font-family: inherit;
-            line-height: 1.55;
-            background: #f8fafc;
-            color: #0f172a;
-            outline: none;
-            resize: vertical;
-            min-height: 120px;
-            transition: 0.2s;
+            width: 100%; padding: 14px 16px;
+            border: 1.5px solid rgba(15,23,42,0.08); border-radius: 14px;
+            font-size: 0.92rem; font-family: inherit; line-height: 1.55;
+            background: #f8fafc; color: #0f172a; outline: none;
+            resize: vertical; min-height: 120px; transition: 0.2s;
         }
         .cfg-textarea:focus {
-            border-color: #2563eb;
-            background: #fff;
+            border-color: #2563eb; background: #fff;
             box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
         }
-        .cfg-char-count {
-            font-size: 0.72rem;
-            color: #94a3b8;
-            text-align: right;
-            margin-top: 4px;
-        }
+        .cfg-char-count { font-size: 0.72rem; color: #94a3b8; text-align: right; margin-top: 4px; }
 
-        .ref-actions {
-            display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-            margin-bottom: 0.75rem;
-        }
+        .ref-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 0.75rem; }
         .btn-add-ref {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 10px 18px;
-            border-radius: 12px;
+            padding: 10px 18px; border-radius: 12px;
             border: 1.5px dashed rgba(37,99,235,0.3);
-            background: rgba(37,99,235,0.05);
-            color: #2563eb;
-            font-weight: 700;
-            font-size: 0.85rem;
-            font-family: inherit;
-            cursor: pointer;
-            transition: 0.2s;
+            background: rgba(37,99,235,0.05); color: #2563eb;
+            font-weight: 700; font-size: 0.85rem; font-family: inherit;
+            cursor: pointer; transition: 0.2s;
         }
         .btn-add-ref:hover {
-            background: rgba(37,99,235,0.1);
-            border-color: #2563eb;
+            background: rgba(37,99,235,0.1); border-color: #2563eb;
             transform: translateY(-1px);
         }
         .btn-add-ref i { font-size: 0.9rem; }
@@ -457,13 +347,10 @@
         .ref-chip-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
         .ref-chip {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 6px 10px 6px 6px;
-            background: #f8fafc;
-            border: 1px solid rgba(15,23,42,0.06);
-            border-radius: 999px;
-            font-size: 0.78rem; font-weight: 600;
-            color: #475569; max-width: 100%;
-            transition: 0.2s;
+            padding: 6px 10px 6px 6px; background: #f8fafc;
+            border: 1px solid rgba(15,23,42,0.06); border-radius: 999px;
+            font-size: 0.78rem; font-weight: 600; color: #475569;
+            max-width: 100%; transition: 0.2s;
         }
         .ref-chip:hover { border-color: rgba(37,99,235,0.25); color: #2563eb; }
         .ref-chip .icon {
@@ -472,28 +359,15 @@
             display: inline-flex; align-items: center; justify-content: center;
             font-size: 0.7rem; flex-shrink: 0;
         }
-        .ref-chip .ref-img {
-            width: 24px; height: 24px; border-radius: 6px;
-            object-fit: cover; flex-shrink: 0;
-        }
-        .ref-chip .label {
-            max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
+        .ref-chip .ref-img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+        .ref-chip .label { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .ref-chip .remove {
             background: none; border: none; color: #94a3b8; cursor: pointer;
-            font-size: 0.75rem; padding: 2px; border-radius: 50%;
-            transition: 0.15s;
+            font-size: 0.75rem; padding: 2px; border-radius: 50%; transition: 0.15s;
         }
-        .ref-chip .remove:hover {
-            color: #dc2626; background: rgba(220,38,38,0.1);
-        }
+        .ref-chip .remove:hover { color: #dc2626; background: rgba(220,38,38,0.1); }
+        .ref-hint { font-size: 0.76rem; color: #94a3b8; margin-top: 8px; line-height: 1.5; }
 
-        .ref-hint {
-            font-size: 0.76rem; color: #94a3b8; margin-top: 8px;
-            line-height: 1.5;
-        }
-
-        /* ===== PRICE SUMMARY ===== */
         .price-summary {
             position: sticky;
             top: 100px;
@@ -507,6 +381,7 @@
             max-height: calc(100vh - 120px);
             overflow-y: auto;
         }
+        .price-summary { position: sticky; top: 100px; }
         .price-summary::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
             background: linear-gradient(90deg, #2563eb, #7c3aed);
@@ -521,29 +396,17 @@
             gap: 12px; padding: 7px 0; font-size: 0.88rem; color: #475569;
         }
         .price-summary .ps-row .label { flex: 1; min-width: 0; }
-        .price-summary .ps-row .value {
-            font-weight: 700; color: #0f172a; white-space: nowrap;
-        }
+        .price-summary .ps-row .value { font-weight: 700; color: #0f172a; white-space: nowrap; }
         .price-summary .ps-row.addon .label {
-            font-size: 0.82rem;
-            color: #334155;
-            padding-left: 12px;
-            position: relative;
+            font-size: 0.82rem; color: #334155;
+            padding-left: 12px; position: relative;
         }
         .price-summary .ps-row.addon .label::before {
-            content: '+';
-            position: absolute;
-            left: 0;
-            color: #2563eb;
-            font-weight: 800;
+            content: '+'; position: absolute; left: 0;
+            color: #2563eb; font-weight: 800;
         }
-        .price-summary .ps-row.addon .value {
-            font-size: 0.84rem;
-            color: #2563eb;
-        }
-        .price-summary .ps-divider {
-            height: 1px; background: rgba(15,23,42,0.07); margin: 0.5rem 0;
-        }
+        .price-summary .ps-row.addon .value { font-size: 0.84rem; color: #2563eb; }
+        .price-summary .ps-divider { height: 1px; background: rgba(15,23,42,0.07); margin: 0.5rem 0; }
         .price-summary .ps-total {
             display: flex; justify-content: space-between; align-items: baseline;
             margin-top: 0.5rem; padding-top: 0.85rem;
@@ -563,6 +426,57 @@
         }
         .price-summary .ps-bdt strong { color: #16a34a; font-weight: 800; }
 
+        /* NEW: split payment info box */
+        .ps-payment-split {
+            margin-top: 1rem;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(124,58,237,0.06));
+            border: 1px solid rgba(37,99,235,0.14);
+            border-radius: 12px;
+            font-size: 0.78rem;
+            line-height: 1.55;
+            color: #334155;
+        }
+        .ps-payment-split .split-head {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.05em; color: #2563eb; margin-bottom: 8px;
+        }
+        .ps-payment-split .split-head i { font-size: 0.85rem; }
+        .ps-payment-split .split-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 10px; padding: 5px 0;
+        }
+        .ps-payment-split .split-row + .split-row {
+            border-top: 1px dashed rgba(37,99,235,0.14);
+            padding-top: 7px;
+            margin-top: 3px;
+        }
+        .ps-payment-split .split-row .slbl {
+            font-weight: 600; color: #475569;
+            font-size: 0.78rem; line-height: 1.4;
+        }
+        .ps-payment-split .split-row .slbl strong {
+            display: block; color: #0f172a; font-weight: 700;
+            font-size: 0.82rem; margin-bottom: 1px;
+        }
+        .ps-payment-split .split-row .sval {
+            font-weight: 800; color: #2563eb;
+            font-size: 0.88rem; white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .ps-payment-split .split-row.later .sval { color: #d97706; }
+        .ps-payment-split .split-note {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(37,99,235,0.1);
+            font-size: 0.72rem;
+            color: #64748b;
+            line-height: 1.5;
+            display: flex; gap: 6px; align-items: flex-start;
+        }
+        .ps-payment-split .split-note i { color: #16a34a; margin-top: 2px; flex-shrink: 0; }
+
         .price-summary .ps-note {
             display: flex; gap: 8px; align-items: flex-start;
             font-size: 0.75rem; color: #64748b;
@@ -576,44 +490,34 @@
             display: flex; flex-direction: column; gap: 8px; margin-top: 1.1rem;
         }
         .ps-btn-primary {
-            width: 100%; padding: 13px 16px;
-            border-radius: 14px; border: none;
+            width: 100%; padding: 13px 16px; border-radius: 14px; border: none;
             background: linear-gradient(135deg, #2563eb, #7c3aed);
             color: #fff; font-weight: 700; font-size: 0.9rem;
             font-family: inherit; cursor: pointer;
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             box-shadow: 0 6px 20px rgba(37,99,235,0.25);
-            transition: 0.22s;
-            min-height: 48px;
+            transition: 0.22s; min-height: 48px;
         }
         .ps-btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(37,99,235,0.35);
+            transform: translateY(-2px); box-shadow: 0 12px 30px rgba(37,99,235,0.35);
         }
         .ps-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
         .ps-btn-outline {
-            width: 100%; padding: 11px 16px;
-            border-radius: 14px;
-            background: #f8fafc;
-            border: 1.5px solid rgba(15,23,42,0.08);
+            width: 100%; padding: 11px 16px; border-radius: 14px;
+            background: #f8fafc; border: 1.5px solid rgba(15,23,42,0.08);
             color: #334155; font-weight: 600; font-size: 0.85rem;
             font-family: inherit; cursor: pointer;
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.2s; min-height: 44px;
-            text-decoration: none;
+            transition: 0.2s; min-height: 44px; text-decoration: none;
         }
-        .ps-btn-outline:hover {
-            border-color: #2563eb; color: #2563eb; background: #fff;
-        }
+        .ps-btn-outline:hover { border-color: #2563eb; color: #2563eb; background: #fff; }
 
-        /* ===== SUCCESS / LOADING / ERROR ===== */
         .cfg-success {
             max-width: 620px; margin: 3rem auto;
             background: #fff; border: 1px solid rgba(15,23,42,0.06);
             border-radius: 24px; padding: 2.5rem 2rem;
-            text-align: center;
-            box-shadow: 0 16px 48px rgba(15,23,42,0.06);
+            text-align: center; box-shadow: 0 16px 48px rgba(15,23,42,0.06);
         }
         .cfg-success .check-circle {
             width: 72px; height: 72px; border-radius: 50%;
@@ -631,14 +535,70 @@
             line-height: 1.65; margin: 0 0 0.75rem;
         }
         .cfg-success .order-id {
-            display: inline-block;
-            font-family: 'Courier New', monospace;
+            display: inline-block; font-family: 'Courier New', monospace;
             font-weight: 700; font-size: 0.92rem;
             background: #f1f5f9; color: #0f172a;
             padding: 6px 14px; border-radius: 8px;
-            margin: 0.5rem 0 1.5rem;
-            word-break: break-all;
+            margin: 0.5rem 0 1.5rem; word-break: break-all;
         }
+        .cfg-success .pay-recap {
+            background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(124,58,237,0.05));
+            border: 1px solid rgba(37,99,235,0.12);
+            border-radius: 16px;
+            padding: 1.25rem 1.25rem 1.15rem;
+            margin: 1rem 0 1.5rem;
+            text-align: left;
+        }
+        .cfg-success .pay-recap .pr-title {
+            font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.06em; color: #2563eb;
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 0.85rem;
+        }
+        .cfg-success .pay-recap .pr-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 12px; padding: 7px 0; font-size: 0.88rem;
+        }
+        .cfg-success .pay-recap .pr-row + .pr-row {
+            border-top: 1px dashed rgba(37,99,235,0.14);
+        }
+        .cfg-success .pay-recap .pr-row .pr-lbl {
+            color: #334155; line-height: 1.45; flex: 1;
+        }
+        .cfg-success .pay-recap .pr-row .pr-lbl strong {
+            display: block; color: #0f172a; font-weight: 700; margin-bottom: 2px;
+        }
+        .cfg-success .pay-recap .pr-row .pr-lbl small {
+            font-size: 0.75rem; color: #64748b; font-weight: 400;
+        }
+        .cfg-success .pay-recap .pr-row .pr-val {
+            font-weight: 800; font-size: 0.95rem;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .cfg-success .pay-recap .pr-row.paid .pr-val { color: #16a34a; }
+        .cfg-success .pay-recap .pr-row.later .pr-val { color: #d97706; }
+        .cfg-success .pay-recap .pr-total {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin-top: 0.75rem; padding-top: 0.85rem;
+            border-top: 2px dashed rgba(37,99,235,0.16);
+        }
+        .cfg-success .pay-recap .pr-total .lbl {
+            font-size: 0.78rem; font-weight: 800; color: #475569;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .cfg-success .pay-recap .pr-total .amt {
+            font-size: 1.35rem; font-weight: 800; color: #0f172a;
+            letter-spacing: -0.03em;
+        }
+        .cfg-success .pay-recap .pr-note {
+            margin-top: 0.85rem; padding: 10px 12px;
+            background: rgba(22,163,74,0.08);
+            border-radius: 10px;
+            font-size: 0.78rem; color: #166534;
+            line-height: 1.55;
+            display: flex; gap: 8px; align-items: flex-start;
+        }
+        .cfg-success .pay-recap .pr-note i { color: #16a34a; margin-top: 2px; flex-shrink: 0; }
         .cfg-success .actions {
             display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
         }
@@ -656,22 +616,19 @@
         }
         .cfg-success .actions .primary:hover { transform: translateY(-1px); }
         .cfg-success .actions .outline {
-            background: #fff; border: 1.5px solid rgba(15,23,42,0.08);
-            color: #334155;
+            background: #fff; border: 1.5px solid rgba(15,23,42,0.08); color: #334155;
         }
         .cfg-success .actions .outline:hover { border-color: #2563eb; color: #2563eb; }
 
         .cfg-loading, .cfg-error {
             max-width: 620px; margin: 3rem auto;
             background: #fff; border: 1px solid rgba(15,23,42,0.06);
-            border-radius: 22px; padding: 3rem 2rem;
-            text-align: center;
+            border-radius: 22px; padding: 3rem 2rem; text-align: center;
         }
         .cfg-spinner {
             width: 54px; height: 54px;
             border: 4px solid rgba(37,99,235,0.1);
-            border-top-color: #2563eb;
-            border-radius: 50%;
+            border-top-color: #2563eb; border-radius: 50%;
             animation: cfgSpin 0.85s linear infinite;
             margin: 0 auto 1rem;
         }
@@ -680,10 +637,7 @@
             font-size: 3rem; color: #f87171; opacity: 0.9;
             display: block; margin-bottom: 0.85rem;
         }
-        .cfg-error h2 {
-            font-size: 1.2rem; font-weight: 700; color: #0f172a;
-            margin: 0 0 0.35rem;
-        }
+        .cfg-error h2 { font-size: 1.2rem; font-weight: 700; color: #0f172a; margin: 0 0 0.35rem; }
         .cfg-error p { color: #64748b; font-size: 0.9rem; margin: 0 0 1.25rem; line-height: 1.55; }
 
         .sk {
@@ -720,28 +674,17 @@
             max-width: 520px; margin: 0 auto;
             background: #fff; border: 1px solid rgba(15,23,42,0.06);
             border-radius: 20px; padding: 2rem 1.75rem;
-            text-align: center;
-            box-shadow: 0 8px 28px rgba(15,23,42,0.05);
+            text-align: center; box-shadow: 0 8px 28px rgba(15,23,42,0.05);
         }
-        .cfg-auth-gate i {
-            font-size: 2.25rem; color: #2563eb; opacity: 0.85;
-            display: block; margin-bottom: 0.85rem;
-        }
-        .cfg-auth-gate h3 {
-            font-size: 1.15rem; font-weight: 700;
-            color: #0f172a; margin: 0 0 0.4rem;
-        }
-        .cfg-auth-gate p {
-            font-size: 0.9rem; color: #64748b;
-            margin: 0 0 1.25rem; line-height: 1.55;
-        }
+        .cfg-auth-gate i { font-size: 2.25rem; color: #2563eb; opacity: 0.85; display: block; margin-bottom: 0.85rem; }
+        .cfg-auth-gate h3 { font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0 0 0.4rem; }
+        .cfg-auth-gate p { font-size: 0.9rem; color: #64748b; margin: 0 0 1.25rem; line-height: 1.55; }
         .cfg-auth-gate .btn-primary {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 12px 22px; border-radius: 14px;
             background: linear-gradient(135deg, #2563eb, #7c3aed);
             color: #fff; font-weight: 700; font-size: 0.9rem;
-            text-decoration: none; border: none; cursor: pointer;
-            font-family: inherit;
+            text-decoration: none; border: none; cursor: pointer; font-family: inherit;
         }
 
         .template-meta {
@@ -754,18 +697,10 @@
             font-size: 0.7rem; font-weight: 700;
             letter-spacing: 0.03em; text-transform: uppercase;
         }
-        .template-meta .tag.cat {
-            background: rgba(37,99,235,0.1); color: #2563eb;
-        }
-        .template-meta .tag.featured {
-            background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff;
-        }
-        .template-meta .tag.custom {
-            background: rgba(124,58,237,0.1); color: #7c3aed;
-        }
-        .template-meta .tag.base {
-            background: rgba(22,163,74,0.1); color: #16a34a;
-        }
+        .template-meta .tag.cat { background: rgba(37,99,235,0.1); color: #2563eb; }
+        .template-meta .tag.featured { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
+        .template-meta .tag.custom { background: rgba(124,58,237,0.1); color: #7c3aed; }
+        .template-meta .tag.base { background: rgba(22,163,74,0.1); color: #16a34a; }
     </style>
 </head>
 <body>
@@ -818,9 +753,7 @@
                                     <span id="previewPanelTitle">Design preview</span>
                                 </div>
                                 <div class="template-meta" id="templateMeta"></div>
-                                <div id="previewArea">
-                                    <!-- Filled by JS: iframe for template, custom base card for custom -->
-                                </div>
+                                <div id="previewArea"></div>
                                 <p style="font-size:0.78rem;color:#94a3b8;margin-top:10px;line-height:1.55;">
                                     <i class="fas fa-info-circle"></i>
                                     <span id="previewNote">This is a starting point — we tailor every detail to your brand and brief.</span>
@@ -893,8 +826,29 @@
                                     <span class="lbl">Estimate</span>
                                     <span class="amt" id="sumTotal">$50</span>
                                 </div>
-                                <div class="ps-bdt">
-                                    ≈ <strong id="sumBDT">৳6,250</strong>
+                                <div class="ps-bdt">≈ <strong id="sumBDT">৳6,250</strong></div>
+
+                                <!-- NEW: split payment info -->
+                                <div class="ps-payment-split">
+                                    <div class="split-head"><i class="fas fa-shield-alt"></i> How payment works</div>
+                                    <div class="split-row">
+                                        <div class="slbl">
+                                            <strong>Base Package Advance</strong>
+                                            <small>Paid now to begin</small>
+                                        </div>
+                                        <div class="sval" id="splitAdvance">$50</div>
+                                    </div>
+                                    <div class="split-row later">
+                                        <div class="slbl">
+                                            <strong>Add-ons Total</strong>
+                                            <small>Paid individually after work done</small>
+                                        </div>
+                                        <div class="sval" id="splitLater">$0</div>
+                                    </div>
+                                    <div class="split-note">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Add-ons are paid one by one from <strong>My Orders → Payments &amp; History</strong> as each is completed — you only pay when you see the work.</span>
+                                    </div>
                                 </div>
 
                                 <div class="ps-note">
@@ -904,7 +858,7 @@
 
                                 <div class="ps-actions">
                                     <button type="button" id="submitBtn" class="ps-btn-primary">
-                                        <i class="fas fa-paper-plane"></i> Submit Request
+                                        <i class="fas fa-paper-plane"></i> Submit &amp; Pay Advance
                                     </button>
                                     <a href="get-new-website.html" class="ps-btn-outline">
                                         <i class="fas fa-arrow-left"></i> Back to Designs
@@ -928,8 +882,41 @@
                     <div class="check-circle"><i class="fas fa-check"></i></div>
                     <h2>Request submitted!</h2>
                     <p>Thanks — we've received your configuration and design references.</p>
-                    <p>Our team will review the brief and get back to you with a personalised quote.</p>
                     <div class="order-id" id="successOrderId">#—</div>
+
+                    <!-- NEW: payment recap -->
+                    <div class="pay-recap">
+                        <div class="pr-title"><i class="fas fa-receipt"></i> Payment summary</div>
+
+                        <div class="pr-row paid">
+                            <div class="pr-lbl">
+                                <strong>Base Package Advance</strong>
+                                <small>Paid now · our team starts work</small>
+                            </div>
+                            <div class="pr-val" id="successAdvanceUSD">$0.00</div>
+                        </div>
+
+                        <div class="pr-row later" id="successAddOnsRow">
+                            <div class="pr-lbl">
+                                <strong>Add-ons <span id="successAddOnsCount">(0)</span></strong>
+                                <small>Pay individually from My Orders as each is completed</small>
+                            </div>
+                            <div class="pr-val" id="successAddOnsUSD">$0.00</div>
+                        </div>
+
+                        <div class="pr-total">
+                            <span class="lbl">Total Project Value</span>
+                            <span class="amt" id="successTotalUSD">$0.00</span>
+                        </div>
+
+                        <div class="pr-note">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Add-ons are paid <strong>one by one</strong> from <strong>My Orders → Payments &amp; History</strong> after each add-on's work is completed. You only pay for what's done.</span>
+                        </div>
+                    </div>
+
+                    <p style="font-size:0.88rem;color:#64748b;margin-top:1.5rem;">Our team will review your brief and confirm the final scope. You'll get a quote in your Orders page.</p>
+
                     <div class="actions">
                         <a href="my-orders.html" class="primary">
                             <i class="fas fa-box"></i> Track in My Orders
@@ -958,7 +945,7 @@
         renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
         renderCartSidebar, renderPaymentModal, renderAuthModal,
         listenServiceCategories, listenAddOns, computeConfigTotal,
-        openDesignReferenceModal, submitServiceRequest
+        openDesignReferenceModal, openPaymentModal
     } from './components.js';
 
     renderNavbar();
@@ -994,10 +981,8 @@
 
     function escapeHtml(str) {
         return String(str || '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
     function escapeHtmlAttr(str) { return escapeHtml(str); }
 
@@ -1009,20 +994,38 @@
     }
 
     // ================================================================
-    // CONSTANTS — Base Package + Curated Add-Ons
+    // SERVICE CONFIG — loaded from admin (settings/serviceConfig)
     // ================================================================
-    const CUSTOM_BASE_PRICE = 50; // USD
+    const DEFAULT_SERVICE_CONFIG = {
+        basePackagePrice: 50,
+        basePackageIncludes: [
+            'Landing Page (hero, features, CTA)',
+            'About Page',
+            'Contact Page',
+            'Navigation & Routing',
+            'Mobile Responsive Design',
+            'Basic SEO Meta Tags',
+            'Fast Loading (basic optimization)'
+        ]
+    };
 
-    const BASE_PACKAGE_INCLUDES = [
-        { icon: 'fa-home', label: 'Landing Page (hero, features, CTA)' },
-        { icon: 'fa-info-circle', label: 'About Page' },
-        { icon: 'fa-envelope', label: 'Contact Page' },
-        { icon: 'fa-sitemap', label: 'Navigation & Routing' },
-        { icon: 'fa-mobile-alt', label: 'Mobile Responsive Design' },
-        { icon: 'fa-search', label: 'Basic SEO Meta Tags' },
-        { icon: 'fa-bolt', label: 'Fast Loading (basic optimization)' }
-    ];
+    let serviceConfig = { ...DEFAULT_SERVICE_CONFIG };
+    let usdRate = 125;
+    let currentUser = null;
+    let currentTemplate = null;
+    let mergedAddOns = [];
+    let selectedAddOnIds = new Set();
+    let designReferences = [];
+    let allServiceCategories = [];
+    let firestoreAddOns = [];
 
+    const params = new URLSearchParams(window.location.search);
+    const templateId = params.get('id') || '';
+    const sourceHint = params.get('src') || 'template';
+
+    // ================================================================
+    // DEFAULT ADD-ONS (fallback when Firestore empty)
+    // ================================================================
     const ADDON_CATEGORIES = [
         { key: 'ecommerce', label: 'E-Commerce', icon: 'fa-shopping-bag' },
         { key: 'admin',     label: 'Admin Panel & Management', icon: 'fa-shield-alt' },
@@ -1032,35 +1035,26 @@
     ];
 
     const DEFAULT_ADDONS = [
-        // ── E-Commerce ──
         { id: 'adn-ecom-catalog',   cat: 'ecommerce', name: 'Product Catalog',          description: 'Grid product listing with filters & search',    price: 50, icon: 'fa-th-large' },
         { id: 'adn-ecom-cart',      cat: 'ecommerce', name: 'Shopping Cart',            description: 'Add-to-cart, quantity management, subtotal',     price: 40, icon: 'fa-shopping-cart' },
         { id: 'adn-ecom-checkout',  cat: 'ecommerce', name: 'Checkout & Payment Gateway', description: 'bKash, Nagad, USDT payment integration',         price: 60, icon: 'fa-credit-card' },
         { id: 'adn-ecom-track',     cat: 'ecommerce', name: 'Order Tracking',           description: 'Customer order status tracking page',            price: 30, icon: 'fa-truck' },
         { id: 'adn-ecom-wishlist',  cat: 'ecommerce', name: 'Wishlist / Favorites',     description: 'Save products for later purchase',               price: 25, icon: 'fa-heart' },
-
-        // ── Admin Panel ──
         { id: 'adn-admin-panel',    cat: 'admin', name: 'Admin Panel',                  description: 'Full admin dashboard & control center',          price: 80, icon: 'fa-shield-alt' },
         { id: 'adn-admin-cms',      cat: 'admin', name: 'Content Management (CMS)',     description: 'Manage pages, text, and images from admin',       price: 40, icon: 'fa-edit' },
         { id: 'adn-admin-orders',   cat: 'admin', name: 'Order Management',            description: 'View, update, and process customer orders',       price: 40, icon: 'fa-clipboard-list' },
         { id: 'adn-admin-users',    cat: 'admin', name: 'User Management',             description: 'Manage users, roles & permissions',               price: 30, icon: 'fa-users-cog' },
         { id: 'adn-admin-analytics', cat: 'admin', name: 'Analytics Dashboard',        description: 'Sales, orders & visitor insights (charts)',       price: 35, icon: 'fa-chart-line' },
-
-        // ── User Features ──
         { id: 'adn-user-auth',      cat: 'user', name: 'User Registration & Login',    description: 'Email + Google sign-in with password reset',      price: 40, icon: 'fa-user-plus' },
         { id: 'adn-user-profile',   cat: 'user', name: 'User Profile & Dashboard',     description: 'Personal account area with order history',         price: 35, icon: 'fa-id-card' },
         { id: 'adn-user-ratings',   cat: 'user', name: 'Ratings & Reviews',            description: 'Star ratings + written review system',            price: 30, icon: 'fa-star' },
         { id: 'adn-user-notify',    cat: 'user', name: 'User Notifications',           description: 'In-app & email order updates',                    price: 25, icon: 'fa-bell' },
-
-        // ── Landing Enhancements ──
         { id: 'adn-land-blog',      cat: 'landing', name: 'Blog Section',               description: 'Post listing + single post view with categories',  price: 35, icon: 'fa-newspaper' },
         { id: 'adn-land-portfolio', cat: 'landing', name: 'Portfolio / Gallery',       description: 'Image gallery or project showcase with lightbox',  price: 30, icon: 'fa-images' },
         { id: 'adn-land-testi',     cat: 'landing', name: 'Testimonials Carousel',     description: 'Client reviews slider with photos',               price: 20, icon: 'fa-quote-right' },
         { id: 'adn-land-faq',       cat: 'landing', name: 'FAQ Accordion',             description: 'Collapsible questions section',                   price: 15, icon: 'fa-question-circle' },
         { id: 'adn-land-news',      cat: 'landing', name: 'Newsletter Signup',         description: 'Email capture form with validation',              price: 15, icon: 'fa-envelope-open-text' },
         { id: 'adn-land-chat',      cat: 'landing', name: 'Live Chat Support',         description: 'Real-time chat widget with admin reply',          price: 40, icon: 'fa-comments' },
-
-        // ── Advanced ──
         { id: 'adn-adv-multilang',  cat: 'advanced', name: 'Multi-Language Support',   description: 'Switch between 2+ languages (EN/BN/etc.)',        price: 60, icon: 'fa-language' },
         { id: 'adn-adv-anim',       cat: 'advanced', name: 'Custom Animations',        description: 'Scroll & hover effects, micro-interactions',       price: 35, icon: 'fa-magic' },
         { id: 'adn-adv-seo',        cat: 'advanced', name: 'Advanced SEO Optimization', description: 'Sitemap, schema markup, meta optimization',       price: 45, icon: 'fa-search-plus' },
@@ -1073,80 +1067,85 @@
     ];
 
     // ================================================================
-    // STATE
-    // ================================================================
-    let allServiceCategories = [];
-    let firestoreAddOns = []; // from admin panel (optional)
-    let usdRate = 125;
-    let currentUser = null;
-
-    let currentTemplate = null;
-    let mergedAddOns = [];       // default + Firestore merged
-    let selectedAddOnIds = new Set();
-    let designReferences = [];
-
-    const params = new URLSearchParams(window.location.search);
-    const templateId = params.get('id') || '';
-    const sourceHint = params.get('src') || 'template';
-
-    // ================================================================
-    // MERGE DEFAULT + FIRESTORE ADD-ONS (dedupe by name)
+    // MERGE — Firestore add-ons override defaults by name
     // ================================================================
     function buildMergedAddOns() {
-        const merged = [...DEFAULT_ADDONS];
-        const usedNames = new Set(DEFAULT_ADDONS.map(a => (a.name || '').toLowerCase()));
+        const fsByName = {};
         (firestoreAddOns || []).forEach(a => {
-            const name = (a.name || '').toLowerCase();
-            if (!usedNames.has(name)) {
-                merged.push({
-                    id: a.id,
-                    cat: 'advanced', // custom ones go into "Advanced" bucket
-                    name: a.name || 'Custom Add-On',
-                    description: a.description || '',
-                    price: Number(a.price) || 0,
-                    icon: a.icon || 'fa-puzzle-piece'
-                });
-                usedNames.add(name);
-            }
+            const key = (a.name || '').toLowerCase().trim();
+            if (key) fsByName[key] = a;
         });
+
+        const merged = [];
+        const usedNames = new Set();
+
+        // Defaults first — allow Firestore override
+        DEFAULT_ADDONS.forEach(d => {
+            const key = d.name.toLowerCase().trim();
+            const override = fsByName[key];
+            usedNames.add(key);
+            merged.push({
+                id: d.id,
+                cat: d.cat,
+                name: d.name,
+                description: override?.description || d.description,
+                price: (override && typeof override.price === 'number')
+                    ? Number(override.price)
+                    : d.price,
+                icon: override?.icon || d.icon,
+                _overridden: !!override
+            });
+        });
+
+        // Firestore-only add-ons
+        (firestoreAddOns || []).forEach(a => {
+            const key = (a.name || '').toLowerCase().trim();
+            if (!key || usedNames.has(key)) return;
+            merged.push({
+                id: a.id,
+                cat: a.cat || 'advanced',
+                name: a.name,
+                description: a.description || '',
+                price: Number(a.price) || 0,
+                icon: a.icon || 'fa-puzzle-piece'
+            });
+            usedNames.add(key);
+        });
+
         return merged;
     }
 
-    // ================================================================
-    // LOAD USD RATE
-    // ================================================================
-    async function loadUsdRate() {
+    async function loadServiceConfig() {
         try {
-            const snap = await getDoc(doc(db, 'settings', 'payment'));
+            const snap = await getDoc(doc(db, 'settings', 'serviceConfig'));
             if (snap.exists()) {
                 const d = snap.data();
-                if (Number(d.usdRate) > 0) usdRate = Number(d.usdRate);
+                if (Number(d.basePackagePrice) > 0) serviceConfig.basePackagePrice = Number(d.basePackagePrice);
+                if (Array.isArray(d.basePackageIncludes) && d.basePackageIncludes.length) {
+                    serviceConfig.basePackageIncludes = d.basePackageIncludes;
+                }
             }
         } catch (err) {
-            console.warn('[cfg] usdRate load failed:', err?.code || err?.message);
+            console.warn('[cfg] serviceConfig load failed:', err?.code || err?.message);
         }
     }
 
-    // ================================================================
-    // LOAD TEMPLATE (if any)
-    // ================================================================
+    async function loadUsdRate() {
+        try {
+            const snap = await getDoc(doc(db, 'settings', 'payment'));
+            if (snap.exists() && Number(snap.data().usdRate) > 0) usdRate = Number(snap.data().usdRate);
+        } catch (_) {}
+    }
+
     async function loadTemplateFromFirestore() {
-        // No ID → Custom direction
         if (!templateId) {
             return {
-                id: null,
-                name: 'Custom Website',
+                id: null, name: 'Custom Website',
                 description: 'A fully custom website built from scratch around your brand, brief and design references.',
-                htmlContent: '',
-                imageUrl: '',
-                categoryId: null,
-                categoryName: 'Custom',
-                basePrice: CUSTOM_BASE_PRICE,
-                _source: 'custom'
+                htmlContent: '', imageUrl: '', categoryId: null, categoryName: 'Custom',
+                basePrice: serviceConfig.basePackagePrice, _source: 'custom'
             };
         }
-
-        // Try designTemplates first
         if (sourceHint === 'template' || sourceHint !== 'product') {
             try {
                 const s = await getDoc(doc(db, 'designTemplates', templateId));
@@ -1154,48 +1153,33 @@
                     const d = s.data();
                     const cat = allServiceCategories.find(c => c.id === d.categoryId);
                     return {
-                        id: s.id,
-                        name: d.name || 'Design',
-                        description: d.description || '',
-                        htmlContent: d.htmlContent || '',
-                        imageUrl: d.imageUrl || '',
-                        categoryId: d.categoryId || null,
-                        categoryName: cat?.name || 'Design',
-                        basePrice: Math.max(CUSTOM_BASE_PRICE, Number(d.basePrice) || 0),
+                        id: s.id, name: d.name || 'Design', description: d.description || '',
+                        htmlContent: d.htmlContent || '', imageUrl: d.imageUrl || '',
+                        categoryId: d.categoryId || null, categoryName: cat?.name || 'Design',
+                        basePrice: Math.max(serviceConfig.basePackagePrice, Number(d.basePrice) || 0),
                         _source: 'template'
                     };
                 }
-            } catch (err) {
-                console.warn('[cfg] designTemplates read failed:', err?.code || err?.message);
-            }
+            } catch (err) { console.warn('[cfg] designTemplates read failed:', err?.code); }
         }
-
-        // Fallback: products collection
         try {
             const s = await getDoc(doc(db, 'products', templateId));
             if (s.exists()) {
                 const d = s.data();
                 return {
-                    id: s.id,
-                    name: d.name || 'Design',
-                    description: d.desc || d.description || '',
-                    htmlContent: d.htmlContent || '',
-                    imageUrl: d.imageUrl || '',
-                    categoryId: null,
-                    categoryName: d.category || 'Design',
-                    basePrice: Math.max(CUSTOM_BASE_PRICE, Number(d.price) || 0),
+                    id: s.id, name: d.name || 'Design', description: d.desc || d.description || '',
+                    htmlContent: d.htmlContent || '', imageUrl: d.imageUrl || '',
+                    categoryId: null, categoryName: d.category || 'Design',
+                    basePrice: Math.max(serviceConfig.basePackagePrice, Number(d.price) || 0),
                     _source: 'product'
                 };
             }
-        } catch (err) {
-            console.warn('[cfg] products read failed:', err?.code || err?.message);
-        }
-
+        } catch (err) { console.warn('[cfg] products read failed:', err?.code); }
         return null;
     }
 
     // ================================================================
-    // RENDER TEMPLATE INFO + PREVIEW AREA
+    // RENDER TEMPLATE
     // ================================================================
     function renderTemplateInfo() {
         const meta = document.getElementById('templateMeta');
@@ -1205,32 +1189,23 @@
         if (!meta || !previewArea || !currentTemplate) return;
 
         const isCustom = currentTemplate._source === 'custom';
+        const basePrice = Number(currentTemplate.basePrice) || serviceConfig.basePackagePrice;
 
-        // ── Tags ──
         const tags = [];
-        if (currentTemplate.categoryName) {
-            tags.push(`<span class="tag cat"><i class="fas fa-folder"></i> ${escapeHtml(currentTemplate.categoryName)}</span>`);
-        }
-        if (isCustom) {
-            tags.push(`<span class="tag custom"><i class="fas fa-magic"></i> Custom</span>`);
-        }
-        tags.push(`<span class="tag base"><i class="fas fa-check-circle"></i> Base from $${CUSTOM_BASE_PRICE}</span>`);
+        if (currentTemplate.categoryName) tags.push(`<span class="tag cat"><i class="fas fa-folder"></i> ${escapeHtml(currentTemplate.categoryName)}</span>`);
+        if (isCustom) tags.push(`<span class="tag custom"><i class="fas fa-magic"></i> Custom</span>`);
+        tags.push(`<span class="tag base"><i class="fas fa-check-circle"></i> Base from $${basePrice}</span>`);
         meta.innerHTML = tags.join('');
 
         document.getElementById('pageTitle').textContent = currentTemplate.name;
         document.getElementById('pageSub').textContent = currentTemplate.description || 'Configure your add-ons and share design references below.';
 
-        // ── Preview area ──
         if (isCustom) {
-            // Custom: show base package card
             previewTitle.textContent = 'Base package';
             previewNote.innerHTML = 'Every project includes these pages &amp; features. Add extras below to expand.';
 
-            const includeListHtml = BASE_PACKAGE_INCLUDES.map(it => `
-                <li>
-                    <span class="tick"><i class="fas fa-check"></i></span>
-                    <span>${escapeHtml(it.label)}</span>
-                </li>
+            const includeListHtml = serviceConfig.basePackageIncludes.map(it => `
+                <li><span class="tick"><i class="fas fa-check"></i></span><span>${escapeHtml(it)}</span></li>
             `).join('');
 
             previewArea.innerHTML = `
@@ -1242,7 +1217,7 @@
                             <p>We'll craft a unique design around your brief and references.</p>
                         </div>
                         <div class="cbc-price">
-                            <div class="amt">$${CUSTOM_BASE_PRICE}</div>
+                            <div class="amt">$${basePrice}</div>
                             <span class="lbl">starting</span>
                         </div>
                     </div>
@@ -1253,7 +1228,6 @@
                 </div>
             `;
         } else {
-            // Template: show iframe preview
             previewTitle.textContent = 'Design preview';
             previewNote.innerHTML = 'This is a starting point — we tailor every detail to your brand and brief.';
 
@@ -1293,7 +1267,7 @@
     }
 
     // ================================================================
-    // RENDER ADD-ONS (grouped by category)
+    // RENDER ADD-ONS
     // ================================================================
     function renderAddOns() {
         const wrap = document.getElementById('addonList');
@@ -1314,9 +1288,7 @@
         ADDON_CATEGORIES.forEach(cat => {
             const items = mergedAddOns.filter(a => a.cat === cat.key);
             if (!items.length) return;
-
             const selectedCount = items.filter(a => selectedAddOnIds.has(a.id)).length;
-
             html += `
                 <div class="addon-category" data-cat="${cat.key}">
                     <div class="addon-cat-head">
@@ -1334,7 +1306,6 @@
             `;
         });
 
-        // Custom add-ons that don't fit any category
         const uncategorized = mergedAddOns.filter(a => !ADDON_CATEGORIES.some(c => c.key === a.cat));
         if (uncategorized.length) {
             html += `
@@ -1356,16 +1327,13 @@
 
         wrap.innerHTML = html;
 
-        // Wire toggle collapse
         wrap.querySelectorAll('.addon-cat-head').forEach(head => {
-            head.addEventListener('click', (e) => {
-                // don't toggle if clicking the count toggle icon in a way that user intended selection... fine
+            head.addEventListener('click', () => {
                 const parent = head.closest('.addon-category');
                 if (parent) parent.classList.toggle('collapsed');
             });
         });
 
-        // Wire add-on row toggle
         wrap.querySelectorAll('.addon-row').forEach(row => {
             const toggle = () => {
                 const id = row.dataset.id;
@@ -1374,7 +1342,6 @@
                 row.classList.toggle('selected', selectedAddOnIds.has(id));
                 row.setAttribute('aria-checked', selectedAddOnIds.has(id));
 
-                // Update category count
                 const catKey = row.dataset.cat;
                 if (catKey) {
                     const catBox = wrap.querySelector(`[data-cat="${catKey}"]`);
@@ -1418,17 +1385,13 @@
     function renderRefChips() {
         const wrap = document.getElementById('refChipList');
         if (!wrap) return;
-
         if (!designReferences.length) {
             wrap.innerHTML = `<span style="font-size:0.78rem;color:#94a3b8;">No references added yet.</span>`;
             return;
         }
-
         wrap.innerHTML = designReferences.map((r, idx) => {
             const type = r.type || 'url';
-            let iconClass = 'fa-link';
-            let label = '';
-            let thumb = '';
+            let iconClass = 'fa-link', label = '', thumb = '';
             if (type === 'upload' && r.imageUrl) {
                 iconClass = 'fa-image';
                 label = r.description ? r.description.slice(0, 40) : 'Uploaded image';
@@ -1440,7 +1403,6 @@
                 iconClass = 'fa-align-left';
                 label = (r.description || 'Note').slice(0, 40);
             }
-
             return `
                 <div class="ref-chip" data-idx="${idx}">
                     ${thumb || `<span class="icon"><i class="fas ${iconClass}"></i></span>`}
@@ -1461,15 +1423,14 @@
     }
 
     // ================================================================
-    // PRICE SUMMARY
+    // PRICE SUMMARY (with split payment UI)
     // ================================================================
     function updatePriceSummary() {
         if (!currentTemplate) return;
 
-        const basePrice = Number(currentTemplate.basePrice) || CUSTOM_BASE_PRICE;
+        const basePrice = Number(currentTemplate.basePrice) || serviceConfig.basePackagePrice;
         const calc = computeConfigTotal(basePrice, mergedAddOns, selectedAddOnIds, usdRate);
 
-        // Base label + price
         const isCustom = currentTemplate._source === 'custom';
         const baseLabelEl = document.getElementById('sumBaseLabel');
         const basePriceEl = document.getElementById('sumBasePrice');
@@ -1477,7 +1438,7 @@
 
         if (isCustom) {
             baseLabelEl.textContent = 'Base Package';
-            baseDescEl.textContent = 'Landing, About & Contact pages + responsive + SEO';
+            baseDescEl.textContent = `${serviceConfig.basePackageIncludes.length} pages & features included`;
             baseDescEl.style.display = '';
         } else {
             baseLabelEl.textContent = `Base — ${currentTemplate.name || 'Design'}`;
@@ -1486,7 +1447,6 @@
         }
         basePriceEl.textContent = `$${basePrice.toFixed(2)}`;
 
-        // Add-ons breakdown
         const addonsWrap = document.getElementById('sumAddOnsContainer');
         const selected = mergedAddOns.filter(a => selectedAddOnIds.has(a.id));
         if (selected.length) {
@@ -1500,19 +1460,19 @@
             addonsWrap.innerHTML = '';
         }
 
-        // Total
         document.getElementById('sumTotal').textContent = `$${calc.totalUSD.toFixed(2)}`;
         document.getElementById('sumBDT').textContent = `৳${calc.totalBDT.toLocaleString('en-BD')}`;
 
-        // Add-on count
+        // Split payment preview
+        document.getElementById('splitAdvance').textContent = `$${basePrice.toFixed(2)}`;
+        document.getElementById('splitLater').textContent = `$${calc.addOnsUSD.toFixed(2)}`;
+
         const countEl = document.getElementById('addonCount');
-        if (countEl) {
-            countEl.textContent = `${selectedAddOnIds.size} selected`;
-        }
+        if (countEl) countEl.textContent = `${selectedAddOnIds.size} selected`;
     }
 
     // ================================================================
-    // BRIEF TEXTAREA COUNTER
+    // BRIEF COUNTER
     // ================================================================
     const briefArea = document.getElementById('briefTextarea');
     const briefCount = document.getElementById('briefCount');
@@ -1521,7 +1481,7 @@
     });
 
     // ================================================================
-    // ADD DESIGN REFERENCE
+    // ADD REFERENCE
     // ================================================================
     document.getElementById('addRefBtn')?.addEventListener('click', () => {
         if (!currentUser) {
@@ -1541,10 +1501,8 @@
                 });
                 if (!res.success) throw new Error(res.error || 'Failed to save reference.');
                 designReferences.push({
-                    id: res.id,
-                    type: payload.type,
-                    url: payload.url,
-                    imageUrl: payload.imageUrl,
+                    id: res.id, type: payload.type,
+                    url: payload.url, imageUrl: payload.imageUrl,
                     description: payload.description
                 });
                 renderRefChips();
@@ -1554,7 +1512,7 @@
     });
 
     // ================================================================
-    // SUBMIT
+    // SUBMIT — opens payment modal for base package only
     // ================================================================
     document.getElementById('submitBtn')?.addEventListener('click', async () => {
         if (!currentUser) {
@@ -1566,56 +1524,96 @@
         const btn = document.getElementById('submitBtn');
         const origHtml = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Submitting…';
+        btn.innerHTML = '<span class="spinner"></span> Preparing payment…';
 
         try {
             const selectedAddOnsSnapshot = mergedAddOns
                 .filter(a => selectedAddOnIds.has(a.id))
                 .map(a => ({
-                    id: a.id,
-                    name: a.name,
+                    id: a.id, name: a.name,
                     price: Number(a.price) || 0,
                     icon: a.icon || 'fa-puzzle-piece'
                 }));
 
             const brief = (briefArea?.value || '').trim();
+            const basePrice = Number(currentTemplate?.basePrice) || serviceConfig.basePackagePrice;
+            const addOnsTotal = selectedAddOnsSnapshot.reduce((s, a) => s + (Number(a.price) || 0), 0);
+            const totalUSD = basePrice + addOnsTotal;
+            const totalBDT = Math.round(totalUSD * usdRate);
+            const advanceBDT = Math.round(basePrice * usdRate);
 
-            const payload = {
-                userId: currentUser.uid,
-                userEmail: currentUser.email || '',
-                userName: currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Customer'),
-                serviceCategoryId: currentTemplate?.categoryId || null,
-                serviceCategoryName: currentTemplate?.categoryName || '',
-                designTemplateId: currentTemplate?.id || null,
-                designTemplateName: currentTemplate?.name || 'Custom Website',
-                basePrice: Number(currentTemplate?.basePrice) || CUSTOM_BASE_PRICE,
-                selectedAddOns: selectedAddOnsSnapshot,
-                designReferences: designReferences.map(r => ({
-                    id: r.id || null,
-                    type: r.type || 'url',
-                    url: r.url || '',
-                    imageUrl: r.imageUrl || '',
-                    description: r.description || ''
-                })),
-                projectDescription: brief,
-                quoteRequested: true,
-                usdRate
-            };
+            // Load fresh payment settings
+            const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
+            const settings = settingsSnap.exists() ? settingsSnap.data() : {};
+            if (!settings.usdRate || Number(settings.usdRate) <= 0) settings.usdRate = usdRate;
+            if (!settings.usdt) settings.usdt = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
 
-            const result = await submitServiceRequest(payload);
+            const userName = currentUser.displayName ||
+                (currentUser.email ? currentUser.email.split('@')[0] : 'Customer');
 
-            if (!result.success) {
-                throw new Error(result.error || 'Submission failed.');
-            }
+            // Open payment modal for advance (base price only)
+            openPaymentModal({
+                type: 'service',
+                isServiceAdvance: true,
+                total: basePrice,
+                totalUSD: basePrice,
+                totalBDT: advanceBDT,
+                settings,
+                user: currentUser,
+                cart: [{
+                    id: 'service-base-package',
+                    name: 'Base Package Advance',
+                    price: basePrice,
+                    quantity: 1
+                }],
+                _servicePayload: {
+                    userName,
+                    serviceCategoryId: currentTemplate?.categoryId || null,
+                    serviceCategoryName: currentTemplate?.categoryName || '',
+                    designTemplateId: currentTemplate?.id || null,
+                    designTemplateName: currentTemplate?.name || 'Custom Website',
+                    basePrice,
+                    selectedAddOns: selectedAddOnsSnapshot,
+                    addOnsTotal,
+                    totalUSD,
+                    totalBDT,
+                    designReferences: designReferences.map(r => ({
+                        id: r.id || null,
+                        type: r.type || 'url',
+                        url: r.url || '',
+                        imageUrl: r.imageUrl || '',
+                        description: r.description || ''
+                    })),
+                    projectDescription: brief,
+                    usdRate: Number(settings.usdRate) || usdRate
+                },
+                onSuccess: (result) => {
+                    // Fill success screen
+                    document.getElementById('successOrderId').textContent =
+                        '#' + (result.orderId || '').slice(0, 10).toUpperCase();
+                    document.getElementById('successAdvanceUSD').textContent =
+                        '$' + basePrice.toFixed(2);
+                    document.getElementById('successAddOnsUSD').textContent =
+                        '$' + addOnsTotal.toFixed(2);
+                    document.getElementById('successAddOnsCount').textContent =
+                        `(${selectedAddOnsSnapshot.length})`;
+                    document.getElementById('successTotalUSD').textContent =
+                        '$' + totalUSD.toFixed(2);
 
-            document.getElementById('successOrderId').textContent = '#' + (result.orderId || '').slice(0, 10).toUpperCase();
-            showState('successState');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            window.showToast('✅ Request submitted successfully!', 'success');
+                    // Hide add-ons row if none selected
+                    const addOnsRow = document.getElementById('successAddOnsRow');
+                    if (addOnsRow) addOnsRow.style.display = addOnsTotal > 0 ? '' : 'none';
+
+                    showState('successState');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.showToast('✅ Request submitted successfully!', 'success');
+                }
+            });
 
         } catch (err) {
             console.error('Submit error:', err);
             window.showToast('⚠️ ' + (err.message || 'Submission failed'), 'error');
+        } finally {
             btn.disabled = false;
             btn.innerHTML = origHtml;
         }
@@ -1631,9 +1629,7 @@
             try {
                 const uDoc = await getDoc(doc(db, 'users', user.uid));
                 name = uDoc.exists() ? uDoc.data().displayName : user.email.split('@')[0];
-            } catch (_) {
-                name = user.email?.split('@')[0] || null;
-            }
+            } catch (_) { name = user.email?.split('@')[0] || null; }
         }
         updateNavbarAuth(user, name);
 
@@ -1657,8 +1653,9 @@
         showState('loadingState');
 
         await loadUsdRate();
+        await loadServiceConfig();  // Load admin base price + includes
 
-        // ── Load service categories (one-time-ish) ──
+        // Load service categories
         await new Promise((resolve) => {
             let settled = false;
             try {
@@ -1666,13 +1663,11 @@
                     allServiceCategories = (active && active.length ? active : (all || []));
                     if (!settled) { settled = true; resolve(); }
                 });
-            } catch (_) {
-                if (!settled) { settled = true; resolve(); }
-            }
+            } catch (_) { if (!settled) { settled = true; resolve(); } }
             setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
         });
 
-        // ── Load Firestore add-ons (optional) ──
+        // Load add-ons (Firestore overrides defaults)
         await new Promise((resolve) => {
             let settled = false;
             try {
@@ -1683,24 +1678,17 @@
                     updatePriceSummary();
                     if (!settled) { settled = true; resolve(); }
                 });
-            } catch (_) {
-                if (!settled) { settled = true; resolve(); }
-            }
+            } catch (_) { if (!settled) { settled = true; resolve(); } }
             setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
         });
 
-        // Ensure merged add-ons exist even if Firestore failed
         if (!mergedAddOns.length) {
             mergedAddOns = buildMergedAddOns();
         }
 
-        // ── Load template ──
+        // Load template
         let tmpl = null;
-        try {
-            tmpl = await loadTemplateFromFirestore();
-        } catch (err) {
-            console.error('Template load error:', err);
-        }
+        try { tmpl = await loadTemplateFromFirestore(); } catch (err) { console.error('Template load error:', err); }
 
         if (!tmpl && templateId) {
             document.getElementById('errorMsg').textContent =
@@ -1711,27 +1699,21 @@
 
         if (!tmpl) {
             tmpl = {
-                id: null,
-                name: 'Custom Website',
+                id: null, name: 'Custom Website',
                 description: 'A fully custom website built from scratch around your brand, brief and design references.',
-                htmlContent: '',
-                imageUrl: '',
-                categoryId: null,
-                categoryName: 'Custom',
-                basePrice: CUSTOM_BASE_PRICE,
-                _source: 'custom'
+                htmlContent: '', imageUrl: '', categoryId: null, categoryName: 'Custom',
+                basePrice: serviceConfig.basePackagePrice, _source: 'custom'
             };
         }
 
         currentTemplate = tmpl;
 
-        // ── Render everything ──
         renderTemplateInfo();
         renderAddOns();
         renderRefChips();
         updatePriceSummary();
 
-        // ── Live update Firestore add-ons (if admin changes them) ──
+        // Live add-ons updates
         try {
             const q = query(collection(db, 'addOns'));
             onSnapshot(q, (snap) => {
@@ -1744,23 +1726,20 @@
                 mergedAddOns = buildMergedAddOns();
                 renderAddOns();
                 updatePriceSummary();
-            }, (err) => console.warn('[cfg] live addOns listener:', err?.code || err?.message));
+            }, (err) => console.warn('[cfg] live addOns listener:', err?.code));
         } catch (_) {}
 
-        // ── Show main state + reveal fade-up elements ──
         showState('mainState');
         observeFadeUps();
 
         setTimeout(() => {
             document.querySelectorAll('#mainState .fade-up:not(.visible)').forEach(el => {
                 const rect = el.getBoundingClientRect();
-                if (rect.top < window.innerHeight && rect.bottom > 0) {
-                    el.classList.add('visible');
-                }
+                if (rect.top < window.innerHeight && rect.bottom > 0) el.classList.add('visible');
             });
         }, 120);
 
-        console.log('⚙️ Configure page ready | template:', tmpl.name, '| source:', tmpl._source, '| base: $' + tmpl.basePrice, '| add-ons:', mergedAddOns.length);
+        console.log('⚙️ Configure page ready | base: $' + serviceConfig.basePackagePrice, '| add-ons:', mergedAddOns.length);
     })();
 </script>
 </body>
