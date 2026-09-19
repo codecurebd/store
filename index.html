@@ -61,13 +61,13 @@
     .scroll-top-btn.show { opacity: 1; transform: scale(1); pointer-events: auto; }
     .scroll-top-btn:hover { transform: scale(1.05); }
 
-    /* ===== HERO (80vh) ===== */
+    /* ===== HERO (80vh) — extra bottom padding for scroll indicator ===== */
     .hero-section {
       position: relative;
       min-height: 80vh;
       display: flex;
       flex-direction: column;
-      padding: 6rem 1.25rem 3rem;
+      padding: 6rem 1.25rem 7.5rem; /* top | sides | bottom (bottom reserves space for indicator) */
       overflow: hidden;
       background:
         radial-gradient(ellipse 90% 55% at 12% 18%, rgba(37,99,235,0.14), transparent 58%),
@@ -291,6 +291,88 @@
     .hero-stat:hover { background: rgba(37,99,235,0.04); }
     .hero-stat strong { display: block; font-size: 1.2rem; font-weight: 800; color: #0f172a; letter-spacing: -0.025em; line-height: 1.2; }
     .hero-stat span { font-size: 0.68rem; color: #64748b; font-weight: 500; margin-top: 0.15rem; display: block; }
+
+    /* ===== SCROLL DOWN INDICATOR (hero) ===== */
+    .scroll-down-indicator {
+      position: absolute;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      z-index: 3;
+      pointer-events: auto;
+      opacity: 0;
+      text-decoration: none;
+      animation: fadeInScroll 0.8s ease 1.2s forwards;
+      transition: opacity 0.3s ease;
+    }
+    .scroll-down-indicator:hover { opacity: 0.85; }
+    .scroll-down-indicator .sd-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #64748b;
+      opacity: 0.85;
+    }
+    .scroll-down-indicator .sd-mouse {
+      width: 24px;
+      height: 38px;
+      border: 2px solid rgba(37,99,235,0.5);
+      border-radius: 14px;
+      position: relative;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      box-shadow: 0 4px 14px rgba(37,99,235,0.12);
+    }
+    .scroll-down-indicator .sd-mouse::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 7px;
+      width: 4px;
+      height: 8px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, #2563eb, #7c3aed);
+      transform: translateX(-50%);
+      animation: sdWheel 1.7s cubic-bezier(0.65,0,0.35,1) infinite;
+    }
+    .scroll-down-indicator .sd-chevrons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: -2px;
+    }
+    .scroll-down-indicator .sd-chevrons i {
+      font-size: 0.72rem;
+      color: #2563eb;
+      opacity: 0.35;
+      line-height: 1;
+      animation: sdChevron 1.7s cubic-bezier(0.65,0,0.35,1) infinite;
+    }
+    .scroll-down-indicator .sd-chevrons i:nth-child(2) {
+      animation-delay: 0.18s;
+      margin-top: -4px;
+    }
+
+    @keyframes sdWheel {
+      0%   { opacity: 1; transform: translate(-50%, 0); }
+      60%  { opacity: 0; transform: translate(-50%, 12px); }
+      100% { opacity: 0; transform: translate(-50%, 12px); }
+    }
+    @keyframes sdChevron {
+      0%   { opacity: 0.15; transform: translateY(-2px); }
+      50%  { opacity: 0.9;  transform: translateY(2px); }
+      100% { opacity: 0.15; transform: translateY(-2px); }
+    }
+    @keyframes fadeInScroll {
+      from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
 
     /* ===== PORTFOLIO (agency) ===== */
     #portfolio .portfolio-skeleton {
@@ -541,7 +623,7 @@
       .hero-right { max-width: 420px; margin: 0 auto; width: 100%; }
     }
     @media (max-width: 768px) {
-      .hero-section { padding: 5.25rem 1rem 2.5rem; min-height: auto; }
+      .hero-section { padding: 5.25rem 1rem 6.5rem; min-height: auto; }
       .hero-section .hero-orb.o1 { width: 220px; height: 220px; }
       .hero-section .hero-orb.o2 { width: 170px; height: 170px; }
       .hero-section .hero-orb.o3 { width: 130px; height: 130px; }
@@ -549,14 +631,25 @@
       .hero-stat strong { font-size: 1.05rem; }
       .hero-payment-pills span { font-size: 0.65rem; }
       .stat-number { font-size: 2rem; }
+      .scroll-down-indicator { bottom: 14px; gap: 5px; }
+      .scroll-down-indicator .sd-label { font-size: 0.58rem; }
+      .scroll-down-indicator .sd-mouse { width: 20px; height: 32px; }
+      .scroll-down-indicator .sd-mouse::before { width: 3px; height: 6px; top: 6px; }
+      .scroll-down-indicator .sd-chevrons i { font-size: 0.6rem; }
     }
     @media (max-width: 480px) {
-      .hero-section { padding: 5rem 0.85rem 2rem; }
+      .hero-section { padding: 5rem 0.85rem 6rem; }
       .trust-badge { font-size: 0.7rem; padding: 0.35rem 0.72rem; }
       .hero-stat-row { gap: 0.35rem; }
       .hero-stat strong { font-size: 0.95rem; }
       .hero-stat span { font-size: 0.62rem; }
       .stat-number { font-size: 1.6rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-down-indicator { animation: none; opacity: 1; }
+      .scroll-down-indicator .sd-mouse::before,
+      .scroll-down-indicator .sd-chevrons i { animation: none; }
     }
 
     /* ===== CAMPAIGN BANNER (kept from original — backward compat) ===== */
@@ -649,99 +742,6 @@
       .campaign-banner .camp-cta { padding: 8px 16px; font-size: 0.8rem; }
       .campaign-banner .camp-img { max-height: 110px; }
     }
-
-    /* ===== SCROLL DOWN INDICATOR (hero) ===== */
-.scroll-down-indicator {
-  position: absolute;
-  left: 50%;
-  bottom: 22px;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  z-index: 3;
-  pointer-events: none;
-  opacity: 0;
-  animation: fadeInScroll 0.8s ease 1.2s forwards;
-}
-.scroll-down-indicator .sd-label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #64748b;
-  opacity: 0.85;
-}
-.scroll-down-indicator .sd-mouse {
-  width: 24px;
-  height: 38px;
-  border: 2px solid rgba(37,99,235,0.5);
-  border-radius: 14px;
-  position: relative;
-  background: rgba(255,255,255,0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 4px 14px rgba(37,99,235,0.12);
-}
-.scroll-down-indicator .sd-mouse::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 7px;
-  width: 4px;
-  height: 8px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, #2563eb, #7c3aed);
-  transform: translateX(-50%);
-  animation: sdWheel 1.7s cubic-bezier(0.65,0,0.35,1) infinite;
-}
-.scroll-down-indicator .sd-chevrons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: -2px;
-}
-.scroll-down-indicator .sd-chevrons i {
-  font-size: 0.72rem;
-  color: #2563eb;
-  opacity: 0.35;
-  line-height: 1;
-  animation: sdChevron 1.7s cubic-bezier(0.65,0,0.35,1) infinite;
-}
-.scroll-down-indicator .sd-chevrons i:nth-child(2) {
-  animation-delay: 0.18s;
-  margin-top: -4px;
-}
-
-@keyframes sdWheel {
-  0%   { opacity: 1; transform: translate(-50%, 0); }
-  60%  { opacity: 0; transform: translate(-50%, 12px); }
-  100% { opacity: 0; transform: translate(-50%, 12px); }
-}
-@keyframes sdChevron {
-  0%   { opacity: 0.15; transform: translateY(-2px); }
-  50%  { opacity: 0.9;  transform: translateY(2px); }
-  100% { opacity: 0.15; transform: translateY(-2px); }
-}
-@keyframes fadeInScroll {
-  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-/* Mobile: aro chhoto kore din */
-@media (max-width: 768px) {
-  .scroll-down-indicator { bottom: 12px; gap: 6px; }
-  .scroll-down-indicator .sd-label { font-size: 0.6rem; }
-  .scroll-down-indicator .sd-mouse { width: 20px; height: 32px; }
-  .scroll-down-indicator .sd-mouse::before { width: 3px; height: 6px; top: 6px; }
-  .scroll-down-indicator .sd-chevrons i { font-size: 0.6rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .scroll-down-indicator .sd-mouse::before,
-  .scroll-down-indicator .sd-chevrons i { animation: none; }
-}
   </style>
 </head>
 <body class="landing-page">
@@ -805,15 +805,15 @@
           </div>
         </div>
 
+        <!-- Scroll down indicator (absolute, sits in reserved bottom space) -->
         <a href="#portfolio" class="scroll-down-indicator" aria-label="Scroll to portfolio">
-    <span class="sd-label">Scroll</span>
-    <span class="sd-mouse" aria-hidden="true"></span>
-    <span class="sd-chevrons" aria-hidden="true">
-      <i class="fas fa-chevron-down"></i>
-      <i class="fas fa-chevron-down"></i>
-    </span>
-  </a>
-
+          <span class="sd-label">Scroll</span>
+          <span class="sd-mouse" aria-hidden="true"></span>
+          <span class="sd-chevrons" aria-hidden="true">
+            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-chevron-down"></i>
+          </span>
+        </a>
       </section>
 
       <!-- ============ PORTFOLIO (moved up — appears right after hero, no animation) ============ -->
