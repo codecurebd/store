@@ -649,6 +649,99 @@
       .campaign-banner .camp-cta { padding: 8px 16px; font-size: 0.8rem; }
       .campaign-banner .camp-img { max-height: 110px; }
     }
+
+    /* ===== SCROLL DOWN INDICATOR (hero) ===== */
+.scroll-down-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeInScroll 0.8s ease 1.2s forwards;
+}
+.scroll-down-indicator .sd-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #64748b;
+  opacity: 0.85;
+}
+.scroll-down-indicator .sd-mouse {
+  width: 24px;
+  height: 38px;
+  border: 2px solid rgba(37,99,235,0.5);
+  border-radius: 14px;
+  position: relative;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 14px rgba(37,99,235,0.12);
+}
+.scroll-down-indicator .sd-mouse::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  width: 4px;
+  height: 8px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #2563eb, #7c3aed);
+  transform: translateX(-50%);
+  animation: sdWheel 1.7s cubic-bezier(0.65,0,0.35,1) infinite;
+}
+.scroll-down-indicator .sd-chevrons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -2px;
+}
+.scroll-down-indicator .sd-chevrons i {
+  font-size: 0.72rem;
+  color: #2563eb;
+  opacity: 0.35;
+  line-height: 1;
+  animation: sdChevron 1.7s cubic-bezier(0.65,0,0.35,1) infinite;
+}
+.scroll-down-indicator .sd-chevrons i:nth-child(2) {
+  animation-delay: 0.18s;
+  margin-top: -4px;
+}
+
+@keyframes sdWheel {
+  0%   { opacity: 1; transform: translate(-50%, 0); }
+  60%  { opacity: 0; transform: translate(-50%, 12px); }
+  100% { opacity: 0; transform: translate(-50%, 12px); }
+}
+@keyframes sdChevron {
+  0%   { opacity: 0.15; transform: translateY(-2px); }
+  50%  { opacity: 0.9;  transform: translateY(2px); }
+  100% { opacity: 0.15; transform: translateY(-2px); }
+}
+@keyframes fadeInScroll {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Mobile: aro chhoto kore din */
+@media (max-width: 768px) {
+  .scroll-down-indicator { bottom: 12px; gap: 6px; }
+  .scroll-down-indicator .sd-label { font-size: 0.6rem; }
+  .scroll-down-indicator .sd-mouse { width: 20px; height: 32px; }
+  .scroll-down-indicator .sd-mouse::before { width: 3px; height: 6px; top: 6px; }
+  .scroll-down-indicator .sd-chevrons i { font-size: 0.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-down-indicator .sd-mouse::before,
+  .scroll-down-indicator .sd-chevrons i { animation: none; }
+}
   </style>
 </head>
 <body class="landing-page">
@@ -711,6 +804,16 @@
             </div>
           </div>
         </div>
+
+        <a href="#portfolio" class="scroll-down-indicator" aria-label="Scroll to portfolio">
+    <span class="sd-label">Scroll</span>
+    <span class="sd-mouse" aria-hidden="true"></span>
+    <span class="sd-chevrons" aria-hidden="true">
+      <i class="fas fa-chevron-down"></i>
+      <i class="fas fa-chevron-down"></i>
+    </span>
+  </a>
+
       </section>
 
       <!-- ============ PORTFOLIO (moved up — appears right after hero, no animation) ============ -->
