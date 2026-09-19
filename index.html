@@ -292,110 +292,6 @@
     .hero-stat strong { display: block; font-size: 1.2rem; font-weight: 800; color: #0f172a; letter-spacing: -0.025em; line-height: 1.2; }
     .hero-stat span { font-size: 0.68rem; color: #64748b; font-weight: 500; margin-top: 0.15rem; display: block; }
 
-    /* ===== FEATURED PRODUCTS STRIP (fills remaining ~20vh, no animation) ===== */
-    .featured-strip {
-      position: relative;
-      min-height: 20vh;
-      background: #ffffff;
-      border-top: 1px solid rgba(15,23,42,0.06);
-      border-bottom: 1px solid rgba(15,23,42,0.06);
-      padding: 0.9rem 1.25rem 1rem;
-      display: flex;
-      align-items: center;
-    }
-    .featured-strip-inner {
-      width: 100%;
-      max-width: 74rem;
-      margin: 0 auto;
-    }
-    .featured-strip-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 0.6rem;
-    }
-    .featured-strip-head h3 {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #0f172a;
-      margin: 0;
-      letter-spacing: -0.01em;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
-    .featured-viewall {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #2563eb;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: gap 0.25s ease;
-      white-space: nowrap;
-    }
-    .featured-viewall:hover { gap: 9px; }
-
-    .featured-scroll {
-      display: flex;
-      gap: 0.85rem;
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding-bottom: 0.35rem;
-      scroll-snap-type: x proximity;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: thin;
-    }
-    .featured-scroll::-webkit-scrollbar { height: 6px; }
-    .featured-scroll::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.15); border-radius: 999px; }
-    .featured-scroll::-webkit-scrollbar-track { background: transparent; }
-
-    .fp-card {
-      flex: 0 0 240px;
-      width: 240px;
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-      padding: 0.55rem 0.75rem;
-      background: #fff;
-      border: 1px solid rgba(15,23,42,0.08);
-      border-radius: 14px;
-      text-decoration: none;
-      color: inherit;
-      box-shadow: 0 1px 3px rgba(15,23,42,0.04);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-      scroll-snap-align: start;
-    }
-    .fp-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(37,99,235,0.22);
-      box-shadow: 0 8px 22px rgba(37,99,235,0.1);
-    }
-    .fp-thumb {
-      width: 48px; height: 48px; flex: 0 0 48px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08));
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; color: #94a3b8; font-size: 1.05rem;
-    }
-    .fp-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .fp-meta { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .fp-name {
-      font-size: 0.82rem; font-weight: 600; color: #0f172a; line-height: 1.25;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .fp-price { font-size: 0.78rem; font-weight: 700; color: #2563eb; }
-    .fp-loading { font-size: 0.82rem; color: #94a3b8; padding: 0.85rem 0.25rem; }
-
-    @media (max-width: 768px) {
-      .featured-strip { min-height: auto; padding: 0.85rem 1rem 1rem; }
-    }
-    @media (max-width: 480px) {
-      .fp-card { flex: 0 0 210px; width: 210px; }
-    }
-
     /* ===== PORTFOLIO (agency) ===== */
     #portfolio .portfolio-skeleton {
       background: linear-gradient(90deg, #e8edf3 25%, #f1f5f9 50%, #e8edf3 75%);
@@ -421,6 +317,16 @@
     .portfolio-empty i { font-size: 2.5rem; opacity: 0.35; display: block; margin-bottom: 0.85rem; }
     .portfolio-empty h3 { font-size: 1.05rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; }
     .portfolio-empty p { font-size: 0.88rem; max-width: 340px; margin: 0 auto 1rem; line-height: 1.55; }
+
+    /* Portfolio — visible immediately (no fade animation), compact top padding */
+    #portfolio.no-anim-section { padding-top: 1.25rem; }
+    #portfolio.no-anim-section .ag-section-head { margin-bottom: 0.85rem; }
+    #portfolio.no-anim-section .fade-up,
+    #portfolio.no-anim-section .fade-up:not(.visible) {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
 
     /* ===== SERVICES (agency) ===== */
     .service-cat-card {
@@ -807,37 +713,24 @@
         </div>
       </section>
 
-      <!-- ============ FEATURED PRODUCTS STRIP (remaining ~20vh, loads instantly, no animation) ============ -->
-      <section id="featured-products" class="featured-strip" aria-label="Featured products">
-        <div class="featured-strip-inner">
-          <div class="featured-strip-head">
-            <h3><i class="fas fa-star" style="color:#f59e0b;"></i> Featured Products</h3>
-            <a href="shop.html" class="featured-viewall">View all <i class="fas fa-arrow-right"></i></a>
+      <!-- ============ PORTFOLIO (moved up — appears right after hero, no animation) ============ -->
+      <section id="portfolio" class="ag-section no-anim-section">
+        <div class="ag-container">
+          <div class="ag-section-head">
+            <span class="eyebrow"><i class="fas fa-palette"></i> Selected Work</span>
+            <h2>Design directions we build with</h2>
+            <p>Browse our house styles. Pick one as a starting point — we tailor every detail to your brand and brief.</p>
           </div>
-          <div id="featuredProductsScroll" class="featured-scroll">
-            <div class="fp-loading">Loading featured products…</div>
+          <div id="portfolioGrid" class="portfolio-grid">
+            <div class="portfolio-skeleton"></div>
+            <div class="portfolio-skeleton"></div>
+            <div class="portfolio-skeleton"></div>
           </div>
         </div>
       </section>
 
       <!-- ============ CAMPAIGN BANNER (conditional, backward compat) ============ -->
       <div id="campaignBanner" class="campaign-banner max-w-7xl mx-auto px-6" style="display:none;"></div>
-
-      <!-- ============ PORTFOLIO ============ -->
-      <section id="portfolio" class="ag-section">
-        <div class="ag-container">
-          <div class="ag-section-head">
-            <span class="eyebrow fade-up"><i class="fas fa-palette"></i> Selected Work</span>
-            <h2 class="fade-up">Design directions we build with</h2>
-            <p class="fade-up">Browse our house styles. Pick one as a starting point — we tailor every detail to your brand and brief.</p>
-          </div>
-          <div id="portfolioGrid" class="portfolio-grid">
-            <div class="portfolio-skeleton fade-up visible"></div>
-            <div class="portfolio-skeleton fade-up visible" style="transition-delay:0.06s;"></div>
-            <div class="portfolio-skeleton fade-up visible" style="transition-delay:0.12s;"></div>
-          </div>
-        </div>
-      </section>
 
       <!-- ============ SERVICES ============ -->
       <section id="services" class="ag-section alt">
@@ -1077,7 +970,14 @@
     }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 
     function observeFadeUps() {
-      document.querySelectorAll('.fade-up:not(.visible)').forEach(el => observer.observe(el));
+      // Skip elements inside the no-animation portfolio section
+      document.querySelectorAll('.fade-up:not(.visible)').forEach(el => {
+        if (el.closest('#portfolio.no-anim-section')) {
+          el.classList.add('visible');
+          return;
+        }
+        observer.observe(el);
+      });
     }
     document.addEventListener('DOMContentLoaded', observeFadeUps);
     // Re-observe after dynamic renders
@@ -1134,78 +1034,15 @@
     }
 
     // ================================================================
-    // FEATURED PRODUCTS STRIP (renders instantly — no fade/animation)
-    // ================================================================
-    const featuredScroll = document.getElementById('featuredProductsScroll');
-
-    function renderFeaturedProducts(items) {
-      if (!featuredScroll) return;
-
-      if (!items || items.length === 0) {
-        featuredScroll.innerHTML =
-          `<div class="fp-loading">No featured products right now — check back soon.</div>`;
-        return;
-      }
-
-      featuredScroll.innerHTML = items.map((p) => {
-        const img = p.imageUrl || p.image || (Array.isArray(p.images) ? p.images[0] : '') || '';
-        const name = p.name || p.title || 'Product';
-        const price = Number(p.price) || 0;
-        const thumb = img
-          ? `<img src="${escapeHtmlAttr(img)}" alt="${escapeHtmlAttr(name)}" loading="eager" decoding="async" />`
-          : `<i class="fas fa-box-open"></i>`;
-
-        return `
-          <a class="fp-card" href="product.html?id=${encodeURIComponent(p.id)}">
-            <div class="fp-thumb">${thumb}</div>
-            <div class="fp-meta">
-              <div class="fp-name">${escapeHtmlAttr(name)}</div>
-              <div class="fp-price">৳${price.toLocaleString('en-BD')}</div>
-            </div>
-          </a>
-        `;
-      }).join('');
-    }
-
-    async function loadFeaturedProducts() {
-      if (!featuredScroll) return;
-      try {
-        let items = [];
-
-        // 1. Featured products first
-        try {
-          const snap = await getDocs(query(collection(db, 'products'), where('featured', '==', true)));
-          snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-        } catch (err) {
-          console.warn('[featured] featured lookup failed:', err?.code || err?.message);
-        }
-
-        // 2. Fallback: latest products so the strip is never empty
-        if (items.length === 0) {
-          try {
-            const snap2 = await getDocs(collection(db, 'products'));
-            snap2.forEach(d => items.push({ id: d.id, ...d.data() }));
-          } catch (err) {
-            console.warn('[featured] products lookup failed:', err?.code || err?.message);
-          }
-        }
-
-        renderFeaturedProducts(items.slice(0, 12));
-      } catch (err) {
-        console.error('Error loading featured products:', err);
-        renderFeaturedProducts([]);
-      }
-    }
-
-    // ================================================================
     // PORTFOLIO — loads designTemplates, falls back to products
+    // (Placed right after hero. No fade animation — appears immediately.)
     // ================================================================
     const portfolioGrid = document.getElementById('portfolioGrid');
 
     function renderPortfolioSkeletons(count = 3) {
       let html = '';
       for (let i = 0; i < count; i++) {
-        html += `<div class="portfolio-skeleton fade-up visible" style="transition-delay:${i * 0.06}s;"></div>`;
+        html += `<div class="portfolio-skeleton"></div>`;
       }
       portfolioGrid.innerHTML = html;
     }
@@ -1226,7 +1063,7 @@
     function renderPortfolio(items) {
       if (!items || items.length === 0) { renderPortfolioEmpty(); return; }
       let html = '';
-      items.forEach((p, i) => {
+      items.forEach((p) => {
         const hasHtml = p.htmlContent && String(p.htmlContent).trim().length > 0;
         let previewHtml = '';
         if (hasHtml) {
@@ -1248,16 +1085,12 @@
             </div>`;
         }
 
-        // Category label — pick from categoryName, category, or fallback
         const catLabel = p.categoryName || p.category || 'Design';
-
         const desc = p.desc || p.description || 'A tailored design direction crafted for modern businesses.';
-
-        // Portfolio CTA → get-new-website.html (safe even before file #5)
         const ctaHref = 'get-new-website.html';
 
         html += `
-          <article class="portfolio-card fade-up" style="transition-delay:${i * 0.06}s;">
+          <article class="portfolio-card">
             <div class="pc-preview">
               <span class="pc-tag">${escapeHtmlAttr(catLabel)}</span>
               ${previewHtml}
@@ -1273,13 +1106,12 @@
         `;
       });
       portfolioGrid.innerHTML = html;
-      observeFadeUps();
+      // No observeFadeUps() needed — this section is animation-free
     }
 
     async function loadPortfolio() {
       renderPortfolioSkeletons(3);
       try {
-        // 1. Try designTemplates collection first
         let items = [];
         try {
           const tSnap = await getDocs(collection(db, 'designTemplates'));
@@ -1287,18 +1119,15 @@
             const data = d.data();
             if (data.isActive !== false) items.push({ id: d.id, ...data, _source: 'template' });
           });
-          // Featured first, then by createdAt
           items.sort((a, b) => {
             if (a.featured && !b.featured) return -1;
             if (!a.featured && b.featured) return 1;
             return 0;
           });
         } catch (err) {
-          // Collection may not exist yet → silently continue
           console.warn('[portfolio] designTemplates not available:', err?.code || err?.message);
         }
 
-        // 2. Fallback: products with featured == true
         if (items.length === 0) {
           try {
             const fSnap = await getDocs(query(collection(db, 'products'), where('featured', '==', true)));
@@ -1308,7 +1137,6 @@
           }
         }
 
-        // 3. Fallback: any products
         if (items.length === 0) {
           try {
             const pSnap = await getDocs(collection(db, 'products'));
@@ -1371,7 +1199,6 @@
       if (!key) return 'get-new-website.html';
       if (SERVICE_HREF_MAP[key]) return SERVICE_HREF_MAP[key];
 
-      // Partial / fuzzy match
       for (const mapKey in SERVICE_HREF_MAP) {
         if (key.includes(mapKey)) return SERVICE_HREF_MAP[mapKey];
       }
@@ -1400,16 +1227,13 @@
       observeFadeUps();
     }
 
-    // Initial paint with fallback so the section is never empty
     renderServices(FALLBACK_SERVICES);
 
-    // Then upgrade live if serviceCategories has items
     try {
       listenServiceCategories((active) => {
         if (active && active.length > 0) {
           renderServices(active);
         }
-        // If empty, keep the fallback already rendered
       });
     } catch (err) {
       console.warn('[services] listener attach failed:', err);
@@ -1684,13 +1508,12 @@
     // ================================================================
     // KICKOFF DATA LOADS
     // ================================================================
-    loadFeaturedProducts();   // instant — no animation
     loadPortfolio();
     loadCampaignBanner();
     loadTestimonials();
     loadFaqs();
 
-    console.log('🏠 Agency landing loaded — featured strip + portfolio + services + legacy compat.');
+    console.log('🏠 Agency landing loaded — portfolio (no-anim) right after hero + services + legacy compat.');
   </script>
 </body>
 </html>
