@@ -30,6 +30,7 @@
             color: #0f172a;
         }
 
+        /* ===== TOP BAR ===== */
         .cfg-topbar {
             display: flex;
             align-items: center;
@@ -69,6 +70,7 @@
             margin: 3px 0 0;
         }
 
+        /* ===== STEP INDICATOR ===== */
         .step-indicator {
             display: flex; align-items: center; gap: 10px;
             margin-bottom: 1.75rem; justify-content: flex-start; flex-wrap: wrap;
@@ -100,19 +102,17 @@
             .step-indicator .step-arrow { display: none; }
         }
 
+        /* ===== LAYOUT ===== */
         .cfg-layout {
             display: grid;
             grid-template-columns: 1fr 380px;
             gap: 1.5rem;
             align-items: start;
         }
-        .cfg-layout > aside {
-            align-self: stretch;
-        }
+        .cfg-layout > aside { align-self: stretch; }
         @media (max-width: 980px) {
             .cfg-layout { grid-template-columns: 1fr; }
             .cfg-layout > aside { align-self: auto; }
-            /* Mobile: estimate stays in flow, no sticky */
             .price-summary {
                 position: static !important;
                 top: auto !important;
@@ -121,6 +121,7 @@
             }
         }
 
+        /* ===== PANEL ===== */
         .cfg-panel {
             background: #fff;
             border: 1px solid rgba(15,23,42,0.06);
@@ -141,11 +142,21 @@
             background: rgba(37,99,235,0.1); color: #2563eb;
             font-size: 0.9rem; flex-shrink: 0;
         }
+        .cfg-panel .cp-title .step-badge {
+            margin-left: auto;
+            font-size: 0.68rem; font-weight: 700;
+            padding: 3px 10px; border-radius: 999px;
+            background: rgba(37,99,235,0.08);
+            color: #2563eb;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
         .cfg-panel .cp-sub {
             font-size: 0.82rem; color: #64748b; margin: -0.5rem 0 1rem;
             line-height: 1.55;
         }
 
+        /* ===== TEMPLATE PREVIEW ===== */
         .cfg-preview {
             background: #f1f5f9;
             border: 1px solid rgba(15,23,42,0.06);
@@ -178,6 +189,23 @@
         }
         .cfg-preview .preview-empty i { font-size: 2.25rem; opacity: 0.4; }
 
+        /* ===== TEMPLATE META TAGS ===== */
+        .template-meta {
+            display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+            margin-bottom: 0.85rem;
+        }
+        .template-meta .tag {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; border-radius: 999px;
+            font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.03em; text-transform: uppercase;
+        }
+        .template-meta .tag.cat { background: rgba(37,99,235,0.1); color: #2563eb; }
+        .template-meta .tag.featured { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
+        .template-meta .tag.custom { background: rgba(124,58,237,0.1); color: #7c3aed; }
+        .template-meta .tag.base { background: rgba(22,163,74,0.1); color: #16a34a; }
+
+        /* ===== BASE PACKAGE CARD ===== */
         .custom-base-card {
             background:
                 radial-gradient(ellipse 70% 60% at 100% 0%, rgba(37,99,235,0.08), transparent 55%),
@@ -245,6 +273,7 @@
             .custom-base-card .cbc-price .amt { font-size: 1.65rem; }
         }
 
+        /* ===== ADD-ONS ===== */
         .addon-category { margin-bottom: 1.5rem; }
         .addon-category:last-child { margin-bottom: 0; }
         .addon-cat-head {
@@ -316,19 +345,7 @@
         }
         .addon-empty i { font-size: 1.75rem; opacity: 0.35; display: block; margin-bottom: 8px; }
 
-        .cfg-textarea {
-            width: 100%; padding: 14px 16px;
-            border: 1.5px solid rgba(15,23,42,0.08); border-radius: 14px;
-            font-size: 0.92rem; font-family: inherit; line-height: 1.55;
-            background: #f8fafc; color: #0f172a; outline: none;
-            resize: vertical; min-height: 120px; transition: 0.2s;
-        }
-        .cfg-textarea:focus {
-            border-color: #2563eb; background: #fff;
-            box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
-        }
-        .cfg-char-count { font-size: 0.72rem; color: #94a3b8; text-align: right; margin-top: 4px; }
-
+        /* ===== DESIGN REFERENCES ===== */
         .ref-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 0.75rem; }
         .btn-add-ref {
             display: inline-flex; align-items: center; gap: 8px;
@@ -368,6 +385,23 @@
         .ref-chip .remove:hover { color: #dc2626; background: rgba(220,38,38,0.1); }
         .ref-hint { font-size: 0.76rem; color: #94a3b8; margin-top: 8px; line-height: 1.5; }
 
+        /* ===== TEXTAREA ===== */
+        .cfg-textarea {
+            width: 100%; padding: 14px 16px;
+            border: 1.5px solid rgba(15,23,42,0.08); border-radius: 14px;
+            font-size: 0.92rem; font-family: inherit; line-height: 1.55;
+            background: #f8fafc; color: #0f172a; outline: none;
+            resize: vertical; min-height: 140px; transition: 0.2s;
+        }
+        .cfg-textarea:focus {
+            border-color: #2563eb; background: #fff;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+        }
+        .cfg-textarea::placeholder { color: #94a3b8; }
+        .cfg-char-count { font-size: 0.72rem; color: #94a3b8; text-align: right; margin-top: 4px; }
+        .cfg-char-count.over { color: #dc2626; font-weight: 700; }
+
+        /* ===== PRICE SUMMARY ===== */
         .price-summary {
             position: sticky;
             top: 100px;
@@ -376,12 +410,10 @@
             border-radius: 22px;
             padding: 1.5rem 1.5rem 1.6rem;
             box-shadow: 0 6px 22px rgba(15,23,42,0.06);
-            position: relative;
             overflow: hidden;
             max-height: calc(100vh - 120px);
             overflow-y: auto;
         }
-        .price-summary { position: sticky; top: 100px; }
         .price-summary::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
             background: linear-gradient(90deg, #2563eb, #7c3aed);
@@ -426,7 +458,7 @@
         }
         .price-summary .ps-bdt strong { color: #16a34a; font-weight: 800; }
 
-        /* NEW: split payment info box */
+        /* Split payment box */
         .ps-payment-split {
             margin-top: 1rem;
             padding: 12px 14px;
@@ -513,8 +545,9 @@
         }
         .ps-btn-outline:hover { border-color: #2563eb; color: #2563eb; background: #fff; }
 
+        /* ===== SUCCESS SCREEN ===== */
         .cfg-success {
-            max-width: 620px; margin: 3rem auto;
+            max-width: 640px; margin: 3rem auto;
             background: #fff; border: 1px solid rgba(15,23,42,0.06);
             border-radius: 24px; padding: 2.5rem 2rem;
             text-align: center; box-shadow: 0 16px 48px rgba(15,23,42,0.06);
@@ -620,6 +653,7 @@
         }
         .cfg-success .actions .outline:hover { border-color: #2563eb; color: #2563eb; }
 
+        /* ===== LOADING / ERROR ===== */
         .cfg-loading, .cfg-error {
             max-width: 620px; margin: 3rem auto;
             background: #fff; border: 1px solid rgba(15,23,42,0.06);
@@ -640,17 +674,36 @@
         .cfg-error h2 { font-size: 1.2rem; font-weight: 700; color: #0f172a; margin: 0 0 0.35rem; }
         .cfg-error p { color: #64748b; font-size: 0.9rem; margin: 0 0 1.25rem; line-height: 1.55; }
 
-        .sk {
-            background: linear-gradient(90deg, #e8edf3 25%, #f1f5f9 50%, #e8edf3 75%);
-            background-size: 200% 100%;
-            animation: cfgShimmer 1.2s ease-in-out infinite;
-            border-radius: 10px;
+        /* ===== AUTH GATE ===== */
+        .cfg-auth-gate {
+            max-width: 520px; margin: 0 auto;
+            background: #fff; border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 20px; padding: 2rem 1.75rem;
+            text-align: center; box-shadow: 0 8px 28px rgba(15,23,42,0.05);
         }
-        @keyframes cfgShimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .cfg-auth-gate i { font-size: 2.25rem; color: #2563eb; opacity: 0.85; display: block; margin-bottom: 0.85rem; }
+        .cfg-auth-gate h3 { font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0 0 0.4rem; }
+        .cfg-auth-gate p { font-size: 0.9rem; color: #64748b; margin: 0 0 1.25rem; line-height: 1.55; }
+        .cfg-auth-gate .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 22px; border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff; font-weight: 700; font-size: 0.9rem;
+            text-decoration: none; border: none; cursor: pointer; font-family: inherit;
         }
 
+        /* ===== FADE-UP ===== */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) {
+            .fade-up { opacity: 1; transform: none; transition: none; }
+        }
+
+        /* ===== TOAST ===== */
         #toast-container {
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
             z-index: 9999; display: flex; flex-direction: column; align-items: center;
@@ -669,38 +722,6 @@
         .toast.hide { animation: slideDown 0.3s ease forwards; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(30px); } }
-
-        .cfg-auth-gate {
-            max-width: 520px; margin: 0 auto;
-            background: #fff; border: 1px solid rgba(15,23,42,0.06);
-            border-radius: 20px; padding: 2rem 1.75rem;
-            text-align: center; box-shadow: 0 8px 28px rgba(15,23,42,0.05);
-        }
-        .cfg-auth-gate i { font-size: 2.25rem; color: #2563eb; opacity: 0.85; display: block; margin-bottom: 0.85rem; }
-        .cfg-auth-gate h3 { font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0 0 0.4rem; }
-        .cfg-auth-gate p { font-size: 0.9rem; color: #64748b; margin: 0 0 1.25rem; line-height: 1.55; }
-        .cfg-auth-gate .btn-primary {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 12px 22px; border-radius: 14px;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-            color: #fff; font-weight: 700; font-size: 0.9rem;
-            text-decoration: none; border: none; cursor: pointer; font-family: inherit;
-        }
-
-        .template-meta {
-            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-            margin-bottom: 0.75rem;
-        }
-        .template-meta .tag {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 4px 12px; border-radius: 999px;
-            font-size: 0.7rem; font-weight: 700;
-            letter-spacing: 0.03em; text-transform: uppercase;
-        }
-        .template-meta .tag.cat { background: rgba(37,99,235,0.1); color: #2563eb; }
-        .template-meta .tag.featured { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
-        .template-meta .tag.custom { background: rgba(124,58,237,0.1); color: #7c3aed; }
-        .template-meta .tag.base { background: rgba(22,163,74,0.1); color: #16a34a; }
     </style>
 </head>
 <body>
@@ -712,6 +733,7 @@
         <section style="padding: 1.5rem 1rem 4rem;">
             <div style="max-width: 1200px; margin: 0 auto;">
 
+                <!-- ===== TOPBAR ===== -->
                 <div class="cfg-topbar fade-up">
                     <a href="get-new-website.html" class="back-link" aria-label="Back to design selector">
                         <i class="fas fa-arrow-left"></i>
@@ -722,6 +744,7 @@
                     </div>
                 </div>
 
+                <!-- ===== STEP INDICATOR ===== -->
                 <div class="step-indicator fade-up">
                     <span class="step done"><span class="num"><i class="fas fa-check"></i></span><span class="lbl">Choose design</span></span>
                     <i class="fas fa-chevron-right step-arrow"></i>
@@ -730,11 +753,13 @@
                     <span class="step"><span class="num">3</span><span class="lbl">Submit brief</span></span>
                 </div>
 
+                <!-- ===== LOADING ===== -->
                 <div id="loadingState" class="cfg-loading">
                     <div class="cfg-spinner"></div>
                     <p style="color:#64748b;font-weight:600;">Loading your configuration…</p>
                 </div>
 
+                <!-- ===== ERROR ===== -->
                 <div id="errorState" class="cfg-error" style="display:none;">
                     <i class="big fas fa-exclamation-circle"></i>
                     <h2>Could not load this design</h2>
@@ -744,13 +769,16 @@
                     </a>
                 </div>
 
+                <!-- ===== MAIN ===== -->
                 <div id="mainState" style="display:none;">
                     <div class="cfg-layout">
                         <div>
+                            <!-- Design preview panel -->
                             <div class="cfg-panel fade-up">
                                 <div class="cp-title">
                                     <span class="ico"><i class="fas fa-desktop"></i></span>
                                     <span id="previewPanelTitle">Design preview</span>
+                                    <span class="step-badge">Step 1 · Chosen</span>
                                 </div>
                                 <div class="template-meta" id="templateMeta"></div>
                                 <div id="previewArea"></div>
@@ -760,20 +788,23 @@
                                 </p>
                             </div>
 
+                            <!-- Add-ons panel -->
                             <div class="cfg-panel fade-up">
                                 <div class="cp-title">
                                     <span class="ico"><i class="fas fa-puzzle-piece"></i></span>
                                     <span>Add-ons</span>
-                                    <span id="addonCount" style="margin-left:auto;font-size:0.75rem;color:#94a3b8;font-weight:600;">0 selected</span>
+                                    <span class="step-badge" id="addonCount">0 selected</span>
                                 </div>
-                                <p class="cp-sub">Supercharge your website with powerful features. Select what you need — the estimate updates live.</p>
+                                <p class="cp-sub">Supercharge your website with powerful features. Select what you need — the estimate updates live. Add-ons are paid one-by-one after each is completed.</p>
                                 <div id="addonList"></div>
                             </div>
 
+                            <!-- Design references panel -->
                             <div class="cfg-panel fade-up">
                                 <div class="cp-title">
                                     <span class="ico"><i class="fas fa-palette"></i></span>
                                     <span>Design references</span>
+                                    <span class="step-badge">Step 3 · Brief</span>
                                 </div>
                                 <p class="cp-sub">Share links, screenshots, or a description of the look you want. Multiple references welcome.</p>
                                 <div class="ref-actions">
@@ -788,10 +819,12 @@
                                 </p>
                             </div>
 
+                            <!-- Project brief panel -->
                             <div class="cfg-panel fade-up">
                                 <div class="cp-title">
                                     <span class="ico"><i class="fas fa-clipboard-list"></i></span>
                                     <span>Project brief</span>
+                                    <span class="step-badge">Step 3 · Brief</span>
                                 </div>
                                 <p class="cp-sub">Tell us about your project — goals, audience, timeline, anything that helps.</p>
                                 <textarea
@@ -806,6 +839,7 @@
                             </div>
                         </div>
 
+                        <!-- Price summary sidebar -->
                         <aside>
                             <div class="price-summary fade-up">
                                 <div class="ps-title">Your estimate</div>
@@ -828,7 +862,7 @@
                                 </div>
                                 <div class="ps-bdt">≈ <strong id="sumBDT">৳6,250</strong></div>
 
-                                <!-- NEW: split payment info -->
+                                <!-- Split payment box -->
                                 <div class="ps-payment-split">
                                     <div class="split-head"><i class="fas fa-shield-alt"></i> How payment works</div>
                                     <div class="split-row">
@@ -878,13 +912,13 @@
                     </div>
                 </div>
 
+                <!-- ===== SUCCESS ===== -->
                 <div id="successState" class="cfg-success" style="display:none;">
                     <div class="check-circle"><i class="fas fa-check"></i></div>
                     <h2>Request submitted!</h2>
                     <p>Thanks — we've received your configuration and design references.</p>
                     <div class="order-id" id="successOrderId">#—</div>
 
-                    <!-- NEW: payment recap -->
                     <div class="pay-recap">
                         <div class="pr-title"><i class="fas fa-receipt"></i> Payment summary</div>
 
@@ -1079,7 +1113,6 @@
         const merged = [];
         const usedNames = new Set();
 
-        // Defaults first — allow Firestore override
         DEFAULT_ADDONS.forEach(d => {
             const key = d.name.toLowerCase().trim();
             const override = fsByName[key];
@@ -1097,7 +1130,6 @@
             });
         });
 
-        // Firestore-only add-ons
         (firestoreAddOns || []).forEach(a => {
             const key = (a.name || '').toLowerCase().trim();
             if (!key || usedNames.has(key)) return;
@@ -1179,7 +1211,7 @@
     }
 
     // ================================================================
-    // RENDER TEMPLATE
+    // RENDER TEMPLATE INFO
     // ================================================================
     function renderTemplateInfo() {
         const meta = document.getElementById('templateMeta');
@@ -1423,7 +1455,7 @@
     }
 
     // ================================================================
-    // PRICE SUMMARY (with split payment UI)
+    // PRICE SUMMARY
     // ================================================================
     function updatePriceSummary() {
         if (!currentTemplate) return;
@@ -1463,7 +1495,6 @@
         document.getElementById('sumTotal').textContent = `$${calc.totalUSD.toFixed(2)}`;
         document.getElementById('sumBDT').textContent = `৳${calc.totalBDT.toLocaleString('en-BD')}`;
 
-        // Split payment preview
         document.getElementById('splitAdvance').textContent = `$${basePrice.toFixed(2)}`;
         document.getElementById('splitLater').textContent = `$${calc.addOnsUSD.toFixed(2)}`;
 
@@ -1477,7 +1508,12 @@
     const briefArea = document.getElementById('briefTextarea');
     const briefCount = document.getElementById('briefCount');
     briefArea?.addEventListener('input', () => {
-        if (briefCount) briefCount.textContent = briefArea.value.length;
+        if (briefCount) {
+            briefCount.textContent = briefArea.value.length;
+            const wrap = briefCount.parentElement;
+            if (briefArea.value.length > 1900) wrap.classList.add('over');
+            else wrap.classList.remove('over');
+        }
     });
 
     // ================================================================
@@ -1512,7 +1548,7 @@
     });
 
     // ================================================================
-    // SUBMIT — opens payment modal for base package only
+    // SUBMIT
     // ================================================================
     document.getElementById('submitBtn')?.addEventListener('click', async () => {
         if (!currentUser) {
@@ -1524,7 +1560,7 @@
         const btn = document.getElementById('submitBtn');
         const origHtml = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Preparing payment…';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing payment…';
 
         try {
             const selectedAddOnsSnapshot = mergedAddOns
@@ -1542,7 +1578,6 @@
             const totalBDT = Math.round(totalUSD * usdRate);
             const advanceBDT = Math.round(basePrice * usdRate);
 
-            // Load fresh payment settings
             const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
             const settings = settingsSnap.exists() ? settingsSnap.data() : {};
             if (!settings.usdRate || Number(settings.usdRate) <= 0) settings.usdRate = usdRate;
@@ -1551,7 +1586,6 @@
             const userName = currentUser.displayName ||
                 (currentUser.email ? currentUser.email.split('@')[0] : 'Customer');
 
-            // Open payment modal for advance (base price only)
             openPaymentModal({
                 type: 'service',
                 isServiceAdvance: true,
@@ -1588,7 +1622,6 @@
                     usdRate: Number(settings.usdRate) || usdRate
                 },
                 onSuccess: (result) => {
-                    // Fill success screen
                     document.getElementById('successOrderId').textContent =
                         '#' + (result.orderId || '').slice(0, 10).toUpperCase();
                     document.getElementById('successAdvanceUSD').textContent =
@@ -1600,7 +1633,6 @@
                     document.getElementById('successTotalUSD').textContent =
                         '$' + totalUSD.toFixed(2);
 
-                    // Hide add-ons row if none selected
                     const addOnsRow = document.getElementById('successAddOnsRow');
                     if (addOnsRow) addOnsRow.style.display = addOnsTotal > 0 ? '' : 'none';
 
@@ -1653,9 +1685,8 @@
         showState('loadingState');
 
         await loadUsdRate();
-        await loadServiceConfig();  // Load admin base price + includes
+        await loadServiceConfig();
 
-        // Load service categories
         await new Promise((resolve) => {
             let settled = false;
             try {
@@ -1667,7 +1698,6 @@
             setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
         });
 
-        // Load add-ons (Firestore overrides defaults)
         await new Promise((resolve) => {
             let settled = false;
             try {
@@ -1686,7 +1716,6 @@
             mergedAddOns = buildMergedAddOns();
         }
 
-        // Load template
         let tmpl = null;
         try { tmpl = await loadTemplateFromFirestore(); } catch (err) { console.error('Template load error:', err); }
 

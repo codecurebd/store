@@ -29,6 +29,7 @@
             min-height: 100vh;
         }
 
+        /* ===== HERO ===== */
         .selector-hero {
             background:
                 radial-gradient(ellipse 70% 55% at 15% 15%, rgba(37,99,235,0.1), transparent 55%),
@@ -84,7 +85,83 @@
             max-width: 640px;
             margin: 0 0 1.5rem;
         }
+        .selector-hero p strong { color: #0f172a; font-weight: 700; }
 
+        /* ===== STEP INDICATOR ===== */
+        .step-indicator {
+            display: flex; align-items: center; gap: 10px;
+            justify-content: flex-start; flex-wrap: wrap;
+        }
+        .step-indicator .step {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 14px 6px 6px; border-radius: 999px;
+            background: #fff; border: 1px solid rgba(15,23,42,0.06);
+            font-size: 0.8rem; font-weight: 600; color: #94a3b8;
+        }
+        .step-indicator .step .num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #f1f5f9; color: #94a3b8;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 800;
+        }
+        .step-indicator .step.done { color: #0f172a; }
+        .step-indicator .step.done .num { background: #16a34a; color: #fff; }
+        .step-indicator .step.active {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff; border-color: transparent;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.28);
+        }
+        .step-indicator .step.active .num { background: rgba(255,255,255,0.25); color: #fff; }
+        .step-indicator .step-arrow { color: #94a3b8; font-size: 0.72rem; }
+        @media (max-width: 560px) {
+            .step-indicator .step span.lbl { display: none; }
+            .step-indicator .step { padding: 6px; }
+            .step-indicator .step-arrow { display: none; }
+        }
+
+        /* ===== INFO STRIP ===== */
+        .agency-info-strip {
+            display: flex; flex-wrap: wrap; gap: 0.85rem;
+            margin: 0 0 2rem;
+        }
+        .agency-info-strip .ai-item {
+            flex: 1 1 220px;
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 1rem 1.15rem;
+            background: #fff;
+            border: 1px solid rgba(15,23,42,0.06);
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.03);
+            transition: all 0.25s ease;
+        }
+        .agency-info-strip .ai-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(37,99,235,0.07);
+            border-color: rgba(37,99,235,0.14);
+        }
+        .agency-info-strip .ai-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+        .agency-info-strip .ai-icon.blue { background: rgba(37,99,235,0.1); color: #2563eb; }
+        .agency-info-strip .ai-icon.green { background: rgba(22,163,74,0.1); color: #16a34a; }
+        .agency-info-strip .ai-icon.purple { background: rgba(124,58,237,0.1); color: #7c3aed; }
+        .agency-info-strip .ai-icon.amber { background: rgba(217,119,6,0.1); color: #d97706; }
+        .agency-info-strip .ai-text { flex: 1; min-width: 0; }
+        .agency-info-strip .ai-text h4 {
+            font-size: 0.86rem; font-weight: 700; color: #0f172a;
+            margin: 0 0 3px; letter-spacing: -0.01em;
+        }
+        .agency-info-strip .ai-text p {
+            font-size: 0.78rem; color: #64748b;
+            margin: 0; line-height: 1.5;
+        }
+        @media (max-width: 640px) {
+            .agency-info-strip .ai-item { flex: 1 1 100%; }
+        }
+
+        /* ===== FILTER BAR ===== */
         .filter-bar {
             display: flex;
             flex-wrap: wrap;
@@ -108,7 +185,7 @@
         }
         .filter-bar .search-wrap input {
             width: 100%;
-            padding: 12px 16px 12px 42px;
+            padding: 12px 40px 12px 42px;
             border-radius: 14px;
             border: 1.5px solid rgba(15,23,42,0.06);
             background: #fff;
@@ -122,6 +199,26 @@
             border-color: #2563eb;
             box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
         }
+        .filter-bar .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: rgba(15,23,42,0.08);
+            color: #475569;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: 0.15s;
+        }
+        .filter-bar .search-clear:hover { background: rgba(15,23,42,0.15); }
+        .filter-bar .search-clear.show { display: inline-flex; }
+
         .filter-bar select {
             padding: 12px 40px 12px 16px;
             border-radius: 14px;
@@ -165,12 +262,57 @@
             color: #2563eb;
             background: rgba(37,99,235,0.03);
         }
-        @media (max-width: 640px) {
-            .filter-bar select,
-            .filter-bar .btn-reset { min-width: 0; flex: 1; }
-            .filter-bar { gap: 0.5rem; }
+
+        /* ===== CATEGORY CHIPS ===== */
+        .cat-chips-wrap {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-bottom: 1.15rem;
+        }
+        .cat-chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1.5px solid rgba(15,23,42,0.07);
+            background: #fff;
+            color: #475569;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .cat-chip:hover {
+            border-color: rgba(37,99,235,0.3);
+            color: #2563eb;
+            background: rgba(37,99,235,0.03);
+            transform: translateY(-1px);
+        }
+        .cat-chip.active {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.24);
+        }
+        .cat-chip .chip-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 18px;
+            padding: 0 6px;
+            border-radius: 9px;
+            background: rgba(15,23,42,0.06);
+            color: #64748b;
+            font-size: 0.68rem;
+            font-weight: 700;
+        }
+        .cat-chip.active .chip-count {
+            background: rgba(255,255,255,0.24);
+            color: #fff;
         }
 
+        /* ===== RESULT META ===== */
         .result-meta {
             display: flex;
             align-items: center;
@@ -183,11 +325,12 @@
         }
         .result-meta strong { color: #0f172a; font-weight: 700; }
 
+        /* ===== DESIGN GRID ===== */
         .design-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.35rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
         @media (max-width: 640px) {
             .design-grid { grid-template-columns: 1fr; gap: 1rem; }
@@ -291,30 +434,33 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             flex: 1;
+            min-height: 2.66em;
         }
         .design-card .dc-estimate {
             display: flex;
             align-items: baseline;
             gap: 6px;
             margin-top: 0.35rem;
+            padding-top: 0.75rem;
+            border-top: 1px dashed rgba(15,23,42,0.07);
         }
         .design-card .dc-estimate .lbl {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             color: #94a3b8;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
         }
         .design-card .dc-estimate .amt {
-            font-size: 1.35rem;
+            font-size: 1.4rem;
             font-weight: 800;
-            color: #0f172a;
+            color: #2563eb;
             letter-spacing: -0.03em;
             line-height: 1;
         }
         .design-card .dc-estimate .bdt {
-            font-size: 0.78rem;
-            color: #64748b;
+            font-size: 0.75rem;
+            color: #94a3b8;
             font-weight: 600;
             margin-left: auto;
         }
@@ -371,6 +517,7 @@
             transform: translateY(-1px);
         }
 
+        /* ===== SKELETON ===== */
         .skeleton-card {
             background: #f3f4f6;
             border-radius: 22px;
@@ -389,6 +536,7 @@
             50% { opacity: 0.55; }
         }
 
+        /* ===== EMPTY STATE ===== */
         .selector-empty {
             grid-column: 1 / -1;
             text-align: center;
@@ -417,8 +565,21 @@
             margin: 0 auto 1.25rem;
             line-height: 1.55;
         }
+        .selector-empty .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 22px; border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff; text-decoration: none;
+            font-weight: 700; font-size: 0.88rem;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.24);
+            transition: 0.2s;
+        }
+        .selector-empty .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(37,99,235,0.32);
+        }
 
-        /* ===== SCRATCH CARD — Full-width hero at top ===== */
+        /* ===== SCRATCH CARD ===== */
         .scratch-card {
             background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(124,58,237,0.08));
             border: 1.5px dashed rgba(37,99,235,0.22);
@@ -479,7 +640,6 @@
             box-shadow: 0 8px 22px rgba(37,99,235,0.35);
         }
 
-        /* ===== SCRATCH FIRST — pinned at top, full width, compact ===== */
         .scratch-card.scratch-first {
             grid-column: 1 / -1;
             min-height: unset;
@@ -621,6 +781,7 @@
             .pagination-nav .pg-btn .lbl { display: none; }
         }
 
+        /* ===== SELECTOR NOTE ===== */
         .selector-note {
             margin-top: 2rem;
             padding: 1.15rem 1.35rem;
@@ -642,6 +803,7 @@
         }
         .selector-note strong { color: #0f172a; font-weight: 700; }
 
+        /* ===== FADE-UP ===== */
         .fade-up {
             opacity: 0;
             transform: translateY(16px);
@@ -652,6 +814,7 @@
             .fade-up { opacity: 1; transform: none; transition: none; }
         }
 
+        /* ===== TOAST ===== */
         #toast-container {
             position: fixed;
             bottom: 24px;
@@ -698,6 +861,7 @@
         <section style="padding: 2rem 1rem 4rem;">
             <div style="max-width: 1200px; margin: 0 auto;">
 
+                <!-- ===== HERO ===== -->
                 <div class="selector-hero fade-up">
                     <span class="sh-eyebrow"><i class="fas fa-palette"></i> Design Reference & Service Selector</span>
                     <h1>Pick a design direction. Then make it yours.</h1>
@@ -706,7 +870,7 @@
                         Every project starts with a <strong>design reference</strong> — so what we build actually matches your vision.
                     </p>
 
-                    <div id="stepIndicator" class="step-indicator" style="justify-content:flex-start;margin-bottom:0;">
+                    <div class="step-indicator">
                         <span class="step active"><span class="num">1</span><span class="lbl">Choose design</span></span>
                         <i class="fas fa-chevron-right step-arrow"></i>
                         <span class="step"><span class="num">2</span><span class="lbl">Configure add-ons</span></span>
@@ -715,12 +879,49 @@
                     </div>
                 </div>
 
-                <div id="categoryChipsWrap" style="margin-bottom: 1.25rem;"></div>
+                <!-- ===== AGENCY INFO STRIP ===== -->
+                <div class="agency-info-strip fade-up">
+                    <div class="ai-item">
+                        <div class="ai-icon blue"><i class="fas fa-magic"></i></div>
+                        <div class="ai-text">
+                            <h4>Custom-built, not copied</h4>
+                            <p>Templates are starting points — we tailor every detail to your brand.</p>
+                        </div>
+                    </div>
+                    <div class="ai-item">
+                        <div class="ai-icon green"><i class="fas fa-shield-alt"></i></div>
+                        <div class="ai-text">
+                            <h4>Pay base first, add-ons later</h4>
+                            <p>Only pay the base package advance to start. Add-ons are billed as they're built.</p>
+                        </div>
+                    </div>
+                    <div class="ai-item">
+                        <div class="ai-icon purple"><i class="fas fa-headset"></i></div>
+                        <div class="ai-text">
+                            <h4>Ongoing maintenance</h4>
+                            <p>Hosting, updates, and fixes — we stay with you after launch.</p>
+                        </div>
+                    </div>
+                    <div class="ai-item">
+                        <div class="ai-icon amber"><i class="fas fa-clock"></i></div>
+                        <div class="ai-text">
+                            <h4>24–48h turnaround on fixes</h4>
+                            <p>Full builds take 2–3 weeks. Small fixes ship within a day or two.</p>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- ===== CATEGORY CHIPS ===== -->
+                <div id="categoryChipsWrap"></div>
+
+                <!-- ===== FILTER BAR ===== -->
                 <div class="filter-bar">
                     <div class="search-wrap">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Search designs by name or feature…" autocomplete="off" />
+                        <input type="text" id="searchInput" placeholder="Search designs by name, feature, or category…" autocomplete="off" />
+                        <button type="button" class="search-clear" id="searchClearBtn" aria-label="Clear search">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                     <select id="sortFilter">
                         <option value="featured">Featured first</option>
@@ -735,15 +936,19 @@
                     </button>
                 </div>
 
+                <!-- ===== RESULT META ===== -->
                 <div class="result-meta">
                     <span id="resultCount"><strong>Loading designs…</strong></span>
                     <span id="activeFilterLabel"></span>
                 </div>
 
+                <!-- ===== DESIGN GRID ===== -->
                 <div id="designGrid" class="design-grid"></div>
 
+                <!-- ===== PAGINATION ===== -->
                 <nav id="paginationNav" class="pagination-nav" aria-label="Design pagination" style="display:none;"></nav>
 
+                <!-- ===== NOTE ===== -->
                 <div class="selector-note">
                     <i class="fas fa-info-circle"></i>
                     <div>
@@ -831,11 +1036,20 @@
                 currentSearch = String(search).trim();
                 const input = document.getElementById('searchInput');
                 if (input) input.value = currentSearch;
+                updateSearchClearVisibility();
             }
             const cat = params.get('cat') || params.get('category');
             if (cat) activeCategoryId = String(cat);
         } catch (_) {}
     })();
+
+    function updateSearchClearVisibility() {
+        const clearBtn = document.getElementById('searchClearBtn');
+        const input = document.getElementById('searchInput');
+        if (!clearBtn || !input) return;
+        if (input.value.trim().length > 0) clearBtn.classList.add('show');
+        else clearBtn.classList.remove('show');
+    }
 
     async function loadUsdRate() {
         try {
@@ -864,7 +1078,6 @@
             `;
         }
         grid.innerHTML = html;
-        // Hide pagination during skeleton
         const nav = document.getElementById('paginationNav');
         if (nav) { nav.innerHTML = ''; nav.style.display = 'none'; }
     }
@@ -901,7 +1114,6 @@
 
     async function loadDesignTemplates() {
         try {
-            // 1. Try designTemplates collection first
             let items = [];
             try {
                 const snap = await getDocs(collection(db, 'designTemplates'));
@@ -920,7 +1132,6 @@
                 console.warn('[templates] designTemplates read failed:', err?.code || err?.message);
             }
 
-            // 2. Fallback: load ALL products
             try {
                 const pSnap = await getDocs(collection(db, 'products'));
                 pSnap.forEach(d => items.push(normalizeTemplate({ id: d.id, ...d.data() }, 'product')));
@@ -994,7 +1205,7 @@
         }
 
         wrap.innerHTML = `
-            <div class="cat-chips-wrap" style="justify-content:flex-start;margin-bottom:0;">
+            <div class="cat-chips-wrap">
                 ${chips.map(c => `
                     <button type="button" class="cat-chip ${activeCategoryId === c.id ? 'active' : ''}" data-cat-id="${escapeHtmlAttr(c.id)}">
                         <i class="fas ${c.icon}"></i>
@@ -1108,7 +1319,7 @@
             filterEl.textContent = parts.length ? `Filtered by: ${parts.join(' · ')}` : '';
         }
 
-        // ── Scratch card (always first, full width) ──
+        // ── Scratch card ──
         const scratchHtml = `
             <div class="scratch-card scratch-first fade-up visible">
                 <div class="sc-icon"><i class="fas fa-magic"></i></div>
@@ -1122,7 +1333,7 @@
             </div>
         `;
 
-        // ── Case A: No designs in DB at all ──
+        // ── Case A: No designs ──
         if (total === 0) {
             grid.innerHTML = scratchHtml + `
                 <div class="selector-empty" style="grid-column: 1/-1;">
@@ -1136,7 +1347,7 @@
             return;
         }
 
-        // ── Case B: No matches after filters ──
+        // ── Case B: No matches ──
         if (list.length === 0) {
             grid.innerHTML = scratchHtml + `
                 <div class="selector-empty" style="grid-column: 1/-1;">
@@ -1237,7 +1448,6 @@
         const nav = document.getElementById('paginationNav');
         if (!nav) return;
 
-        // Hide if 0 or 1 page
         if (!totalPages || totalPages <= 1) {
             nav.innerHTML = '';
             nav.style.display = 'none';
@@ -1247,7 +1457,6 @@
 
         const cur = currentPage;
 
-        // Build page-number window with ellipsis
         const numbers = [];
         if (totalPages <= 7) {
             for (let i = 1; i <= totalPages; i++) numbers.push(i);
@@ -1291,7 +1500,6 @@
                 if (isNaN(p) || p === currentPage || p < 1 || p > totalPages) return;
                 currentPage = p;
                 renderDesigns();
-                // Smooth-scroll back to the top of the grid
                 const grid = document.getElementById('designGrid');
                 if (grid) {
                     const top = grid.getBoundingClientRect().top + window.scrollY - 110;
@@ -1334,12 +1542,14 @@
         const sortFilter = document.getElementById('sortFilter');
         if (searchInput) searchInput.value = '';
         if (sortFilter) sortFilter.value = 'featured';
+        updateSearchClearVisibility();
         renderCategoryChips();
         renderDesigns();
     };
 
     let searchDebounce = null;
     document.getElementById('searchInput')?.addEventListener('input', (e) => {
+        updateSearchClearVisibility();
         clearTimeout(searchDebounce);
         searchDebounce = setTimeout(() => {
             currentSearch = e.target.value.trim();
@@ -1347,6 +1557,18 @@
             renderDesigns();
         }, 220);
     });
+
+    document.getElementById('searchClearBtn')?.addEventListener('click', () => {
+        const input = document.getElementById('searchInput');
+        if (!input) return;
+        input.value = '';
+        currentSearch = '';
+        currentPage = 1;
+        updateSearchClearVisibility();
+        renderDesigns();
+        input.focus();
+    });
+
     document.getElementById('sortFilter')?.addEventListener('change', (e) => {
         currentSort = e.target.value || 'featured';
         currentPage = 1;
