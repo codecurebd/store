@@ -19,9 +19,6 @@
     <link rel="stylesheet" href="style.css" />
 
     <style>
-        /* ─────────────────────────────────────────────────────────────
-           PROFESSIONAL SUPPORT CHAT — MODERN SAAS STYLE
-           ───────────────────────────────────────────────────────────── */
         * { box-sizing: border-box; }
         body {
             background: #f0f4f9;
@@ -77,7 +74,7 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
         }
 
-        /* ─── Conversation List ─── */
+        /* Conversation List */
         .conv-list {
             width: 340px;
             border-right: 1px solid rgba(0, 0, 0, 0.05);
@@ -231,24 +228,19 @@
             text-align: center;
             flex-shrink: 0;
         }
-        .conv-item .archive-icon {
+        .conv-item .archive-icon,
+        .conv-item .restore-icon {
             color: #94a3b8;
             font-size: 0.8rem;
             opacity: 0;
             transition: 0.2s;
         }
-        .conv-item:hover .archive-icon { opacity: 1; }
-        .conv-item .archive-icon:hover { color: #ef4444; }
-        .conv-item .restore-icon {
-            color: #22c55e;
-            font-size: 0.8rem;
-            opacity: 0;
-            transition: 0.2s;
-        }
+        .conv-item:hover .archive-icon,
         .conv-item:hover .restore-icon { opacity: 1; }
+        .conv-item .archive-icon:hover { color: #ef4444; }
         .conv-item .restore-icon:hover { color: #16a34a; }
 
-        /* ─── Chat Area ─── */
+        /* Chat Area */
         .chat-area {
             flex: 1;
             display: flex;
@@ -325,12 +317,10 @@
             background: rgba(0, 0, 0, 0.04);
             color: #0f172a;
         }
-        .chat-header-actions .archive-btn { color: #94a3b8; }
         .chat-header-actions .archive-btn:hover {
             background: rgba(239, 68, 68, 0.08);
             color: #ef4444;
         }
-        .chat-header-actions .unarchive-btn { color: #94a3b8; }
         .chat-header-actions .unarchive-btn:hover {
             background: rgba(34, 197, 94, 0.08);
             color: #22c55e;
@@ -858,9 +848,9 @@
     <div id="toast-container"></div>
 
     <script type="module">
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // IMPORTS
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         import {
             auth, db, collection, doc, getDoc, setDoc, addDoc, onSnapshot,
             query, where, serverTimestamp, onAuthStateChanged, updateDoc,
@@ -879,6 +869,9 @@
         renderPaymentModal();
         updateCartBadge();
 
+        // ═══════════════════════════════════════════════════════════
+        // TOAST
+        // ═══════════════════════════════════════════════════════════
         window.showToast = (message, type = 'success') => {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -887,13 +880,15 @@
             toast.className = `toast ${type}`;
             toast.innerHTML = `<i class="fas ${icons[type] || icons.success}"></i> ${message}`;
             container.appendChild(toast);
-            setTimeout(() => { toast.classList.add('hide');
-                setTimeout(() => toast.remove(), 400); }, 4500);
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 400);
+            }, 4500);
         };
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // STATE
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         let currentUser = null;
         let conversations = [];
         let currentConvId = null;
@@ -904,6 +899,8 @@
         let pendingNewCount = 0;
         let lastMsgCount = 0;
         let currentFilter = 'active';
+        let savedScrollPerFilter = { active: 0, archived: 0 };
+        let timestampRefreshInterval = null;
 
         // DOM refs
         const convItems = document.getElementById('convItems');
@@ -928,19 +925,29 @@
         const newChatBtn = document.getElementById('newChatBtn');
         const filterBtns = document.querySelectorAll('.conv-filter button');
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // HELPERS
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
         }
 
+        // FIX: expanded image URL detection
         function isImageUrl(str) {
             if (!str) return false;
             const t = String(str).trim();
-            return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\?.*)?$/i.test(t) ||
-                t.includes('res.cloudinary.com');
+            // Cloudinary or any https URL that ends with an image extension (with optional query)
+            const extRegex = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|avif|tiff|heic)(\?[^"\s]*)?$/i;
+            if (extRegex.test(t)) return true;
+            if (t.includes('res.cloudinary.com')) return true;
+            // URLs with transformation params (cloudinary) - image/upload in path
+            if (/res\.cloudinary\.com\/.*\/(image|upload)\//i.test(t)) return true;
+            return false;
         }
 
         function formatTime(timestamp) {
@@ -964,7 +971,11 @@
             if (diff === 0) return 'Today';
             if (diff === 1) return 'Yesterday';
             if (diff < 7) return date.toLocaleDateString('en-US', { weekday: 'long' });
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+            });
         }
 
         function parseContent(content) {
@@ -984,10 +995,15 @@
             return { text: textParts.join('\n'), imageUrl };
         }
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // RENDER CONVERSATION LIST
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         function renderConvList() {
+            // Save current scroll position before re-render
+            if (convItems) {
+                savedScrollPerFilter[currentFilter] = convItems.scrollTop;
+            }
+
             const filtered = conversations.filter(c => c.status === currentFilter);
             if (filtered.length === 0) {
                 convItems.innerHTML = `
@@ -1022,24 +1038,29 @@
                             </div>
                             <div class="last">${escapeHtml(last)}</div>
                         </div>
-                        ${unread > 0 ? `<span class="badge">${unread}</span>` : ''}
-                        ${isArchived ? `<span class="restore-icon" data-id="${conv.id}" title="Restore"><i class="fas fa-undo"></i></span>` : `<span class="archive-icon" data-id="${conv.id}" title="Archive"><i class="fas fa-archive"></i></span>`}
+                        ${unread > 0 ? `<span class="badge">${unread > 99 ? '99+' : unread}</span>` : ''}
+                        ${isArchived
+                            ? `<span class="restore-icon" data-id="${conv.id}" title="Restore"><i class="fas fa-undo"></i></span>`
+                            : `<span class="archive-icon" data-id="${conv.id}" title="Archive"><i class="fas fa-archive"></i></span>`}
                     </div>
                 `;
             });
             convItems.innerHTML = html;
 
-            // Click on conversation item
+            // Restore scroll position
+            const saved = savedScrollPerFilter[currentFilter] || 0;
+            if (saved > 0) {
+                convItems.scrollTop = saved;
+            }
+
+            // Attach listeners
             convItems.querySelectorAll('.conv-item').forEach(el => {
                 el.addEventListener('click', (e) => {
-                    // Ignore clicks on archive/restore icons
                     if (e.target.closest('.archive-icon') || e.target.closest('.restore-icon')) return;
                     const id = el.dataset.id;
                     if (id) selectConversation(id);
                 });
             });
-
-            // Archive icon click
             convItems.querySelectorAll('.archive-icon').forEach(el => {
                 el.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1047,8 +1068,6 @@
                     if (id) toggleArchive(id);
                 });
             });
-
-            // Restore icon click
             convItems.querySelectorAll('.restore-icon').forEach(el => {
                 el.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1058,9 +1077,9 @@
             });
         }
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // SELECT CONVERSATION
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         function selectConversation(convId) {
             if (!convId) return;
             const conv = conversations.find(c => c.id === convId);
@@ -1073,17 +1092,24 @@
             unarchiveBtn.style.display = isArchived ? 'inline-flex' : 'none';
             loadMessages(convId);
             if (conv.unreadCount > 0) {
-                updateDoc(doc(db, 'conversations', convId), { unreadCount: 0 });
+                // Mark as read
+                updateDoc(doc(db, 'conversations', convId), { unreadCount: 0 }).catch((err) => {
+                    console.warn('Failed to reset unread count:', err);
+                });
             }
             renderConvList();
             chatInput.focus();
         }
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // LOAD MESSAGES
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         function loadMessages(convId) {
-            if (unsubMessages) unsubMessages();
+            // FIX: proper unsub before re-attach
+            if (unsubMessages) {
+                try { unsubMessages(); } catch (_) {}
+                unsubMessages = null;
+            }
             const q = query(
                 collection(db, 'messages'),
                 where('conversationId', '==', convId),
@@ -1093,11 +1119,15 @@
                 const msgs = [];
                 snapshot.forEach(d => msgs.push({ id: d.id, ...d.data() }));
                 renderMessages(msgs);
+                // Mark admin messages as read
                 const unread = msgs.filter(m => m.fromUserId === 'admin' && !m.read);
                 if (unread.length > 0) {
                     unread.forEach(async (m) => {
                         try {
-                            await setDoc(doc(db, 'messages', m.id), { read: true, readAt: serverTimestamp() }, { merge: true });
+                            await updateDoc(doc(db, 'messages', m.id), {
+                                read: true,
+                                readAt: serverTimestamp()
+                            });
                         } catch (err) { console.warn('Mark read error:', err); }
                     });
                 }
@@ -1106,14 +1136,15 @@
                 chatMessages.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-exclamation-triangle" style="font-size:2rem;color:#ef4444;"></i>
-                        <div style="margin-top:12px;color:#ef4444;">Could not load messages</div>
+                        <div class="title" style="color:#ef4444;">Could not load messages</div>
+                        <div class="desc">${escapeHtml(err.message || 'Please refresh the page.')}</div>
                     </div>`;
             });
         }
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // RENDER MESSAGES
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         function renderMessages(msgs) {
             if (!msgs || msgs.length === 0) {
                 chatMessages.innerHTML = `
@@ -1129,6 +1160,7 @@
 
             const wasNearBottom = userNearBottom || lastMsgCount === 0;
             const grew = msgs.length > lastMsgCount;
+            const growth = msgs.length - lastMsgCount;
             lastMsgCount = msgs.length;
 
             let html = '';
@@ -1170,8 +1202,8 @@
             });
             chatMessages.innerHTML = html;
             if (wasNearBottom) scrollToBottom(false);
-            else if (grew) {
-                pendingNewCount += Math.max(1, msgs.length - (lastMsgCount - (grew ? 1 : 0)));
+            else if (grew && growth > 0) {
+                pendingNewCount += growth;
                 newCount.textContent = pendingNewCount > 9 ? '9+' : pendingNewCount;
                 newCount.classList.add('show');
                 scrollBtn.classList.add('show');
@@ -1179,7 +1211,10 @@
         }
 
         function scrollToBottom(smooth = true) {
-            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+            chatMessages.scrollTo({
+                top: chatMessages.scrollHeight,
+                behavior: smooth ? 'smooth' : 'auto'
+            });
             userNearBottom = true;
             pendingNewCount = 0;
             newCount.classList.remove('show');
@@ -1198,9 +1233,9 @@
         });
         scrollBtn.addEventListener('click', () => scrollToBottom(true));
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // SEND MESSAGE
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const text = chatInput.value.trim();
@@ -1223,7 +1258,6 @@
             try {
                 if (hasFile) {
                     imageUrl = await uploadImage(pendingImage);
-                    clearImagePreview();
                 }
                 let content = text;
                 if (imageUrl) content = text ? (text + '\n' + imageUrl) : imageUrl;
@@ -1237,10 +1271,10 @@
                     read: false,
                 });
 
+                // Update conversation meta
                 await updateDoc(doc(db, 'conversations', currentConvId), {
                     lastMessage: text || '📷 Image',
-                    lastMessageTime: serverTimestamp(),
-                    unreadCount: 0
+                    lastMessageTime: serverTimestamp()
                 });
 
                 chatInput.value = '';
@@ -1253,26 +1287,27 @@
                 showToast('Error sending message: ' + err.message, 'error');
             } finally {
                 setLoading(sendBtn, false);
+                // FIX: always clear image preview after send attempt
                 if (pendingImage) clearImagePreview();
             }
         });
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // CREATE CONVERSATION
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         async function createConversation() {
             if (!currentUser) return null;
             try {
+                // FIX: set unreadCount to 1 so admin sees notification
                 const ref = await addDoc(collection(db, 'conversations'), {
                     participants: [currentUser.uid, 'admin'],
                     createdAt: serverTimestamp(),
                     status: 'active',
                     lastMessage: '',
                     lastMessageTime: serverTimestamp(),
-                    unreadCount: 0,
+                    unreadCount: 1,
                 });
                 const newId = ref.id;
-                // Add to local state
                 conversations.unshift({
                     id: newId,
                     participants: [currentUser.uid, 'admin'],
@@ -1280,10 +1315,9 @@
                     status: 'active',
                     lastMessage: '',
                     lastMessageTime: new Date(),
-                    unreadCount: 0,
+                    unreadCount: 1,
                 });
                 currentConvId = newId;
-                // Force re-render
                 renderConvList();
                 selectConversation(newId);
                 showToast('New conversation started', 'success');
@@ -1297,9 +1331,9 @@
 
         newChatBtn.addEventListener('click', createConversation);
 
-        // ─────────────────────────────────────────────────────────────
-        // ARCHIVE / UNARCHIVE (FIXED)
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
+        // ARCHIVE / UNARCHIVE
+        // ═══════════════════════════════════════════════════════════
         async function toggleArchive(convId) {
             if (!convId) return;
             const conv = conversations.find(c => c.id === convId);
@@ -1307,17 +1341,14 @@
 
             const newStatus = conv.status === 'active' ? 'archived' : 'active';
             try {
+                // FIX: do NOT include updatedAt (rules whitelist restricts)
                 await updateDoc(doc(db, 'conversations', convId), {
-                    status: newStatus,
-                    updatedAt: serverTimestamp()
+                    status: newStatus
                 });
-                // Update local state
                 conv.status = newStatus;
 
-                // If we archived the currently open conversation
                 if (convId === currentConvId) {
                     if (newStatus === 'archived') {
-                        // Clear the chat view
                         currentConvId = null;
                         chatMessages.innerHTML = `
                             <div class="empty-state">
@@ -1329,16 +1360,16 @@
                         chatAvatar.innerHTML = `<i class="fas fa-headset"></i>`;
                         archiveBtn.style.display = 'none';
                         unarchiveBtn.style.display = 'none';
-                        if (unsubMessages) unsubMessages();
+                        if (unsubMessages) {
+                            try { unsubMessages(); } catch (_) {}
+                            unsubMessages = null;
+                        }
                     } else {
-                        // Restored - show it
                         selectConversation(convId);
                     }
                 }
 
-                // Always re-render the list
                 renderConvList();
-
                 showToast(`Conversation ${newStatus === 'archived' ? 'archived' : 'restored'}`, 'success');
             } catch (err) {
                 console.error('Archive toggle error:', err);
@@ -1354,11 +1385,13 @@
             if (currentConvId) toggleArchive(currentConvId);
         });
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // FILTER TOGGLE
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
+                // Save scroll for old filter
+                savedScrollPerFilter[currentFilter] = convItems.scrollTop || 0;
                 filterBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentFilter = btn.dataset.filter;
@@ -1366,9 +1399,9 @@
             });
         });
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // AUTO-RESIZE TEXTAREA
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         function autoResize() {
             chatInput.style.height = 'auto';
             chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
@@ -1381,9 +1414,9 @@
             }
         });
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // FILE ATTACHMENT
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         fileBtn.addEventListener('click', () => fileInput.click());
 
         fileInput.addEventListener('change', (e) => {
@@ -1404,8 +1437,6 @@
             reader.onload = (ev) => {
                 previewImg.src = ev.target.result;
                 imagePreview.classList.add('show');
-                fileBtn.querySelector('i').className = 'fas fa-image';
-                fileBtn.style.color = '#34C759';
             };
             reader.readAsDataURL(file);
         });
@@ -1417,13 +1448,11 @@
             imagePreview.classList.remove('show');
             previewImg.src = '#';
             fileInput.value = '';
-            fileBtn.querySelector('i').className = 'fas fa-image';
-            fileBtn.style.color = '';
         }
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // LIGHTBOX
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         window.openImageLightbox = function(url) {
             if (!url) return;
             lbImage.src = url;
@@ -1436,16 +1465,20 @@
             lbImage.src = '';
             document.body.style.overflow = '';
         }
-        lbClose.addEventListener('click', (e) => { e.stopPropagation();
-            closeLightbox(); });
-        imgLightbox.addEventListener('click', (e) => { if (e.target === imgLightbox) closeLightbox(); });
+        lbClose.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeLightbox();
+        });
+        imgLightbox.addEventListener('click', (e) => {
+            if (e.target === imgLightbox) closeLightbox();
+        });
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && imgLightbox.classList.contains('open')) closeLightbox();
         });
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // QUICK REPLIES
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         document.querySelectorAll('#quickReplies button').forEach(btn => {
             btn.addEventListener('click', () => {
                 const text = btn.dataset.text || '';
@@ -1456,12 +1489,15 @@
             });
         });
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         // LISTEN CONVERSATIONS
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         function listenConversations() {
             if (!currentUser) return;
-            if (unsubConversations) unsubConversations();
+            if (unsubConversations) {
+                try { unsubConversations(); } catch (_) {}
+                unsubConversations = null;
+            }
             const q = query(
                 collection(db, 'conversations'),
                 where('participants', 'array-contains', currentUser.uid)
@@ -1474,7 +1510,6 @@
                 conversations = newConvs;
                 renderConvList();
 
-                // If current conversation no longer exists, clear it
                 if (currentConvId && !conversations.find(c => c.id === currentConvId)) {
                     currentConvId = null;
                     chatMessages.innerHTML = `
@@ -1488,7 +1523,6 @@
                     archiveBtn.style.display = 'none';
                     unarchiveBtn.style.display = 'none';
                 } else if (currentConvId) {
-                    // Update header buttons for current conversation
                     const conv = conversations.find(c => c.id === currentConvId);
                     if (conv) {
                         const isArchived = conv.status === 'archived';
@@ -1498,16 +1532,30 @@
                 }
             }, (err) => {
                 console.error('Conversations error:', err);
-                convItems.innerHTML = `<div class="empty"><i class="fas fa-exclamation-triangle"></i>Error loading conversations</div>`;
+                convItems.innerHTML = `
+                    <div class="empty">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading conversations
+                    </div>`;
             });
         }
 
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
+        // FIX: Auto-refresh timestamps every minute
+        // ═══════════════════════════════════════════════════════════
+        timestampRefreshInterval = setInterval(() => {
+            if (conversations.length > 0) {
+                renderConvList();
+            }
+        }, 60000);
+
+        // ═══════════════════════════════════════════════════════════
         // AUTH
-        // ─────────────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                window.location.href = 'index.html';
+                window.location.href = 'auth.html?mode=signin&redirect=' +
+                    encodeURIComponent('messages.html');
                 return;
             }
             currentUser = user;
@@ -1532,11 +1580,12 @@
         });
 
         window.addEventListener('beforeunload', () => {
-            if (unsubMessages) unsubMessages();
-            if (unsubConversations) unsubConversations();
+            if (unsubMessages) { try { unsubMessages(); } catch (_) {} }
+            if (unsubConversations) { try { unsubConversations(); } catch (_) {} }
+            if (timestampRefreshInterval) clearInterval(timestampRefreshInterval);
         });
 
-        console.log('✅ Support Chat — archive fixed, image support added');
+        console.log('✅ messages.html — archive fix + image detection + scroll + unread count');
     </script>
 </body>
 </html>

@@ -29,7 +29,7 @@
             min-height: 100vh;
         }
 
-        /* ===== HERO ===== */
+        /* HERO */
         .selector-hero {
             background:
                 radial-gradient(ellipse 70% 55% at 15% 15%, rgba(37,99,235,0.1), transparent 55%),
@@ -87,7 +87,7 @@
         }
         .selector-hero p strong { color: #0f172a; font-weight: 700; }
 
-        /* ===== STEP INDICATOR ===== */
+        /* STEP INDICATOR */
         .step-indicator {
             display: flex; align-items: center; gap: 10px;
             justify-content: flex-start; flex-wrap: wrap;
@@ -119,7 +119,7 @@
             .step-indicator .step-arrow { display: none; }
         }
 
-        /* ===== INFO STRIP ===== */
+        /* INFO STRIP */
         .agency-info-strip {
             display: flex; flex-wrap: wrap; gap: 0.85rem;
             margin: 0 0 2rem;
@@ -161,7 +161,7 @@
             .agency-info-strip .ai-item { flex: 1 1 100%; }
         }
 
-        /* ===== FILTER BAR ===== */
+        /* FILTER BAR */
         .filter-bar {
             display: flex;
             flex-wrap: wrap;
@@ -263,7 +263,7 @@
             background: rgba(37,99,235,0.03);
         }
 
-        /* ===== CATEGORY CHIPS ===== */
+        /* CATEGORY CHIPS */
         .cat-chips-wrap {
             display: flex; flex-wrap: wrap; gap: 8px;
             margin-bottom: 1.15rem;
@@ -312,7 +312,7 @@
             color: #fff;
         }
 
-        /* ===== RESULT META ===== */
+        /* RESULT META */
         .result-meta {
             display: flex;
             align-items: center;
@@ -325,7 +325,7 @@
         }
         .result-meta strong { color: #0f172a; font-weight: 700; }
 
-        /* ===== DESIGN GRID ===== */
+        /* DESIGN GRID */
         .design-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -517,7 +517,7 @@
             transform: translateY(-1px);
         }
 
-        /* ===== SKELETON ===== */
+        /* SKELETON */
         .skeleton-card {
             background: #f3f4f6;
             border-radius: 22px;
@@ -536,7 +536,7 @@
             50% { opacity: 0.55; }
         }
 
-        /* ===== EMPTY STATE ===== */
+        /* EMPTY STATE */
         .selector-empty {
             grid-column: 1 / -1;
             text-align: center;
@@ -579,7 +579,7 @@
             box-shadow: 0 8px 22px rgba(37,99,235,0.32);
         }
 
-        /* ===== SCRATCH CARD ===== */
+        /* SCRATCH CARD */
         .scratch-card {
             background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(124,58,237,0.08));
             border: 1.5px dashed rgba(37,99,235,0.22);
@@ -698,7 +698,7 @@
             .scratch-card.scratch-first p { font-size: 0.8rem; }
         }
 
-        /* ===== PAGINATION ===== */
+        /* PAGINATION */
         .pagination-nav {
             display: flex;
             align-items: center;
@@ -781,7 +781,7 @@
             .pagination-nav .pg-btn .lbl { display: none; }
         }
 
-        /* ===== SELECTOR NOTE ===== */
+        /* SELECTOR NOTE */
         .selector-note {
             margin-top: 2rem;
             padding: 1.15rem 1.35rem;
@@ -803,7 +803,7 @@
         }
         .selector-note strong { color: #0f172a; font-weight: 700; }
 
-        /* ===== FADE-UP ===== */
+        /* FADE-UP */
         .fade-up {
             opacity: 0;
             transform: translateY(16px);
@@ -814,7 +814,7 @@
             .fade-up { opacity: 1; transform: none; transition: none; }
         }
 
-        /* ===== TOAST ===== */
+        /* TOAST */
         #toast-container {
             position: fixed;
             bottom: 24px;
@@ -861,7 +861,7 @@
         <section style="padding: 2rem 1rem 4rem;">
             <div style="max-width: 1200px; margin: 0 auto;">
 
-                <!-- ===== HERO ===== -->
+                <!-- HERO -->
                 <div class="selector-hero fade-up">
                     <span class="sh-eyebrow"><i class="fas fa-palette"></i> Design Reference & Service Selector</span>
                     <h1>Pick a design direction. Then make it yours.</h1>
@@ -879,7 +879,7 @@
                     </div>
                 </div>
 
-                <!-- ===== AGENCY INFO STRIP ===== -->
+                <!-- AGENCY INFO STRIP -->
                 <div class="agency-info-strip fade-up">
                     <div class="ai-item">
                         <div class="ai-icon blue"><i class="fas fa-magic"></i></div>
@@ -911,10 +911,10 @@
                     </div>
                 </div>
 
-                <!-- ===== CATEGORY CHIPS ===== -->
+                <!-- CATEGORY CHIPS -->
                 <div id="categoryChipsWrap"></div>
 
-                <!-- ===== FILTER BAR ===== -->
+                <!-- FILTER BAR -->
                 <div class="filter-bar">
                     <div class="search-wrap">
                         <i class="fas fa-search"></i>
@@ -936,19 +936,19 @@
                     </button>
                 </div>
 
-                <!-- ===== RESULT META ===== -->
+                <!-- RESULT META -->
                 <div class="result-meta">
                     <span id="resultCount"><strong>Loading designs…</strong></span>
                     <span id="activeFilterLabel"></span>
                 </div>
 
-                <!-- ===== DESIGN GRID ===== -->
+                <!-- DESIGN GRID -->
                 <div id="designGrid" class="design-grid"></div>
 
-                <!-- ===== PAGINATION ===== -->
+                <!-- PAGINATION -->
                 <nav id="paginationNav" class="pagination-nav" aria-label="Design pagination" style="display:none;"></nav>
 
-                <!-- ===== NOTE ===== -->
+                <!-- NOTE -->
                 <div class="selector-note">
                     <i class="fas fa-info-circle"></i>
                     <div>
@@ -985,6 +985,18 @@
     renderPaymentModal();
     updateCartBadge();
 
+    // ═══════════════════════════════════════════════════════════
+    // POLYFILL: CSS.escape (fixes old Safari/Firefox)
+    // ═══════════════════════════════════════════════════════════
+    if (typeof window.CSS === 'undefined') window.CSS = {};
+    if (typeof window.CSS.escape !== 'function') {
+        window.CSS.escape = function(str) {
+            return String(str).replace(/[^a-zA-Z0-9\-_]/g, function(ch) {
+                return '\\' + ch;
+            });
+        };
+    }
+
     window.showToast = (message, type = 'success') => {
         const container = document.getElementById('toast-container');
         if (!container) return;
@@ -1015,6 +1027,9 @@
     }
     function escapeHtmlAttr(str) { return escapeHtml(str); }
 
+    // ═══════════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════════
     let allServiceCategories = [];
     let allDesignTemplates = [];
     let allAddOns = [];
@@ -1022,12 +1037,18 @@
     let activeCategoryId = 'all';
     let currentSort = 'featured';
     let currentSearch = '';
-    let templateSource = 'designTemplates';
+    let templateSource = 'none'; // 'designTemplates' | 'products' | 'none'
 
-    // ===== PAGINATION STATE =====
+    // Pagination
     let currentPage = 1;
     const PER_PAGE = 12;
 
+    // Track if we're currently loading (to prevent duplicate work)
+    let _isLoading = false;
+
+    // ═══════════════════════════════════════════════════════════
+    // URL PARAMS
+    // ═══════════════════════════════════════════════════════════
     (function readUrlParams() {
         try {
             const params = new URLSearchParams(window.location.search);
@@ -1039,7 +1060,10 @@
                 updateSearchClearVisibility();
             }
             const cat = params.get('cat') || params.get('category');
-            if (cat) activeCategoryId = String(cat);
+            if (cat) {
+                // URL might pass raw id or "cat:slug" — accept both
+                activeCategoryId = String(cat);
+            }
         } catch (_) {}
     })();
 
@@ -1051,6 +1075,9 @@
         else clearBtn.classList.remove('show');
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // LOAD USD RATE
+    // ═══════════════════════════════════════════════════════════
     async function loadUsdRate() {
         try {
             const snap = await getDoc(doc(db, 'settings', 'payment'));
@@ -1061,6 +1088,9 @@
         } catch (_) {}
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // SKELETON
+    // ═══════════════════════════════════════════════════════════
     function skeletonGrid(count = 6) {
         const grid = document.getElementById('designGrid');
         if (!grid) return;
@@ -1082,6 +1112,9 @@
         if (nav) { nav.innerHTML = ''; nav.style.display = 'none'; }
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // NORMALIZE TEMPLATE
+    // ═══════════════════════════════════════════════════════════
     function normalizeTemplate(raw, source) {
         const name = raw.name || 'Untitled Design';
         const description = raw.description || raw.desc || '';
@@ -1112,9 +1145,18 @@
         };
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // LOAD TEMPLATES (designTemplates → products fallback)
+    // ═══════════════════════════════════════════════════════════
     async function loadDesignTemplates() {
+        if (_isLoading) return;
+        _isLoading = true;
+
         try {
             let items = [];
+            let source = 'none';
+
+            // ── Primary: designTemplates ──
             try {
                 const snap = await getDocs(collection(db, 'designTemplates'));
                 snap.forEach(d => {
@@ -1122,33 +1164,36 @@
                     if (t.isActive) items.push(t);
                 });
                 if (items.length > 0) {
-                    templateSource = 'designTemplates';
-                    allDesignTemplates = items;
-                    renderCategoryChips();
-                    renderDesigns();
-                    return;
+                    source = 'designTemplates';
                 }
             } catch (err) {
                 console.warn('[templates] designTemplates read failed:', err?.code || err?.message);
             }
 
-            try {
-                const pSnap = await getDocs(collection(db, 'products'));
-                pSnap.forEach(d => items.push(normalizeTemplate({ id: d.id, ...d.data() }, 'product')));
-            } catch (err) {
-                console.warn('[templates] products fallback failed:', err?.code || err?.message);
+            // ── Fallback: products ──
+            if (source === 'none') {
+                try {
+                    const pSnap = await getDocs(collection(db, 'products'));
+                    pSnap.forEach(d => {
+                        const t = normalizeTemplate({ id: d.id, ...d.data() }, 'product');
+                        if (t.isActive !== false) items.push(t);
+                    });
+                    if (items.length > 0) source = 'products';
+                } catch (err) {
+                    console.warn('[templates] products fallback failed:', err?.code || err?.message);
+                }
             }
 
-            if (items.length > 0) {
-                templateSource = 'products';
-                allDesignTemplates = items;
-                renderCategoryChips();
-                renderDesigns();
-            } else {
-                allDesignTemplates = [];
-                renderCategoryChips();
-                renderDesigns();
+            templateSource = source;
+            allDesignTemplates = items;
+
+            // Reset page if filtered scope changed drastically
+            if (currentPage > 1 && items.length <= (currentPage - 1) * PER_PAGE) {
+                currentPage = 1;
             }
+
+            renderCategoryChips();
+            renderDesigns();
         } catch (err) {
             console.error('loadDesignTemplates error:', err);
             skeletonGrid(0);
@@ -1163,9 +1208,14 @@
                     </button>
                 </div>
             `;
+        } finally {
+            _isLoading = false;
         }
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // RENDER CATEGORY CHIPS
+    // ═══════════════════════════════════════════════════════════
     function renderCategoryChips() {
         const wrap = document.getElementById('categoryChipsWrap');
         if (!wrap) return;
@@ -1204,6 +1254,12 @@
             ];
         }
 
+        // FIX: If activeCategoryId is not in the new chips set, reset it
+        const validIds = new Set(chips.map(c => c.id));
+        if (!validIds.has(activeCategoryId)) {
+            activeCategoryId = 'all';
+        }
+
         wrap.innerHTML = `
             <div class="cat-chips-wrap">
                 ${chips.map(c => `
@@ -1220,13 +1276,16 @@
             btn.addEventListener('click', () => {
                 const id = btn.dataset.catId;
                 activeCategoryId = id || 'all';
-                currentPage = 1;
+                currentPage = 1; // FIX: reset page on category change
                 wrap.querySelectorAll('.cat-chip').forEach(b => b.classList.toggle('active', b === btn));
                 renderDesigns();
             });
         });
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // FILTER DESIGN TEMPLATES
+    // ═══════════════════════════════════════════════════════════
     function getFilteredDesigns() {
         let list = [...allDesignTemplates];
 
@@ -1282,6 +1341,9 @@
         return list;
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // RENDER DESIGNS
+    // ═══════════════════════════════════════════════════════════
     function renderDesigns() {
         const grid = document.getElementById('designGrid');
         const countEl = document.getElementById('resultCount');
@@ -1319,7 +1381,7 @@
             filterEl.textContent = parts.length ? `Filtered by: ${parts.join(' · ')}` : '';
         }
 
-        // ── Scratch card ──
+        // ── Scratch card (only shown when there ARE results) ──
         const scratchHtml = `
             <div class="scratch-card scratch-first fade-up visible">
                 <div class="sc-icon"><i class="fas fa-magic"></i></div>
@@ -1333,13 +1395,17 @@
             </div>
         `;
 
-        // ── Case A: No designs ──
+        // ── Case A: No designs at all ──
         if (total === 0) {
-            grid.innerHTML = scratchHtml + `
+            // FIX: no scratch card when there's nothing at all
+            grid.innerHTML = `
                 <div class="selector-empty" style="grid-column: 1/-1;">
                     <i class="big fas fa-palette"></i>
                     <h3>No design directions yet</h3>
                     <p>We're preparing our design library. Start from scratch and we'll craft a custom direction for your project.</p>
+                    <a href="configure-service.html" class="btn-primary">
+                        <i class="fas fa-rocket"></i> Start a Custom Project
+                    </a>
                 </div>
             `;
             renderPagination(0);
@@ -1347,9 +1413,10 @@
             return;
         }
 
-        // ── Case B: No matches ──
+        // ── Case B: Filters produce zero ──
         if (list.length === 0) {
-            grid.innerHTML = scratchHtml + `
+            // FIX: no scratch card when filters exclude all (keeps UI clean)
+            grid.innerHTML = `
                 <div class="selector-empty" style="grid-column: 1/-1;">
                     <i class="big fas fa-search"></i>
                     <h3>No designs match your filters</h3>
@@ -1443,7 +1510,9 @@
         observeFadeUps();
     }
 
-    // ===== PAGINATION RENDERER =====
+    // ═══════════════════════════════════════════════════════════
+    // PAGINATION
+    // ═══════════════════════════════════════════════════════════
     function renderPagination(totalPages) {
         const nav = document.getElementById('paginationNav');
         if (!nav) return;
@@ -1509,6 +1578,9 @@
         });
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // PREVIEW DESIGN
+    // ═══════════════════════════════════════════════════════════
     window.__previewDesign = function(id) {
         const t = allDesignTemplates.find(x => x.id === id);
         if (!t || !t.htmlContent) { window.showToast('No preview available.', 'warning'); return; }
@@ -1533,6 +1605,9 @@
         }
     };
 
+    // ═══════════════════════════════════════════════════════════
+    // RESET FILTERS
+    // ═══════════════════════════════════════════════════════════
     window.resetSelectorFilters = function() {
         activeCategoryId = 'all';
         currentSearch = '';
@@ -1547,6 +1622,9 @@
         renderDesigns();
     };
 
+    // ═══════════════════════════════════════════════════════════
+    // SEARCH (with 150ms debounce — was 220ms)
+    // ═══════════════════════════════════════════════════════════
     let searchDebounce = null;
     document.getElementById('searchInput')?.addEventListener('input', (e) => {
         updateSearchClearVisibility();
@@ -1555,7 +1633,7 @@
             currentSearch = e.target.value.trim();
             currentPage = 1;
             renderDesigns();
-        }, 220);
+        }, 150);
     });
 
     document.getElementById('searchClearBtn')?.addEventListener('click', () => {
@@ -1569,12 +1647,18 @@
         input.focus();
     });
 
+    // ═══════════════════════════════════════════════════════════
+    // SORT (with page reset — FIX)
+    // ═══════════════════════════════════════════════════════════
     document.getElementById('sortFilter')?.addEventListener('change', (e) => {
         currentSort = e.target.value || 'featured';
-        currentPage = 1;
+        currentPage = 1; // FIX: reset page on sort change
         renderDesigns();
     });
 
+    // ═══════════════════════════════════════════════════════════
+    // AUTH STATE
+    // ═══════════════════════════════════════════════════════════
     onAuthStateChanged(auth, async (user) => {
         let name = null;
         if (user) {
@@ -1588,6 +1672,9 @@
         updateNavbarAuth(user, name);
     });
 
+    // ═══════════════════════════════════════════════════════════
+    // BOOT
+    // ═══════════════════════════════════════════════════════════
     (async function boot() {
         skeletonGrid(6);
         loadUsdRate();

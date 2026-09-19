@@ -19,7 +19,6 @@
   <link rel="stylesheet" href="style.css" />
 
   <style>
-    /* ===== BASE ===== */
     * { box-sizing: border-box; }
     body {
       background: #f2f4f7;
@@ -28,7 +27,6 @@
       padding: 0;
       min-height: 100vh;
     }
-    @font-face { font-family: 'Inter'; font-display: swap; }
 
     .glass-card {
       background: rgba(255,255,255,0.72);
@@ -44,7 +42,7 @@
       transform: translateY(-3px);
     }
 
-    /* ===== STATUS BADGES ===== */
+    /* STATUS BADGES */
     .status-badge {
       padding: 4px 14px;
       border-radius: 60px;
@@ -61,7 +59,7 @@
     .status-badge.quoted { background: #fed7aa; color: #d97706; }
     .status-badge.approved { background: #dbeafe; color: #1d4ed8; }
 
-    /* ===== PIPELINE STATUS (service) ===== */
+    /* PIPELINE STATUS */
     .pipeline-status {
       display: inline-flex;
       align-items: center;
@@ -82,7 +80,7 @@
     .pipeline-status.cancelled  { background: rgba(220,38,38,0.12);    color: #dc2626; }
     .pipeline-status i { font-size: 0.7rem; }
 
-    /* ===== ORDER TYPE CHIP ===== */
+    /* ORDER TYPE CHIPS */
     .badge-type-service {
       background: rgba(37,99,235,0.12);
       color: #2563eb;
@@ -132,7 +130,7 @@
       white-space: nowrap;
     }
 
-    /* ===== PAYMENT BADGES ===== */
+    /* PAYMENT BADGES */
     .payment-badge {
       padding: 3px 12px;
       border-radius: 30px;
@@ -143,7 +141,7 @@
     .payment-badge.full { background: #d1fae5; color: #059669; }
     .payment-badge.advance { background: #fef3c7; color: #d97706; }
 
-    /* ===== ADD-ON MINI CHIP ===== */
+    /* ADD-ON MINI CHIP */
     .addon-mini-chip {
       display: inline-flex;
       align-items: center;
@@ -162,7 +160,7 @@
     .addon-mini-chip i { font-size: 0.65rem; }
     .addon-mini-chip .price { opacity: 0.75; margin-left: 2px; }
 
-    /* ===== DESIGN REF MINI ===== */
+    /* REF MINI STRIP */
     .ref-mini-strip {
       display: flex;
       align-items: center;
@@ -191,7 +189,7 @@
       font-weight: 700;
     }
 
-    /* ===== STATS ===== */
+    /* STATS */
     .stat-card {
       background: rgba(255,255,255,0.72);
       backdrop-filter: blur(12px);
@@ -212,7 +210,7 @@
     .stat-card .stat-number.completed { color: #059669; }
     .stat-card .stat-number.service { color: #7c3aed; }
 
-    /* ===== FORM / BUTTONS ===== */
+    /* FORM */
     .form-input {
       width: 100%;
       padding: 12px 16px;
@@ -239,6 +237,7 @@
       padding-right: 40px;
     }
 
+    /* BUTTONS */
     .btn-primary {
       background: linear-gradient(135deg, #007AFF, #5856D6);
       color: #fff;
@@ -364,7 +363,7 @@
       line-height: 1.4;
     }
 
-    /* ===== ORDER ACTION BUTTONS ===== */
+    /* ORDER ACTION BUTTONS */
     .order-actions {
       display: flex;
       flex-wrap: wrap;
@@ -437,13 +436,23 @@
       box-shadow: none;
     }
     .btn-action.chat:hover { background: rgba(37,99,235,0.18); }
+    .btn-action.pay-addon {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+      box-shadow: 0 3px 12px rgba(245, 158, 11, 0.25);
+      animation: pulsePay 2s ease-in-out infinite;
+    }
+    @keyframes pulsePay {
+      0%, 100% { box-shadow: 0 3px 12px rgba(245, 158, 11, 0.25); }
+      50% { box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5); }
+    }
 
     @media (max-width: 480px) {
       .order-actions { gap: 6px; justify-content: flex-start; }
       .btn-action { padding: 6px 12px; font-size: 0.68rem; }
     }
 
-    /* ===== SERVICE ORDER CARD ===== */
+    /* SERVICE ORDER CARD */
     .service-order-card {
       border: 1.5px solid rgba(37,99,235,0.18) !important;
       background: linear-gradient(135deg, rgba(239,246,255,0.95) 0%, rgba(255,255,255,0.92) 100%) !important;
@@ -491,11 +500,23 @@
     .service-order-card .estimate-block .sub {
       font-size: 0.72rem; color: #94a3b8; margin-top: 4px;
     }
+    .service-order-card .unpaid-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #d97706;
+      background: rgba(245,158,11,0.12);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 6px;
+    }
     @media (max-width: 480px) {
       .service-order-card .estimate-block { text-align: left; margin-top: 8px; }
     }
 
-    /* ===== MODALS ===== */
+    /* SKELETON */
     .skeleton-card {
       background: #f3f4f6;
       border-radius: 16px;
@@ -513,6 +534,7 @@
     .skeleton-card .skeleton-line.long { width: 90%; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
 
+    /* EMPTY */
     .empty-state {
       text-align: center;
       padding: 3rem 1.5rem;
@@ -530,6 +552,7 @@
     }
     .empty-state p { color: #8e8e93; margin-top: 0.5rem; }
 
+    /* MODALS */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -586,7 +609,7 @@
     .detail-item .dk { color: #64748b; flex-shrink: 0; }
     .detail-item .dv { color: #0f172a; font-weight: 500; text-align: right; }
 
-    /* Service detail modal specifics */
+    /* Service detail modal */
     .sd-block {
       background: #f8fafc;
       border: 1px solid rgba(15,23,42,0.05);
@@ -734,7 +757,7 @@
       color: #94a3b8; font-size: 0.75rem; margin-top: 2px; display: block;
     }
 
-    /* ===== FADE-UP ===== */
+    /* FADE-UP */
     .fade-up {
       opacity: 0;
       transform: translateY(20px);
@@ -742,7 +765,7 @@
     }
     .fade-up.visible { opacity: 1; transform: translateY(0); }
 
-    /* ===== SCROLL TOP ===== */
+    /* SCROLL TOP */
     .scroll-top-btn {
       position: fixed; bottom: 30px; right: 30px;
       width: 50px; height: 50px; border-radius: 50%;
@@ -756,7 +779,7 @@
     .scroll-top-btn.show { opacity: 1; transform: scale(1); pointer-events: auto; }
     .scroll-top-btn:hover { transform: scale(1.05); }
 
-    /* ===== TOAST ===== */
+    /* TOAST */
     #toast-container {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       z-index: 9999; display: flex; flex-direction: column; align-items: center;
@@ -775,6 +798,20 @@
     .toast.hide { animation: slideDown 0.3s ease forwards; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(30px); } }
+
+    /* DEBUG INFO (dev only) */
+    #debugInfo {
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      background: #f8fafc;
+      border: 1px solid rgba(0,0,0,0.06);
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+    #debugInfo.error { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    #debugInfo.success { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
 
     @media (max-width: 768px) {
       .glass-card { padding: 1rem; border-radius: 12px; }
@@ -806,7 +843,7 @@
         </div>
         <p class="text-gray-500 mb-6 fade-up">Track product orders, service requests, and campaign entries in one place.</p>
 
-        <!-- ===== FILTERS ===== -->
+        <!-- FILTERS -->
         <div class="flex flex-wrap gap-3 items-center mb-6 fade-up">
           <div class="relative flex-1 min-w-[200px]">
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -828,15 +865,15 @@
             <option value="completed">🟢 Completed</option>
             <option value="cancelled">🔴 Cancelled</option>
           </select>
-          <button onclick="resetFilters()" class="btn-outline text-sm py-2 px-4">
+          <button onclick="window.resetFilters()" class="btn-outline text-sm py-2 px-4">
             <i class="fas fa-undo"></i> Reset
           </button>
-          <button onclick="forceReloadOrders()" class="btn-primary text-sm py-2 px-4">
+          <button onclick="window.forceReloadOrders()" class="btn-primary text-sm py-2 px-4">
             <i class="fas fa-sync"></i> Refresh
           </button>
         </div>
 
-        <!-- ===== STATS ===== -->
+        <!-- STATS -->
         <div id="statsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 fade-up">
           <div class="stat-card">
             <div class="stat-number" id="totalCount">0</div>
@@ -856,7 +893,7 @@
           </div>
         </div>
 
-        <!-- ===== CAMPAIGN NOTICE ===== -->
+        <!-- CAMPAIGN NOTICE -->
         <div id="campaignOrdersNotice" class="hidden mb-6 fade-up">
           <div class="glass-card" style="padding:1rem 1.25rem; border:1px solid rgba(139,92,246,0.2); background:linear-gradient(135deg,rgba(239,246,255,0.9) 0%,rgba(248,250,252,0.95) 100%);">
             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -878,47 +915,45 @@
           </div>
         </div>
 
-        <!-- ===== ORDER LIST ===== -->
-        <div id="orderList" class="space-y-4">
-          <!-- Skeleton rendered by JS -->
-        </div>
+        <!-- ORDER LIST -->
+        <div id="orderList" class="space-y-4"></div>
 
-        <!-- ===== DEBUG INFO ===== -->
-        <div id="debugInfo" class="mt-4 text-sm text-gray-400 hidden"></div>
+        <!-- DEBUG INFO (auto-hidden) -->
+        <div id="debugInfo" class="mt-4 hidden"></div>
       </section>
     </main>
 
     <div id="footer-placeholder"></div>
   </div>
 
-  <!-- ===== BACK TO TOP ===== -->
+  <!-- BACK TO TOP -->
   <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
 
-  <!-- ===== ORDER DETAIL MODAL ===== -->
+  <!-- ORDER DETAIL MODAL -->
   <div id="orderDetailModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-header">
         <h3 id="detailOrderTitle" class="text-2xl font-bold text-gray-900">Order Details</h3>
-        <button onclick="closeOrderDetail()" class="modal-close" aria-label="Close">&times;</button>
+        <button onclick="window.closeOrderDetail()" class="modal-close" aria-label="Close">&times;</button>
       </div>
       <div id="orderDetailContent" class="space-y-4"></div>
       <div class="mt-6 flex flex-wrap gap-3 border-t border-gray-200 pt-4">
-        <button onclick="downloadInvoice()" class="btn-primary text-sm py-2 px-4">
+        <button onclick="window.downloadInvoice()" class="btn-primary text-sm py-2 px-4">
           <i class="fas fa-file-download"></i> Invoice (TXT)
         </button>
-        <button onclick="printOrder()" class="btn-outline text-sm py-2 px-4">
+        <button onclick="window.printOrder()" class="btn-outline text-sm py-2 px-4">
           <i class="fas fa-print"></i> Print
         </button>
-        <button onclick="closeOrderDetail()" class="btn-outline text-sm py-2 px-4">
+        <button onclick="window.closeOrderDetail()" class="btn-outline text-sm py-2 px-4">
           <i class="fas fa-times"></i> Close
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ===== CUSTOM CONFIRM MODAL ===== -->
+  <!-- CUSTOM CONFIRM MODAL -->
   <div id="confirmModal" class="modal-overlay confirm-modal">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width:460px;">
       <div class="confirm-icon" style="width:56px;height:56px;border-radius:50%;background:#fef2f2;color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem;">
         <i class="fas fa-exclamation-triangle"></i>
       </div>
@@ -928,30 +963,30 @@
       <div id="confirmModalBody" class="text-center text-gray-600 text-sm leading-relaxed mb-2"></div>
       <div id="confirmModalCheckboxArea" class="hidden"></div>
       <div class="mt-4 flex gap-3">
-        <button type="button" id="confirmModalYes" class="btn-danger flex-1 justify-center">Yes, Cancel</button>
-        <button type="button" id="confirmModalNo" class="btn-outline flex-1 justify-center">Keep Order</button>
+        <button type="button" id="confirmModalYes" class="btn-danger flex-1 justify-center">Yes, Confirm</button>
+        <button type="button" id="confirmModalNo" class="btn-outline flex-1 justify-center">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- ===== CUSTOM PASSWORD MODAL ===== -->
+  <!-- CUSTOM PASSWORD MODAL -->
   <div id="passwordModal" class="modal-overlay password-modal">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width:440px;">
       <div class="modal-header">
         <h3 id="passwordModalTitle" class="text-xl font-bold text-gray-900">Enter Password</h3>
-        <button type="button" onclick="closePasswordModal()" class="modal-close">&times;</button>
+        <button type="button" onclick="window.closePasswordModal()" class="modal-close">&times;</button>
       </div>
       <p id="passwordModalDesc" class="text-sm text-gray-500 mb-4">Please enter your password to confirm this action.</p>
       <div class="relative">
         <input type="password" id="passwordInput" placeholder="Your account password" class="form-input pr-12" autocomplete="current-password" />
-        <button type="button" onclick="togglePasswordVisibility('passwordInput')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+        <button type="button" onclick="window.togglePasswordVisibility('passwordInput')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
           <i class="fas fa-eye"></i>
         </button>
       </div>
       <div id="passwordError" class="text-red-500 text-sm mt-2 hidden">Incorrect password. Please try again.</div>
       <div class="mt-4 flex gap-3">
-        <button type="button" onclick="confirmPassword()" id="passwordConfirmBtn" class="btn-primary flex-1 justify-center">Confirm</button>
-        <button type="button" onclick="closePasswordModal()" class="btn-outline flex-1 justify-center">Cancel</button>
+        <button type="button" onclick="window.confirmPassword()" id="passwordConfirmBtn" class="btn-primary flex-1 justify-center">Confirm</button>
+        <button type="button" onclick="window.closePasswordModal()" class="btn-outline flex-1 justify-center">Cancel</button>
       </div>
     </div>
   </div>
@@ -959,9 +994,9 @@
   <div id="toast-container"></div>
 
   <script type="module">
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // IMPORTS
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     import {
       renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
       renderCartSidebar, setLoading, renderPaymentModal,
@@ -973,11 +1008,9 @@
       updateDoc, deleteDoc, getDocs
     } from './firebase-config.js';
 
-    console.log('📦 my-orders.html loaded (service + legacy unified + add-on payments)');
+    console.log('📦 my-orders.html loaded');
 
-    // ================================================================
     // COMMON RENDER
-    // ================================================================
     renderNavbar();
     renderAuthModal();
     renderPaymentModal();
@@ -985,9 +1018,9 @@
     renderCartSidebar();
     updateCartBadge();
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // TOAST
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -999,9 +1032,9 @@
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // SCROLL + FADE-UP
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) entry.target.classList.add('visible');
@@ -1020,9 +1053,9 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // DEBOUNCE
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function debounce(func, wait) {
       let timeout;
       return function(...args) {
@@ -1031,14 +1064,20 @@
       };
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // CONFIRM MODAL
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     let confirmModalResolve = null;
     let confirmRequiresCheckbox = false;
 
     window.showConfirmModal = function(title, bodyHtml, yesText, noText, options = {}) {
       return new Promise((resolve) => {
+        // FIX: cleanup any pending confirm first
+        if (confirmModalResolve) {
+          try { confirmModalResolve(false); } catch (_) {}
+          confirmModalResolve = null;
+        }
+
         confirmRequiresCheckbox = !!options.requireCheckbox;
         document.getElementById('confirmModalTitle').textContent = title || 'Confirm';
         document.getElementById('confirmModalBody').innerHTML = bodyHtml || '';
@@ -1049,7 +1088,7 @@
         const yesBtn = document.getElementById('confirmModalYes');
 
         if (confirmRequiresCheckbox) {
-          const checkboxLabel = options.checkboxLabel || 'I understand and want to cancel this order';
+          const checkboxLabel = options.checkboxLabel || 'I understand and want to continue';
           checkboxArea.innerHTML = `
             <label class="cancel-checkbox-wrap">
               <input type="checkbox" id="confirmCancelCheckbox" />
@@ -1094,12 +1133,18 @@
       if (e.target === e.currentTarget) finishConfirmModal(false);
     });
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // PASSWORD MODAL
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     let passwordModalResolve = null;
+
     window.showPasswordModal = function(title, description) {
       return new Promise((resolve) => {
+        if (passwordModalResolve) {
+          try { passwordModalResolve(null); } catch (_) {}
+          passwordModalResolve = null;
+        }
+
         document.getElementById('passwordModalTitle').textContent = title || 'Enter Password';
         document.getElementById('passwordModalDesc').textContent = description || 'Please enter your password to confirm this action.';
         const input = document.getElementById('passwordInput');
@@ -1111,10 +1156,12 @@
         setTimeout(() => input.focus(), 50);
       });
     };
+
     window.closePasswordModal = function() {
       document.getElementById('passwordModal').classList.remove('open');
       if (passwordModalResolve) { passwordModalResolve(null); passwordModalResolve = null; }
     };
+
     window.confirmPassword = function() {
       const input = document.getElementById('passwordInput');
       const password = (input.value || '').trim();
@@ -1125,10 +1172,12 @@
       if (passwordModalResolve) { passwordModalResolve(password); passwordModalResolve = null; }
       document.getElementById('passwordModal').classList.remove('open');
     };
+
     window.togglePasswordVisibility = function(id) {
       const input = document.getElementById(id);
       if (input) input.type = input.type === 'password' ? 'text' : 'password';
     };
+
     document.getElementById('passwordInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); window.confirmPassword(); }
     });
@@ -1136,9 +1185,9 @@
       if (e.target === e.currentTarget) window.closePasswordModal();
     });
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // STATE
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     const orderList = document.getElementById('orderList');
     const searchInput = document.getElementById('searchOrders');
     const statusFilter = document.getElementById('statusFilter');
@@ -1152,10 +1201,11 @@
     let isLoading = false;
     let currentOrderId = null;
     let currentOrderData = null;
+    let debugTimer = null;
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // HELPERS
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function escapeHtml(str) {
       return String(str || '')
         .replace(/&/g, '&amp;')
@@ -1171,10 +1221,12 @@
       if (o.items && o.items.some(it => it && it.isCampaign)) return true;
       return false;
     }
+
     function isServiceOrder(o) {
       if (!o) return false;
       return o.type === 'service' || o.orderType === 'service';
     }
+
     function getOrderType(o) {
       if (!o) return 'store';
       if (isCampaignOrder(o)) return 'campaign';
@@ -1189,16 +1241,33 @@
       if (isNaN(d.getTime())) return '—';
       return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     }
+
     function formatDateTime(ts) {
       if (!ts) return '—';
       const d = ts.toDate ? ts.toDate() : new Date(ts);
       if (isNaN(d.getTime())) return '—';
-      return d.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
     }
 
-    // ================================================================
+    function showDebugInfo(message, type = 'info') {
+      if (!debugInfo) return;
+      debugInfo.classList.remove('hidden', 'error', 'success');
+      if (type === 'error') debugInfo.classList.add('error');
+      else if (type === 'success') debugInfo.classList.add('success');
+      debugInfo.innerHTML = message;
+
+      if (debugTimer) clearTimeout(debugTimer);
+      debugTimer = setTimeout(() => {
+        debugInfo.classList.add('hidden');
+      }, 8000);
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // SKELETON
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function renderSkeletons(count = 3) {
       let html = '';
       for (let i = 0; i < count; i++) {
@@ -1215,9 +1284,9 @@
       document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // STATS
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function updateStats(orders) {
       const total = orders.length;
       const pending = orders.filter(o => {
@@ -1233,9 +1302,9 @@
       document.getElementById('completedCount').textContent = completed;
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // RENDER: SERVICE ORDER CARD
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function renderServiceOrderCard(o, index) {
       const status = (o.status || 'pending').toLowerCase();
       const date = formatDate(o.createdAt);
@@ -1249,15 +1318,18 @@
 
       const estimateUSD = Number(o.estimateUSD ?? o.total) || 0;
       const quotedUSD = Number(o.quotedPriceUSD) || Number(o.quotedPrice) || 0;
-      const hasQuote = quotedUSD > 0 && (status === 'quoted' || status === 'approved' || status === 'processing' || status === 'completed');
+      const hasQuote = quotedUSD > 0 && ['quoted', 'approved', 'processing', 'completed'].includes(status);
       const usdRate = Number(o.usdRate) > 0 ? Number(o.usdRate) : 125;
 
       const displayPrice = hasQuote ? quotedUSD : estimateUSD;
       const displayPriceLabel = hasQuote ? 'Quoted' : 'Estimate';
       const displayBDT = Math.round(displayPrice * usdRate);
 
-      // Unpaid add-ons count
+      // FIX: unpaid add-ons count
       const unpaidAddOns = addOns.filter(a => a.paymentStatus !== 'paid').length;
+      const unpaidTotal = addOns
+        .filter(a => a.paymentStatus !== 'paid')
+        .reduce((s, a) => s + (Number(a.price) || 0), 0);
 
       // Design ref mini strip
       let refStripHtml = '';
@@ -1281,40 +1353,49 @@
       if (addOns.length) {
         addonChipsHtml = `
           <div class="addon-strip">
-            ${addOns.slice(0, 3).map(a => `
-              <span class="addon-mini-chip">
-                <i class="fas ${a.icon || 'fa-puzzle-piece'}"></i>
-                ${escapeHtml(a.name || 'Add-on')}
-                <span class="price">$${(Number(a.price) || 0).toFixed(0)}</span>
-              </span>
-            `).join('')}
+            ${addOns.slice(0, 3).map(a => {
+              const isPaid = a.paymentStatus === 'paid';
+              return `
+                <span class="addon-mini-chip" style="${isPaid ? '' : 'background:rgba(245,158,11,0.12);color:#d97706;'}">
+                  <i class="fas ${a.icon || 'fa-puzzle-piece'}"></i>
+                  ${escapeHtml(a.name || 'Add-on')}
+                  <span class="price">$${(Number(a.price) || 0).toFixed(0)}</span>
+                  ${isPaid ? '' : ' •'}
+                </span>
+              `;
+            }).join('')}
             ${addOns.length > 3 ? `<span class="addon-mini-chip" style="background:rgba(15,23,42,0.06);color:#475569;">+${addOns.length - 3} more</span>` : ''}
           </div>
         `;
       }
 
+      // FIX: unpaid badge
+      const unpaidBadgeHtml = unpaidAddOns > 0
+        ? `<div class="unpaid-badge"><i class="fas fa-exclamation-circle"></i> ${unpaidAddOns} add-on${unpaidAddOns === 1 ? '' : 's'} to pay ($${unpaidTotal.toFixed(2)})</div>`
+        : '';
+
       const brief = (o.projectDescription || '').trim();
 
       // Actions
       let actionsHtml = '';
-      actionsHtml += `<button onclick="viewOrderDetail('${o.id}')" class="btn-action details"><i class="fas fa-eye"></i> Details</button>`;
+      actionsHtml += `<button onclick="window.viewOrderDetail('${o.id}')" class="btn-action details"><i class="fas fa-eye"></i> Details</button>`;
 
-      // Add "Pay Add-ons" quick action if any unpaid
-      if (unpaidAddOns > 0) {
-        actionsHtml += `<button onclick="viewOrderDetail('${o.id}')" class="btn-action pay-due"><i class="fas fa-credit-card"></i> Pay Add-ons (${unpaidAddOns})</button>`;
+      // Pay add-ons quick action
+      if (unpaidAddOns > 0 && (status === 'approved' || status === 'processing' || status === 'completed')) {
+        actionsHtml += `<button onclick="window.viewOrderDetail('${o.id}')" class="btn-action pay-addon"><i class="fas fa-credit-card"></i> Pay Add-ons (${unpaidAddOns})</button>`;
       }
 
       if (status === 'pending' || status === 'reviewing' || status === 'quoted') {
-        actionsHtml += `<button onclick="addOrderReference('${o.id}')" class="btn-action add-ref"><i class="fas fa-plus"></i> Add Reference</button>`;
+        actionsHtml += `<button onclick="window.addOrderReference('${o.id}')" class="btn-action add-ref"><i class="fas fa-plus"></i> Add Reference</button>`;
       }
       if (status === 'quoted') {
-        actionsHtml += `<button onclick="approveQuote('${o.id}')" class="btn-action approve"><i class="fas fa-check-circle"></i> Approve Quote</button>`;
+        actionsHtml += `<button onclick="window.approveQuote('${o.id}')" class="btn-action approve"><i class="fas fa-check-circle"></i> Approve Quote</button>`;
       }
       if (status !== 'cancelled' && status !== 'completed') {
         actionsHtml += `<a href="order-progress.html?id=${o.id}" class="btn-action chat"><i class="fas fa-comments"></i> Chat</a>`;
       }
       if (status === 'pending') {
-        actionsHtml += `<button onclick="deleteOrder('${o.id}')" class="btn-action cancel"><i class="fas fa-trash"></i> Cancel</button>`;
+        actionsHtml += `<button onclick="window.deleteOrder('${o.id}')" class="btn-action cancel"><i class="fas fa-trash"></i> Cancel</button>`;
       }
 
       return `
@@ -1336,6 +1417,7 @@
               ${brief ? `<p class="brief-snippet">${escapeHtml(brief)}</p>` : ''}
               ${addonChipsHtml}
               ${refStripHtml}
+              ${unpaidBadgeHtml}
             </div>
             <div class="text-right min-w-[130px]">
               <div class="estimate-block">
@@ -1352,9 +1434,9 @@
       `;
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // RENDER: STORE ORDER CARD
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function renderStoreOrderCard(o, index) {
       const status = o.status || 'pending';
       const date = formatDate(o.createdAt);
@@ -1391,7 +1473,7 @@
             <div class="text-right">
               <p class="text-2xl font-bold text-blue-600">$${o.total?.toFixed(2) || '0.00'}</p>
               <div class="order-actions">
-                <button onclick="viewOrderDetail('${o.id}')" class="btn-action details">
+                <button onclick="window.viewOrderDetail('${o.id}')" class="btn-action details">
                   <i class="fas fa-eye"></i> Details
                 </button>
                 ${status !== 'cancelled' ? `
@@ -1399,11 +1481,11 @@
                   <i class="fas fa-code"></i> Progress
                 </a>` : ''}
                 ${status === 'pending' ? `
-                <button onclick="deleteOrder('${o.id}')" class="btn-action cancel">
+                <button onclick="window.deleteOrder('${o.id}')" class="btn-action cancel">
                   <i class="fas fa-trash"></i> Cancel
                 </button>` : ''}
                 ${hasDue && status !== 'cancelled' && status !== 'completed' ? `
-                <button onclick="payDue('${o.id}')" class="btn-action pay-due">
+                <button onclick="window.payDue('${o.id}')" class="btn-action pay-due">
                   <i class="fas fa-credit-card"></i> Pay Due
                 </button>` : ''}
               </div>
@@ -1413,9 +1495,9 @@
       `;
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // RENDER: CAMPAIGN ORDER CARD
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function renderCampaignOrderCard(o, index) {
       const status = o.status || 'pending';
       const paidBDT = Number(o.amountBDT) || 0;
@@ -1424,6 +1506,7 @@
       const time = o.createdAt?.toDate?.()
         ? o.createdAt.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
         : '';
+
       return `
         <div class="glass-card order-card fade-up" style="transition-delay: ${(index % 6) * 0.05}s; border:1px solid rgba(139,92,246,0.22); background:linear-gradient(135deg,rgba(245,243,255,0.95) 0%,rgba(255,255,255,0.9) 100%);">
           <div class="flex flex-wrap justify-between items-start gap-3">
@@ -1456,9 +1539,9 @@
       `;
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // MAIN RENDER
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function renderOrders(orders) {
       if (!orders || orders.length === 0) {
         orderList.innerHTML = `
@@ -1473,11 +1556,6 @@
               <a href="index.html" class="btn-outline mt-4 inline-block">
                 <i class="fas fa-home"></i> Home
               </a>
-            </div>
-            <div class="mt-3">
-              <button onclick="forceReloadOrders()" class="btn-outline text-sm py-2 px-4">
-                <i class="fas fa-sync"></i> Check for orders
-              </button>
             </div>
           </div>
         `;
@@ -1503,16 +1581,13 @@
       updateStats(orders);
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // FILTERS
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function applyFilters() {
       const search = (searchInput.value || '').toLowerCase().trim();
       const status = statusFilter.value;
       const type = typeFilter.value;
-
-      const notice = document.getElementById('campaignOrdersNotice');
-      if (notice) notice.classList.add('hidden');
 
       filteredOrders = allOrders.filter(o => {
         if (type !== 'all' && getOrderType(o) !== type) return false;
@@ -1558,18 +1633,17 @@
     statusFilter.addEventListener('change', applyFilters);
     typeFilter.addEventListener('change', applyFilters);
 
-    // ================================================================
-    // FORCE RELOAD
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // FORCE RELOAD (debug / manual refresh)
+    // ═══════════════════════════════════════════════════════════
     window.forceReloadOrders = async function() {
       if (!currentUser) { showToast('Not logged in', 'error'); return; }
 
-      const btn = document.querySelector('[onclick="forceReloadOrders()"]');
+      const btn = document.querySelector('[onclick="window.forceReloadOrders()"]');
       if (btn) setLoading(btn, true, 'Loading...');
 
       try {
-        debugInfo.classList.remove('hidden');
-        debugInfo.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching orders directly from Firestore...';
+        showDebugInfo('<i class="fas fa-spinner fa-spin"></i> Fetching orders directly from Firestore...', 'info');
 
         const q = query(collection(db, 'orders'), where('userId', '==', currentUser.uid));
         const snapshot = await getDocs(q);
@@ -1581,30 +1655,29 @@
           return tb - ta;
         });
 
-        debugInfo.innerHTML = `✅ Found ${orders.length} order(s). Last updated: ${new Date().toLocaleString()}`;
-
         if (orders.length > 0) {
           allOrders = orders;
           applyFilters();
+          showDebugInfo(`✅ Found ${orders.length} order(s). Last updated: ${new Date().toLocaleString()}`, 'success');
           showToast(`✅ ${orders.length} order(s) loaded`, 'success');
         } else {
-          showToast('No orders found.', 'warning');
           allOrders = [];
           applyFilters();
+          showDebugInfo(`✅ No orders found.`, 'success');
+          showToast('No orders found.', 'warning');
         }
       } catch (err) {
         console.error('❌ Force reload error:', err);
-        debugInfo.innerHTML = `❌ Error: ${escapeHtml(err.message)}`;
+        showDebugInfo(`❌ Error: ${escapeHtml(err.message)}`, 'error');
         showToast('⚠️ Error loading orders: ' + err.message, 'error');
       } finally {
         if (btn) setLoading(btn, false);
-        setTimeout(() => { debugInfo.classList.add('hidden'); }, 15000);
       }
     };
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // ORDER DETAIL MODAL
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     window.viewOrderDetail = async (orderId) => {
       currentOrderId = orderId;
       try {
@@ -1626,9 +1699,22 @@
       }
     };
 
-    // ================================================================
-    // SERVICE ORDER DETAIL — with Payments & History + Add-on Payment
-    // ================================================================
+    window.closeOrderDetail = () => {
+      document.getElementById('orderDetailModal').classList.remove('open');
+      currentOrderId = null;
+      currentOrderData = null;
+    };
+
+    document.getElementById('orderDetailModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) window.closeOrderDetail();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') window.closeOrderDetail();
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // SERVICE ORDER DETAIL
+    // ═══════════════════════════════════════════════════════════
     function renderServiceOrderDetail(o) {
       const content = document.getElementById('orderDetailContent');
       const status = (o.status || 'pending').toLowerCase();
@@ -1636,7 +1722,7 @@
       const shortId = (o.id || '').slice(0, 10).toUpperCase();
       const usdRate = Number(o.usdRate) > 0 ? Number(o.usdRate) : 125;
 
-      // Add-ons block — with per-item payment status
+      // Add-ons
       const addOns = Array.isArray(o.selectedAddOns) ? o.selectedAddOns : [];
       const addOnsTotal = addOns.reduce((s, a) => s + (Number(a.price) || 0), 0);
       const paidAddOns = addOns.filter(a => a.paymentStatus === 'paid');
@@ -1644,30 +1730,7 @@
       const paidAddOnsTotal = paidAddOns.reduce((s, a) => s + (Number(a.price) || 0), 0);
       const pendingAddOnsTotal = pendingAddOns.reduce((s, a) => s + (Number(a.price) || 0), 0);
 
-      let addOnsHtml = '';
-      if (addOns.length) {
-        addOnsHtml = addOns.map((a, idx) => {
-          const isPaid = a.paymentStatus === 'paid';
-          const statusBadge = isPaid
-            ? `<span style="font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(22,163,74,0.12);color:#16a34a;">✓ Paid</span>`
-            : `<span style="font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(217,119,6,0.12);color:#d97706;">Pending</span>`;
-
-          return `
-            <div class="sd-addon-row" style="gap:10px;">
-              <span class="an" style="flex:1;">
-                <i class="fas ${a.icon || 'fa-puzzle-piece'}"></i>
-                <span style="flex:1;">${escapeHtml(a.name || 'Add-on')}</span>
-                ${statusBadge}
-              </span>
-              <span class="ap">$${(Number(a.price) || 0).toFixed(2)}</span>
-            </div>
-          `;
-        }).join('');
-      } else {
-        addOnsHtml = '<p style="color:#94a3b8;font-size:0.85rem;margin:0;">No add-ons selected.</p>';
-      }
-
-      // Design references block
+      // Design references
       const refs = Array.isArray(o.designReferences) ? o.designReferences : [];
       let refsHtml = '';
       if (refs.length) {
@@ -1717,28 +1780,31 @@
         refsHtml = '<p style="color:#94a3b8;font-size:0.85rem;margin:0;">No design references shared yet.</p>';
       }
 
-      // Summary block
-      const basePrice = Number(o.basePrice) || 0;
-      const estimateUSD = Number(o.estimateUSD ?? o.total) || 0;
-      const estimateBDT = Number(o.estimateBDT) || Math.round(estimateUSD * usdRate);
-      const quotedUSD = Number(o.quotedPriceUSD) || Number(o.quotedPrice) || 0;
-      const hasQuote = quotedUSD > 0;
+      // Add-on rows with Pay Now buttons
+      let addOnsHtml = '';
+      if (addOns.length) {
+        addOnsHtml = addOns.map((a, idx) => {
+          const isPaid = a.paymentStatus === 'paid';
+          const statusBadge = isPaid
+            ? `<span style="font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(22,163,74,0.12);color:#16a34a;">✓ Paid</span>`
+            : `<span style="font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(217,119,6,0.12);color:#d97706;">Pending</span>`;
 
-      let summaryHtml = `
-        <div class="sd-summary">
-          ${basePrice > 0 ? `<div class="sr"><span>Base — ${escapeHtml(o.designTemplateName || 'Design')}</span><span>$${basePrice.toFixed(2)}</span></div>` : ''}
-          ${addOns.length ? `<div class="sr"><span>Add-ons (${addOns.length})</span><span>$${addOnsTotal.toFixed(2)}</span></div>` : ''}
-          <div class="sr total">
-            <span>${hasQuote ? 'Quoted total' : 'Estimated total'}</span>
-            <span class="amount">$${(hasQuote ? quotedUSD : estimateUSD).toFixed(2)}</span>
-          </div>
-          <div class="bdt">≈ <strong>৳${(hasQuote ? Math.round(quotedUSD * usdRate) : estimateBDT).toLocaleString('en-BD')}</strong></div>
-        </div>
-      `;
+          return `
+            <div class="sd-addon-row" style="gap:10px;">
+              <span class="an" style="flex:1;">
+                <i class="fas ${a.icon || 'fa-puzzle-piece'}"></i>
+                <span style="flex:1;">${escapeHtml(a.name || 'Add-on')}</span>
+                ${statusBadge}
+              </span>
+              <span class="ap">$${(Number(a.price) || 0).toFixed(2)}</span>
+            </div>
+          `;
+        }).join('');
+      } else {
+        addOnsHtml = '<p style="color:#94a3b8;font-size:0.85rem;margin:0;">No add-ons selected.</p>';
+      }
 
-      // ══════════════════════════════════════════════════════════════
-      // PAYMENTS & HISTORY section
-      // ══════════════════════════════════════════════════════════════
+      // Payments & History section
       const advancePaidUSD = Number(o.amountUSD) || Number(o.advancePaymentUSD) || 0;
       const advancePaidBDT = Number(o.amountBDT) || Number(o.advancePaymentBDT) || 0;
       const advanceVerified = !!o.paymentVerified;
@@ -1750,7 +1816,6 @@
         <div class="sd-block" style="background:linear-gradient(135deg,rgba(37,99,235,0.04),rgba(124,58,237,0.04)); border:1px solid rgba(37,99,235,0.12);">
           <h4 style="color:#2563eb;"><i class="fas fa-receipt" style="color:#2563eb;"></i> Payments &amp; History</h4>
 
-          <!-- Base package advance -->
           <div style="padding:12px 14px; background:#fff; border-radius:12px; margin-bottom:8px; border:1px solid rgba(15,23,42,0.05);">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px;">
               <div style="flex:1; min-width:0;">
@@ -1771,7 +1836,6 @@
             </div>
           </div>
 
-          <!-- Add-ons payments -->
           ${addOns.length ? `
             <div style="padding:12px 14px; background:#fff; border-radius:12px; border:1px solid rgba(15,23,42,0.05);">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -1797,13 +1861,13 @@
                           : `<span style="font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(217,119,6,0.12); color:#d97706;">Pending</span>`}
                       </div>
                       ${isPaid && a.paidAt
-                        ? `<div style="font-size:0.7rem; color:#94a3b8; margin-top:3px;">Paid ${formatDateTime(a.paidAt)}${a.paymentTxnId ? ' · Txn: ' + escapeHtml(a.paymentTxnId) : ''}</div>`
+                        ? `<div style="font-size:0.7rem; color:#94a3b8; margin-top:3px;">Paid ${escapeHtml(formatDateTime(a.paidAt))}${a.paymentTxnId ? ' · Txn: ' + escapeHtml(a.paymentTxnId) : ''}</div>`
                         : `<div style="font-size:0.7rem; color:#94a3b8; margin-top:3px;">$${priceUSD.toFixed(2)} · ৳${priceBDT.toLocaleString('en-BD')}</div>`}
                     </div>
                     <div style="text-align:right; flex-shrink:0;">
                       ${isPaid
                         ? `<div style="font-weight:800; color:#16a34a; font-size:0.95rem;">$${priceUSD.toFixed(2)}</div>`
-                        : `<button type="button" onclick="payAddOn('${o.id}', ${i})" class="btn-primary" style="font-size:0.72rem; padding:6px 12px; min-height:auto; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706);">
+                        : `<button type="button" onclick="window.payAddOn('${o.id}', ${i})" class="btn-primary" style="font-size:0.72rem; padding:6px 12px; min-height:auto; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706);">
                              <i class="fas fa-credit-card"></i> Pay $${priceUSD.toFixed(0)}
                            </button>`}
                     </div>
@@ -1843,7 +1907,7 @@
             ${items.map(it => `
               <li>
                 <span class="tt">${escapeHtml(it.status || 'pending')}</span>
-                <span class="tm">${formatDateTime(it.at)}</span>
+                <span class="tm">${escapeHtml(formatDateTime(it.at))}</span>
               </li>
             `).join('')}
           </ul>
@@ -1851,6 +1915,8 @@
       }
 
       // Quote block
+      const quotedUSD = Number(o.quotedPriceUSD) || Number(o.quotedPrice) || 0;
+      const hasQuote = quotedUSD > 0;
       let quoteBlock = '';
       if (hasQuote && (status === 'quoted' || status === 'approved')) {
         quoteBlock = `
@@ -1859,13 +1925,30 @@
             <p style="font-size:0.9rem;color:#334155;margin:0 0 6px;">Your project has been quoted at <strong style="color:#16a34a;font-size:1.05rem;">$${quotedUSD.toFixed(2)}</strong>.</p>
             ${o.quoteNote ? `<p style="font-size:0.85rem;color:#475569;margin:0;">${escapeHtml(o.quoteNote)}</p>` : ''}
             ${status === 'quoted' ? `
-              <button onclick="approveQuote('${o.id}')" class="btn-primary" style="margin-top:12px;background:linear-gradient(135deg,#16a34a,#059669);">
+              <button onclick="window.approveQuote('${o.id}')" class="btn-primary" style="margin-top:12px;background:linear-gradient(135deg,#16a34a,#059669);">
                 <i class="fas fa-check-circle"></i> Approve &amp; Proceed
               </button>
             ` : `<p style="font-size:0.82rem;color:#059669;font-weight:700;margin:10px 0 0;"><i class="fas fa-check-circle"></i> You approved this quote.</p>`}
           </div>
         `;
       }
+
+      const basePrice = Number(o.basePrice) || 0;
+      const estimateUSD = Number(o.estimateUSD ?? o.total) || 0;
+      const estimateBDT = Number(o.estimateBDT) || Math.round(estimateUSD * usdRate);
+
+      // Summary
+      let summaryHtml = `
+        <div class="sd-summary">
+          ${basePrice > 0 ? `<div class="sr"><span>Base — ${escapeHtml(o.designTemplateName || 'Design')}</span><span>$${basePrice.toFixed(2)}</span></div>` : ''}
+          ${addOns.length ? `<div class="sr"><span>Add-ons (${addOns.length})</span><span>$${addOnsTotal.toFixed(2)}</span></div>` : ''}
+          <div class="sr total">
+            <span>${hasQuote ? 'Quoted total' : 'Estimated total'}</span>
+            <span class="amount">$${(hasQuote ? quotedUSD : estimateUSD).toFixed(2)}</span>
+          </div>
+          <div class="bdt">≈ <strong>৳${(hasQuote ? Math.round(quotedUSD * usdRate) : estimateBDT).toLocaleString('en-BD')}</strong></div>
+        </div>
+      `;
 
       content.innerHTML = `
         <div class="flex flex-wrap justify-between items-start gap-3">
@@ -1884,7 +1967,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <p class="text-sm text-gray-500">Submitted</p>
-            <p class="text-gray-900 font-medium">${dateStr}</p>
+            <p class="text-gray-900 font-medium">${escapeHtml(dateStr)}</p>
           </div>
           <div>
             <p class="text-sm text-gray-500">Category</p>
@@ -1943,9 +2026,9 @@
       document.getElementById('detailOrderTitle').textContent = `Service Request #${shortId}`;
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // LEGACY STORE ORDER DETAIL
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function renderLegacyOrderDetail(o) {
       const content = document.getElementById('orderDetailContent');
       const date = o.createdAt?.toDate?.() || new Date(o.createdAt);
@@ -1989,7 +2072,7 @@
               <div class="detail-item"><span class="dk">Remaining Due (BDT)</span><span class="dv" style="color:#dc2626;">৳${dueBDT.toFixed(0)}</span></div>
               <div class="detail-item"><span class="dk">Remaining Due (USD)</span><span class="dv" style="color:#dc2626;">$${dueUSD.toFixed(2)}</span></div>
               <div class="mt-3">
-                <button onclick="payDue('${o.id}')" class="btn-primary w-full" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                <button onclick="window.payDue('${o.id}')" class="btn-primary w-full" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
                   <i class="fas fa-credit-card"></i> Pay Due Now
                 </button>
               </div>
@@ -2012,19 +2095,19 @@
         <div class="flex flex-wrap justify-between items-start gap-3">
           <div>
             <p class="text-sm text-gray-500">Order ID</p>
-            <p class="font-mono font-bold text-gray-900 text-lg">#${o.id}</p>
+            <p class="font-mono font-bold text-gray-900 text-lg">#${escapeHtml(o.id)}</p>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <span class="badge-type-store"><i class="fas fa-shopping-bag"></i> Store</span>
-            <span class="status-badge ${statusClass}" style="padding:6px 16px;font-size:0.8rem;">${statusDisplay}</span>
+            <span class="status-badge ${statusClass}" style="padding:6px 16px;font-size:0.8rem;">${escapeHtml(statusDisplay)}</span>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <p class="text-sm text-gray-500">Date</p>
-            <p class="text-gray-900 font-medium">${dateStr}</p>
-            <p class="text-sm text-gray-400">${timeStr}</p>
+            <p class="text-gray-900 font-medium">${escapeHtml(dateStr)}</p>
+            <p class="text-sm text-gray-400">${escapeHtml(timeStr)}</p>
           </div>
           <div>
             <p class="text-sm text-gray-500">Total</p>
@@ -2052,7 +2135,7 @@
         ${o.status !== 'completed' && o.status !== 'cancelled' ? `
           <div class="sd-block" style="border-color:rgba(217,119,6,0.2); background:rgba(254,243,199,0.4);">
             <h4 style="color:#92400e;"><i class="fas fa-clock" style="color:#92400e;"></i> Order Status</h4>
-            <p style="font-size:0.9rem;color:#78350f;margin:0;">Your order is ${statusDisplay.toLowerCase()}. We'll keep you updated.</p>
+            <p style="font-size:0.9rem;color:#78350f;margin:0;">Your order is ${escapeHtml(statusDisplay.toLowerCase())}. We'll keep you updated.</p>
           </div>
         ` : o.status === 'completed' ? `
           <div class="sd-block" style="border-color:rgba(22,163,74,0.2); background:rgba(209,250,229,0.4);">
@@ -2067,65 +2150,84 @@
         `}
       `;
 
-      document.getElementById('detailOrderTitle').textContent = `Order #${o.id.slice(0, 8).toUpperCase()}`;
+      document.getElementById('detailOrderTitle').textContent = `Order #${(o.id || '').slice(0, 8).toUpperCase()}`;
     }
 
-    window.closeOrderDetail = () => {
-      document.getElementById('orderDetailModal').classList.remove('open');
-      currentOrderId = null;
-      currentOrderData = null;
-    };
+    // ═══════════════════════════════════════════════════════════
+    // ✅ FIX: PAY ADD-ON (was completely missing!)
+    // ─────────────────────────────────────────────────────────
+    // Flow:
+    //   1. Find order + target add-on
+    //   2. Load payment settings
+    //   3. Close order detail modal
+    //   4. Open due payment modal with _addOnMode context
+    //   The actual add-on marking happens in components.js
+    // ═══════════════════════════════════════════════════════════
+    window.payAddOn = async function(orderId, addOnIndex) {
+      if (!orderId) { showToast('Order not found', 'error'); return; }
+      if (typeof addOnIndex !== 'number' || addOnIndex < 0) {
+        showToast('Invalid add-on', 'error');
+        return;
+      }
 
-    document.getElementById('orderDetailModal').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) closeOrderDetail();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeOrderDetail();
-    });
+      // Find the order — first from cache, then from currentOrderData
+      let order = allOrders.find(o => o.id === orderId);
+      if (!order && currentOrderData && currentOrderData.id === orderId) {
+        order = currentOrderData;
+      }
 
-    // ================================================================
-    // PAY AN ADD-ON (individually)
-    // ================================================================
-    window.payAddOn = async (orderId, addOnIndex) => {
-      const order = allOrders.find(o => o.id === orderId) || (currentOrderData && currentOrderData.id === orderId ? currentOrderData : null);
-      if (!order) { showToast('Order not found', 'error'); return; }
-      const addOns = Array.isArray(order.selectedAddOns) ? [...order.selectedAddOns] : [];
+      if (!order) {
+        // Last resort — fetch from Firestore
+        try {
+          const snap = await getDoc(doc(db, 'orders', orderId));
+          if (snap.exists()) {
+            order = { id: snap.id, ...snap.data() };
+          }
+        } catch (err) {
+          console.warn('payAddOn fetch failed:', err);
+        }
+      }
+
+      if (!order) {
+        showToast('Order not found.', 'error');
+        return;
+      }
+
+      const addOns = Array.isArray(order.selectedAddOns) ? order.selectedAddOns : [];
       const target = addOns[addOnIndex];
-      if (!target) { showToast('Add-on not found', 'error'); return; }
+      if (!target) { showToast('Add-on not found.', 'error'); return; }
+
       if (target.paymentStatus === 'paid') {
         showToast('This add-on is already paid.', 'info');
         return;
       }
 
       const priceUSD = Number(target.price) || 0;
+      if (priceUSD <= 0) {
+        showToast('Invalid add-on price.', 'error');
+        return;
+      }
+
       const usdRate = Number(order.usdRate) > 0 ? Number(order.usdRate) : 125;
       const priceBDT = Math.round(priceUSD * usdRate);
 
-      // Load payment settings
+      // Load current payment settings
       let settings = {};
       try {
         const snap = await getDoc(doc(db, 'settings', 'payment'));
         settings = snap.exists() ? snap.data() : {};
-      } catch (_) {}
+      } catch (_) { /* use defaults */ }
 
       if (typeof window.openDuePaymentModal !== 'function') {
         showToast('Payment system not ready. Please refresh.', 'error');
         return;
       }
 
-      // Store context (components.js reads `_addOnMode` + `_addOnIndex`)
-      window._addOnPaymentContext = {
-        orderId,
-        addOnIndex,
-        addOnName: target.name,
-        priceUSD,
-        priceBDT
-      };
-
-      // Close order detail modal before opening payment
+      // Close order detail modal before opening payment modal
       window.closeOrderDetail();
 
-      // Open payment modal for the add-on amount
+      // Open due payment modal with add-on context
+      // components.js checks: dueData.orderData._addOnMode + _addOnIndex
       window.openDuePaymentModal(
         orderId,
         priceUSD,
@@ -2139,15 +2241,20 @@
       );
     };
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // PAY DUE (store orders)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     window.payDue = async (orderId) => {
-      const order = allOrders.find(o => o.id === orderId);
+      const order = allOrders.find(o => o.id === orderId) ||
+        (currentOrderData && currentOrderData.id === orderId ? currentOrderData : null);
       if (!order) { showToast('Order not found', 'error'); return; }
+
       const dueBDT = Number(order.dueAmountBDT) || 0;
       const dueUSD = Number(order.dueAmountUSD) || 0;
-      if (dueBDT <= 0) { showToast('✅ This order has no due amount.', 'success'); return; }
+      if (dueBDT <= 0 && dueUSD <= 0) {
+        showToast('✅ This order has no due amount.', 'success');
+        return;
+      }
 
       const user = auth.currentUser;
       if (!user) {
@@ -2156,7 +2263,7 @@
         return;
       }
 
-      closeOrderDetail();
+      window.closeOrderDetail();
 
       try {
         const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
@@ -2174,9 +2281,9 @@
       }
     };
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // CANCEL ORDER
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     window.deleteOrder = async (orderId) => {
       const order = allOrders.find(o => o.id === orderId);
       if (!order) { showToast('Order not found', 'error'); return; }
@@ -2242,9 +2349,9 @@
       }
     };
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // SERVICE: ADD REFERENCE
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     window.addOrderReference = async (orderId) => {
       const order = allOrders.find(o => o.id === orderId);
       if (!order) { showToast('Order not found', 'error'); return; }
@@ -2285,9 +2392,9 @@
       });
     };
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // SERVICE: APPROVE QUOTE
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     window.approveQuote = async (orderId) => {
       const order = allOrders.find(o => o.id === orderId);
       if (!order) { showToast('Order not found', 'error'); return; }
@@ -2320,16 +2427,16 @@
         });
 
         showToast('✅ Quote approved. Our team will follow up shortly.', 'success');
-        closeOrderDetail();
+        window.closeOrderDetail();
       } catch (err) {
         console.error('Approve quote error:', err);
         showToast('⚠️ ' + (err.message || 'Approval failed'), 'error');
       }
     };
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // INVOICE & PRINT
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     window.downloadInvoice = () => {
       const o = currentOrderData;
       if (!o) { showToast('No order selected', 'error'); return; }
@@ -2436,9 +2543,9 @@ Thank you for choosing CodeCureBD!
       printWindow.print();
     };
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // LOAD ORDERS
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function loadOrders(userId) {
       if (!userId) {
         orderList.innerHTML = `
@@ -2453,12 +2560,9 @@ Thank you for choosing CodeCureBD!
       renderSkeletons(3);
       if (unsubOrders) { unsubOrders(); unsubOrders = null; }
 
-      console.log('🔍 Loading orders for userId:', userId);
-
       const q = query(collection(db, 'orders'), where('userId', '==', userId));
 
       unsubOrders = onSnapshot(q, (snapshot) => {
-        console.log('📦 onSnapshot received, size:', snapshot.size);
         allOrders = [];
         snapshot.forEach(doc => {
           allOrders.push({ id: doc.id, ...doc.data() });
@@ -2469,20 +2573,15 @@ Thank you for choosing CodeCureBD!
           return tb - ta;
         });
         applyFilters();
-        debugInfo.classList.add('hidden');
       }, (error) => {
         console.error('🔥 Snapshot error:', error);
-        debugInfo.classList.remove('hidden');
-        debugInfo.innerHTML = `⚠️ Real-time listener error: ${escapeHtml(error.message)}. Trying fallback...`;
-        showToast('⚠️ Error loading orders. Retrying...', 'warning');
+        showDebugInfo(`⚠️ Real-time listener error: ${escapeHtml(error.message)}. Trying fallback...`, 'error');
         fallbackLoadOrders(userId);
       });
 
+      // Timeout fallback
       setTimeout(() => {
         if (allOrders.length === 0 && !isLoading) {
-          console.log('⏳ onSnapshot seems stuck, trying fallback...');
-          debugInfo.classList.remove('hidden');
-          debugInfo.innerHTML = '⏳ No orders yet. Checking database...';
           fallbackLoadOrders(userId);
         }
       }, 5000);
@@ -2492,7 +2591,6 @@ Thank you for choosing CodeCureBD!
       if (isLoading) return;
       isLoading = true;
       try {
-        console.log('🔄 Fallback: fetching orders with getDocs');
         const q = query(collection(db, 'orders'), where('userId', '==', userId));
         const snapshot = await getDocs(q);
         const orders = [];
@@ -2505,25 +2603,21 @@ Thank you for choosing CodeCureBD!
         if (orders.length > 0) {
           allOrders = orders;
           applyFilters();
-          debugInfo.innerHTML = `✅ Found ${orders.length} order(s).`;
-          setTimeout(() => debugInfo.classList.add('hidden'), 5000);
-          showToast(`✅ ${orders.length} order(s) loaded`, 'success');
         } else {
           allOrders = [];
           applyFilters();
         }
       } catch (err) {
         console.error('❌ Fallback error:', err);
-        debugInfo.innerHTML = `❌ Error: ${escapeHtml(err.message)}`;
-        showToast('⚠️ Could not load orders. Check console.', 'error');
+        showDebugInfo(`❌ Error: ${escapeHtml(err.message)}`, 'error');
       } finally {
         isLoading = false;
       }
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // AUTH STATE
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = 'index.html';
@@ -2537,10 +2631,9 @@ Thank you for choosing CodeCureBD!
 
       loadOrders(user.uid);
 
-      // Safety: clear lingering local cart
+      // Clear lingering local cart (legacy safety)
       const localCart = JSON.parse(localStorage.getItem('cart')) || [];
       if (localCart.length > 0) {
-        console.log('⚠️ Clearing lingering cart on my-orders page');
         localStorage.removeItem('cart');
         updateCartBadge();
         if (typeof window.updateCartUI === 'function') window.updateCartUI();
@@ -2551,7 +2644,7 @@ Thank you for choosing CodeCureBD!
       if (unsubOrders) unsubOrders();
     });
 
-    console.log('📦 My Orders page ready — Payments & History + per-add-on pay.');
+    console.log('📦 My Orders page ready — payAddOn fixed.');
   </script>
 </body>
 </html>

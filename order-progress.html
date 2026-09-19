@@ -30,7 +30,7 @@
       padding: 0.75rem 1rem calc(1.75rem + env(safe-area-inset-bottom, 0px));
     }
 
-    /* ===== TOPBAR ===== */
+    /* TOPBAR */
     .op-topbar {
       display: flex;
       align-items: center;
@@ -65,7 +65,7 @@
       margin: 2px 0 0;
     }
 
-    /* ===== GRID ===== */
+    /* GRID */
     .op-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -82,11 +82,17 @@
     }
     .op-stack { display: flex; flex-direction: column; gap: 1rem; }
 
-    /* ===== PROGRESS HERO (existing, preserved) ===== */
+    /* PROGRESS HERO */
     .progress-hero {
       background:
         radial-gradient(ellipse 80% 60% at 100% 0%, rgba(0,102,255,0.08), transparent 55%),
         radial-gradient(ellipse 60% 50% at 0% 100%, rgba(139,92,246,0.07), transparent 50%),
+        #fff;
+    }
+    .progress-hero.cancelled {
+      background:
+        radial-gradient(ellipse 80% 60% at 100% 0%, rgba(220,38,38,0.08), transparent 55%),
+        radial-gradient(ellipse 60% 50% at 0% 100%, rgba(100,116,139,0.06), transparent 50%),
         #fff;
     }
     .progress-hero-top {
@@ -117,6 +123,10 @@
     .dev-pill.service {
       color: #2563eb;
       background: rgba(37, 99, 235, 0.1);
+    }
+    .dev-pill.cancelled {
+      color: #dc2626;
+      background: rgba(220, 38, 38, 0.1);
     }
     #orderTitle {
       font-size: 1.25rem;
@@ -167,6 +177,9 @@
       stroke-dashoffset: 201.06;
       transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    .ring-wrap.cancelled .ring-fg {
+      stroke: #dc2626;
+    }
     .ring-center {
       position: absolute;
       inset: 0;
@@ -180,6 +193,10 @@
       font-weight: 800;
       color: #0f172a;
       line-height: 1;
+    }
+    .ring-wrap.cancelled .ring-center #progressPct {
+      font-size: 1.4rem;
+      color: #dc2626;
     }
     #progressLabel {
       font-size: 0.8rem;
@@ -202,6 +219,9 @@
       background: linear-gradient(90deg, #0066FF, #8B5CF6);
       transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
       width: 0%;
+    }
+    .progress-fill.cancelled {
+      background: linear-gradient(90deg, #dc2626, #991b1b);
     }
 
     .milestones {
@@ -242,6 +262,10 @@
       background: #8B5CF6;
       box-shadow: 0 0 0 3px rgba(139,92,246,0.25);
     }
+    .milestones.cancelled .ms { color: #cbd5e1; }
+    .milestones.cancelled .ms::before { background: #fecaca; box-shadow: 0 0 0 1px #fecaca; }
+    .milestones.cancelled .ms.done::before { background: #dc2626; box-shadow: 0 0 0 1px #dc2626; }
+    .milestones.cancelled .ms.done { color: #dc2626; }
 
     #progressNote {
       font-size: 0.88rem;
@@ -254,11 +278,16 @@
       border: 1px solid #f1f5f9;
     }
 
-    /* ===== SERVICE PIPELINE CARD (new) ===== */
+    /* SERVICE PIPELINE CARD */
     .pipeline-card {
       background:
         radial-gradient(ellipse 70% 50% at 10% 0%, rgba(37,99,235,0.06), transparent 55%),
         radial-gradient(ellipse 60% 50% at 100% 100%, rgba(124,58,237,0.06), transparent 55%),
+        #fff;
+    }
+    .pipeline-card.cancelled {
+      background:
+        radial-gradient(ellipse 70% 50% at 10% 0%, rgba(220,38,38,0.06), transparent 55%),
         #fff;
     }
     .pipeline-head {
@@ -273,6 +302,7 @@
       margin-bottom: 0.9rem;
     }
     .pipeline-head i { color: #2563eb; font-size: 0.85rem; }
+    .pipeline-card.cancelled .pipeline-head i { color: #dc2626; }
     .pipeline-steps {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -333,6 +363,14 @@
       0%,100% { box-shadow: 0 0 0 4px rgba(37,99,235,0.15), 0 4px 14px rgba(37,99,235,0.3); }
       50% { box-shadow: 0 0 0 8px rgba(37,99,235,0.06), 0 4px 14px rgba(37,99,235,0.3); }
     }
+    .pipe-step.cancelled .dot {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      animation: none;
+    }
+    .pipe-step.cancelled .lbl { color: #dc2626; }
     .pipe-step .connector {
       position: absolute;
       top: 16px;
@@ -345,6 +383,8 @@
     .pipe-step:last-child .connector { display: none; }
     .pipe-step.done .connector { background: #86efac; }
     .pipe-step.current .connector { background: linear-gradient(90deg, #2563eb 0%, #e2e8f0 100%); }
+    .pipe-step.cancelled .connector { background: #fecaca; }
+
     .next-step-hint {
       margin-top: 0.9rem;
       font-size: 0.82rem;
@@ -357,15 +397,21 @@
       gap: 10px;
       line-height: 1.5;
     }
+    .next-step-hint.cancelled {
+      background: rgba(220,38,38,0.06);
+      color: #7f1d1d;
+    }
     .next-step-hint i { color: #2563eb; margin-top: 2px; flex-shrink: 0; }
+    .next-step-hint.cancelled i { color: #dc2626; }
     .next-step-hint strong { color: #0f172a; }
+
     @media (max-width: 640px) {
       .pipeline-steps { grid-template-columns: repeat(3, 1fr); gap: 12px 8px; }
       .pipe-step .connector { display: none !important; }
       .pipe-step .lbl { font-size: 0.6rem; }
     }
 
-    /* ===== QUOTE CARD (new) ===== */
+    /* QUOTE CARD */
     .quote-card {
       background:
         radial-gradient(ellipse 80% 60% at 100% 0%, rgba(217,119,6,0.08), transparent 55%),
@@ -462,7 +508,7 @@
       font-size: 0.82rem;
     }
 
-    /* ===== SECTION PANELS (service info) ===== */
+    /* SECTION INFO */
     .info-head {
       display: flex;
       align-items: center;
@@ -511,7 +557,7 @@
       border-radius: 12px;
     }
 
-    /* Add-ons checklist */
+    /* Add-ons */
     .addon-checklist { display: flex; flex-direction: column; gap: 8px; }
     .addon-check-row {
       display: flex;
@@ -559,7 +605,7 @@
     }
     .addon-total-row .amt { color: #2563eb; }
 
-    /* Design references strip */
+    /* Design references */
     .ref-strip {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -638,7 +684,7 @@
       border-radius: 12px;
     }
 
-    /* ===== FILE PREVIEW (existing, preserved) ===== */
+    /* File Preview */
     .visit-head {
       display: flex;
       flex-wrap: wrap;
@@ -765,7 +811,7 @@
       background: transparent;
     }
 
-    /* ===== DEV CHAT (existing, preserved) ===== */
+    /* Dev Chat */
     .chat-section-title {
       font-size: 1rem;
       font-weight: 700;
@@ -872,6 +918,15 @@
       border-bottom-left-radius: 5px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
+    .dev-row .sender-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #94a3b8;
+      padding: 0 4px 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .dev-row.sent .sender-label { color: #2563eb; }
     .dev-time {
       font-size: 0.62rem;
       color: #94a3b8;
@@ -884,7 +939,9 @@
       display: block;
       margin-bottom: 4px;
       cursor: pointer;
+      transition: 0.15s;
     }
+    .msg-img:hover { opacity: 0.92; }
 
     .img-preview-row {
       display: none;
@@ -964,7 +1021,48 @@
     .dev-file-btn { background: #f1f5f9; color: #64748b; }
     .dev-file-btn:active { background: #e0e7ff; color: #0066FF; }
 
-    /* ===== SKELETON / ERROR (existing, preserved) ===== */
+    /* Lightbox */
+    .img-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      cursor: zoom-out;
+    }
+    .img-lightbox.open { display: flex; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .img-lightbox img {
+      max-width: 95vw;
+      max-height: 88vh;
+      border-radius: 16px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+      object-fit: contain;
+    }
+    .img-lightbox .close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .img-lightbox .close:hover { background: rgba(255, 255, 255, 0.25); }
+
+    /* Skeleton / Error */
     .op-skeleton .sk {
       background: linear-gradient(90deg, #e8edf3 25%, #f1f5f9 50%, #e8edf3 75%);
       background-size: 200% 100%;
@@ -993,7 +1091,44 @@
       cursor: pointer;
     }
 
-    /* ===== RESPONSIVE ===== */
+    /* Toast */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      width: 90%;
+      max-width: 400px;
+    }
+    .toast {
+      pointer-events: auto;
+      background: #1c1c1e;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideUp 0.3s ease forwards;
+      width: 100%;
+    }
+    .toast.success { background: #28A745; }
+    .toast.error { background: #dc3545; }
+    .toast.warning { background: #ffc107; color: #1c1c1e; }
+    .toast.hide { animation: slideDown 0.3s ease forwards; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(30px); } }
+
+    /* RESPONSIVE */
     @media (min-width: 900px) {
       .progress-wrap {
         padding: 1rem 1.5rem 2.5rem;
@@ -1073,17 +1208,17 @@
             <!-- LEFT COLUMN -->
             <div class="op-stack">
 
-              <!-- SERVICE PIPELINE (service only) -->
+              <!-- SERVICE PIPELINE -->
               <section class="op-card pipeline-card op-hidden" id="pipelineCard">
                 <div class="pipeline-head">
                   <i class="fas fa-route"></i>
-                  <span>Service pipeline</span>
+                  <span id="pipelineHeadText">Service pipeline</span>
                 </div>
                 <div class="pipeline-steps" id="pipelineSteps"></div>
                 <div class="next-step-hint" id="nextStepHint"></div>
               </section>
 
-              <!-- QUOTE CARD (service only, when quoted/approved) -->
+              <!-- QUOTE CARD -->
               <section class="op-card quote-card op-hidden" id="quoteCard">
                 <div class="quote-head">
                   <i class="fas fa-file-invoice-dollar"></i>
@@ -1095,8 +1230,8 @@
                 <div class="quote-actions" id="quoteActions"></div>
               </section>
 
-              <!-- PROGRESS HERO (all orders) -->
-              <section class="op-card progress-hero">
+              <!-- PROGRESS HERO -->
+              <section class="op-card progress-hero" id="progressHero">
                 <div class="progress-hero-top">
                   <div class="progress-hero-left">
                     <span class="dev-pill" id="devPill"><i class="fas fa-code"></i> Development</span>
@@ -1105,7 +1240,7 @@
                     <span class="status-chip pending" id="orderStatusChip">pending</span>
                   </div>
                   <div style="text-align:center;">
-                    <div class="ring-wrap">
+                    <div class="ring-wrap" id="ringWrap">
                       <svg viewBox="0 0 76 76" aria-hidden="true">
                         <defs>
                           <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -1134,7 +1269,7 @@
                 <p id="progressNote"></p>
               </section>
 
-              <!-- PROJECT BRIEF (service only) -->
+              <!-- PROJECT BRIEF -->
               <section class="op-card op-hidden" id="briefCard">
                 <div class="info-head">
                   <i class="fas fa-clipboard-list"></i>
@@ -1143,7 +1278,7 @@
                 <div id="briefContent"></div>
               </section>
 
-              <!-- ADD-ONS (service only) -->
+              <!-- ADD-ONS -->
               <section class="op-card op-hidden" id="addOnsCard">
                 <div class="info-head">
                   <i class="fas fa-puzzle-piece"></i>
@@ -1153,7 +1288,7 @@
                 <div class="addon-checklist" id="addOnsChecklist"></div>
               </section>
 
-              <!-- DESIGN REFERENCES (service only) -->
+              <!-- DESIGN REFERENCES -->
               <section class="op-card op-hidden" id="refsCard">
                 <div class="info-head">
                   <i class="fas fa-palette"></i>
@@ -1163,7 +1298,7 @@
                 <div id="refsContent"></div>
               </section>
 
-              <!-- FILE PREVIEW + VISIT SITE (all orders) -->
+              <!-- FILE PREVIEW -->
               <section class="op-card">
                 <div class="visit-head">
                   <div>
@@ -1234,12 +1369,19 @@
     </main>
     <div id="footer-placeholder"></div>
   </div>
+
+  <!-- IMAGE LIGHTBOX -->
+  <div class="img-lightbox" id="imgLightbox">
+    <button class="close" id="lbClose" aria-label="Close">&times;</button>
+    <img id="lbImage" src="" alt="Full size" />
+  </div>
+
   <div id="toast-container"></div>
 
   <script type="module">
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // IMPORTS
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     import {
       auth, db, doc, getDoc, collection, query, where, onSnapshot,
       addDoc, updateDoc, serverTimestamp, onAuthStateChanged, getDocs
@@ -1249,35 +1391,42 @@
       renderCartSidebar, renderAuthModal, uploadImage
     } from './components.js';
 
-    // ================================================================
     // COMMON RENDER
-    // ================================================================
     renderNavbar();
     renderAuthModal();
     renderFooter();
     renderCartSidebar();
     updateCartBadge();
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // TOAST
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container') || document.body;
       const toast = document.createElement('div');
       toast.className = 'toast ' + type;
-      const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+      const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+      };
       const icon = icons[type] || icons.success;
       toast.innerHTML = '<i class="fas ' + icon + '"></i> ' + message;
       container.appendChild(toast);
-      setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4000);
+      setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 400);
+      }, 4000);
     };
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // STATE
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get('id') || '';
     let currentUser = null;
+    let currentUserRole = 'user';
     let orderData = null;
     let unsubMsgs = null;
     let unsubOrder = null;
@@ -1286,9 +1435,9 @@
     let filesCache = [];
     const RING_C = 2 * Math.PI * 32;
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // HELPERS
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function escapeHtml(str) {
       return String(str || '')
         .replace(/&/g, '&amp;')
@@ -1300,13 +1449,15 @@
     function isImageUrl(str) {
       if (!str) return false;
       const t = String(str).trim();
-      return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(t) || t.includes('res.cloudinary.com');
+      return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i.test(t)
+        || t.includes('res.cloudinary.com');
     }
 
     function isCampaignOrder(o) {
       if (!o) return false;
       return !!(o.campaignId || o.type === 'campaign' || o.isCampaign || o.orderType === 'campaign');
     }
+
     function isServiceOrder(o) {
       if (!o) return false;
       return o.type === 'service' || o.orderType === 'service';
@@ -1336,21 +1487,32 @@
       if (!ts) return '—';
       const d = ts.toDate ? ts.toDate() : new Date(ts);
       if (isNaN(d.getTime())) return '—';
-      return d.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
     }
 
-    // ================================================================
-    // PROGRESS UI (existing, preserved)
-    // ================================================================
-    function updateMilestones(pct) {
+    // ═══════════════════════════════════════════════════════════
+    // PROGRESS UI (with cancelled support)
+    // ═══════════════════════════════════════════════════════════
+    function updateMilestones(pct, cancelled = false) {
       const steps = [0, 25, 50, 75, 100];
       let current = 0;
       for (const s of steps) {
         if (pct >= s) current = s;
       }
+      const milestonesEl = document.getElementById('milestones');
+      if (milestonesEl) {
+        milestonesEl.classList.toggle('cancelled', cancelled);
+      }
       document.querySelectorAll('#milestones .ms').forEach(el => {
         const at = Number(el.dataset.at) || 0;
         el.classList.remove('done', 'current');
+        if (cancelled) {
+          if (pct >= at) el.classList.add('done');
+          return;
+        }
         if (pct >= at) el.classList.add('done');
         if (at === current) el.classList.add('current');
       });
@@ -1359,10 +1521,25 @@
     function updateProgressUI(o) {
       if (!o) return;
       try {
+        const status = String(o.status || 'pending').toLowerCase();
+        const isCancelled = status === 'cancelled';
         const pct = Math.min(100, Math.max(0, Number(o.progressPercent) || 0));
-        const pctEl = document.getElementById('progressPct');
+
+        // Progress hero cancelled styling
+        const progressHero = document.getElementById('progressHero');
+        if (progressHero) progressHero.classList.toggle('cancelled', isCancelled);
+
+        const ringWrap = document.getElementById('ringWrap');
+        if (ringWrap) ringWrap.classList.toggle('cancelled', isCancelled);
+
         const fillEl = document.getElementById('progressFill');
-        if (pctEl) pctEl.textContent = pct + '%';
+        if (fillEl) fillEl.classList.toggle('cancelled', isCancelled);
+
+        const pctEl = document.getElementById('progressPct');
+        if (pctEl) {
+          pctEl.textContent = isCancelled ? '✕' : (pct + '%');
+        }
+
         if (fillEl) fillEl.style.width = pct + '%';
 
         const ring = document.getElementById('progressRing');
@@ -1378,12 +1555,17 @@
           75: 'Almost done',
           100: 'Completed'
         };
-        let label = o.progressStatus || labels[0];
-        if (!o.progressStatus) {
-          if (pct >= 100) label = labels[100];
-          else if (pct >= 75) label = labels[75];
-          else if (pct >= 50) label = labels[50];
-          else if (pct >= 1) label = labels[25];
+        let label;
+        if (isCancelled) {
+          label = 'Cancelled';
+        } else {
+          label = o.progressStatus || labels[0];
+          if (!o.progressStatus) {
+            if (pct >= 100) label = labels[100];
+            else if (pct >= 75) label = labels[75];
+            else if (pct >= 50) label = labels[50];
+            else if (pct >= 1) label = labels[25];
+          }
         }
         const labelEl = document.getElementById('progressLabel');
         if (labelEl) labelEl.textContent = label;
@@ -1391,7 +1573,11 @@
         const noteEl = document.getElementById('progressNote');
         if (noteEl) {
           const note = (o.progressNote || '').trim();
-          noteEl.textContent = note || 'Updates from the developer will appear here.';
+          if (isCancelled) {
+            noteEl.textContent = note || 'This order has been cancelled.';
+          } else {
+            noteEl.textContent = note || 'Updates from the developer will appear here.';
+          }
         }
 
         const short = (orderId || '').slice(0, 8).toUpperCase();
@@ -1415,37 +1601,40 @@
 
         const pill = document.getElementById('devPill');
         if (pill) {
-          if (service) {
-            pill.classList.remove('campaign');
+          if (isCancelled) {
+            pill.classList.remove('campaign', 'service');
+            pill.classList.add('cancelled');
+            pill.innerHTML = '<i class="fas fa-ban"></i> Cancelled';
+          } else if (service) {
+            pill.classList.remove('campaign', 'cancelled');
             pill.classList.add('service');
             pill.innerHTML = '<i class="fas fa-palette"></i> Service Project';
           } else if (campaign) {
             pill.classList.add('campaign');
-            pill.classList.remove('service');
+            pill.classList.remove('service', 'cancelled');
             pill.innerHTML = '<i class="fas fa-bullhorn"></i> Campaign Dev';
           } else {
-            pill.classList.remove('campaign', 'service');
+            pill.classList.remove('campaign', 'service', 'cancelled');
             pill.innerHTML = '<i class="fas fa-code"></i> Development';
           }
         }
 
         const chip = document.getElementById('orderStatusChip');
         if (chip) {
-          const st = String(o.status || 'pending').toLowerCase();
-          const ok = ['pending','reviewing','quoted','approved','processing','completed','cancelled'].includes(st) ? st : 'pending';
+          const ok = ['pending','reviewing','quoted','approved','processing','completed','cancelled'].includes(status) ? status : 'pending';
           chip.className = 'status-chip ' + ok;
-          chip.textContent = st;
+          chip.textContent = status;
         }
 
-        updateMilestones(pct);
+        updateMilestones(pct, isCancelled);
       } catch (err) {
         console.warn('updateProgressUI', err);
       }
     }
 
-    // ================================================================
-    // SERVICE PIPELINE (new)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // SERVICE PIPELINE
+    // ═══════════════════════════════════════════════════════════
     const PIPELINE_STEPS = [
       { key: 'pending',    label: 'Pending',    icon: 'fa-hourglass-half' },
       { key: 'reviewing',  label: 'Reviewing',  icon: 'fa-search' },
@@ -1460,25 +1649,36 @@
       const card = document.getElementById('pipelineCard');
       const stepsEl = document.getElementById('pipelineSteps');
       const hintEl = document.getElementById('nextStepHint');
+      const headText = document.getElementById('pipelineHeadText');
       if (!card || !stepsEl || !hintEl) return;
 
       const status = String(o.status || 'pending').toLowerCase();
-      let currentIdx = PIPELINE_STEPS.findIndex(s => s.key === status);
-      if (currentIdx === -1) currentIdx = 0; // fallback
-      // If cancelled, show as cancelled visually
       const isCancelled = status === 'cancelled';
+
+      // Toggle card cancelled styling
+      card.classList.toggle('cancelled', isCancelled);
+      if (headText) {
+        headText.textContent = isCancelled ? 'Service pipeline (cancelled)' : 'Service pipeline';
+      }
+
+      let currentIdx = PIPELINE_STEPS.findIndex(s => s.key === status);
+      if (currentIdx === -1) currentIdx = 0;
 
       stepsEl.innerHTML = PIPELINE_STEPS.map((s, i) => {
         let cls = '';
         if (isCancelled) {
-          cls = i === 0 ? 'done' : '';
+          // Show all prior completed as done, current stage as cancelled
+          if (i < currentIdx) cls = 'done';
+          else if (i === currentIdx) cls = 'cancelled';
         } else {
           if (i < currentIdx) cls = 'done';
           else if (i === currentIdx) cls = 'current';
         }
-        const dotContent = cls === 'done'
-          ? '<i class="fas fa-check"></i>'
-          : `<i class="fas ${s.icon}"></i>`;
+        let dotContent;
+        if (cls === 'done') dotContent = '<i class="fas fa-check"></i>';
+        else if (cls === 'cancelled') dotContent = '<i class="fas fa-times"></i>';
+        else dotContent = `<i class="fas ${s.icon}"></i>`;
+
         return `
           <div class="pipe-step ${cls}">
             <span class="dot">${dotContent}</span>
@@ -1488,7 +1688,7 @@
         `;
       }).join('');
 
-      // Next-step hint
+      // Hints
       const hints = {
         pending:    'Our team is reviewing your brief and design references. You\'ll hear from us soon.',
         reviewing:  'We\'re evaluating the scope. A personalised quote is coming next.',
@@ -1498,13 +1698,16 @@
         completed:  'Project delivered! Let us know if you need any adjustments.',
         cancelled:  'This request was cancelled.'
       };
-      const nextIdx = Math.min(currentIdx + 1, PIPELINE_STEPS.length - 1);
+
+      hintEl.classList.toggle('cancelled', isCancelled);
+
       let hintText;
       if (isCancelled) {
         hintText = hints.cancelled;
       } else if (currentIdx === PIPELINE_STEPS.length - 1) {
         hintText = hints.completed;
       } else {
+        const nextIdx = Math.min(currentIdx + 1, PIPELINE_STEPS.length - 1);
         hintText = `<strong>Next step:</strong> ${PIPELINE_STEPS[nextIdx].label}. ${hints[status] || ''}`;
       }
       hintEl.innerHTML = `<i class="fas fa-lightbulb"></i><div>${hintText}</div>`;
@@ -1512,9 +1715,9 @@
       showEl('pipelineCard');
     }
 
-    // ================================================================
-    // QUOTE CARD (new)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // QUOTE CARD
+    // ═══════════════════════════════════════════════════════════
     function renderQuoteCard(o) {
       if (!isServiceOrder(o)) return;
       const status = String(o.status || 'pending').toLowerCase();
@@ -1529,7 +1732,6 @@
         return;
       }
 
-      const card = document.getElementById('quoteCard');
       const headLabel = document.getElementById('quoteHeadLabel');
       const amountEl = document.getElementById('quoteAmount');
       const amountBDTEl = document.getElementById('quoteAmountBDT');
@@ -1576,9 +1778,9 @@
       showEl('quoteCard');
     }
 
-    // ================================================================
-    // BRIEF (new)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // BRIEF
+    // ═══════════════════════════════════════════════════════════
     function renderBrief(o) {
       if (!isServiceOrder(o)) return;
       const card = document.getElementById('briefCard');
@@ -1594,9 +1796,9 @@
       showEl('briefCard');
     }
 
-    // ================================================================
-    // ADD-ONS CHECKLIST (new)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // ADD-ONS
+    // ═══════════════════════════════════════════════════════════
     function renderAddOns(o) {
       if (!isServiceOrder(o)) return;
       const card = document.getElementById('addOnsCard');
@@ -1636,9 +1838,9 @@
       showEl('addOnsCard');
     }
 
-    // ================================================================
-    // DESIGN REFERENCES (new)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // DESIGN REFERENCES
+    // ═══════════════════════════════════════════════════════════
     function renderDesignReferences(o) {
       if (!isServiceOrder(o)) return;
       const card = document.getElementById('refsCard');
@@ -1708,9 +1910,9 @@
       showEl('refsCard');
     }
 
-    // ================================================================
-    // APPROVE QUOTE (new — service only)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // APPROVE QUOTE
+    // ═══════════════════════════════════════════════════════════
     window.approveQuote = async (oid) => {
       if (!oid) return;
       const order = orderData && orderData.id === oid ? orderData : null;
@@ -1735,16 +1937,15 @@
           updatedAt: serverTimestamp()
         });
         window.showToast('✅ Quote approved. Our team will follow up.', 'success');
-        // onSnapshot refresh will re-render
       } catch (err) {
         console.error('approveQuote error:', err);
         window.showToast('⚠️ ' + (err.message || 'Approval failed'), 'error');
       }
     };
 
-    // ================================================================
-    // FILE PREVIEW (existing, preserved)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // FILE PREVIEW
+    // ═══════════════════════════════════════════════════════════
     function setPreviewEmpty() {
       const wrap = document.getElementById('previewWrap');
       const frame = document.getElementById('previewFrame');
@@ -1800,22 +2001,31 @@
       else setPreviewEmpty();
     }
 
+    // FIX: proper unsub before re-subscribe
     function listenFiles() {
       if (!orderId) return;
-      if (unsubFiles) try { unsubFiles(); } catch (_) {}
+      if (unsubFiles) {
+        try { unsubFiles(); } catch (_) {}
+        unsubFiles = null;
+      }
       const q = query(collection(db, 'devFiles'), where('orderId', '==', orderId));
       unsubFiles = onSnapshot(q, (snap) => {
         filesCache = [];
         snap.forEach(d => filesCache.push({ id: d.id, ...d.data() }));
-        filesCache.sort((a, b) => (a.path || a.fileName || '').localeCompare(b.path || b.fileName || ''));
+        filesCache.sort((a, b) =>
+          (a.path || a.fileName || '').localeCompare(b.path || b.fileName || '')
+        );
         renderFileList();
       }, async (err) => {
         console.warn('files live failed', err);
+        // Fallback: getDocs
         try {
           const snap = await getDocs(q);
           filesCache = [];
           snap.forEach(d => filesCache.push({ id: d.id, ...d.data() }));
-          filesCache.sort((a, b) => (a.path || a.fileName || '').localeCompare(b.path || b.fileName || ''));
+          filesCache.sort((a, b) =>
+            (a.path || a.fileName || '').localeCompare(b.path || b.fileName || '')
+          );
           renderFileList();
         } catch (e2) {
           const listEl = document.getElementById('fileList');
@@ -1831,32 +2041,103 @@
       return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
+    // FIX: robust CSS/JS reference replacement — handles ./ / ../ and relative paths
+    function replaceAssetReferences(html, filesByName) {
+      let output = html;
+
+      // Replace CSS <link href="...">
+      Object.keys(filesByName).forEach(name => {
+        if (!/\.css$/i.test(name)) return;
+        const content = filesByName[name];
+        if (!content) return;
+
+        const base = name.replace(/^.*\//, '');
+        const patterns = [
+          name,               // exact: styles/style.css
+          base,               // bare:   style.css
+          './' + name,        // ./styles/style.css
+          './' + base,        // ./style.css
+          '/' + name,         // /styles/style.css
+          '/' + base,         // /style.css
+          '../' + name,       // ../styles/style.css
+          '../' + base        // ../style.css
+        ];
+
+        patterns.forEach(p => {
+          const re = new RegExp(
+            'href\\s*=\\s*["\']' + escapeRegExp(p) + '(\\?[^"\']*)?["\']',
+            'gi'
+          );
+          output = output.replace(re, '');
+        });
+
+        // Inject <style> at end of <head> or top of body
+        const styleBlock = `<style>/* ${escapeHtml(name)} */\n${content}\n</style>`;
+        if (/<\/head>/i.test(output)) {
+          output = output.replace(/<\/head>/i, styleBlock + '</head>');
+        } else if (/<body[^>]*>/i.test(output)) {
+          output = output.replace(/(<body[^>]*>)/i, '$1' + styleBlock);
+        } else {
+          output = styleBlock + output;
+        }
+      });
+
+      // Replace JS <script src="...">
+      Object.keys(filesByName).forEach(name => {
+        if (!/\.js$/i.test(name)) return;
+        const content = filesByName[name];
+        if (!content) return;
+        // Skip if it's an external script from source html
+        if (/^https?:/i.test(name)) return;
+
+        const base = name.replace(/^.*\//, '');
+        const patterns = [
+          name,
+          base,
+          './' + name,
+          './' + base,
+          '/' + name,
+          '/' + base,
+          '../' + name,
+          '../' + base
+        ];
+
+        patterns.forEach(p => {
+          const re = new RegExp(
+            'src\\s*=\\s*["\']' + escapeRegExp(p) + '(\\?[^"\']*)?["\']',
+            'gi'
+          );
+          output = output.replace(re, '');
+        });
+
+        // Inject <script> at end of body
+        const scriptOpen = '<' + 'script>';
+        const scriptClose = '</' + 'script>';
+        const scriptBlock = `${scriptOpen}/* ${name} */\n${content}\n${scriptClose}`;
+        if (/<\/body>/i.test(output)) {
+          output = output.replace(/<\/body>/i, scriptBlock + '</body>');
+        } else {
+          output += scriptBlock;
+        }
+      });
+
+      return output;
+    }
+
     function buildPreviewHtml() {
       const byName = {};
       filesCache.forEach(f => {
         const name = (f.path || f.fileName || 'file').replace(/^\//, '');
         byName[name] = f.content || '';
       });
+
       let indexKey = Object.keys(byName).find(k => /(^|\/)index\.html?$/i.test(k));
       if (!indexKey) indexKey = Object.keys(byName).find(k => /\.html?$/i.test(k));
       if (!indexKey) return null;
+
       let html = byName[indexKey];
-      Object.keys(byName).forEach(name => {
-        if (/\.css$/i.test(name)) {
-          const re = new RegExp('href=["\']' + escapeRegExp(name) + '["\']', 'gi');
-          html = html.replace(re, '');
-          if (!html.includes('</head>')) html = '<style>' + byName[name] + '</style>' + html;
-          else html = html.replace('</head>', '<style>' + byName[name] + '</style></head>');
-        }
-        if (/\.js$/i.test(name) && !/src=["']https?:/i.test(byName[name])) {
-          const re = new RegExp('src=["\']' + escapeRegExp(name) + '["\']', 'gi');
-          html = html.replace(re, '');
-          const tagOpen = '<' + 'script>';
-          const tagClose = '</' + 'script>';
-          if (!html.includes('</body>')) html = html + tagOpen + byName[name] + tagClose;
-          else html = html.replace('</body>', tagOpen + byName[name] + tagClose + '</body>');
-        }
-      });
+      html = replaceAssetReferences(html, byName);
+
       if (!/<html/i.test(html)) {
         html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>' + html + '</body></html>';
       }
@@ -1879,9 +2160,16 @@
       }
     });
 
-    // ================================================================
-    // DEV CHAT (existing, preserved)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // DEV CHAT
+    // ═══════════════════════════════════════════════════════════
+    function getSenderLabel(m) {
+      if (m.fromUserId === currentUser?.uid) return 'You';
+      if (m.fromUserId === 'developer') return 'Developer';
+      if (m.fromUserId === 'admin') return 'Admin';
+      return 'Developer';
+    }
+
     function renderMsgs(msgs) {
       const body = document.getElementById('devChatBody');
       if (!body) return;
@@ -1908,11 +2196,17 @@
         if (!img && isImageUrl(raw.trim())) { img = raw.trim(); text = []; }
         let content = '';
         if (img) {
-          content += '<img class="msg-img" src="' + escapeHtml(img) + '" alt="Attachment" loading="lazy" onclick="window.open(\'' + escapeHtml(img) + '\',\'_blank\')" />';
+          // FIX: use lightbox instead of window.open
+          content += `<img class="msg-img" src="${escapeHtml(img)}" alt="Attachment" loading="lazy" onclick="window.openImageLightbox('${escapeHtml(img)}')" />`;
         }
         if (text.length) content += escapeHtml(text.join('\n'));
         if (!content) content = '<span style="opacity:0.6">(empty)</span>';
+
+        // FIX: show sender label
+        const senderLabel = getSenderLabel(m);
+
         html += '<div class="dev-row ' + (isSent ? 'sent' : 'recv') + '">' +
+          '<div class="sender-label">' + senderLabel + '</div>' +
           '<div class="dev-bubble">' + content + '</div>' +
           '<div class="dev-time">' + time + '</div></div>';
       });
@@ -1922,7 +2216,10 @@
 
     function listenMessages() {
       if (!orderId) return;
-      if (unsubMsgs) try { unsubMsgs(); } catch (_) {}
+      if (unsubMsgs) {
+        try { unsubMsgs(); } catch (_) {}
+        unsubMsgs = null;
+      }
       const q1 = query(collection(db, 'devMessages'), where('orderId', '==', orderId));
       unsubMsgs = onSnapshot(q1, (snap) => {
         const msgs = [];
@@ -1935,7 +2232,10 @@
         renderMsgs(msgs);
         msgs.filter(m => m.fromUserId === 'developer' && !m.read).forEach(async (m) => {
           try {
-            await updateDoc(doc(db, 'devMessages', m.id), { read: true, readAt: serverTimestamp() });
+            await updateDoc(doc(db, 'devMessages', m.id), {
+              read: true,
+              readAt: serverTimestamp()
+            });
           } catch (_) {}
         });
       }, (err) => {
@@ -2018,9 +2318,40 @@
     });
     document.getElementById('imgPreviewClear')?.addEventListener('click', clearImagePreview);
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // IMAGE LIGHTBOX
+    // ═══════════════════════════════════════════════════════════
+    window.openImageLightbox = function(url) {
+      if (!url) return;
+      const lb = document.getElementById('imgLightbox');
+      const img = document.getElementById('lbImage');
+      if (!lb || !img) return;
+      img.src = url;
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    function closeLightbox() {
+      const lb = document.getElementById('imgLightbox');
+      if (!lb) return;
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lbClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeLightbox();
+    });
+    document.getElementById('imgLightbox')?.addEventListener('click', (e) => {
+      if (e.target.id === 'imgLightbox') closeLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    // ═══════════════════════════════════════════════════════════
     // BOOT
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     async function boot(user) {
       if (!orderId) {
         showError('No order selected.');
@@ -2035,7 +2366,11 @@
           return;
         }
         orderData = { id: snap.id, ...snap.data() };
-        if (orderData.userId !== user.uid) {
+
+        // FIX: allow admin to view any order
+        const isOwner = orderData.userId === user.uid;
+        const isAdminUser = currentUserRole === 'admin';
+        if (!isOwner && !isAdminUser) {
           showError('You do not have access to this order.');
           return;
         }
@@ -2044,16 +2379,13 @@
         hideEl('errorState');
         showEl('mainState');
 
-        // Service panels (only render for service-type orders)
         renderServicePipeline(orderData);
         renderQuoteCard(orderData);
         renderBrief(orderData);
         renderAddOns(orderData);
         renderDesignReferences(orderData);
-
         updateProgressUI(orderData);
 
-        // Update page subtitle for service orders
         if (isServiceOrder(orderData)) {
           const sub = document.getElementById('pageSubtitle');
           if (sub) sub.textContent = 'Track your service request & chat with our team';
@@ -2065,7 +2397,10 @@
         listenFiles();
 
         // Live order listener
-        if (unsubOrder) try { unsubOrder(); } catch (_) {}
+        if (unsubOrder) {
+          try { unsubOrder(); } catch (_) {}
+          unsubOrder = null;
+        }
         unsubOrder = onSnapshot(ref, (s) => {
           if (!s.exists()) return;
           orderData = { id: s.id, ...s.data() };
@@ -2082,30 +2417,37 @@
       }
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // AUTH STATE
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = 'auth.html?mode=signin&redirect=' + encodeURIComponent('order-progress.html?id=' + orderId);
+        window.location.href = 'auth.html?mode=signin&redirect=' +
+          encodeURIComponent('order-progress.html?id=' + orderId);
         return;
       }
       let name = null;
       try {
         const ud = await getDoc(doc(db, 'users', user.uid));
-        name = ud.exists() ? ud.data().displayName : (user.email ? user.email.split('@')[0] : null);
+        if (ud.exists()) {
+          const data = ud.data();
+          name = data.displayName;
+          currentUserRole = data.role || 'user';
+        } else {
+          name = user.email ? user.email.split('@')[0] : null;
+        }
       } catch (_) {}
-      updateNavbarAuth(user, name);
+      updateNavbarAuth(user, name, currentUserRole);
       boot(user);
     });
 
     window.addEventListener('beforeunload', () => {
-      if (unsubMsgs) unsubMsgs();
-      if (unsubOrder) unsubOrder();
-      if (unsubFiles) unsubFiles();
+      if (unsubMsgs) { try { unsubMsgs(); } catch (_) {} }
+      if (unsubOrder) { try { unsubOrder(); } catch (_) {} }
+      if (unsubFiles) { try { unsubFiles(); } catch (_) {} }
     });
 
-    console.log('📈 order-progress.html ready — service-aware pipeline, quote, brief, add-ons, refs, file preview, dev chat.');
+    console.log('📈 order-progress.html ready — admin access + robust file preview + lightbox + cancelled state.');
   </script>
 </body>
 </html>

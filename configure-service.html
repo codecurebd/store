@@ -297,6 +297,9 @@
             font-size: 0.72rem; font-weight: 700; color: #94a3b8;
             background: #f1f5f9; padding: 2px 10px; border-radius: 999px;
         }
+        .addon-cat-head .ac-count.active {
+            background: rgba(37,99,235,0.12); color: #2563eb;
+        }
         .addon-cat-head .ac-toggle { color: #94a3b8; font-size: 0.75rem; transition: transform 0.25s; }
         .addon-category.collapsed .ac-toggle { transform: rotate(-90deg); }
         .addon-category.collapsed .addon-cat-body { display: none; }
@@ -359,7 +362,10 @@
             background: rgba(37,99,235,0.1); border-color: #2563eb;
             transform: translateY(-1px);
         }
-        .btn-add-ref i { font-size: 0.9rem; }
+        .btn-add-ref:disabled {
+            opacity: 0.5;
+            cursor: wait;
+        }
 
         .ref-chip-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
         .ref-chip {
@@ -733,7 +739,7 @@
         <section style="padding: 1.5rem 1rem 4rem;">
             <div style="max-width: 1200px; margin: 0 auto;">
 
-                <!-- ===== TOPBAR ===== -->
+                <!-- TOPBAR -->
                 <div class="cfg-topbar fade-up">
                     <a href="get-new-website.html" class="back-link" aria-label="Back to design selector">
                         <i class="fas fa-arrow-left"></i>
@@ -744,7 +750,7 @@
                     </div>
                 </div>
 
-                <!-- ===== STEP INDICATOR ===== -->
+                <!-- STEP INDICATOR -->
                 <div class="step-indicator fade-up">
                     <span class="step done"><span class="num"><i class="fas fa-check"></i></span><span class="lbl">Choose design</span></span>
                     <i class="fas fa-chevron-right step-arrow"></i>
@@ -753,13 +759,13 @@
                     <span class="step"><span class="num">3</span><span class="lbl">Submit brief</span></span>
                 </div>
 
-                <!-- ===== LOADING ===== -->
+                <!-- LOADING -->
                 <div id="loadingState" class="cfg-loading">
                     <div class="cfg-spinner"></div>
                     <p style="color:#64748b;font-weight:600;">Loading your configuration…</p>
                 </div>
 
-                <!-- ===== ERROR ===== -->
+                <!-- ERROR -->
                 <div id="errorState" class="cfg-error" style="display:none;">
                     <i class="big fas fa-exclamation-circle"></i>
                     <h2>Could not load this design</h2>
@@ -769,7 +775,7 @@
                     </a>
                 </div>
 
-                <!-- ===== MAIN ===== -->
+                <!-- MAIN -->
                 <div id="mainState" style="display:none;">
                     <div class="cfg-layout">
                         <div>
@@ -912,7 +918,7 @@
                     </div>
                 </div>
 
-                <!-- ===== SUCCESS ===== -->
+                <!-- SUCCESS -->
                 <div id="successState" class="cfg-success" style="display:none;">
                     <div class="check-circle"><i class="fas fa-check"></i></div>
                     <h2>Request submitted!</h2>
@@ -989,6 +995,9 @@
     renderPaymentModal();
     updateCartBadge();
 
+    // ═══════════════════════════════════════════════════════════
+    // TOAST
+    // ═══════════════════════════════════════════════════════════
     window.showToast = (message, type = 'success') => {
         const container = document.getElementById('toast-container');
         if (!container) return;
@@ -1000,6 +1009,9 @@
         setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
+    // ═══════════════════════════════════════════════════════════
+    // FADE-UP OBSERVER
+    // ═══════════════════════════════════════════════════════════
     const fadeObserver = new IntersectionObserver((entries) => {
         entries.forEach(e => {
             if (e.isIntersecting) {
@@ -1013,6 +1025,9 @@
         document.querySelectorAll('.fade-up:not(.visible)').forEach(el => fadeObserver.observe(el));
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // HELPERS
+    // ═══════════════════════════════════════════════════════════
     function escapeHtml(str) {
         return String(str || '')
             .replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -1027,9 +1042,9 @@
         });
     }
 
-    // ================================================================
-    // SERVICE CONFIG — loaded from admin (settings/serviceConfig)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════════
     const DEFAULT_SERVICE_CONFIG = {
         basePackagePrice: 50,
         basePackageIncludes: [
@@ -1053,13 +1068,24 @@
     let allServiceCategories = [];
     let firestoreAddOns = [];
 
+    // FIX: track listener unsubscribers for cleanup
+    let _unsubCategories = null;
+    let _unsubAddOns = null;
+    let _unsubServiceConfig = null;
+
+    // FIX: prevent double modal open
+    let _isModalOpening = false;
+
+    // FIX: memoize merged add-ons computation
+    let _lastMergeHash = '';
+
     const params = new URLSearchParams(window.location.search);
     const templateId = params.get('id') || '';
     const sourceHint = params.get('src') || 'template';
 
-    // ================================================================
-    // DEFAULT ADD-ONS (fallback when Firestore empty)
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // ADD-ON CATEGORIES
+    // ═══════════════════════════════════════════════════════════
     const ADDON_CATEGORIES = [
         { key: 'ecommerce', label: 'E-Commerce', icon: 'fa-shopping-bag' },
         { key: 'admin',     label: 'Admin Panel & Management', icon: 'fa-shield-alt' },
@@ -1100,10 +1126,17 @@
         { id: 'adn-adv-ga',         cat: 'advanced', name: 'Google Analytics Setup',   description: 'GA4 + conversion tracking installed',              price: 15, icon: 'fa-chart-pie' }
     ];
 
-    // ================================================================
-    // MERGE — Firestore add-ons override defaults by name
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // MERGE ADD-ONS (with memoization)
+    // ═══════════════════════════════════════════════════════════
     function buildMergedAddOns() {
+        // FIX: hash check to avoid recomputing
+        const fsCount = (firestoreAddOns || []).length;
+        const newHash = 'fs:' + fsCount + '|' + (firestoreAddOns || []).map(a => a.id).join(',');
+        if (_lastMergeHash === newHash && mergedAddOns.length > 0) {
+            return mergedAddOns;
+        }
+
         const fsByName = {};
         (firestoreAddOns || []).forEach(a => {
             const key = (a.name || '').toLowerCase().trim();
@@ -1144,10 +1177,34 @@
             usedNames.add(key);
         });
 
+        _lastMergeHash = newHash;
         return merged;
     }
 
-    async function loadServiceConfig() {
+    // ═══════════════════════════════════════════════════════════
+    // CATEGORY COLLAPSE STATE (FIX: persistent)
+    // ═══════════════════════════════════════════════════════════
+    const COLLAPSE_STORAGE_KEY = 'ccbd_addon_collapse_v1';
+
+    function loadCollapsedState() {
+        try {
+            const raw = localStorage.getItem(COLLAPSE_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch (_) { return {}; }
+    }
+
+    function saveCollapsedState(state) {
+        try {
+            localStorage.setItem(COLLAPSE_STORAGE_KEY, JSON.stringify(state));
+        } catch (_) {}
+    }
+
+    let collapsedCategories = loadCollapsedState();
+
+    // ═══════════════════════════════════════════════════════════
+    // LOAD SERVICE CONFIG (FIX: live listener)
+    // ═══════════════════════════════════════════════════════════
+    async function loadServiceConfigInitial() {
         try {
             const snap = await getDoc(doc(db, 'settings', 'serviceConfig'));
             if (snap.exists()) {
@@ -1162,6 +1219,36 @@
         }
     }
 
+    function listenServiceConfigLive() {
+        // FIX: live listener for base price changes
+        if (_unsubServiceConfig) {
+            try { _unsubServiceConfig(); } catch (_) {}
+            _unsubServiceConfig = null;
+        }
+        try {
+            _unsubServiceConfig = onSnapshot(
+                doc(db, 'settings', 'serviceConfig'),
+                (snap) => {
+                    if (!snap.exists()) return;
+                    const d = snap.data();
+                    if (Number(d.basePackagePrice) > 0) serviceConfig.basePackagePrice = Number(d.basePackagePrice);
+                    if (Array.isArray(d.basePackageIncludes) && d.basePackageIncludes.length) {
+                        serviceConfig.basePackageIncludes = d.basePackageIncludes;
+                    }
+                    // Re-render if config changed
+                    if (currentTemplate) {
+                        renderTemplateInfo();
+                        updatePriceSummary();
+                    }
+                },
+                (err) => console.warn('[cfg] serviceConfig live failed:', err?.code)
+            );
+        } catch (_) {}
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // USD RATE
+    // ═══════════════════════════════════════════════════════════
     async function loadUsdRate() {
         try {
             const snap = await getDoc(doc(db, 'settings', 'payment'));
@@ -1169,6 +1256,9 @@
         } catch (_) {}
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // LOAD TEMPLATE
+    // ═══════════════════════════════════════════════════════════
     async function loadTemplateFromFirestore() {
         if (!templateId) {
             return {
@@ -1210,9 +1300,9 @@
         return null;
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // RENDER TEMPLATE INFO
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function renderTemplateInfo() {
         const meta = document.getElementById('templateMeta');
         const previewArea = document.getElementById('previewArea');
@@ -1298,12 +1388,16 @@
         }
     }
 
-    // ================================================================
-    // RENDER ADD-ONS
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // RENDER ADD-ONS (FIX: preserve scroll + persistent collapse)
+    // ═══════════════════════════════════════════════════════════
     function renderAddOns() {
         const wrap = document.getElementById('addonList');
         if (!wrap) return;
+
+        // Preserve scroll position of parent container
+        const scrollParent = window;
+        const scrollTopBefore = scrollParent.scrollY || 0;
 
         if (!mergedAddOns.length) {
             wrap.innerHTML = `
@@ -1321,12 +1415,13 @@
             const items = mergedAddOns.filter(a => a.cat === cat.key);
             if (!items.length) return;
             const selectedCount = items.filter(a => selectedAddOnIds.has(a.id)).length;
+            const isCollapsed = !!collapsedCategories[cat.key];
             html += `
-                <div class="addon-category" data-cat="${cat.key}">
+                <div class="addon-category ${isCollapsed ? 'collapsed' : ''}" data-cat="${cat.key}">
                     <div class="addon-cat-head">
                         <span class="ac-icon"><i class="fas ${cat.icon}"></i></span>
                         <span class="ac-label">${escapeHtml(cat.label)}</span>
-                        <span class="ac-count" data-count-for="${cat.key}">${selectedCount}/${items.length}</span>
+                        <span class="ac-count ${selectedCount > 0 ? 'active' : ''}" data-count-for="${cat.key}">${selectedCount}/${items.length}</span>
                         <i class="fas fa-chevron-down ac-toggle"></i>
                     </div>
                     <div class="addon-cat-body">
@@ -1340,12 +1435,14 @@
 
         const uncategorized = mergedAddOns.filter(a => !ADDON_CATEGORIES.some(c => c.key === a.cat));
         if (uncategorized.length) {
+            const isCollapsed = !!collapsedCategories['other'];
+            const selCount = uncategorized.filter(a => selectedAddOnIds.has(a.id)).length;
             html += `
-                <div class="addon-category" data-cat="other">
+                <div class="addon-category ${isCollapsed ? 'collapsed' : ''}" data-cat="other">
                     <div class="addon-cat-head">
                         <span class="ac-icon"><i class="fas fa-ellipsis-h"></i></span>
                         <span class="ac-label">Other Add-Ons</span>
-                        <span class="ac-count">${uncategorized.filter(a => selectedAddOnIds.has(a.id)).length}/${uncategorized.length}</span>
+                        <span class="ac-count ${selCount > 0 ? 'active' : ''}">${selCount}/${uncategorized.length}</span>
                         <i class="fas fa-chevron-down ac-toggle"></i>
                     </div>
                     <div class="addon-cat-body">
@@ -1359,13 +1456,21 @@
 
         wrap.innerHTML = html;
 
+        // Attach category collapse toggle + persist
         wrap.querySelectorAll('.addon-cat-head').forEach(head => {
             head.addEventListener('click', () => {
                 const parent = head.closest('.addon-category');
-                if (parent) parent.classList.toggle('collapsed');
+                if (!parent) return;
+                parent.classList.toggle('collapsed');
+                const catKey = parent.dataset.cat;
+                if (catKey) {
+                    collapsedCategories[catKey] = parent.classList.contains('collapsed');
+                    saveCollapsedState(collapsedCategories);
+                }
             });
         });
 
+        // Attach add-on row handlers
         wrap.querySelectorAll('.addon-row').forEach(row => {
             const toggle = () => {
                 const id = row.dataset.id;
@@ -1381,7 +1486,10 @@
                         const rows = catBox.querySelectorAll('.addon-row');
                         const sel = Array.from(rows).filter(r => r.classList.contains('selected')).length;
                         const countEl = catBox.querySelector('[data-count-for]');
-                        if (countEl) countEl.textContent = `${sel}/${rows.length}`;
+                        if (countEl) {
+                            countEl.textContent = `${sel}/${rows.length}`;
+                            countEl.classList.toggle('active', sel > 0);
+                        }
                     }
                 }
                 updatePriceSummary();
@@ -1391,6 +1499,11 @@
                 if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
             });
         });
+
+        // FIX: restore scroll position
+        if (scrollTopBefore > 0) {
+            window.scrollTo({ top: scrollTopBefore, behavior: 'auto' });
+        }
     }
 
     function renderAddOnRow(a) {
@@ -1411,9 +1524,9 @@
         `;
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // DESIGN REFERENCES
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function renderRefChips() {
         const wrap = document.getElementById('refChipList');
         if (!wrap) return;
@@ -1454,9 +1567,9 @@
         });
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // PRICE SUMMARY
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     function updatePriceSummary() {
         if (!currentTemplate) return;
 
@@ -1502,9 +1615,9 @@
         if (countEl) countEl.textContent = `${selectedAddOnIds.size} selected`;
     }
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // BRIEF COUNTER
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     const briefArea = document.getElementById('briefTextarea');
     const briefCount = document.getElementById('briefCount');
     briefArea?.addEventListener('input', () => {
@@ -1516,40 +1629,53 @@
         }
     });
 
-    // ================================================================
-    // ADD REFERENCE
-    // ================================================================
-    document.getElementById('addRefBtn')?.addEventListener('click', () => {
+    // ═══════════════════════════════════════════════════════════
+    // ADD REFERENCE (FIX: prevent double modal)
+    // ═══════════════════════════════════════════════════════════
+    document.getElementById('addRefBtn')?.addEventListener('click', async () => {
+        if (_isModalOpening) return;
         if (!currentUser) {
             window.showToast('Please sign in to add references.', 'warning');
             if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
             return;
         }
-        openDesignReferenceModal({
-            serviceCategoryId: currentTemplate?.categoryId || null,
-            serviceCategoryName: currentTemplate?.categoryName || '',
-            onSave: async (payload) => {
-                const { saveDesignReference } = await import('./components.js');
-                const res = await saveDesignReference({
-                    ...payload,
-                    serviceCategoryId: currentTemplate?.categoryId || null,
-                    serviceCategoryName: currentTemplate?.categoryName || ''
-                });
-                if (!res.success) throw new Error(res.error || 'Failed to save reference.');
-                designReferences.push({
-                    id: res.id, type: payload.type,
-                    url: payload.url, imageUrl: payload.imageUrl,
-                    description: payload.description
-                });
-                renderRefChips();
-                window.showToast('✅ Reference added.', 'success');
-            }
-        });
+        _isModalOpening = true;
+        const btn = document.getElementById('addRefBtn');
+        if (btn) btn.disabled = true;
+
+        try {
+            openDesignReferenceModal({
+                serviceCategoryId: currentTemplate?.categoryId || null,
+                serviceCategoryName: currentTemplate?.categoryName || '',
+                onSave: async (payload) => {
+                    const { saveDesignReference } = await import('./components.js');
+                    const res = await saveDesignReference({
+                        ...payload,
+                        serviceCategoryId: currentTemplate?.categoryId || null,
+                        serviceCategoryName: currentTemplate?.categoryName || ''
+                    });
+                    if (!res.success) throw new Error(res.error || 'Failed to save reference.');
+                    designReferences.push({
+                        id: res.id, type: payload.type,
+                        url: payload.url, imageUrl: payload.imageUrl,
+                        description: payload.description
+                    });
+                    renderRefChips();
+                    window.showToast('✅ Reference added.', 'success');
+                }
+            });
+        } finally {
+            // Small delay to release lock after modal open
+            setTimeout(() => {
+                _isModalOpening = false;
+                if (btn) btn.disabled = false;
+            }, 500);
+        }
     });
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // SUBMIT
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     document.getElementById('submitBtn')?.addEventListener('click', async () => {
         if (!currentUser) {
             window.showToast('Please sign in to submit.', 'warning');
@@ -1651,9 +1777,9 @@
         }
     });
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // AUTH STATE
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     onAuthStateChanged(auth, async (user) => {
         currentUser = user || null;
         let name = null;
@@ -1678,19 +1804,20 @@
         }
     });
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     // BOOT
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     (async function boot() {
         showState('loadingState');
 
         await loadUsdRate();
-        await loadServiceConfig();
+        await loadServiceConfigInitial();
 
+        // Listen for service categories
         await new Promise((resolve) => {
             let settled = false;
             try {
-                listenServiceCategories((active, all) => {
+                _unsubCategories = listenServiceCategories((active, all) => {
                     allServiceCategories = (active && active.length ? active : (all || []));
                     if (!settled) { settled = true; resolve(); }
                 });
@@ -1698,10 +1825,11 @@
             setTimeout(() => { if (!settled) { settled = true; resolve(); } }, 900);
         });
 
+        // Listen for add-ons
         await new Promise((resolve) => {
             let settled = false;
             try {
-                listenAddOns((active) => {
+                _unsubAddOns = listenAddOns((active) => {
                     firestoreAddOns = active || [];
                     mergedAddOns = buildMergedAddOns();
                     renderAddOns();
@@ -1715,6 +1843,9 @@
         if (!mergedAddOns.length) {
             mergedAddOns = buildMergedAddOns();
         }
+
+        // FIX: live service config listener
+        listenServiceConfigLive();
 
         let tmpl = null;
         try { tmpl = await loadTemplateFromFirestore(); } catch (err) { console.error('Template load error:', err); }
@@ -1742,25 +1873,10 @@
         renderRefChips();
         updatePriceSummary();
 
-        // Live add-ons updates
-        try {
-            const q = query(collection(db, 'addOns'));
-            onSnapshot(q, (snap) => {
-                const list = [];
-                snap.forEach(d => {
-                    const data = d.data();
-                    if (data.isActive !== false) list.push({ id: d.id, ...data });
-                });
-                firestoreAddOns = list;
-                mergedAddOns = buildMergedAddOns();
-                renderAddOns();
-                updatePriceSummary();
-            }, (err) => console.warn('[cfg] live addOns listener:', err?.code));
-        } catch (_) {}
-
         showState('mainState');
         observeFadeUps();
 
+        // Fallback visibility for visible fade-ups
         setTimeout(() => {
             document.querySelectorAll('#mainState .fade-up:not(.visible)').forEach(el => {
                 const rect = el.getBoundingClientRect();
@@ -1770,6 +1886,15 @@
 
         console.log('⚙️ Configure page ready | base: $' + serviceConfig.basePackagePrice, '| add-ons:', mergedAddOns.length);
     })();
+
+    // ═══════════════════════════════════════════════════════════
+    // CLEANUP (FIX: prevent listener leaks)
+    // ═══════════════════════════════════════════════════════════
+    window.addEventListener('beforeunload', () => {
+        if (_unsubCategories) { try { _unsubCategories(); } catch (_) {} }
+        if (_unsubAddOns) { try { _unsubAddOns(); } catch (_) {} }
+        if (_unsubServiceConfig) { try { _unsubServiceConfig(); } catch (_) {} }
+    });
 </script>
 </body>
 </html>

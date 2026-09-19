@@ -188,6 +188,10 @@
       background: #fff;
       box-shadow: 0 0 0 3px rgba(0,102,255,0.1);
     }
+    .form-input.error {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
     label.field-label {
       display: block;
       font-size: 0.82rem;
@@ -277,6 +281,7 @@
       text-align: right;
       margin-top: 4px;
     }
+    .char-count.over { color: #dc2626; font-weight: 700; }
 
     .btn-submit {
       width: 100%;
@@ -319,6 +324,7 @@
     .feedback-box.success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
     .feedback-box.error { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
     .feedback-box.ticket { background: #eff6ff; color: #1e40af; border: 1px solid #93c5fd; }
+    .feedback-box.info { background: #eff6ff; color: #1e40af; border: 1px solid #93c5fd; }
     .feedback-box i { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
 
     @keyframes fadeSlideUp {
@@ -406,10 +412,52 @@
       margin: 0;
     }
 
+    /* Login banner */
+    .login-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, #eff6ff, #f0f9ff);
+      border: 1px solid #bfdbfe;
+      border-radius: 14px;
+      margin-bottom: 1.25rem;
+    }
+    .login-banner i {
+      font-size: 1.1rem;
+      color: #2563eb;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .login-banner .lb-text {
+      flex: 1;
+      font-size: 0.85rem;
+      color: #1e40af;
+      line-height: 1.5;
+    }
+    .login-banner .lb-text strong { font-weight: 700; }
+    .login-banner .lb-signin {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-family: inherit;
+      transition: 0.2s;
+    }
+    .login-banner .lb-signin:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,0.3); }
+
     @media (max-width: 640px) {
       .fix-hero { padding: 1.5rem 1.15rem; border-radius: 18px; }
       .form-panel { padding: 1.25rem; border-radius: 18px; }
       .svc-grid { grid-template-columns: repeat(2, 1fr); }
+      .login-banner { flex-direction: column; align-items: stretch; }
+      .login-banner .lb-signin { width: 100%; }
     }
   </style>
 </head>
@@ -457,7 +505,7 @@
             <div class="step-card">
               <div class="step-num">1</div>
               <h4>Describe the issue</h4>
-              <p>Pick a category, priority, and explain what’s broken.</p>
+              <p>Pick a category, priority, and explain what's broken.</p>
             </div>
             <div class="step-card">
               <div class="step-num">2</div>
@@ -524,6 +572,18 @@
             <p>Fill the form carefully — more detail = faster resolution</p>
           </div>
           <div class="form-panel">
+
+            <!-- Login banner (shown only when not signed in) -->
+            <div id="loginBanner" class="login-banner" style="display:none;">
+              <i class="fas fa-info-circle"></i>
+              <div class="lb-text">
+                <strong>Sign in recommended.</strong> It links this ticket to your account so you can track progress in <em>My Fix Requests</em>. You can still submit as guest.
+              </div>
+              <button type="button" id="loginBannerBtn" class="lb-signin">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+              </button>
+            </div>
+
             <form id="fixForm" class="space-y-5">
               <div>
                 <div class="form-section-title">Contact details</div>
@@ -564,7 +624,7 @@
                 <div class="mb-4">
                   <label class="field-label">Priority</label>
                   <div class="priority-group" id="priorityGroup">
-                    <label class="priority-pill active-medium" data-value="medium">
+                    <label class="priority-pill" data-value="medium">
                       <input type="radio" name="fixPriority" value="medium" checked />
                       <i class="fas fa-minus-circle"></i> Medium
                     </label>
@@ -583,7 +643,7 @@
                 <div>
                   <label class="field-label" for="fixProblem">Describe the problem <span class="req">*</span></label>
                   <textarea id="fixProblem" rows="5" required class="form-input resize-y"
-                    placeholder="What’s broken? Error messages? When did it start? Steps to reproduce…"
+                    placeholder="What's broken? Error messages? When did it start? Steps to reproduce…"
                     maxlength="2000"></textarea>
                   <div class="char-count"><span id="problemCharCount">0</span>/2000</div>
                 </div>
@@ -616,7 +676,7 @@
           <div class="mt-4 p-4 bg-blue-50/80 rounded-xl border border-blue-100 flex items-start gap-3">
             <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
             <p class="text-sm text-blue-800 m-0">
-              After submit you’ll get a <strong>ticket number</strong>. Track status anytime in
+              After submit you'll get a <strong>ticket number</strong>. Track status anytime in
               <a href="my-fix-requests.html" class="font-semibold underline hover:text-blue-950">My Fix Requests</a>.
               Login is recommended so requests stay linked to your account.
             </p>
@@ -634,7 +694,7 @@
               <div class="ti" style="background:rgba(0,102,255,0.1);color:#0066FF;"><i class="fas fa-ticket-alt"></i></div>
               <div>
                 <h4>Ticket tracking</h4>
-                <p>Every request gets an ID you can follow until it’s closed.</p>
+                <p>Every request gets an ID you can follow until it's closed.</p>
               </div>
             </div>
             <div class="trust-item">
@@ -700,13 +760,18 @@
       auth, db, collection, addDoc, serverTimestamp,
       onAuthStateChanged, doc, getDoc
     } from './firebase-config.js';
-    import { renderNavbar, renderFooter, updateNavbarAuth, setLoading, renderAuthModal, uploadImage } from './components.js';
+    import {
+      renderNavbar, renderFooter, updateNavbarAuth, setLoading,
+      renderAuthModal, uploadImage
+    } from './components.js';
 
     renderNavbar();
     renderFooter();
     renderAuthModal();
 
-    // Toast
+    // ================================================================
+    // TOAST
+    // ================================================================
     window.showToast = function(message, type = 'success') {
       const container = document.getElementById('toast-container') || document.body;
       const toast = document.createElement('div');
@@ -721,7 +786,9 @@
       }, 3500);
     };
 
-    // FAQ accordion
+    // ================================================================
+    // FAQ ACCORDION
+    // ================================================================
     document.querySelectorAll('.faq-q').forEach(btn => {
       btn.addEventListener('click', () => {
         const item = btn.closest('.faq-item');
@@ -731,48 +798,73 @@
       });
     });
 
-    // Service cards → category select
+    // ================================================================
+    // SERVICE CARDS ↔ CATEGORY SELECT SYNC
+    // ================================================================
     const catSelect = document.getElementById('fixCategory');
+
+    function syncServiceCardsWithCategory() {
+      const val = catSelect?.value;
+      document.querySelectorAll('#serviceCards .svc-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.cat === val);
+      });
+    }
+
     document.querySelectorAll('#serviceCards .svc-card').forEach(card => {
       card.addEventListener('click', () => {
         const cat = card.dataset.cat;
         if (!cat || !catSelect) return;
         catSelect.value = cat;
-        document.querySelectorAll('#serviceCards .svc-card').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
+        syncServiceCardsWithCategory();
         document.getElementById('fix-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        showToast('Category set: ' + card.querySelector('h3')?.textContent, 'info');
-      });
-    });
-    catSelect?.addEventListener('change', () => {
-      document.querySelectorAll('#serviceCards .svc-card').forEach(c => {
-        c.classList.toggle('selected', c.dataset.cat === catSelect.value);
+        showToast('Category set: ' + (card.querySelector('h3')?.textContent || cat), 'info');
       });
     });
 
-    // Priority pills
+    catSelect?.addEventListener('change', syncServiceCardsWithCategory);
+
+    // ================================================================
+    // PRIORITY PILLS — with correct default state
+    // ================================================================
     const priorityHidden = document.getElementById('fixPriority');
+
+    function setPriority(value) {
+      priorityHidden.value = value;
+      const radio = document.querySelector(`input[name="fixPriority"][value="${value}"]`);
+      if (radio) radio.checked = true;
+      document.querySelectorAll('#priorityGroup .priority-pill').forEach(p => {
+        p.classList.remove('active-high', 'active-medium', 'active-low');
+        if (p.dataset.value === value) p.classList.add('active-' + value);
+      });
+    }
+
     document.querySelectorAll('#priorityGroup .priority-pill').forEach(pill => {
       pill.addEventListener('click', () => {
-        document.querySelectorAll('#priorityGroup .priority-pill').forEach(p => {
-          p.classList.remove('active-high', 'active-medium', 'active-low');
-        });
-        const v = pill.dataset.value;
-        priorityHidden.value = v;
-        pill.querySelector('input').checked = true;
-        pill.classList.add('active-' + v);
+        setPriority(pill.dataset.value);
       });
     });
 
-    // Char count
+    // Set initial state
+    setPriority('medium');
+
+    // ================================================================
+    // CHAR COUNT
+    // ================================================================
     const problemEl = document.getElementById('fixProblem');
     const charEl = document.getElementById('problemCharCount');
     problemEl?.addEventListener('input', () => {
-      if (charEl) charEl.textContent = problemEl.value.length;
+      if (charEl) {
+        charEl.textContent = problemEl.value.length;
+        const wrap = charEl.parentElement;
+        if (problemEl.value.length > 1800) wrap.classList.add('over');
+        else wrap.classList.remove('over');
+      }
     });
 
-    // Cloudinary upload (shared helper from components.js)
-    window.handleFixImageUpload = async function(event) {
+    // ================================================================
+    // IMAGE UPLOAD
+    // ================================================================
+    async function handleFixImageUpload(event) {
       const file = event.target?.files?.[0];
       if (!file) return;
       if (!file.type.startsWith('image/')) {
@@ -814,9 +906,9 @@
         }
         showToast('Upload failed: ' + err.message, 'error');
       }
-    };
+    }
 
-    document.getElementById('fixImageFile')?.addEventListener('change', window.handleFixImageUpload);
+    document.getElementById('fixImageFile')?.addEventListener('change', handleFixImageUpload);
 
     // Drag & drop
     const zone = document.getElementById('uploadZone');
@@ -841,19 +933,65 @@
         dt.items.add(file);
         if (input) {
           input.files = dt.files;
-          window.handleFixImageUpload({ target: input });
+          handleFixImageUpload({ target: input });
         }
       });
     }
 
-    // Form submit — same Firestore schema as before
+    // ================================================================
+    // LOGIN BANNER
+    // ================================================================
+    const loginBanner = document.getElementById('loginBanner');
+    const loginBannerBtn = document.getElementById('loginBannerBtn');
+
+    loginBannerBtn?.addEventListener('click', () => {
+      const redirect = encodeURIComponent('fix-website.html');
+      window.location.href = `auth.html?mode=signin&redirect=${redirect}`;
+    });
+
+    // ================================================================
+    // FORM SUBMIT
+    // ================================================================
     const fixForm = document.getElementById('fixForm');
     const fixBtn = document.getElementById('fixSubmitBtn');
     const feedback = document.getElementById('fixFeedback');
     const ticketDiv = document.getElementById('ticketNumber');
 
+    function resetForm() {
+      fixForm.reset();
+
+      // Priority pill
+      setPriority('medium');
+
+      // Image preview + file input
+      const preview = document.getElementById('fixImagePreview');
+      const placeholder = document.getElementById('uploadPlaceholder');
+      const status = document.getElementById('uploadStatus');
+      const fileInput = document.getElementById('fixImageFile');
+      const linkInput = document.getElementById('fixImageLink');
+
+      if (preview) { preview.classList.remove('show'); preview.removeAttribute('src'); }
+      if (placeholder) placeholder.style.display = '';
+      if (status) { status.textContent = ''; status.classList.add('hidden'); }
+      if (fileInput) fileInput.value = '';
+      if (linkInput) linkInput.value = '';
+
+      // Char count
+      if (charEl) {
+        charEl.textContent = '0';
+        charEl.parentElement.classList.remove('over');
+      }
+
+      // Service cards
+      document.querySelectorAll('#serviceCards .svc-card').forEach(c => c.classList.remove('selected'));
+
+      // Clear error states
+      document.querySelectorAll('.form-input.error').forEach(el => el.classList.remove('error'));
+    }
+
     fixForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
+
       const name = document.getElementById('fixName').value.trim();
       const email = document.getElementById('fixEmail').value.trim();
       const phone = document.getElementById('fixPhone').value.trim();
@@ -863,9 +1001,21 @@
       const problem = document.getElementById('fixProblem').value.trim();
       const imageLink = document.getElementById('fixImageLink').value.trim();
 
+      // Validation
       if (!name || !email || !problem) {
         showToast('Please fill required fields', 'warning');
+        if (!name) document.getElementById('fixName').classList.add('error');
+        if (!email) document.getElementById('fixEmail').classList.add('error');
+        if (!problem) document.getElementById('fixProblem').classList.add('error');
         return;
+      }
+
+      if (url) {
+        try { new URL(url); } catch {
+          showToast('Please enter a valid URL (include https://)', 'warning');
+          document.getElementById('fixUrl').classList.add('error');
+          return;
+        }
       }
 
       setLoading(fixBtn, true, 'Submit fix request');
@@ -878,15 +1028,15 @@
         const userEmail = user ? user.email : email;
         const ticketNumber = `FX-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
-        await addDoc(collection(db, 'fixRequests'), {
+        const payload = {
           name,
           email,
-          phone,
-          url,
+          phone: phone || '',
+          url: url || '',
           category,
           priority,
           problem,
-          imageLink,
+          imageLink: imageLink || '',
           userId,
           userEmail,
           ticketNumber,
@@ -895,7 +1045,9 @@
           read: false,
           reply: '',
           replyTimestamp: null
-        });
+        };
+
+        await addDoc(collection(db, 'fixRequests'), payload);
 
         feedback.className = 'feedback-box success';
         feedback.innerHTML = `<i class="fas fa-check-circle"></i> <div>Your request has been submitted successfully! We will contact you within 24 hours.</div>`;
@@ -911,36 +1063,45 @@
         `;
 
         showToast('✅ Request submitted! Ticket: ' + ticketNumber, 'success');
-        fixForm.reset();
-        document.getElementById('fixPriority').value = 'medium';
-        document.querySelectorAll('#priorityGroup .priority-pill').forEach(p => {
-          p.classList.remove('active-high', 'active-medium', 'active-low');
-          if (p.dataset.value === 'medium') p.classList.add('active-medium');
-        });
-        const preview = document.getElementById('fixImagePreview');
-        const placeholder = document.getElementById('uploadPlaceholder');
-        if (preview) { preview.classList.remove('show'); preview.removeAttribute('src'); }
-        if (placeholder) placeholder.style.display = '';
-        document.getElementById('fixImageLink').value = '';
-        if (charEl) charEl.textContent = '0';
-        document.querySelectorAll('#serviceCards .svc-card').forEach(c => c.classList.remove('selected'));
+        resetForm();
+
+        // Scroll to feedback
+        setTimeout(() => {
+          feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
 
       } catch (error) {
         console.error('Fix request error:', error);
+        let msg = 'Something went wrong. Please try again.';
+        if (error.code === 'permission-denied') {
+          msg = 'Please sign in to submit a fix request. Our team has temporarily disabled guest submissions.';
+        } else if (error.message) {
+          msg = error.message;
+        }
         feedback.className = 'feedback-box error';
-        feedback.innerHTML = `<i class="fas fa-exclamation-circle"></i> <div>Something went wrong. Please try again.</div>`;
-        showToast('⚠️ ' + error.message, 'error');
+        feedback.innerHTML = `<i class="fas fa-exclamation-circle"></i> <div>${msg}</div>`;
+        showToast('⚠️ ' + msg, 'error');
       } finally {
         setLoading(fixBtn, false);
       }
     });
 
-    // Auto-fill logged-in user
+    // ================================================================
+    // AUTH STATE
+    // ================================================================
     onAuthStateChanged(auth, async (user) => {
       updateNavbarAuth(user, user?.displayName || null);
+
+      // Show/hide login banner
+      if (loginBanner) {
+        loginBanner.style.display = user ? 'none' : 'flex';
+      }
+
       if (user) {
+        // Auto-fill user info
         const nameInput = document.getElementById('fixName');
         const emailInput = document.getElementById('fixEmail');
+
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
@@ -951,11 +1112,17 @@
             }
           }
         } catch (_) {}
+
         if (emailInput && !emailInput.value) emailInput.value = user.email || '';
       }
     });
 
-    console.log('🔧 Fix Website page loaded (upgraded)');
+    // Clear error on focus
+    document.querySelectorAll('.form-input').forEach(el => {
+      el.addEventListener('focus', () => el.classList.remove('error'));
+    });
+
+    console.log('🔧 Fix Website page loaded (fully fixed)');
   </script>
 </body>
 </html>

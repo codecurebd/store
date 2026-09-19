@@ -8,10 +8,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="tailwind.css" />
   <link rel="stylesheet" href="style.css" />
   <style>
+    * { box-sizing: border-box; }
+    body {
+      background: #f2f4f7;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
     .profile-avatar-big {
       width: 100px; height: 100px; border-radius: 50%;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -42,27 +51,31 @@
     .profile-avatar-big:hover .change-photo-overlay {
       opacity: 1;
     }
+
     .skeleton-avatar { width: 100px; height: 100px; border-radius: 50%; background: #e5e7eb; animation: pulse 1.5s ease-in-out infinite; flex-shrink: 0; }
     .skeleton-line { height: 16px; background: #e5e7eb; border-radius: 8px; margin-bottom: 0.75rem; animation: pulse 1.5s ease-in-out infinite; }
     .skeleton-line.short { width: 40%; }
     .skeleton-line.medium { width: 70%; }
     @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
     .fade-up { opacity:0; transform:translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
     .fade-up.visible { opacity:1; transform:translateY(0); }
+
     .scroll-top-btn { position:fixed; bottom:30px; right:30px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#007AFF,#5856D6); color:#fff; border:none; font-size:1.2rem; cursor:pointer; box-shadow:0 8px 30px rgba(0,122,255,0.35); z-index:999; opacity:0; transform:scale(0.8); transition: opacity 0.3s, transform 0.3s; pointer-events:none; }
     .scroll-top-btn.show { opacity:1; transform:scale(1); pointer-events:auto; }
     .scroll-top-btn:hover { transform:scale(1.05); }
+
     .glass-card { background: rgba(255,255,255,0.72); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 1.25rem; box-shadow: 0 4px 16px rgba(0,0,0,0.02); transition: all 0.3s ease; }
     .glass-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.06); transform: translateY(-3px); }
     .action-card { text-align: center; padding: 1rem; transition: 0.3s; cursor: pointer; }
     .action-card .action-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
     .action-card .action-label { font-size: 0.85rem; color: #374151; }
-    .btn-primary { background:linear-gradient(135deg,#007AFF,#5856D6); color:#fff; padding:10px 22px; border-radius:60px; font-weight:600; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
+    .btn-primary { background:linear-gradient(135deg,#007AFF,#5856D6); color:#fff; padding:10px 22px; border-radius:60px; font-weight:600; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; text-decoration:none; transition:0.2s; }
     .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,122,255,0.35); }
     .btn-primary:disabled { opacity:0.7; cursor:not-allowed; transform:none !important; }
-    .btn-outline { background:transparent; color:#1c1c1e; padding:10px 22px; border-radius:60px; font-weight:600; border:1.5px solid rgba(60,60,67,0.08); cursor:pointer; display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.5); }
+    .btn-outline { background:transparent; color:#1c1c1e; padding:10px 22px; border-radius:60px; font-weight:600; border:1.5px solid rgba(60,60,67,0.08); cursor:pointer; display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.5); transition:0.2s; }
     .btn-outline:hover { background:rgba(0,122,255,0.04); border-color:#007AFF; color:#007AFF; transform:translateY(-2px); }
-    .form-input { width:100%; padding:12px 16px; border:1.5px solid rgba(60,60,67,0.08); border-radius:12px; font-size:0.95rem; background:rgba(255,255,255,0.8); outline:none; }
+    .form-input { width:100%; padding:12px 16px; border:1.5px solid rgba(60,60,67,0.08); border-radius:12px; font-size:0.95rem; background:rgba(255,255,255,0.8); outline:none; transition:0.2s; font-family:inherit; }
     .form-input:focus { border-color:#007AFF; background:#fff; box-shadow:0 0 0 4px rgba(0,122,255,0.08); }
     .info-label { font-size:0.8rem; color:#8e8e93; margin-bottom:2px; }
     .info-value { font-size:1rem; font-weight:500; color:#1c1c1e; }
@@ -70,7 +83,7 @@
     .email-verify-btn:hover { background: #bfdbfe; }
     .email-verify-btn.verified { background: #d1fae5; color: #059669; border-color: #6ee7b7; cursor: default; }
 
-    /* ===== Profile Picture Selection Modal ===== */
+    /* Photo Modal */
     .photo-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -146,6 +159,11 @@
       border-color: #007AFF;
       background: rgba(0,122,255,0.04);
     }
+    .photo-upload-zone.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
     .photo-upload-zone i {
       font-size: 2rem;
       color: #9ca3af;
@@ -158,11 +176,103 @@
     .photo-modal .modal-box {
       max-width: 500px;
     }
+
+    /* Re-auth / Confirm modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(8px);
+      z-index: 5000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; animation: modalFade 0.2s ease; }
+    @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 1.75rem 1.75rem 1.5rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+      animation: modalScale 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes modalScale {
+      from { opacity: 0; transform: scale(0.94); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-box .modal-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 1.5rem;
+    }
+    .modal-box h3 {
+      font-size: 1.15rem; font-weight: 700; text-align: center;
+      color: #0f172a; margin: 0 0 6px;
+    }
+    .modal-box p {
+      font-size: 0.88rem; color: #64748b;
+      text-align: center; margin: 0 0 1.25rem; line-height: 1.55;
+    }
+    .modal-box .modal-actions {
+      display: flex; gap: 8px; margin-top: 1rem;
+    }
+    .modal-box .modal-actions button {
+      flex: 1; padding: 11px 16px; border-radius: 12px;
+      font-size: 0.9rem; font-weight: 700;
+      font-family: inherit; cursor: pointer;
+      border: none; min-height: 46px;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; transition: 0.2s;
+    }
+    .modal-box .modal-actions .cancel {
+      background: #f1f5f9; color: #475569;
+    }
+    .modal-box .modal-actions .cancel:hover { background: #e2e8f0; }
+    .modal-box .modal-actions .confirm {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: #fff;
+    }
+    .modal-box .modal-actions .confirm:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,122,255,0.3);
+    }
+    .modal-box .modal-actions .confirm.danger {
+      background: linear-gradient(135deg, #FF3B30, #dc2626);
+    }
+    .modal-box .modal-actions .confirm.danger:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(255,59,48,0.3);
+    }
+    .modal-box .modal-actions button:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none !important;
+      box-shadow: none !important;
+    }
+    .modal-box .modal-error {
+      color: #dc2626; font-size: 0.82rem;
+      text-align: center; margin-top: 10px;
+      display: none;
+    }
+    .modal-box .modal-error.show { display: block; }
+    .modal-box input.form-input { padding-right: 44px; }
+    .password-toggle {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; color: #8e8e93;
+      cursor: pointer; font-size: 1.05rem; padding: 4px;
+      transition: 0.2s; z-index: 2;
+    }
+    .password-toggle:hover { color: #007AFF; }
+
     @media (max-width: 480px) {
       .photo-grid {
         grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
         gap: 8px;
       }
+      .modal-box { padding: 1.25rem; border-radius: 16px; }
     }
   </style>
 </head>
@@ -182,40 +292,34 @@
         <div class="glass-card fade-up">
           <!-- Header -->
           <div class="flex flex-col sm:flex-row items-center gap-6" id="profileHeader">
-            <!-- Avatar Skeleton -->
             <div class="skeleton-avatar" id="avatarSkeleton"></div>
-            <!-- Actual Avatar -->
             <div class="profile-avatar-big hidden" id="profileAvatarBig">
               <span id="avatarLetter">U</span>
-              <div class="change-photo-overlay" onclick="window.openPhotoModal()">
+              <div class="change-photo-overlay" id="changePhotoOverlay">
                 <i class="fas fa-camera text-lg"></i> Change
               </div>
             </div>
-            <!-- Info -->
             <div class="flex-1 text-center sm:text-left w-full" id="profileInfo">
-              <!-- Skeletons (hidden after load) -->
               <div class="skeleton-line medium" id="nameSkeleton"></div>
               <div class="skeleton-line short" id="emailSkeleton"></div>
               <div class="skeleton-line" style="width:30%;" id="roleSkeleton"></div>
-              <!-- Actual data (hidden initially) -->
               <div id="profileData" class="hidden">
                 <h2 id="profileDisplayName" class="text-2xl font-bold text-gray-900"></h2>
                 <p id="profileEmail" class="text-gray-500"></p>
                 <span id="profileRole" class="inline-block mt-1 text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full"></span>
-                <!-- Email Verification Status -->
                 <div class="mt-2 flex items-center gap-3 flex-wrap">
                   <span id="emailVerifiedStatus" class="text-sm"></span>
-                  <button onclick="verifyEmail()" id="verifyEmailBtn" class="btn-primary text-sm py-1.5 px-4 email-verify-btn">
+                  <button type="button" onclick="window.verifyEmail()" id="verifyEmailBtn" class="btn-primary text-sm py-1.5 px-4 email-verify-btn">
                     <i class="fas fa-envelope"></i> Verify Email
                   </button>
-                  <button onclick="checkEmailVerified()" id="checkVerifiedBtn" class="btn-outline text-sm py-1.5 px-4">
+                  <button type="button" onclick="window.checkEmailVerified()" id="checkVerifiedBtn" class="btn-outline text-sm py-1.5 px-4">
                     <i class="fas fa-sync-alt"></i> I've verified
                   </button>
                 </div>
-                <p id="verifyEmailHint" class="text-xs text-gray-400 mt-1 hidden">Check Inbox and Spam/Junk. Mark “Not spam” if found there.</p>
+                <p id="verifyEmailHint" class="text-xs text-gray-400 mt-1 hidden">Check Inbox and Spam/Junk. Mark "Not spam" if found there.</p>
               </div>
             </div>
-            <button onclick="toggleEditForm()" class="btn-outline text-sm py-2 px-4 flex-shrink-0" id="editToggleBtn">
+            <button type="button" onclick="window.toggleEditForm()" class="btn-outline text-sm py-2 px-4 flex-shrink-0" id="editToggleBtn">
               <i class="fas fa-edit"></i> Edit
             </button>
           </div>
@@ -230,13 +334,16 @@
             <div><p class="info-label"><i class="fas fa-calendar-alt mr-2"></i>Joined</p><p class="info-value" id="profileJoinedDisplay">-</p></div>
           </div>
 
-          <!-- Edit Form (removed photo URL field) -->
+          <!-- Edit Form -->
           <div id="editForm" class="hidden mt-6 pt-6 border-t border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-pen text-blue-500 mr-2"></i> Edit Profile</h3>
             <form id="profileEditForm" class="space-y-4">
-              <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Display Name</label><input type="text" id="editDisplayName" class="form-input" placeholder="Your name" required /></div>
+              <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Display Name</label><input type="text" id="editDisplayName" class="form-input" placeholder="Your name" required maxlength="60" /></div>
               <div><label class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label><input type="tel" id="editPhone" class="form-input" placeholder="+880 1XXX-XXXXXX" /></div>
-              <div class="flex flex-wrap gap-3"><button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Changes</button><button type="button" onclick="toggleEditForm()" class="btn-outline">Cancel</button></div>
+              <div class="flex flex-wrap gap-3">
+                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                <button type="button" onclick="window.toggleEditForm()" class="btn-outline">Cancel</button>
+              </div>
               <div id="editFeedback" class="text-sm hidden"></div>
             </form>
           </div>
@@ -261,6 +368,24 @@
             </a>
           </div>
         </div>
+
+        <!-- Account Danger Zone -->
+        <div class="mt-6 fade-up">
+          <div class="glass-card" style="border: 1.5px solid #fecaca; background: #fef2f2;">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 class="text-base font-bold text-red-700 flex items-center gap-2">
+                  <i class="fas fa-exclamation-triangle"></i> Danger Zone
+                </h3>
+                <p class="text-sm text-red-600 mt-1">Permanently delete your account and all associated data. This cannot be undone.</p>
+              </div>
+              <button type="button" onclick="window.deleteAccount()" class="btn-primary" style="background:linear-gradient(135deg,#FF3B30,#dc2626); font-size:0.85rem; padding:8px 18px;">
+                <i class="fas fa-trash"></i> Delete Account
+              </button>
+            </div>
+            <div id="deleteFeedback" class="mt-3 text-sm hidden"></div>
+          </div>
+        </div>
       </section>
     </main>
     <div id="footer-placeholder"></div>
@@ -268,24 +393,26 @@
 
   <button class="scroll-top-btn" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
 
-  <!-- ===== PROFILE PICTURE SELECTION MODAL ===== -->
+  <!-- ===== PHOTO MODAL ===== -->
   <div id="photoModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[600] hidden p-4 photo-modal">
-    <div class="modal-box bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
+    <div class="modal-box bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-bold text-gray-900">Change Profile Picture</h3>
-        <button onclick="closePhotoModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors">
+        <button type="button" onclick="window.closePhotoModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors" aria-label="Close">
           <i class="fas fa-times"></i>
         </button>
       </div>
 
-      <!-- Uploaded Photos Grid -->
+      <p id="photoCountLabel" class="text-xs text-gray-400 mb-3">0 / 10 photos uploaded</p>
+
       <div id="photoGridContainer">
         <div class="photo-grid" id="photoGrid">
-          <!-- Dynamically filled -->
+          <div class="col-span-full text-center py-6 text-gray-400 text-sm">
+            <i class="fas fa-spinner fa-spin"></i> Loading…
+          </div>
         </div>
       </div>
 
-      <!-- Upload New Photo -->
       <div class="mt-4">
         <div class="photo-upload-zone" id="photoUploadZone" onclick="document.getElementById('photoFileInput').click()">
           <i class="fas fa-cloud-upload-alt"></i>
@@ -296,41 +423,78 @@
       </div>
 
       <div class="mt-4 text-xs text-gray-400">
-        <i class="fas fa-info-circle"></i> Click on any photo to set as profile picture. New uploads will appear here.
+        <i class="fas fa-info-circle"></i> Click on any photo to set as profile picture. Max 10 photos — oldest are auto-removed when limit is reached.
       </div>
     </div>
   </div>
 
-  <!-- Auth Modal (same as before) -->
-  <div id="authModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-      <div class="flex justify-between items-center mb-4"><h3 id="authModalTitle" class="text-2xl font-bold">Sign In</h3><button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button></div>
-      <form id="authForm" class="space-y-4">
-        <input type="email" id="authEmail" placeholder="Email" required class="form-input" />
-        <div class="relative"><input type="password" id="authPassword" placeholder="Password" required class="form-input pr-10" /><button type="button" onclick="togglePasswordVisibility('authPassword')" class="absolute right-3 top-3 text-gray-400"><i class="fas fa-eye"></i></button></div>
-        <button type="submit" class="btn-primary w-full justify-center">Continue</button>
-      </form>
-      <div class="mt-4 flex flex-col gap-2"><button onclick="window.socialLogin('google')" class="btn-outline w-full justify-center"><i class="fab fa-google"></i> Sign in with Google</button></div>
-      <p class="mt-4 text-sm text-gray-500 text-center"><span id="authToggleText">Don't have an account?</span><a href="#" id="authToggleLink" class="text-blue-600 font-medium">Sign Up</a></p>
-      <div id="authError" class="text-red-500 text-sm mt-2 hidden"></div>
+  <!-- ===== RE-AUTH MODAL ===== -->
+  <div id="reauthModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-icon" id="reauthIcon" style="background:rgba(0,122,255,0.1);color:#007AFF;">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h3 id="reauthTitle">Confirm Password</h3>
+      <p id="reauthDesc">Please enter your password to continue.</p>
+      <div class="relative">
+        <input type="password" id="reauthPasswordInput" class="form-input" placeholder="Enter your password" autocomplete="current-password" />
+        <button type="button" class="password-toggle" onclick="window.toggleReauthPassword()" aria-label="Toggle password visibility">
+          <i class="fas fa-eye" id="reauthEyeIcon"></i>
+        </button>
+      </div>
+      <div class="modal-error" id="reauthError"></div>
+      <div class="modal-actions">
+        <button type="button" class="cancel" onclick="window.closeReauthModal()">Cancel</button>
+        <button type="button" class="confirm" id="reauthConfirmBtn" onclick="window.submitReauth()">Confirm</button>
+      </div>
     </div>
   </div>
+
+  <!-- ===== CONFIRM MODAL ===== -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-icon" id="confirmIcon" style="background:rgba(255,59,48,0.1);color:#FF3B30;">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3 id="confirmTitle">Confirm</h3>
+      <p id="confirmDesc">Are you sure?</p>
+      <div class="modal-actions">
+        <button type="button" class="cancel" onclick="window.closeConfirmModal()">Cancel</button>
+        <button type="button" class="confirm danger" id="confirmYesBtn" onclick="window.confirmModalYes()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-container"></div>
 
   <script type="module">
-    // ================================================================
-    // ইমপোর্ট
-    // ================================================================
-    import { renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge, renderCartSidebar, setLoading, renderPaymentModal, uploadImage } from './components.js';
-    import { 
-      auth, db, doc, getDoc, setDoc, updateDoc, signOut, onAuthStateChanged, 
-      signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-      signInWithPopup, googleProvider,
-      sendEmailVerification, arrayUnion, arrayRemove
+    // ═══════════════════════════════════════════════════════════
+    // IMPORTS
+    // ═══════════════════════════════════════════════════════════
+    import {
+      renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
+      renderCartSidebar, setLoading, renderPaymentModal, uploadImage,
+      renderAuthModal
+    } from './components.js';
+    import {
+      auth, db, doc, getDoc, setDoc, updateDoc, signOut,
+      onAuthStateChanged, signInWithEmailAndPassword,
+      createUserWithEmailAndPassword, signInWithPopup, googleProvider,
+      sendEmailVerification, arrayUnion,
+      reauthenticateWithCredential, EmailAuthProvider, deleteUser,
+      deleteDoc
     } from './firebase-config.js';
 
-    renderNavbar(); renderPaymentModal(); renderFooter(); renderCartSidebar(); updateCartBadge();
+    renderNavbar();
+    renderAuthModal();
+    renderPaymentModal();
+    renderFooter();
+    renderCartSidebar();
+    updateCartBadge();
 
+    // ═══════════════════════════════════════════════════════════
+    // TOAST
+    // ═══════════════════════════════════════════════════════════
     window.showToast = (message, type = 'success') => {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -342,109 +506,190 @@
       setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 4500);
     };
 
+    // ═══════════════════════════════════════════════════════════
+    // HELPERS
+    // ═══════════════════════════════════════════════════════════
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // OBSERVER + SCROLL
+    // ═══════════════════════════════════════════════════════════
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
     }, { threshold: 0.1 });
-    document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('.fade-up').forEach(el => observer.observe(el)); });
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    });
 
     const scrollBtn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => { scrollBtn.classList.toggle('show', window.scrollY > 400); });
     scrollBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
-    // Auth Modal (same as before)
-    let currentAuthMode = 'signin';
-    window.openAuthModal = (mode) => {
-      currentAuthMode = mode;
-      document.getElementById('authModalTitle').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
-      document.getElementById('authToggleText').textContent = mode === 'signin' ? "Don't have an account?" : "Already have an account?";
-      document.getElementById('authToggleLink').textContent = mode === 'signin' ? 'Sign Up' : 'Sign In';
-      document.getElementById('authError').classList.add('hidden');
-      document.getElementById('authModal').classList.remove('hidden');
+    // ═══════════════════════════════════════════════════════════
+    // SAFE PASSWORD TOGGLE (avoid collision with components.js)
+    // ═══════════════════════════════════════════════════════════
+    if (typeof window.togglePasswordVisibility !== 'function') {
+      window.togglePasswordVisibility = function(id) {
+        const input = document.getElementById(id);
+        if (!input) return;
+        const icon = input.parentElement.querySelector('.password-toggle i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          if (icon) icon.className = 'fas fa-eye-slash';
+        } else {
+          input.type = 'password';
+          if (icon) icon.className = 'fas fa-eye';
+        }
+      };
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // CONFIRM MODAL SYSTEM
+    // ═══════════════════════════════════════════════════════════
+    let _confirmResolve = null;
+
+    window.showConfirmModal = function({ title, desc, confirmText, danger, icon }) {
+      return new Promise((resolve) => {
+        document.getElementById('confirmTitle').textContent = title || 'Confirm';
+        document.getElementById('confirmDesc').textContent = desc || 'Are you sure?';
+        const yesBtn = document.getElementById('confirmYesBtn');
+        yesBtn.textContent = confirmText || 'Confirm';
+        yesBtn.className = 'confirm' + (danger ? ' danger' : '');
+
+        const iconBox = document.getElementById('confirmIcon');
+        if (danger) {
+          iconBox.style.background = 'rgba(255,59,48,0.1)';
+          iconBox.style.color = '#FF3B30';
+          iconBox.innerHTML = `<i class="fas ${icon || 'fa-exclamation-triangle'}"></i>`;
+        } else {
+          iconBox.style.background = 'rgba(0,122,255,0.1)';
+          iconBox.style.color = '#007AFF';
+          iconBox.innerHTML = `<i class="fas ${icon || 'fa-question-circle'}"></i>`;
+        }
+
+        document.getElementById('confirmModal').classList.add('open');
+        _confirmResolve = resolve;
+      });
     };
-    window.closeAuthModal = () => document.getElementById('authModal').classList.add('hidden');
-    document.getElementById('authToggleLink').addEventListener('click', (e) => {
-      e.preventDefault();
-      currentAuthMode = currentAuthMode === 'signin' ? 'signup' : 'signin';
-      window.openAuthModal(currentAuthMode);
-    });
-    window.togglePasswordVisibility = (id) => {
-      const input = document.getElementById(id);
-      input.type = input.type === 'password' ? 'text' : 'password';
+
+    window.closeConfirmModal = function() {
+      document.getElementById('confirmModal').classList.remove('open');
+      if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
     };
-    window.socialLogin = async (provider) => {
-      if (provider !== 'google') {
-        showToast('Only Google sign-in is supported', 'warning');
+
+    window.confirmModalYes = function() {
+      document.getElementById('confirmModal').classList.remove('open');
+      if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; }
+    };
+
+    // ═══════════════════════════════════════════════════════════
+    // RE-AUTH MODAL
+    // ═══════════════════════════════════════════════════════════
+    let _reauthResolve = null;
+
+    window.openReauthModal = function({ title, desc, confirmText, danger, icon }) {
+      return new Promise((resolve) => {
+        document.getElementById('reauthTitle').textContent = title || 'Confirm Password';
+        document.getElementById('reauthDesc').textContent = desc || 'Please enter your password.';
+        const confirmBtn = document.getElementById('reauthConfirmBtn');
+        confirmBtn.textContent = confirmText || 'Confirm';
+        confirmBtn.className = 'confirm' + (danger ? ' danger' : '');
+
+        const iconBox = document.getElementById('reauthIcon');
+        if (danger) {
+          iconBox.style.background = 'rgba(255,59,48,0.1)';
+          iconBox.style.color = '#FF3B30';
+          iconBox.innerHTML = `<i class="fas ${icon || 'fa-exclamation-triangle'}"></i>`;
+        } else {
+          iconBox.style.background = 'rgba(0,122,255,0.1)';
+          iconBox.style.color = '#007AFF';
+          iconBox.innerHTML = `<i class="fas ${icon || 'fa-lock'}"></i>`;
+        }
+
+        const input = document.getElementById('reauthPasswordInput');
+        const eyeIcon = document.getElementById('reauthEyeIcon');
+        input.value = '';
+        input.type = 'password';
+        if (eyeIcon) eyeIcon.className = 'fas fa-eye';
+        input.classList.remove('error');
+        document.getElementById('reauthError').classList.remove('show');
+        document.getElementById('reauthModal').classList.add('open');
+        setTimeout(() => input.focus(), 80);
+        _reauthResolve = resolve;
+      });
+    };
+
+    window.closeReauthModal = function() {
+      document.getElementById('reauthModal').classList.remove('open');
+      if (_reauthResolve) { _reauthResolve(null); _reauthResolve = null; }
+    };
+
+    window.submitReauth = function() {
+      const input = document.getElementById('reauthPasswordInput');
+      const password = (input.value || '').trim();
+      const errEl = document.getElementById('reauthError');
+      if (!password) {
+        errEl.textContent = 'Please enter your password.';
+        errEl.classList.add('show');
+        input.classList.add('error');
+        input.focus();
         return;
       }
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, 'users', user.uid), {
-            email: user.email || '',
-            displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
-            photoURL: user.photoURL || '',
-            role: 'user',
-            createdAt: new Date().toISOString(),
-            isActive: true,
-            emailVerified: !!user.emailVerified,
-          });
-        }
-        showToast('✅ Signed in with Google', 'success');
-        if (typeof closeAuthModal === 'function') closeAuthModal();
-        else if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
-      } catch (error) {
-        console.error('Google sign-in error:', error);
-        let msg = error.message || 'Sign-in failed';
-        if (error.code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-        else if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
-        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized in Firebase Console.';
-        else if (error.code === 'auth/operation-not-allowed') msg = 'Google sign-in is not enabled in Firebase Console.';
-        showToast('⚠️ ' + msg, 'error');
-        const errEl = document.getElementById('authError');
-        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+      if (password.length < 6) {
+        errEl.textContent = 'Password must be at least 6 characters.';
+        errEl.classList.add('show');
+        input.classList.add('error');
+        input.focus();
+        return;
+      }
+      errEl.classList.remove('show');
+      input.classList.remove('error');
+      document.getElementById('reauthModal').classList.remove('open');
+      if (_reauthResolve) { _reauthResolve(password); _reauthResolve = null; }
+    };
+
+    window.toggleReauthPassword = function() {
+      const input = document.getElementById('reauthPasswordInput');
+      const icon = document.getElementById('reauthEyeIcon');
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) icon.className = 'fas fa-eye-slash';
+      } else {
+        input.type = 'password';
+        if (icon) icon.className = 'fas fa-eye';
       }
     };
-    const authForm = document.getElementById('authForm');
-    const authSubmitBtn = authForm.querySelector('button[type="submit"]');
-    authForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('authEmail').value.trim();
-      const password = document.getElementById('authPassword').value.trim();
-      const errorDiv = document.getElementById('authError');
-      errorDiv.classList.add('hidden');
-      setLoading(authSubmitBtn, true, 'Continue');
-      try {
-        let userCred;
-        if (currentAuthMode === 'signin') {
-          userCred = await signInWithEmailAndPassword(auth, email, password);
-          showToast('✅ Signed in!', 'success');
-        } else {
-          userCred = await createUserWithEmailAndPassword(auth, email, password);
-          await setDoc(doc(db, 'users', userCred.user.uid), {
-            email, displayName: email.split('@')[0], role: 'user', createdAt: new Date().toISOString()
-          });
-          showToast('✅ Account created!', 'success');
-        }
-        closeAuthModal();
-        authForm.reset();
-      } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.remove('hidden');
-        showToast('⚠️ ' + error.message, 'error');
-      } finally { setLoading(authSubmitBtn, false); }
+
+    document.getElementById('reauthPasswordInput')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); window.submitReauth(); }
+      if (e.key === 'Escape') { e.preventDefault(); window.closeReauthModal(); }
     });
 
-    window.handleLogout = async () => {
-      await signOut(auth);
-      showToast('✅ Logged out', 'success');
-      window.location.href = 'index.html';
-    };
+    // Close on backdrop click
+    document.getElementById('reauthModal')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) window.closeReauthModal();
+    });
+    document.getElementById('confirmModal')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) window.closeConfirmModal();
+    });
 
-    // ================================================================
-    // PROFILE LOGIC
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════════
+    let currentUser = null;
+    let currentUserData = null;
+    let photoGridLoading = false;
+
+    const MAX_PHOTOS = 10;
+
+    // DOM refs
     const profileDisplayName = document.getElementById('profileDisplayName');
     const profileEmail = document.getElementById('profileEmail');
     const profileRole = document.getElementById('profileRole');
@@ -453,7 +698,6 @@
     const profileRoleDisplay = document.getElementById('profileRoleDisplay');
     const profileJoinedDisplay = document.getElementById('profileJoinedDisplay');
     const profileAvatarBig = document.getElementById('profileAvatarBig');
-    const avatarLetter = document.getElementById('avatarLetter');
     const editForm = document.getElementById('editForm');
     const editDisplayName = document.getElementById('editDisplayName');
     const editPhone = document.getElementById('editPhone');
@@ -468,13 +712,16 @@
     const emailVerifiedStatus = document.getElementById('emailVerifiedStatus');
     const verifyEmailBtn = document.getElementById('verifyEmailBtn');
 
-    // ===== Photo Modal Elements =====
     const photoModal = document.getElementById('photoModal');
     const photoGrid = document.getElementById('photoGrid');
     const photoFileInput = document.getElementById('photoFileInput');
     const uploadProgress = document.getElementById('uploadProgress');
+    const photoUploadZone = document.getElementById('photoUploadZone');
+    const photoCountLabel = document.getElementById('photoCountLabel');
 
-    // ===== Email Verification =====
+    // ═══════════════════════════════════════════════════════════
+    // EMAIL VERIFICATION
+    // ═══════════════════════════════════════════════════════════
     window.verifyEmail = async () => {
       const user = auth.currentUser;
       if (!user) { showToast('Not logged in', 'error'); return; }
@@ -495,7 +742,10 @@
       const hint = document.getElementById('verifyEmailHint');
       try {
         if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; }
-        const actionCodeSettings = { url: window.location.origin + window.location.pathname.replace(/[^/]*$/, 'my-profile.html'), handleCodeInApp: false };
+        const actionCodeSettings = {
+          url: window.location.origin + window.location.pathname.replace(/[^/]*$/, 'my-profile.html'),
+          handleCodeInApp: false
+        };
         await sendEmailVerification(user, actionCodeSettings);
         showToast('📧 Verification email sent! Check Inbox and Spam/Junk.', 'success');
         if (hint) hint.classList.remove('hidden');
@@ -504,7 +754,11 @@
           const t = setInterval(() => {
             left--;
             btn.innerHTML = `<i class="fas fa-envelope"></i> Resend (${left}s)`;
-            if (left <= 0) { clearInterval(t); btn.disabled = false; btn.innerHTML = '<i class="fas fa-envelope"></i> Verify Email'; }
+            if (left <= 0) {
+              clearInterval(t);
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fas fa-envelope"></i> Verify Email';
+            }
           }, 1000);
         }
       } catch (err) {
@@ -538,6 +792,7 @@
       const btn = document.getElementById('verifyEmailBtn');
       const checkBtn = document.getElementById('checkVerifiedBtn');
       const hint = document.getElementById('verifyEmailHint');
+      if (!status || !btn) return;
       if (isVerified) {
         status.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle"></i> Verified</span>';
         btn.innerHTML = '<i class="fas fa-check"></i> Verified';
@@ -554,7 +809,19 @@
       }
     }
 
-    // ===== Load Profile =====
+    // Refresh on tab focus
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible' && auth.currentUser) {
+        try {
+          await auth.currentUser.reload();
+          updateEmailVerificationUI(auth.currentUser.emailVerified);
+        } catch (_) {}
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // LOAD PROFILE
+    // ═══════════════════════════════════════════════════════════
     function setLoadingState(isLoading) {
       if (isLoading) {
         avatarSkeleton.classList.remove('hidden');
@@ -581,6 +848,7 @@
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
+          currentUserData = data;
           const name = data.displayName || user.email?.split('@')[0] || 'User';
           const role = data.role || 'user';
           const email = data.email || user.email || 'No email';
@@ -600,10 +868,23 @@
 
           // Avatar
           if (data.photoURL) {
-            profileAvatarBig.innerHTML = `<img src="${data.photoURL}" alt="${name}" loading="lazy" /><div class="change-photo-overlay" onclick="window.openPhotoModal()"><i class="fas fa-camera text-lg"></i> Change</div>`;
+            profileAvatarBig.innerHTML = `
+              <img src="${escapeHtml(data.photoURL)}" alt="${escapeHtml(name)}" loading="lazy" />
+              <div class="change-photo-overlay" id="changePhotoOverlay">
+                <i class="fas fa-camera text-lg"></i> Change
+              </div>
+            `;
           } else {
-            profileAvatarBig.innerHTML = `<span id="avatarLetter">${name.charAt(0).toUpperCase()}</span><div class="change-photo-overlay" onclick="window.openPhotoModal()"><i class="fas fa-camera text-lg"></i> Change</div>`;
+            profileAvatarBig.innerHTML = `
+              <span id="avatarLetter">${escapeHtml(name.charAt(0).toUpperCase())}</span>
+              <div class="change-photo-overlay" id="changePhotoOverlay">
+                <i class="fas fa-camera text-lg"></i> Change
+              </div>
+            `;
           }
+
+          // Re-attach overlay click
+          document.getElementById('changePhotoOverlay')?.addEventListener('click', () => window.openPhotoModal());
 
           editDisplayName.value = name;
           editPhone.value = data.phone || '';
@@ -620,13 +901,16 @@
           updateNavbarAuth(user, name);
           document.title = `${name} – Profile`;
         } else {
+          // Create missing profile
           await setDoc(doc(db, 'users', user.uid), {
             email: user.email,
             displayName: user.email?.split('@')[0] || 'User',
             role: 'user',
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            isActive: true,
+            emailVerified: false
           });
-          loadProfile(user);
+          return loadProfile(user);
         }
       } catch (err) {
         console.error('Profile load error:', err);
@@ -636,7 +920,9 @@
       }
     }
 
-    // ===== Edit Form =====
+    // ═══════════════════════════════════════════════════════════
+    // EDIT FORM
+    // ═══════════════════════════════════════════════════════════
     window.toggleEditForm = () => {
       editForm.classList.toggle('hidden');
       if (!editForm.classList.contains('hidden')) {
@@ -660,6 +946,11 @@
         showToast('Please enter a display name', 'error');
         return;
       }
+      if (newName.length > 60) {
+        editFeedback.className = 'block text-sm text-red-500 mt-2';
+        editFeedback.textContent = '⚠️ Display name is too long (max 60 characters).';
+        return;
+      }
       const user = auth.currentUser;
       if (!user) { showToast('Not logged in', 'error'); return; }
       setLoading(profileEditBtn, true, 'Saving...');
@@ -676,11 +967,9 @@
       } finally { setLoading(profileEditBtn, false); }
     });
 
-    // ================================================================
-    // PROFILE PICTURE MODAL LOGIC
-    // ================================================================
-
-    // Open modal
+    // ═══════════════════════════════════════════════════════════
+    // PHOTO MODAL SYSTEM
+    // ═══════════════════════════════════════════════════════════
     window.openPhotoModal = function() {
       if (!auth.currentUser) { showToast('Please sign in first', 'warning'); return; }
       photoModal.classList.remove('hidden');
@@ -689,63 +978,126 @@
 
     window.closePhotoModal = function() {
       photoModal.classList.add('hidden');
-      // Reset upload state
       photoFileInput.value = '';
       uploadProgress.classList.add('hidden');
     };
 
-    // Render existing uploaded images
-    async function renderPhotoGrid() {
-      const user = auth.currentUser;
-      if (!user) return;
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) return;
-      const data = userDoc.data();
-      const uploadedImages = data.uploadedImages || [];
-      const currentPhoto = data.photoURL || '';
+    // Click on backdrop closes
+    photoModal?.addEventListener('click', (e) => {
+      if (e.target === photoModal) window.closePhotoModal();
+    });
 
-      if (uploadedImages.length === 0) {
-        photoGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-sm">No uploaded photos yet. Upload a new one below.</div>`;
-        return;
+    // Escape closes
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !photoModal.classList.contains('hidden')) {
+        window.closePhotoModal();
       }
+    });
 
-      let html = '';
-      uploadedImages.forEach(url => {
-        const isSelected = url === currentPhoto;
-        html += `
-          <div class="photo-item ${isSelected ? 'selected' : ''}" onclick="window.selectPhoto('${url}')" title="Click to set as profile picture">
-            <img src="${url}" alt="Profile photo" loading="lazy" />
-            <button class="delete-photo" onclick="event.stopPropagation(); window.deletePhoto('${url}')" title="Delete this photo">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        `;
-      });
-      photoGrid.innerHTML = html;
+    // FIX: single-flight pattern to prevent render race
+    async function renderPhotoGrid() {
+      if (photoGridLoading) return;
+      photoGridLoading = true;
+
+      const user = auth.currentUser;
+      if (!user) { photoGridLoading = false; return; }
+
+      // Show loading state
+      photoGrid.innerHTML = `
+        <div class="col-span-full text-center py-6 text-gray-400 text-sm">
+          <i class="fas fa-spinner fa-spin"></i> Loading…
+        </div>
+      `;
+
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (!userDoc.exists()) {
+          photoGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-sm">No profile data.</div>`;
+          photoGridLoading = false;
+          return;
+        }
+        const data = userDoc.data();
+        const uploadedImages = Array.isArray(data.uploadedImages) ? data.uploadedImages : [];
+        const currentPhoto = data.photoURL || '';
+
+        // Update count label
+        if (photoCountLabel) {
+          photoCountLabel.textContent = `${uploadedImages.length} / ${MAX_PHOTOS} photos uploaded`;
+          if (uploadedImages.length >= MAX_PHOTOS) {
+            photoCountLabel.classList.add('text-amber-600');
+            photoUploadZone?.classList.add('disabled');
+          } else {
+            photoCountLabel.classList.remove('text-amber-600');
+            photoUploadZone?.classList.remove('disabled');
+          }
+        }
+
+        if (uploadedImages.length === 0) {
+          photoGrid.innerHTML = `<div class="col-span-full text-center py-6 text-gray-400 text-sm">No uploaded photos yet. Upload a new one below.</div>`;
+          return;
+        }
+
+        let html = '';
+        uploadedImages.forEach(url => {
+          const isSelected = url === currentPhoto;
+          html += `
+            <div class="photo-item ${isSelected ? 'selected' : ''}" data-url="${escapeHtml(url)}" title="Click to set as profile picture">
+              <img src="${escapeHtml(url)}" alt="Profile photo" loading="lazy" />
+              <button type="button" class="delete-photo" data-delete-url="${escapeHtml(url)}" title="Delete this photo">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          `;
+        });
+        photoGrid.innerHTML = html;
+
+        // Attach listeners
+        photoGrid.querySelectorAll('.photo-item').forEach(el => {
+          el.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-photo')) return;
+            const url = el.dataset.url;
+            if (url) window.selectPhoto(url);
+          });
+        });
+        photoGrid.querySelectorAll('.delete-photo').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const url = btn.dataset.deleteUrl;
+            if (url) window.deletePhoto(url);
+          });
+        });
+
+      } catch (err) {
+        console.error('renderPhotoGrid error:', err);
+        photoGrid.innerHTML = `<div class="col-span-full text-center py-6 text-red-400 text-sm">Failed to load photos.</div>`;
+      } finally {
+        photoGridLoading = false;
+      }
     }
 
-    // Select a photo (set as profile picture)
+    // Select a photo
     window.selectPhoto = async function(url) {
       const user = auth.currentUser;
       if (!user) { showToast('Not logged in', 'error'); return; }
       try {
         await updateDoc(doc(db, 'users', user.uid), { photoURL: url });
         showToast('✅ Profile picture updated!', 'success');
-        closePhotoModal();
+        window.closePhotoModal();
         await loadProfile(user);
       } catch (err) {
         showToast('⚠️ ' + err.message, 'error');
       }
     };
 
-    // Delete a photo (only if not currently used)
+    // Delete a photo (with custom confirm modal)
     window.deletePhoto = async function(url) {
       const user = auth.currentUser;
       if (!user) { showToast('Not logged in', 'error'); return; }
+
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (!userDoc.exists()) return;
       const data = userDoc.data();
-      const uploadedImages = data.uploadedImages || [];
+      const uploadedImages = Array.isArray(data.uploadedImages) ? data.uploadedImages : [];
       const currentPhoto = data.photoURL || '';
 
       if (url === currentPhoto) {
@@ -753,7 +1105,14 @@
         return;
       }
 
-      if (!confirm('Delete this photo?')) return;
+      const confirmed = await window.showConfirmModal({
+        title: 'Delete this photo?',
+        desc: 'The photo will be removed from your gallery. This cannot be undone.',
+        confirmText: 'Delete',
+        danger: true,
+        icon: 'fa-trash-alt'
+      });
+      if (!confirmed) return;
 
       try {
         const newArray = uploadedImages.filter(img => img !== url);
@@ -765,44 +1124,150 @@
       }
     };
 
-    // Upload new photo
+    // ═══════════════════════════════════════════════════════════
+    // UPLOAD PHOTO (FIX: max 10 with oldest auto-removed)
+    // ═══════════════════════════════════════════════════════════
     photoFileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
+
       const user = auth.currentUser;
       if (!user) { showToast('Not logged in', 'error'); return; }
 
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select an image file.', 'warning');
+        photoFileInput.value = '';
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('Image must be less than 10MB.', 'warning');
+        photoFileInput.value = '';
+        return;
+      }
+
       uploadProgress.classList.remove('hidden');
       uploadProgress.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+      photoUploadZone?.classList.add('disabled');
 
       try {
         const url = await uploadImage(file);
-        // Add to uploadedImages array and set as current photo
+
+        // Read current images
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const data = userDoc.exists() ? userDoc.data() : {};
+        let uploadedImages = Array.isArray(data.uploadedImages) ? [...data.uploadedImages] : [];
+
+        // FIX: enforce max limit — remove oldest if needed
+        if (uploadedImages.length >= MAX_PHOTOS) {
+          uploadedImages = uploadedImages.slice(uploadedImages.length - (MAX_PHOTOS - 1));
+        }
+        uploadedImages.push(url);
+
         await updateDoc(doc(db, 'users', user.uid), {
-          uploadedImages: arrayUnion(url),
+          uploadedImages: uploadedImages,
           photoURL: url
         });
+
         showToast('✅ Photo uploaded and set as profile picture!', 'success');
         uploadProgress.classList.add('hidden');
         photoFileInput.value = '';
-        closePhotoModal();
+        window.closePhotoModal();
         await loadProfile(user);
       } catch (err) {
         uploadProgress.classList.add('hidden');
+        photoUploadZone?.classList.remove('disabled');
         showToast('⚠️ Upload failed: ' + err.message, 'error');
         console.error(err);
       }
     });
 
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
+    // DELETE ACCOUNT (FIX: re-auth flow)
+    // ═══════════════════════════════════════════════════════════
+    window.deleteAccount = async () => {
+      const user = auth.currentUser;
+      if (!user) { showToast('Not logged in', 'error'); return; }
+      const feedback = document.getElementById('deleteFeedback');
+      feedback.className = 'hidden';
+
+      // Step 1: Confirm
+      const confirmed = await window.showConfirmModal({
+        title: 'Delete your account?',
+        desc: 'This is IRREVERSIBLE. All your orders, service requests, and profile data will be permanently removed.',
+        confirmText: 'Continue',
+        danger: true,
+        icon: 'fa-exclamation-triangle'
+      });
+      if (!confirmed) { showToast('Cancelled', 'warning'); return; }
+
+      // Step 2: Type DELETE
+      const typed = prompt('Type "DELETE" (all caps) to confirm:');
+      if (typed !== 'DELETE') {
+        showToast('Account deletion cancelled', 'warning');
+        return;
+      }
+
+      // Step 3: Re-auth via modal
+      const password = await window.openReauthModal({
+        title: 'Confirm Account Deletion',
+        desc: 'Enter your password to permanently delete your account. This cannot be undone.',
+        confirmText: 'Delete Account',
+        danger: true,
+        icon: 'fa-trash-alt'
+      });
+      if (!password) { showToast('Deletion cancelled', 'warning'); return; }
+
+      const btn = document.querySelector('[onclick="window.deleteAccount()"]');
+      if (btn) setLoading(btn, true, 'Deleting...');
+
+      try {
+        // Re-authenticate
+        const credential = EmailAuthProvider.credential(user.email, password);
+        await reauthenticateWithCredential(user, credential);
+
+        // FIX: Delete Firestore doc FIRST, then Auth
+        try {
+          await deleteDoc(doc(db, 'users', user.uid));
+        } catch (fsErr) {
+          console.warn('Firestore user doc delete failed:', fsErr);
+          // Continue — Auth deletion is primary
+        }
+
+        // Delete Auth user
+        await deleteUser(user);
+
+        showToast('✅ Account deleted successfully.', 'success');
+        feedback.className = 'block text-sm text-green-600 mt-3';
+        feedback.textContent = '✅ Account deleted. Redirecting…';
+
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1200);
+      } catch (err) {
+        let msg = err.message;
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          msg = 'Incorrect password. Please try again.';
+        } else if (err.code === 'auth/requires-recent-login') {
+          msg = 'Session expired. Please log out and log in again before deleting your account.';
+        }
+        feedback.className = 'block text-sm text-red-500 mt-3';
+        feedback.textContent = '⚠️ ' + msg;
+        showToast('⚠️ ' + msg, 'error');
+      } finally {
+        if (btn) setLoading(btn, false);
+      }
+    };
+
+    // ═══════════════════════════════════════════════════════════
     // AUTH STATE
-    // ================================================================
+    // ═══════════════════════════════════════════════════════════
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = 'index.html'; return; }
+      currentUser = user;
       await loadProfile(user);
     });
 
-    console.log('👤 Profile page loaded with new photo upload system.');
+    console.log('👤 Profile page ready — delete account re-auth + photo cleanup.');
   </script>
 </body>
 </html>

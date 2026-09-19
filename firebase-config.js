@@ -1,5 +1,10 @@
 // firebase-config.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  initializeApp,
+  deleteApp,
+  getApp,
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -18,6 +23,7 @@ import {
   GithubAuthProvider,
   updateEmail,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
 import {
   getFirestore,
   collection,
@@ -44,6 +50,9 @@ import {
   persistentSingleTabManager,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+// ═══════════════════════════════════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════════════════════════════════
 const firebaseConfig = {
   apiKey: "AIzaSyB15-BRCf0ejIYCDb4Wx-N70gXGx9-R29I",
   authDomain: "simple-store-4175f.firebaseapp.com",
@@ -62,23 +71,117 @@ const db = initializeFirestore(app, {
 });
 
 const auth = getAuth(app);
+
+// ═══════════════════════════════════════════════════════════════
+// AUTH PROVIDERS
+// ═══════════════════════════════════════════════════════════════
 const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: 'select_account' });
+// NOTE: prompt: 'select_account' removed — smoother re-login
 googleProvider.addScope('profile');
 googleProvider.addScope('email');
-const githubProvider = new GithubAuthProvider(); // kept for compatibility; UI no longer uses GitHub
 
-// ========== নতুন ফাংশন (অ্যাডমিন প্যানেলের জন্য) ==========
+const githubProvider = new GithubAuthProvider(); // kept for compatibility
 
-// ✅ অ্যাডমিন প্যানেল থেকে ইউজার তৈরি (Authentication + Firestore)
-export async function adminCreateUser(email, password, displayName, role, adminEmail, adminPassword) {
+// ═══════════════════════════════════════════════════════════════
+// SECONDARY APP HELPER (for admin user creation)
+// ───────────────────────────────────────────────────────────────
+// Uses a temporary secondary Firebase app so the admin's session
+// is NEVER signed out when creating a new user.
+// ═══════════════════════════════════════════════════════════════
+async function createUserInSecondaryApp(email, password, displayName) {
+  const secondaryName = `secondary-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`;
+
+  let secondaryApp;
   try {
-    // অ্যাডমিনকে সাইন ইন করি (বর্তমান ইউজার যাই হোক)
-    await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
-    // ইউজার তৈরি
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    secondaryApp = initializeApp(firebaseConfig, secondaryName);
+  } catch (err) {
+    // If name collides (very rare), clean up and retry
+    try {
+      const existing = getApp(secondaryName);
+      await deleteApp(existing);
+    } catch (_) {}
+    secondaryApp = initializeApp(firebaseConfig, secondaryName);
+  }
+
+  const secondaryAuth = getAuth(secondaryApp);
+
+  try {
+    const userCred = await createUserWithEmailAndPassword(
+      secondaryAuth,
+      email,
+      password
+    );
     const user = userCred.user;
-    await setDoc(doc(db, 'users', user.uid), {
+    const uid = user.uid;
+
+    // Send verification email (non-blocking)
+    try {
+      await sendEmailVerification(user);
+    } catch (ve) {
+      console.warn('[adminCreateUser] verification email failed:', ve);
+    }
+
+    // Sign out of secondary app to release resources
+    try {
+      await signOut(secondaryAuth);
+    } catch (_) {}
+
+    return { success: true, uid };
+  } catch (err) {
+    console.error('[adminCreateUser] secondary app error:', err);
+    return { success: false, error: err.message, code: err.code };
+  } finally {
+    try {
+      await deleteApp(secondaryApp);
+    } catch (_) {}
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN: CREATE USER
+// ───────────────────────────────────────────────────────────────
+// Signature kept backward-compatible (extra params ignored).
+//
+// @param {string} email
+// @param {string} password
+// @param {string} displayName
+// @param {string} role - 'user' | 'admin'
+// @returns {Promise<{success: boolean, uid?: string, error?: string}>}
+// ═══════════════════════════════════════════════════════════════
+export async function adminCreateUser(
+  email,
+  password,
+  displayName,
+  role = 'user',
+  _adminEmail, // ignored — kept for backward compat
+  _adminPassword // ignored — kept for backward compat
+) {
+  try {
+    const currentAdmin = auth.currentUser;
+    if (!currentAdmin) {
+      return { success: false, error: 'You must be signed in as admin.' };
+    }
+
+    if (!email || !password) {
+      return { success: false, error: 'Email and password are required.' };
+    }
+    if (password.length < 6) {
+      return {
+        success: false,
+        error: 'Password must be at least 6 characters.',
+      };
+    }
+
+    // Create user in secondary app (admin session untouched)
+    const result = await createUserInSecondaryApp(email, password, displayName);
+    if (!result.success) {
+      return { success: false, error: result.error || 'Failed to create user.' };
+    }
+
+    // Write user doc to Firestore (admin has permission via rules)
+    await setDoc(doc(db, 'users', result.uid), {
       email,
       displayName: displayName || email.split('@')[0],
       role: role || 'user',
@@ -86,36 +189,65 @@ export async function adminCreateUser(email, password, displayName, role, adminE
       isActive: true,
       emailVerified: false,
     });
-    await sendEmailVerification(user);
-    // আবার অ্যাডমিনকে সাইন ইন করি
-    await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
-    return { success: true, uid: user.uid };
+
+    return { success: true, uid: result.uid };
   } catch (error) {
+    console.error('adminCreateUser error:', error);
     return { success: false, error: error.message };
   }
 }
 
-// ✅ অ্যাডমিন: ইউজার ডিলিট + অর্ডার আর্কাইভ (Auth ডিলিট = Cloud Function লাগে)
-export async function adminDeleteUser(uid, adminEmail, adminPassword) {
+// ═══════════════════════════════════════════════════════════════
+// ADMIN: DELETE USER
+// ───────────────────────────────────────────────────────────────
+// Simplified signature: only `uid` required.
+// Admin info is read from `auth.currentUser`.
+//
+// Flow:
+//   1. Archive all orders → archivedOrders
+//   2. Archive user profile → deletedUsers
+//   3. Delete users/{uid} doc
+//   4. Try Cloud Function to delete Auth user (optional)
+//
+// @param {string} uid
+// @returns {Promise<{success, archivedOrders?, authDeleted?, error?}>}
+// ═══════════════════════════════════════════════════════════════
+export async function adminDeleteUser(uid) {
   try {
-    // Verify admin password (re-auth)
-    await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+    const currentAdmin = auth.currentUser;
+    if (!currentAdmin) {
+      return { success: false, error: 'You must be signed in as admin.' };
+    }
+    if (uid === currentAdmin.uid) {
+      return {
+        success: false,
+        error: 'You cannot delete your own admin account.',
+      };
+    }
 
     const userRef = doc(db, 'users', uid);
     const userSnap = await getDoc(userRef);
     if (!userSnap.exists()) {
-      return { success: false, error: 'User not found in database' };
-    }
-    const userData = userSnap.data();
-    if (userData.role === 'admin') {
-      return { success: false, error: 'Cannot delete an admin account from panel' };
+      return { success: false, error: 'User not found in database.' };
     }
 
-    // Archive all orders of this user
-    const ordersQ = query(collection(db, 'orders'), where('userId', '==', uid));
+    const userData = userSnap.data();
+    if (userData.role === 'admin') {
+      return {
+        success: false,
+        error: 'Cannot delete an admin account from panel.',
+      };
+    }
+
+    // ─── 1. Archive orders ───────────────────────────────
+    const ordersQ = query(
+      collection(db, 'orders'),
+      where('userId', '==', uid)
+    );
     const ordersSnap = await getDocs(ordersQ);
     let archivedCount = 0;
     const archivePromises = [];
+
     ordersSnap.forEach((orderDoc) => {
       const orderData = orderDoc.data();
       archivePromises.push(
@@ -131,22 +263,23 @@ export async function adminDeleteUser(uid, adminEmail, adminPassword) {
       );
       archivedCount++;
     });
+
     await Promise.all(archivePromises);
 
-    // Archive user profile
+    // ─── 2. Archive user profile ─────────────────────────
     await setDoc(doc(db, 'deletedUsers', uid), {
       ...userData,
       originalUid: uid,
       deletedAt: new Date().toISOString(),
-      deletedBy: auth.currentUser?.uid || '',
-      deletedByEmail: adminEmail,
+      deletedBy: currentAdmin.uid,
+      deletedByEmail: currentAdmin.email || '',
       archivedOrdersCount: archivedCount,
     });
 
-    // Remove from active users collection
+    // ─── 3. Remove active user doc ───────────────────────
     await deleteDoc(userRef);
 
-    // Try Cloud Function to delete Firebase Auth user (needed for same-email re-registration)
+    // ─── 4. Try Cloud Function to delete Auth user ───────
     let authDeleted = false;
     let authDeleteError = null;
     try {
@@ -159,7 +292,10 @@ export async function adminDeleteUser(uid, adminEmail, adminPassword) {
       authDeleted = true;
     } catch (fnErr) {
       authDeleteError = fnErr.message || String(fnErr);
-      console.warn('Auth delete via Cloud Function failed:', fnErr);
+      console.warn(
+        '[adminDeleteUser] Cloud Function deleteAuthUser failed:',
+        fnErr
+      );
     }
 
     return {
@@ -170,20 +306,25 @@ export async function adminDeleteUser(uid, adminEmail, adminPassword) {
       email: userData.email,
     };
   } catch (error) {
+    console.error('adminDeleteUser error:', error);
     return { success: false, error: error.message };
   }
 }
 
-// ✅ Google Sign-In helper (creates Firestore user doc if new)
+// ═══════════════════════════════════════════════════════════════
+// GOOGLE SIGN-IN HELPER
+// ═══════════════════════════════════════════════════════════════
 export async function loginWithGoogle() {
   const result = await signInWithPopup(auth, googleProvider);
   const user = result.user;
   const userRef = doc(db, 'users', user.uid);
   const userDoc = await getDoc(userRef);
+
   if (!userDoc.exists()) {
     await setDoc(userRef, {
       email: user.email || '',
-      displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+      displayName:
+        user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
       photoURL: user.photoURL || '',
       role: 'user',
       createdAt: new Date().toISOString(),
@@ -194,9 +335,12 @@ export async function loginWithGoogle() {
   return user;
 }
 
-// ========== সব export ==========
+// ═══════════════════════════════════════════════════════════════
+// EXPORTS
+// ═══════════════════════════════════════════════════════════════
 export {
-  auth, db,
+  auth,
+  db,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -214,10 +358,26 @@ export {
   googleProvider,
   githubProvider,
   updateEmail,
-  collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, addDoc,
-  query, where, orderBy, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, increment,
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+  arrayUnion,
+  arrayRemove,
+  increment,
   deleteField,
   writeBatch,
   runTransaction,
-  initializeFirestore, persistentLocalCache, persistentSingleTabManager,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentSingleTabManager,
 };

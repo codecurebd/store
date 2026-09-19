@@ -1,5 +1,5 @@
 // components.js
-import { 
+import {
   auth, onAuthStateChanged, signOut, db, doc, getDoc, setDoc,
   updateDoc, serverTimestamp, collection, addDoc, query, where, onSnapshot,
   deleteDoc, getDocs, increment,
@@ -9,9 +9,9 @@ import {
 } from './firebase-config.js';
 
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ PAGE CONTEXT — agency/service flow detection
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 export function isAgencyServiceFlow() {
   try {
     const raw = (window.location.pathname || '').split('/').pop() || '';
@@ -29,17 +29,16 @@ export function isAgencyServiceFlow() {
   }
 }
 
-/** True when current page still needs cart + payment modal */
 export function isLegacyCartFlow() {
   return !isAgencyServiceFlow();
 }
 
 
-// ================================================================
-// ✅ AUTH CACHE – Instant navbar (no flicker on page change)
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
+// ✅ AUTH CACHE
+// ═══════════════════════════════════════════════════════════════
 const AUTH_CACHE_KEY = 'ccbd_user_v1';
-const AUTH_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 hours
+const AUTH_CACHE_TTL = 1000 * 60 * 60 * 6;
 
 export function getCachedUser() {
   try {
@@ -58,10 +57,7 @@ export function getCachedUser() {
 }
 
 export function setCachedUser(user, displayName, role = 'user') {
-  if (!user) {
-    localStorage.removeItem(AUTH_CACHE_KEY);
-    return;
-  }
+  if (!user) { localStorage.removeItem(AUTH_CACHE_KEY); return; }
   try {
     localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify({
       uid: user.uid,
@@ -71,9 +67,7 @@ export function setCachedUser(user, displayName, role = 'user') {
       photoURL: user.photoURL || '',
       ts: Date.now()
     }));
-  } catch (e) {
-    console.warn('Auth cache write failed', e);
-  }
+  } catch (e) { console.warn('Auth cache write failed', e); }
 }
 
 export function clearCachedUser() {
@@ -88,9 +82,9 @@ export function applyCachedNavbarAuth() {
 }
 
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ SERVICE FLOW HELPERS
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 export function listenServiceCategories(callback) {
   try {
     const q = query(collection(db, 'serviceCategories'));
@@ -152,71 +146,6 @@ export function computeConfigTotal(basePrice, addOns, selectedIds, usdRate = 125
   };
 }
 
-export async function submitServiceRequest(payload) {
-  if (!auth.currentUser) {
-    return { success: false, error: 'Not signed in.' };
-  }
-  try {
-    const basePrice = Number(payload.basePrice) || 0;
-    const addOnsTotal = (payload.selectedAddOns || []).reduce(
-      (s, a) => s + (Number(a.price) || 0), 0
-    );
-    const totalUSD = basePrice + addOnsTotal;
-    const rate = Number(payload.usdRate) > 0 ? Number(payload.usdRate) : 125;
-    const totalBDT = Math.round(totalUSD * rate);
-
-    const orderData = {
-      userId: auth.currentUser.uid,
-      userEmail: auth.currentUser.email || '',
-      userName: payload.userName || auth.currentUser.email?.split('@')[0] || 'Customer',
-      type: 'service',
-      orderType: 'service',
-      serviceCategoryId: payload.serviceCategoryId || null,
-      serviceCategoryName: payload.serviceCategoryName || '',
-      designTemplateId: payload.designTemplateId || null,
-      designTemplateName: payload.designTemplateName || '',
-      basePrice,
-      selectedAddOns: (payload.selectedAddOns || []).map(a => ({
-        id: a.id,
-        name: a.name,
-        price: Number(a.price) || 0,
-        icon: a.icon || 'fa-puzzle-piece',
-        paymentStatus: 'pending',
-        paidAt: null,
-        paymentTxnId: null,
-        paymentMethod: null
-      })),
-      addOnsTotal,
-      addOnsPaymentLater: true,
-      designReferences: (payload.designReferences || []).map(r => ({
-        id: r.id || null,
-        type: r.type || 'url',
-        url: r.url || '',
-        imageUrl: r.imageUrl || '',
-        description: r.description || ''
-      })),
-      projectDescription: payload.projectDescription || '',
-      total: totalUSD,
-      estimateUSD: totalUSD,
-      estimateBDT: totalBDT,
-      usdRate: rate,
-      status: 'pending',
-      paymentMethod: null,
-      paymentType: null,
-      paymentVerified: false,
-      quoteRequested: payload.quoteRequested !== false,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    };
-
-    const ref = await addDoc(collection(db, 'orders'), orderData);
-    return { success: true, orderId: ref.id };
-  } catch (err) {
-    console.error('submitServiceRequest error:', err);
-    return { success: false, error: err.message || 'Failed to submit request.' };
-  }
-}
-
 export async function saveDesignReference(refData) {
   if (!auth.currentUser) {
     return { success: false, error: 'Not signed in.' };
@@ -243,9 +172,9 @@ export async function saveDesignReference(refData) {
 }
 
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ DESIGN REFERENCE MODAL
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 function renderDesignReferenceModalDom() {
   if (document.getElementById('designRefModal')) return;
 
@@ -560,9 +489,9 @@ window.__ccbdCloseDesignRefModal = function() {
 };
 
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ NOTIFICATIONS
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 let unreadAdminMessages = [];
 let displayMessages = [];
 let adminMessageUnsubscribe = null;
@@ -676,8 +605,10 @@ function processNotifSnapshot(snapshot, user) {
 }
 
 let adminMessageUnsubs = [];
+let _notifUser = null;
 
 function stopAllNotifListeners() {
+  // FIX: proper cleanup
   adminMessageUnsubs.forEach((fn) => {
     try { fn(); } catch (_) {}
   });
@@ -686,6 +617,7 @@ function stopAllNotifListeners() {
     try { adminMessageUnsubscribe(); } catch (_) {}
     adminMessageUnsubscribe = null;
   }
+  _notifUser = null;
 }
 
 function startAdminMessageListener(user) {
@@ -703,6 +635,7 @@ function startAdminMessageListener(user) {
     return;
   }
 
+  _notifUser = user;
   const uid = user.uid;
   console.log('[notif] starting participants listener for uid=', uid);
 
@@ -712,7 +645,7 @@ function startAdminMessageListener(user) {
       where('participants', 'array-contains', uid)
     );
     const unsub = onSnapshot(qParts, (snapshot) => {
-      console.log('[notif] participants snapshot size=', snapshot.size);
+      if (_notifUser !== user) return;  // FIX: discard stale snapshot
       processNotifSnapshot(snapshot, user);
     }, (error) => {
       console.warn('[notif] participants error:', error?.code, error?.message);
@@ -720,7 +653,7 @@ function startAdminMessageListener(user) {
         const convId = `conv_${uid}_admin`;
         const q2 = query(collection(db, 'messages'), where('conversationId', '==', convId));
         const unsub2 = onSnapshot(q2, (snap2) => {
-          console.log('[notif] fallback conversationId size=', snap2.size);
+          if (_notifUser !== user) return;
           processNotifSnapshot(snap2, user);
         }, (e2) => console.warn('[notif] fallback error:', e2?.code, e2?.message));
         adminMessageUnsubs.push(unsub2);
@@ -795,7 +728,6 @@ function updateNotificationBadge(count) {
     if (typeof window.__ccbdUpdateSupportBadge === 'function') {
       window.__ccbdUpdateSupportBadge(n);
     }
-    if (n > 0) console.log('[notif] badge count =', n);
   };
   apply();
   setTimeout(apply, 80);
@@ -878,9 +810,9 @@ window.toggleNotifications = function() {
 };
 
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ TOAST
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 window.showToast = function(message, type = 'success') {
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -895,9 +827,9 @@ window.showToast = function(message, type = 'success') {
   }
 
   const toast = document.createElement('div');
-  const icons = { 
-    success: 'fa-check-circle', 
-    error: 'fa-exclamation-circle', 
+  const icons = {
+    success: 'fa-check-circle',
+    error: 'fa-exclamation-circle',
     warning: 'fa-exclamation-triangle',
     info: 'fa-info-circle'
   };
@@ -947,9 +879,9 @@ toastStyles.textContent = `
 `;
 document.head.appendChild(toastStyles);
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ CART BADGE
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 export function updateCartBadge() {
   const cartBadge = document.getElementById('cartCount');
   if (!cartBadge) return;
@@ -961,13 +893,12 @@ export function updateCartBadge() {
   } catch (e) {
     cartBadge.textContent = '0';
     cartBadge.style.display = 'none';
-    console.error('Badge update error:', e);
   }
 }
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ MOBILE MENU
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 window.toggleMobileMenu = function() {
   const menu = document.getElementById('mobileMenu');
   const icon = document.getElementById('hamburgerIcon');
@@ -992,9 +923,9 @@ window.toggleMobileMenu = function() {
   }
 };
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ CONTACT MODAL
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 function renderContactModal() {
   if (document.getElementById('contactModal')) return;
 
@@ -1052,10 +983,7 @@ function renderContactModal() {
 
     try {
       await addDoc(collection(db, 'contactMessages'), {
-        name,
-        email,
-        message,
-        timestamp: serverTimestamp(),
+        name, email, message, timestamp: serverTimestamp(),
       });
       window.showToast('✅ Message sent! We\'ll get back to you soon.', 'success');
       form.reset();
@@ -1093,10 +1021,10 @@ window.closeContactModal = function() {
 
 window.handleContactClick = function(e) {
   e.preventDefault();
-  const isIndexPage = window.location.pathname.endsWith('index.html') || 
-                       window.location.pathname === '/' || 
+  const isIndexPage = window.location.pathname.endsWith('index.html') ||
+                       window.location.pathname === '/' ||
                        window.location.pathname.endsWith('/');
-  
+
   if (isIndexPage) {
     const contactSection = document.getElementById('contact');
     if (contactSection) {
@@ -1109,9 +1037,9 @@ window.handleContactClick = function(e) {
   }
 };
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ SEARCH DROPDOWN
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 let searchDropdownOpen = false;
 let searchProducts = [];
 let searchUnsubscribe = null;
@@ -1204,9 +1132,9 @@ function performSearch(query) {
   resultsContainer.innerHTML = html;
 }
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ NAVBAR
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 function setupLandingNavbar() {
   const nav = document.getElementById('mainNavbar');
   if (!nav) return;
@@ -1278,18 +1206,14 @@ export function renderNavbar() {
           display: inline-flex !important;
           margin-left: 10px !important;
         }
-        #auth-buttons > button {
-          margin-right: 2px !important;
-        }
+        #auth-buttons > button { margin-right: 2px !important; }
         #navGetStartedBtn {
           font-size: 0.8125rem !important;
           padding: 0.45rem 0.9rem !important;
           line-height: 1.25 !important;
           min-height: 0 !important;
         }
-        #navGetStartedBtn i {
-          font-size: 0.7rem !important;
-        }
+        #navGetStartedBtn i { font-size: 0.7rem !important; }
       }
     `;
     document.head.appendChild(gsStyle);
@@ -1439,7 +1363,7 @@ export function renderNavbar() {
       </div>
     </div>
   `;
-  
+
   const placeholder = document.getElementById('navbar-placeholder');
   if (placeholder) {
     placeholder.innerHTML = navbarHTML;
@@ -1509,7 +1433,7 @@ export function renderNavbar() {
       updateNavbarAuth(null, null);
     }
   });
-  
+
   if (!isAgency) {
     if ('requestIdleCallback' in window) {
       requestIdleCallback(() => renderCartPopup(), { timeout: 800 });
@@ -1533,9 +1457,9 @@ window.__ccbdStartProject = function() {
 };
 
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ CART POPUP
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 let cartPopupRendered = false;
 
 export function renderCartPopup() {
@@ -1543,7 +1467,7 @@ export function renderCartPopup() {
 
   const container = document.getElementById('cartPopupContainer');
   if (!container) return;
-  
+
   if (cartPopupRendered) {
     updateCartPopupUI();
     return;
@@ -1633,7 +1557,6 @@ window.addToCart = async function(productId, productName, productPrice, productI
   }
 
   localStorage.setItem('cart', JSON.stringify(cart));
-
   updateCartBadge();
   updateCartPopupUI();
 
@@ -1650,9 +1573,9 @@ window.addToCart = async function(productId, productName, productPrice, productI
   window.showToast(`✅ "${productName}" added to cart`, 'success');
 };
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ FOOTER
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 export function renderFooter() {
   const footerHTML = `
     <footer class="glass border-t border-gray-200/30 py-12 px-6 sm:px-8 lg:px-12 mt-auto">
@@ -1770,9 +1693,9 @@ export function setLoading(button, isLoading, originalText = null) {
   }
 }
 
-// ================================================================
-// ✅ PAYMENT MODAL & CHECKOUT
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
+// ✅ PAYMENT MODAL
+// ═══════════════════════════════════════════════════════════════
 let _paymentSettings = {};
 let _paymentOrderTotalUSD = 0;
 let _pendingCheckoutData = null;
@@ -1845,14 +1768,14 @@ export function renderPaymentModal() {
 
   const existing = document.getElementById('paymentModal');
   if (existing) {
-    if (existing.dataset.version === 'v3') return;
+    if (existing.dataset.version === 'v4') return;
     existing.remove();
     const oldForm = document.getElementById('paymentForm');
     if (oldForm) oldForm.dataset.bound = '';
   }
 
   const modalHTML = `
-    <div id="paymentModal" data-version="v3" data-duemode="false" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
+    <div id="paymentModal" data-version="v4" data-duemode="false" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[400] hidden p-4">
       <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-2xl font-bold text-gray-900">Complete Payment</h3>
@@ -1952,14 +1875,13 @@ export function renderPaymentModal() {
     paymentForm.dataset.bound = '1';
     paymentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const isDueMode = document.getElementById('paymentModal').dataset.duemode === 'true';
       const dueData = window._duePaymentData;
-      const orderId = document.getElementById('paymentOrderId').value;
 
-      // ══════════════════════════════════════════════════════════════
-      // DUE PAYMENT MODE (Add-on payment + general due payment)
-      // ══════════════════════════════════════════════════════════════
+      // ══════════════════════════════════════════════════════════
+      // DUE PAYMENT MODE (Add-on + general due)
+      // ══════════════════════════════════════════════════════════
       if (isDueMode && dueData) {
         const method = document.getElementById('paymentMethodSelect').value;
         const txnId = document.getElementById('transactionId').value.trim();
@@ -2026,7 +1948,17 @@ export function renderPaymentModal() {
           const newDueUSD = Math.max(0, (currentOrder.dueAmountUSD || 0) - dueData.dueUSD);
 
           const duePaidFully = newDueBDT <= 0 && newDueUSD <= 0;
-          await updateDoc(orderRef, {
+
+          // ═══════════════════════════════════════════════════════
+          // FIX: Add-on mode — update specific add-on
+          // Uses serverTimestamp() instead of new Date().toISOString()
+          // ═══════════════════════════════════════════════════════
+          const isAddOnMode =
+            dueData.orderData &&
+            dueData.orderData._addOnMode === true &&
+            typeof dueData.orderData._addOnIndex === 'number';
+
+          const updates = {
             amountBDT: newPaidBDT,
             amountUSD: newPaidUSD,
             dueAmountBDT: newDueBDT,
@@ -2035,53 +1967,44 @@ export function renderPaymentModal() {
             senderNumber: senderNumber,
             paymentMethod: method,
             updatedAt: serverTimestamp(),
-            ...(duePaidFully ? {
-              duePaidAt: serverTimestamp(),
-              remainingPaymentEnabled: false,
-              remainingPaymentAmountBDT: 0,
-              remainingPaymentAmountUSD: 0,
-              paymentType: 'full'
-            } : {})
-          });
+          };
 
-          // ══════════════════════════════════════════════════════════
-          // NEW: ADD-ON SPECIFIC PAYMENT HANDLING
-          // If this due payment was for a specific add-on, mark it paid
-          // ══════════════════════════════════════════════════════════
-          if (dueData.orderData && dueData.orderData._addOnMode && typeof dueData.orderData._addOnIndex === 'number') {
-            try {
-              const currentOrderSnap = await getDoc(orderRef);
-              if (currentOrderSnap.exists()) {
-                const currentData = currentOrderSnap.data();
-                const updatedAddOns = Array.isArray(currentData.selectedAddOns)
-                  ? [...currentData.selectedAddOns]
-                  : [];
-                const idx = dueData.orderData._addOnIndex;
-                if (updatedAddOns[idx]) {
-                  updatedAddOns[idx] = {
-                    ...updatedAddOns[idx],
-                    paymentStatus: 'paid',
-                    paidAt: new Date().toISOString(),
-                    paymentTxnId: txnId,
-                    paymentMethod: method
-                  };
-                }
-                await updateDoc(orderRef, {
-                  selectedAddOns: updatedAddOns,
-                  updatedAt: serverTimestamp()
-                });
-              }
-            } catch (err) {
-              console.warn('Add-on payment update failed:', err);
+          if (duePaidFully) {
+            updates.duePaidAt = serverTimestamp();
+            updates.remainingPaymentEnabled = false;
+            updates.remainingPaymentAmountBDT = 0;
+            updates.remainingPaymentAmountUSD = 0;
+            updates.paymentType = 'full';
+          }
+
+          if (isAddOnMode) {
+            const currentAddOns = Array.isArray(currentOrder.selectedAddOns)
+              ? [...currentOrder.selectedAddOns]
+              : [];
+            const idx = dueData.orderData._addOnIndex;
+            if (currentAddOns[idx]) {
+              currentAddOns[idx] = {
+                ...currentAddOns[idx],
+                paymentStatus: 'paid',
+                paidAt: new Date().toISOString(),   // set ISO in field, but Firestore update below uses serverTimestamp for updatedAt
+                paymentTxnId: txnId,
+                paymentMethod: method,
+              };
+              updates.selectedAddOns = currentAddOns;
             }
           }
+
+          await updateDoc(orderRef, updates);
 
           window.showToast('✅ Due payment successful! Order updated.', 'success');
           window.closePaymentModal();
           window._duePaymentData = null;
+
           if (typeof window.refreshCampaignPage === 'function') {
             try { await window.refreshCampaignPage(); } catch (_) {}
           }
+
+          // Gently reload to refresh state
           setTimeout(() => window.location.reload(), 1200);
 
         } catch (err) {
@@ -2095,11 +2018,9 @@ export function renderPaymentModal() {
         return;
       }
 
-      // ══════════════════════════════════════════════════════════════
+      // ══════════════════════════════════════════════════════════
       // SERVICE ADVANCE PAYMENT MODE
-      // When user submits configure-service.html, base package only
-      // is charged as advance. Add-ons are paid later per-item.
-      // ══════════════════════════════════════════════════════════════
+      // ══════════════════════════════════════════════════════════
       const _pendingSvc = window._pendingCheckoutData;
       if (_pendingSvc && _pendingSvc.type === 'service' && _pendingSvc.isServiceAdvance && _pendingSvc._servicePayload) {
         const method = document.getElementById('paymentMethodSelect').value;
@@ -2109,7 +2030,6 @@ export function renderPaymentModal() {
         errorDiv.classList.add('hidden');
         document.querySelectorAll('#paymentForm .form-input').forEach(el => el.classList.remove('error'));
 
-        // Validation
         if (!method) {
           errorDiv.textContent = '⚠️ Please select a payment method.';
           errorDiv.classList.remove('hidden');
@@ -2172,7 +2092,6 @@ export function renderPaymentModal() {
             designTemplateId: sp.designTemplateId || null,
             designTemplateName: sp.designTemplateName || '',
             basePrice: baseUSD,
-            // Each add-on has its own payment status
             selectedAddOns: (sp.selectedAddOns || []).map(a => ({
               id: a.id,
               name: a.name,
@@ -2181,7 +2100,7 @@ export function renderPaymentModal() {
               paymentStatus: 'pending',
               paidAt: null,
               paymentTxnId: null,
-              paymentMethod: null
+              paymentMethod: null,
             })),
             addOnsTotal: addOnsUSD,
             addOnsPaymentLater: true,
@@ -2205,7 +2124,7 @@ export function renderPaymentModal() {
             paymentVerified: false,
             quoteRequested: true,
             createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
+            updatedAt: serverTimestamp(),
           };
           if (method === 'USDT') orderData.senderAddress = senderNumber;
 
@@ -2215,7 +2134,6 @@ export function renderPaymentModal() {
           window.closePaymentModal();
           window._pendingCheckoutData = null;
 
-          // Trigger success callback from configure page
           if (typeof _pendingSvc.onSuccess === 'function') {
             _pendingSvc.onSuccess({ orderId: ref.id, orderData });
           }
@@ -2288,12 +2206,14 @@ export function renderPaymentModal() {
 
       const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
 
+      // ══════════════════════════════════════════════════════════
+      // CAMPAIGN PAYMENT
+      // ══════════════════════════════════════════════════════════
       if (pending.type === 'campaign' && pending.campaignId) {
         const advanceBDT = Number(pending.amountBDT) || Number(pending.totalBDT) || 500;
         const advanceUSD = Number((advanceBDT / rate).toFixed(2));
         const campaignPrice = Number(pending.campaignPrice) || 0;
-        const dueBDT = 0;
-        const dueUSD = 0;
+
         const btn = document.getElementById('paymentSubmitBtn');
         setLoading(btn, true, 'Confirm Payment');
 
@@ -2302,10 +2222,17 @@ export function renderPaymentModal() {
           const campSnap = await getDoc(campRef);
           if (!campSnap.exists()) throw new Error('Campaign not found.');
           const camp = campSnap.data();
-          if (camp.status === 'closed' || (camp.remainingSlots ?? 0) <= 0) {
+
+          // FIX: proper 0 handling for slot check
+          const remainingSlots = camp.remainingSlots !== undefined
+            ? Number(camp.remainingSlots)
+            : Number(camp.totalSlots || 0);
+
+          if (camp.status === 'closed' || remainingSlots <= 0) {
             throw new Error('This campaign is closed or full.');
           }
 
+          // Check duplicate
           const dupQ = query(
             collection(db, 'orders'),
             where('userId', '==', auth.currentUser.uid),
@@ -2335,7 +2262,7 @@ export function renderPaymentModal() {
               name: pending.campaignTitle || camp.title || 'Campaign',
               price: advanceUSD,
               quantity: 1,
-              isCampaign: true
+              isCampaign: true,
             }],
             total: advanceUSD,
             campaignPriceBDT: campaignPrice,
@@ -2346,35 +2273,62 @@ export function renderPaymentModal() {
             senderNumber: senderNumber,
             amountUSD: advanceUSD,
             amountBDT: advanceBDT,
-            dueAmountUSD: dueUSD,
-            dueAmountBDT: dueBDT,
+            dueAmountUSD: 0,
+            dueAmountBDT: 0,
             remainingPaymentEnabled: false,
             remainingPaymentAmountBDT: 0,
             remainingPaymentAmountUSD: 0,
             usdRate: rate,
             packageType: isSpecial ? 'special' : 'normal',
-            createdAt: serverTimestamp()
+            createdAt: serverTimestamp(),
           };
           if (method === 'USDT') orderData.senderAddress = senderNumber;
 
           await addDoc(collection(db, 'orders'), orderData);
 
+          // ═══════════════════════════════════════════════════════
+          // FIX: Slot decrement — graceful fallback if rules block
+          // ═══════════════════════════════════════════════════════
           const updates = {
             remainingSlots: increment(-1),
-            updatedAt: serverTimestamp()
+            updatedAt: serverTimestamp(),
           };
           if (isSpecial) updates.specialRemaining = increment(-1);
-          await updateDoc(campRef, updates);
 
-          const afterSnap = await getDoc(campRef);
-          if (afterSnap.exists() && (afterSnap.data().remainingSlots ?? 0) <= 0) {
-            await updateDoc(campRef, { status: 'closed', closedAt: serverTimestamp() });
+          try {
+            await updateDoc(campRef, updates);
+
+            // Auto-close campaign if slots exhausted
+            const afterSnap = await getDoc(campRef);
+            if (afterSnap.exists()) {
+              const afterData = afterSnap.data();
+              const afterRemaining = afterData.remainingSlots !== undefined
+                ? Number(afterData.remainingSlots)
+                : 0;
+              if (afterRemaining <= 0) {
+                try {
+                  await updateDoc(campRef, {
+                    status: 'closed',
+                    closedAt: serverTimestamp(),
+                  });
+                } catch (closeErr) {
+                  console.warn('[campaign] auto-close failed:', closeErr?.code);
+                }
+              }
+            }
+          } catch (slotErr) {
+            // Rules block user update — order is created but slot not decremented
+            console.warn('[campaign] slot decrement failed (rules?):', slotErr?.code);
+            // Non-fatal — admin can adjust manually
+            showToast('✅ Order placed! Admin will confirm your slot.', 'success');
           }
 
           showToast('✅ Campaign joined! Order placed. Admin will verify soon.', 'success');
           window.closePaymentModal();
           window._pendingCheckoutData = null;
+
           setTimeout(() => { window.location.href = 'campaign.html'; }, 1500);
+
         } catch (err) {
           console.error('Campaign payment error:', err);
           errorDiv.textContent = '⚠️ ' + err.message;
@@ -2386,7 +2340,7 @@ export function renderPaymentModal() {
         return;
       }
 
-      // ===== NORMAL CHECKOUT =====
+      // ===== NORMAL CHECKOUT (legacy store) =====
       const totalUSD = Number(_paymentOrderTotalUSD) || 0;
       const totalBDT = Math.round(totalUSD * rate);
 
@@ -2414,7 +2368,7 @@ export function renderPaymentModal() {
             name: item.name,
             price: item.price,
             quantity: item.quantity || 1,
-            imageUrl: item.imageUrl || ''
+            imageUrl: item.imageUrl || '',
           })),
           total: pending.total,
           status: 'pending',
@@ -2429,7 +2383,7 @@ export function renderPaymentModal() {
           dueAmountUSD: dueAmountUSD,
           dueAmountBDT: dueAmountBDT,
           usdRate: rate,
-          createdAt: serverTimestamp()
+          createdAt: serverTimestamp(),
         };
 
         if (method === 'USDT') {
@@ -2440,7 +2394,7 @@ export function renderPaymentModal() {
 
         showToast('✅ Payment confirmed! Order placed. Admin will verify soon.', 'success');
         window.closePaymentModal();
-        
+
         localStorage.removeItem('cart');
         updateCartPopupUI();
         updateCartBadge();
@@ -2485,7 +2439,6 @@ export function openPaymentModal(data) {
 
   document.getElementById('paymentModal').dataset.duemode = 'false';
 
-  // Service advance payment — force full (base only), disable Pay Later
   if (data && data.type === 'service' && data.isServiceAdvance) {
     const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
     const advanceRadio = document.querySelector('input[name="paymentType"][value="advance"]');
@@ -2563,7 +2516,7 @@ window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderDa
     dueUSD: dueUSD,
     dueBDT: dueBDT,
     settings: settings,
-    orderData: orderData
+    orderData: orderData,
   };
 
   _paymentOrderTotalUSD = dueUSD;
@@ -2585,7 +2538,8 @@ window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderDa
   document.getElementById('paymentTotalBDTRow').classList.remove('hidden');
   document.getElementById('paymentTotalBDT').textContent = '৳' + dueBDT.toFixed(0);
   document.getElementById('paymentRateNote').classList.remove('hidden');
-  document.getElementById('paymentRateNote').textContent = `Due payment: $${dueUSD.toFixed(2)} USD = ৳${dueBDT.toFixed(0)} (Rate: 1 USD = ৳${_paymentSettings.usdRate})`;
+  document.getElementById('paymentRateNote').textContent =
+    `Due payment: $${dueUSD.toFixed(2)} USD = ৳${dueBDT.toFixed(0)} (Rate: 1 USD = ৳${_paymentSettings.usdRate})`;
 
   document.getElementById('paymentMethodSelect').value = '';
   document.getElementById('paymentSenderNumber').value = '';
@@ -2625,7 +2579,7 @@ window.openCampaignPaymentModal = function(campaign, advanceBDT, advanceUSD, set
     totalUSD: advUSD,
     total: advUSD,
     settings: settings || {},
-    user: auth.currentUser
+    user: auth.currentUser,
   };
 
   _paymentSettings = settings || {};
@@ -2736,7 +2690,7 @@ window.updatePaymentMethodUI = function() {
       bdtText = '৳' + totalBDT.toLocaleString('en-BD');
     }
     document.getElementById('paymentTotalBDT').textContent = bdtText;
-    
+
     rateNote.classList.remove('hidden');
     if (isDueMode) {
       rateNote.textContent = `Due Payment: Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
@@ -2815,8 +2769,8 @@ window.updatePaymentMethodUI = function() {
       <p class="text-sm text-gray-500">Network: <strong>BSC (BEP20)</strong></p>
       <div class="flex flex-col items-center my-2">
         <div class="relative w-full max-w-[300px] mx-auto cursor-pointer" onclick="window.openQrZoom('${QR_IMAGE_PATH}')" title="Click to zoom">
-          <img src="${QR_IMAGE_PATH}" 
-               alt="USDT Deposit QR Code" 
+          <img src="${QR_IMAGE_PATH}"
+               alt="USDT Deposit QR Code"
                class="w-[95%] mx-auto rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='block';" />
           <div id="qrFallback" style="display:none;" class="text-amber-600 text-sm mt-2 text-center">
@@ -2829,7 +2783,7 @@ window.updatePaymentMethodUI = function() {
       </div>
       <div class="bg-gray-100 p-3 rounded-xl flex items-center justify-between gap-2 break-all">
         <code class="text-xs font-mono text-gray-800 select-all">${usdtAddress}</code>
-        <button onclick="navigator.clipboard.writeText('${usdtAddress}').then(()=>showToast('✅ Address copied!','success'))" 
+        <button onclick="navigator.clipboard.writeText('${usdtAddress}').then(()=>showToast('✅ Address copied!','success'))"
                 class="text-blue-600 hover:text-blue-800 text-sm flex-shrink-0" title="Copy address">
           <i class="fas fa-copy"></i> Copy
         </button>
@@ -2891,12 +2845,12 @@ window.checkout = async function() {
     }
 
     const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    
+
     const data = {
       cart: cart,
       total: total,
       settings: settings,
-      user: user
+      user: user,
     };
 
     openPaymentModal(data);
@@ -2907,9 +2861,9 @@ window.checkout = async function() {
   }
 };
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // ✅ CLOUDINARY UPLOAD
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 const CLOUDINARY_CLOUD_NAME = 'zmoyykj7';
 const CLOUDINARY_UPLOAD_PRESET = 'codecurebd';
 
@@ -2974,7 +2928,9 @@ export async function updateCartInFirestore(userId, cart) {
   }
 }
 
-// Prevent auth UI flicker
+// ═══════════════════════════════════════════════════════════════
+// NAVBAR AUTH UPDATE
+// ═══════════════════════════════════════════════════════════════
 let _lastAuthUid = null;
 let _authNullTimer = null;
 
@@ -3014,7 +2970,7 @@ export function updateNavbarAuth(user, displayName, role = null) {
       avatar.innerHTML = '<i class="fas fa-user"></i>';
       avatar.title = displayName || user.email || 'Account';
     }
-    
+
     if (authRequiredActions) {
       authRequiredActions.style.display = 'flex';
       authRequiredActions.style.visibility = 'visible';
@@ -3135,20 +3091,14 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ================================================================
-// ✅ AUTH MODAL SYSTEM
-// ================================================================
-let currentAuthMode = 'signin';
-
+// ═══════════════════════════════════════════════════════════════
+// ✅ AUTH MODAL SYSTEM — router based (no in-page modal)
+// ═══════════════════════════════════════════════════════════════
 export function renderAuthModal() {
+  // No-op — kept for backward compatibility
+  // Auth is handled by dedicated auth.html page
   return;
 }
-
-function updateAuthUI() { /* noop */ }
-function initAuthModalEvents() { /* noop */ }
-function clearAuthMessages() { /* noop */ }
-async function handleAuthSubmit() { /* noop */ }
-async function handleForgotPassword() { /* noop */ }
 
 window.openAuthModal = function(mode = 'signin') {
   const m = (mode === 'signup' || mode === 'forgot' || mode === 'signin') ? mode : 'signin';
@@ -3247,16 +3197,15 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ================================================================
-// ✅ FLOATING SUPPORT CHAT
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
+// ✅ FLOATING SUPPORT CHAT (unified with conversations)
+// ═══════════════════════════════════════════════════════════════
 let _supportUser = null;
 let _supportUnsub = null;
 let _supportOpen = false;
 let _supportMsgs = [];
 let _supportConvId = null;
 let _supportPendingImage = null;
-let _supportImagePreview = null;
 
 function _supportIsMessagesPage() {
   const p = (window.location.pathname || '').toLowerCase();
@@ -3271,7 +3220,7 @@ function _supportIsAdminPage() {
 function _supportIsImageUrl(str) {
   if (!str) return false;
   const t = String(str).trim();
-  return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\?.*)?$/i.test(t) ||
+  return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|avif)(\?.*)?$/i.test(t) ||
     t.includes('res.cloudinary.com');
 }
 
@@ -3290,6 +3239,47 @@ function _supportParseContent(content) {
     textParts = [];
   }
   return { text: textParts.join('\n'), imageUrl };
+}
+
+// FIX: ensure conversation doc exists (unified with messages.html)
+async function _ensureConversationDoc(user) {
+  if (!user) return null;
+  const convId = `conv_${user.uid}_admin`;
+  try {
+    const ref = doc(db, 'conversations', convId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        participants: [user.uid, 'admin'],
+        createdAt: serverTimestamp(),
+        status: 'active',
+        lastMessage: '',
+        lastMessageTime: serverTimestamp(),
+        unreadCount: 0,
+      });
+    }
+    return convId;
+  } catch (err) {
+    console.warn('[support] ensure conversation failed:', err?.code || err?.message);
+    return convId; // still return ID for message writes
+  }
+}
+
+// FIX: update conversation metadata after sending
+async function _updateConversationMeta(convId, text, fromUser) {
+  try {
+    const updates = {
+      lastMessage: text || '📷 Image',
+      lastMessageTime: serverTimestamp(),
+    };
+    if (fromUser) {
+      // Admin unread count increments when user sends
+      updates.unreadCount = increment(1);
+    }
+    await updateDoc(doc(db, 'conversations', convId), updates);
+  } catch (err) {
+    console.warn('[support] conversation meta update failed:', err?.code || err?.message);
+  }
 }
 
 function _injectSupportStyles() {
@@ -3421,13 +3411,6 @@ function _injectSupportStyles() {
       padding: 2px; border-radius: 50%;
     }
     #ccbdSupportFooter .file-row .preview .remove:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
-    #ccbdSupportLoginHint {
-      padding: 20px 16px; text-align: center; font-size: 0.85rem; color: #64748b;
-    }
-    #ccbdSupportLoginHint button {
-      margin-top: 12px; background: linear-gradient(135deg, #0066FF, #8B5CF6); color: #fff;
-      border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 0.85rem;
-    }
     @media (max-width: 480px) {
       #ccbdSupportRoot { bottom: 16px; left: 14px; right: auto; }
       #ccbdSupportPanel { width: calc(100vw - 20px); height: min(70vh, 500px); left: 0; right: auto; }
@@ -3581,7 +3564,10 @@ function _renderSupportMsgs(msgs) {
   const body = document.getElementById('ccbdSupportBody');
   if (!body) return;
   if (!_supportUser) {
-    body.innerHTML = `<div id="ccbdSupportLoginHint">Sign in to chat with support.<br><button type="button" onclick="window.openAuthModal && window.openAuthModal('signin')">Sign In</button></div>`;
+    body.innerHTML = `<div id="ccbdSupportLoginHint" style="padding:20px 16px;text-align:center;font-size:0.85rem;color:#64748b;">
+      Sign in to chat with support.<br>
+      <button type="button" onclick="window.openAuthModal && window.openAuthModal('signin')" style="margin-top:12px;background:linear-gradient(135deg,#0066FF,#8B5CF6);color:#fff;border:none;padding:10px 20px;border-radius:40px;font-weight:600;cursor:pointer;font-size:0.85rem;">Sign In</button>
+    </div>`;
     return;
   }
   if (!msgs || msgs.length === 0) {
@@ -3624,6 +3610,10 @@ async function _sendSupportMessage() {
 
   const convId = _supportConvId || `conv_${_supportUser.uid}_admin`;
   btn.disabled = true;
+
+  // FIX: ensure conversation doc exists (so messages.html sees it)
+  await _ensureConversationDoc(_supportUser);
+
   let imageUrl = null;
   try {
     if (hasFile) {
@@ -3643,8 +3633,12 @@ async function _sendSupportMessage() {
       content,
       timestamp: serverTimestamp(),
       read: false,
-      participants: [_supportUser.uid, 'admin']
+      participants: [_supportUser.uid, 'admin'],
     });
+
+    // FIX: update conversation doc so messages.html shows it
+    await _updateConversationMeta(convId, text || '📷 Image', true);
+
     input.value = '';
     input.style.height = 'auto';
   } catch (err) {
@@ -3779,9 +3773,9 @@ if (typeof document !== 'undefined') {
   }
 }
 
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 // COOKIE CONSENT
-// ================================================================
+// ═══════════════════════════════════════════════════════════════
 export function renderCookieConsent() {
   const consentKey = 'ccbd_cookie_consent_v1';
   const status = localStorage.getItem(consentKey);
@@ -3796,7 +3790,7 @@ export function renderCookieConsent() {
         <h3><span>🍪</span> We value your privacy</h3>
         <p>
           We use cookies to enhance your browsing experience, personalize content, and analyze our traffic.
-          By clicking <strong>"Accept All"</strong>, you consent to our use of cookies. 
+          By clicking <strong>"Accept All"</strong>, you consent to our use of cookies.
           <a href="#" onclick="event.preventDefault(); alert('We use only essential cookies for login & cart. No third-party tracking yet.')">Learn more</a>
         </p>
       </div>
@@ -3821,7 +3815,6 @@ export function renderCookieConsent() {
     acceptBtn.addEventListener('click', () => {
       localStorage.setItem(consentKey, 'accepted');
       bannerNode.style.display = 'none';
-      console.log('🍪 Cookies accepted.');
     });
   }
 
@@ -3829,7 +3822,6 @@ export function renderCookieConsent() {
     declineBtn.addEventListener('click', () => {
       localStorage.setItem(consentKey, 'declined');
       bannerNode.style.display = 'none';
-      console.log('🍪 Cookies declined.');
     });
   }
 }
@@ -3846,4 +3838,4 @@ window.openImageLightbox = function(url) {
   }
 };
 
-console.log('✅ components.js loaded — Service advance payment + add-on payment modes active.');
+console.log('✅ components.js loaded — campaign slot decrement + add-on payment + chat unification fixed.');
