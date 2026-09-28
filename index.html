@@ -51,6 +51,17 @@
       .fade-up { opacity: 1; transform: none; transition: none; }
     }
 
+    /* ===== HERO: NO LOAD ANIMATION (visible immediately) ===== */
+    /* Forces all .fade-up elements in hero to appear instantly, no fade, no delay.
+       Keeps typing animation + orb animation + scroll indicator chevron pulse alive. */
+    .hero-section .fade-up,
+    .hero-section .fade-up:not(.visible) {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+      will-change: auto !important;
+    }
+
     /* ===== SCROLL TO TOP ===== */
     .scroll-top-btn {
       position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; border-radius: 50%;
@@ -292,7 +303,7 @@
     .hero-stat strong { display: block; font-size: 1.2rem; font-weight: 800; color: #0f172a; letter-spacing: -0.025em; line-height: 1.2; }
     .hero-stat span { font-size: 0.68rem; color: #64748b; font-weight: 500; margin-top: 0.15rem; display: block; }
 
-    /* ===== SCROLL DOWN INDICATOR (hero) ===== */
+    /* ===== SCROLL DOWN INDICATOR (hero) — now appears instantly, no fade-in ===== */
     .scroll-down-indicator {
       position: absolute;
       left: 50%;
@@ -304,9 +315,8 @@
       gap: 6px;
       z-index: 3;
       pointer-events: auto;
-      opacity: 0;
+      opacity: 1;
       text-decoration: none;
-      animation: fadeInScroll 0.8s ease 1.2s forwards;
       transition: opacity 0.3s ease;
     }
     .scroll-down-indicator:hover { opacity: 0.85; }
@@ -368,10 +378,6 @@
       0%   { opacity: 0.15; transform: translateY(-2px); }
       50%  { opacity: 0.9;  transform: translateY(2px); }
       100% { opacity: 0.15; transform: translateY(-2px); }
-    }
-    @keyframes fadeInScroll {
-      from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
     /* ===== PORTFOLIO (agency) ===== */
@@ -647,7 +653,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .scroll-down-indicator { animation: none; opacity: 1; }
       .scroll-down-indicator .sd-mouse::before,
       .scroll-down-indicator .sd-chevrons i { animation: none; }
     }
@@ -1616,7 +1621,7 @@
     loadTestimonials();
     loadFaqs();
 
-    console.log('🏠 Agency landing loaded — portfolio (no-anim) right after hero + services + legacy compat.');
+    console.log('🏠 Agency landing loaded — hero now appears instantly (no fade-in) + portfolio (no-anim) right after hero.');
   </script>
 </body>
 </html>
