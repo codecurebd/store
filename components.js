@@ -1762,13 +1762,8 @@ function renderQrZoomModal() {
 
 // ═══════════════════════════════════════════════════════════════
 // ✅ RENDER PAYMENT MODAL
-// FIX: Removed `if (isAgencyServiceFlow()) return;` guard so that
-// configure-service.html (which IS an agency page) can render the
-// payment modal and process the service advance / full payment.
-// Cart popup & cart sidebar remain gated by isAgencyServiceFlow().
 // ═══════════════════════════════════════════════════════════════
 export function renderPaymentModal() {
-  // Skip only on pages that truly never need it (admin-only, auth, etc.)
   try {
     const raw = (window.location.pathname || '').split('/').pop() || '';
     const page = raw.toLowerCase();
@@ -1885,6 +1880,7 @@ export function renderPaymentModal() {
     methodSelect.addEventListener('change', () => window.updatePaymentMethodUI());
   }
 
+  // ✅ Payment type radios → always update UI (no method required)
   document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
     if (!radio.dataset.bound) {
       radio.dataset.bound = '1';
@@ -2146,7 +2142,7 @@ export function renderPaymentModal() {
             usdRate: rate,
             status: 'pending',
             paymentMethod: method,
-            paymentType: paymentType,   // 'advance' or 'full'
+            paymentType: paymentType,
             transactionId: txnId,
             senderNumber: senderNumber,
             paymentVerified: false,
@@ -2446,12 +2442,8 @@ export function renderPaymentModal() {
 
 // ═══════════════════════════════════════════════════════════════
 // ✅ OPEN PAYMENT MODAL
-// FIX: For service advance, show BOTH payment options (advance/full).
-// Advance is default selected; full is available if user wants to pay
-// everything (base + all add-ons) upfront.
 // ═══════════════════════════════════════════════════════════════
 export function openPaymentModal(data) {
-  // Lazy-create modal if not present
   if (!document.getElementById('paymentModal')) {
     renderPaymentModal();
   }
@@ -2478,7 +2470,6 @@ export function openPaymentModal(data) {
   const advanceLabel = advanceRadio?.closest('label');
 
   if (data && data.type === 'service' && data.isServiceAdvance) {
-    // ✅ Service: show BOTH options, default to advance
     if (fullRadio) {
       fullRadio.disabled = false;
       fullRadio.checked = false;
@@ -2486,11 +2477,10 @@ export function openPaymentModal(data) {
     }
     if (advanceRadio) {
       advanceRadio.disabled = false;
-      advanceRadio.checked = true;   // default
+      advanceRadio.checked = true;
       if (advanceLabel) { advanceLabel.style.display = ''; advanceLabel.classList.remove('hidden'); }
     }
   } else if (data && data.type === 'campaign') {
-    // Campaign: only advance
     if (fullRadio) {
       fullRadio.checked = false;
       fullRadio.disabled = true;
@@ -2502,7 +2492,6 @@ export function openPaymentModal(data) {
       if (advanceLabel) advanceLabel.classList.remove('hidden');
     }
   } else {
-    // Normal checkout: show both, default full
     if (fullRadio) {
       fullRadio.disabled = false;
       fullRadio.checked = true;
@@ -2529,6 +2518,10 @@ export function openPaymentModal(data) {
   document.getElementById('transactionId').value = '';
 
   document.getElementById('paymentModal').classList.remove('hidden');
+
+  // ✅ FIX: Run initial UI update so the payment type preview shows immediately
+  // even before the user selects a payment method.
+  window.updatePaymentMethodUI();
 }
 window.openPaymentModal = openPaymentModal;
 
@@ -2578,6 +2571,9 @@ window.openDuePaymentModal = function(orderId, dueUSD, dueBDT, settings, orderDa
   document.getElementById('paymentMethodDetails').classList.add('hidden');
 
   document.getElementById('paymentModal').classList.remove('hidden');
+
+  // ✅ FIX: run initial UI update
+  window.updatePaymentMethodUI();
 };
 
 window.openCampaignPaymentModal = function(campaign, advanceBDT, advanceUSD, settings) {
@@ -2646,6 +2642,9 @@ window.openCampaignPaymentModal = function(campaign, advanceBDT, advanceUSD, set
   document.getElementById('paymentError')?.classList.add('hidden');
   document.getElementById('paymentMethodDetails')?.classList.add('hidden');
   document.getElementById('paymentModal').classList.remove('hidden');
+
+  // ✅ FIX: run initial UI update
+  window.updatePaymentMethodUI();
 };
 
 window.closePaymentModal = function() {
@@ -2663,14 +2662,15 @@ window.closePaymentModal = function() {
 
 // ═══════════════════════════════════════════════════════════════
 // ✅ UPDATE PAYMENT METHOD UI
-// FIX: Handles service advance + full payment display.
-// Reads `_servicePayload` for base/addons totals and updates the
-// header + amount-to-send based on selected payment type.
+// FIX: Now ALWAYS updates the header totals based on selected
+// payment type (full vs advance), even before a method is chosen.
+// Only the address box / how-to / fields depend on `method`.
 // ═══════════════════════════════════════════════════════════════
 window.updatePaymentMethodUI = function() {
   const method = document.getElementById('paymentMethodSelect')?.value || '';
   const paymentType = document.querySelector('input[name="paymentType"]:checked')?.value || 'full';
   const isDueMode = document.getElementById('paymentModal').dataset.duemode === 'true';
+
   const details = document.getElementById('paymentMethodDetails');
   const addressBox = document.getElementById('paymentAddressBox');
   const howToBox = document.getElementById('paymentHowToBox');
@@ -2680,14 +2680,6 @@ window.updatePaymentMethodUI = function() {
   const errorDiv = document.getElementById('paymentError');
   if (errorDiv) errorDiv.classList.add('hidden');
 
-  if (!method) {
-    details.classList.add('hidden');
-    bdtRow.classList.add('hidden');
-    rateNote.classList.add('hidden');
-    return;
-  }
-
-  details.classList.remove('hidden');
   const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
 
   const pending = window._pendingCheckoutData;
@@ -2698,7 +2690,9 @@ window.updatePaymentMethodUI = function() {
   let payableBDT = Math.round(payableUSD * rate);
   let svcCtx = null;
 
-  // ── Service advance/full computation ──
+  // ══════════════════════════════════════════════════
+  // ✅ ALWAYS: compute payable based on payment type
+  // ══════════════════════════════════════════════════
   if (isServiceAdv) {
     const sp = (pending && pending._servicePayload) || {};
     const baseUSD = Number(sp.basePrice) || 0;
@@ -2714,39 +2708,31 @@ window.updatePaymentMethodUI = function() {
       payableUSD = baseUSD + addOnsUSD;
       payableBDT = baseBDT + addOnsBDT;
     }
-
-    // Update header to reflect current payable
-    const hdrUSD = document.getElementById('paymentTotalUSD');
-    if (hdrUSD) hdrUSD.textContent = '$' + payableUSD.toFixed(2);
-    bdtRow.classList.remove('hidden');
   } else if (isCampaign) {
     const campBDT = Number(pending.amountBDT) || Number(pending.totalBDT) || 500;
     const campUSD = Number(pending.amountUSD) || Number((campBDT / rate).toFixed(2));
     payableUSD = campUSD;
     payableBDT = campBDT;
-    const hdrUSD = document.getElementById('paymentTotalUSD');
-    if (hdrUSD) hdrUSD.textContent = '$' + payableUSD.toFixed(2);
-    bdtRow.classList.remove('hidden');
   } else if (isDueMode) {
-    bdtRow.classList.remove('hidden');
-  } else {
-    // Normal checkout
-    if (paymentType === 'advance') {
-      payableBDT = 500;
-      payableUSD = Number((500 / rate).toFixed(2));
-      const hdrUSD = document.getElementById('paymentTotalUSD');
-      if (hdrUSD) hdrUSD.textContent = '$' + payableUSD.toFixed(2);
-    } else {
-      const hdrUSD = document.getElementById('paymentTotalUSD');
-      if (hdrUSD) hdrUSD.textContent = '$' + payableUSD.toFixed(2);
-    }
-    bdtRow.classList.remove('hidden');
+    // due mode: payable = due amount (no toggle)
+    // payableUSD/BDT already set from _paymentOrderTotalUSD
+  } else if (paymentType === 'advance') {
+    // normal checkout — advance fixed at ৳500
+    payableBDT = 500;
+    payableUSD = Number((500 / rate).toFixed(2));
   }
 
   // ══════════════════════════════════════════════════
-  // bKash / Nagad
+  // ✅ ALWAYS: update header
   // ══════════════════════════════════════════════════
-  if (method === 'bKash' || method === 'Nagad') {
+  const hdrUSD = document.getElementById('paymentTotalUSD');
+  if (hdrUSD) hdrUSD.textContent = '$' + payableUSD.toFixed(2);
+
+  // ══════════════════════════════════════════════════
+  // ✅ ALWAYS: show BDT row + rate note preview (per type)
+  // ══════════════════════════════════════════════════
+  const shouldShowBdtPreview = isServiceAdv || isCampaign || isDueMode || (paymentType === 'advance');
+  if (shouldShowBdtPreview) {
     bdtRow.classList.remove('hidden');
 
     let bdtText;
@@ -2765,19 +2751,20 @@ window.updatePaymentMethodUI = function() {
     } else {
       bdtText = '৳' + payableBDT.toLocaleString('en-BD');
     }
-    document.getElementById('paymentTotalBDT').textContent = bdtText;
+    const bdtEl = document.getElementById('paymentTotalBDT');
+    if (bdtEl) bdtEl.textContent = bdtText;
 
     rateNote.classList.remove('hidden');
     if (isServiceAdv && svcCtx) {
       if (paymentType === 'advance') {
-        rateNote.textContent = `Pay ৳${svcCtx.baseBDT.toLocaleString('en-BD')} base advance now · Add-ons $${svcCtx.addOnsUSD.toFixed(2)} (≈ ৳${svcCtx.addOnsBDT.toLocaleString('en-BD')}) can be paid individually later from My Orders`;
+        rateNote.textContent = `Pay ৳${svcCtx.baseBDT.toLocaleString('en-BD')} base advance now · Add-ons $${svcCtx.addOnsUSD.toFixed(2)} (≈ ৳${svcCtx.addOnsBDT.toLocaleString('en-BD')}) payable later from My Orders`;
       } else {
-        rateNote.textContent = `Full payment ৳${(svcCtx.baseBDT + svcCtx.addOnsBDT).toLocaleString('en-BD')} · Base + all add-ons included · No remaining due`;
+        rateNote.textContent = `Full payment ৳${(svcCtx.baseBDT + svcCtx.addOnsBDT).toLocaleString('en-BD')} · Base + all add-ons · No remaining due`;
       }
     } else if (isDueMode) {
-      rateNote.textContent = `Due Payment: Send exactly ৳${payableBDT.toLocaleString('en-BD')}`;
+      rateNote.textContent = `Due payment ৳${payableBDT.toLocaleString('en-BD')} ($${payableUSD.toFixed(2)})`;
     } else if (isCampaign) {
-      rateNote.textContent = `Campaign Advance: ৳${payableBDT.toLocaleString('en-BD')} ($${payableUSD.toFixed(2)} at 1 USD = ৳${rate})`;
+      rateNote.textContent = `Campaign advance ৳${payableBDT.toLocaleString('en-BD')} ($${payableUSD.toFixed(2)} at 1 USD = ৳${rate})`;
     } else if (paymentType === 'advance') {
       const totalBDT = Math.round((Number(_paymentOrderTotalUSD) || 0) * rate);
       const dueBDT = Math.max(0, totalBDT - payableBDT);
@@ -2785,7 +2772,30 @@ window.updatePaymentMethodUI = function() {
     } else {
       rateNote.textContent = `Rate: 1 USD = ৳${rate} · Send exactly ৳${payableBDT.toLocaleString('en-BD')}`;
     }
+  } else {
+    // Normal checkout + full payment → just show BDT equivalent
+    bdtRow.classList.remove('hidden');
+    const bdtEl = document.getElementById('paymentTotalBDT');
+    if (bdtEl) bdtEl.textContent = '৳' + payableBDT.toLocaleString('en-BD');
+    rateNote.classList.remove('hidden');
+    rateNote.textContent = `Rate: 1 USD = ৳${rate} · Send exactly ৳${payableBDT.toLocaleString('en-BD')}`;
+  }
 
+  // ══════════════════════════════════════════════════
+  // If no method yet, hide the address/how-to/fields block
+  // ══════════════════════════════════════════════════
+  if (!method) {
+    details.classList.add('hidden');
+    return;
+  }
+
+  // ══════════════════════════════════════════════════
+  // Method selected → show address / how-to / fields
+  // ══════════════════════════════════════════════════
+  details.classList.remove('hidden');
+
+  // ══════════════ bKash / Nagad ══════════════
+  if (method === 'bKash' || method === 'Nagad') {
     const number = method === 'bKash' ? (_paymentSettings.bkash || '') : (_paymentSettings.nagad || '');
     const color = method === 'bKash' ? 'text-pink-600' : 'text-orange-600';
     addressBox.innerHTML = number
@@ -2830,30 +2840,8 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSenderHint').textContent = `Your personal ${method} number (sender)`;
     document.getElementById('paymentSubmitBtn').disabled = !number;
 
-  // ══════════════════════════════════════════════════
-  // USDT (BEP20)
-  // ══════════════════════════════════════════════════
+  // ══════════════ USDT (BEP20) ══════════════
   } else if (method === 'USDT') {
-    bdtRow.classList.add('hidden');
-    rateNote.classList.remove('hidden');
-
-    if (isServiceAdv && svcCtx) {
-      if (paymentType === 'advance') {
-        rateNote.textContent = `Base advance: $${svcCtx.baseUSD.toFixed(2)} USD · Add-ons ($${svcCtx.addOnsUSD.toFixed(2)}) can be paid individually later`;
-      } else {
-        rateNote.textContent = `Full payment: $${(svcCtx.baseUSD + svcCtx.addOnsUSD).toFixed(2)} USD (base + all add-ons)`;
-      }
-    } else if (isDueMode) {
-      rateNote.textContent = `Due payment: $${payableUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
-    } else if (isCampaign) {
-      rateNote.textContent = `Campaign advance: $${payableUSD.toFixed(2)} USD (send exactly this amount on BEP20)`;
-    } else if (paymentType === 'advance') {
-      const dueUSD = Math.max(0, Number((Number(_paymentOrderTotalUSD) - payableUSD).toFixed(2)));
-      rateNote.textContent = `Advance Payment: $${payableUSD.toFixed(2)} USD · Remaining Due: $${dueUSD.toFixed(2)} USD`;
-    } else {
-      rateNote.textContent = `Order total: $${payableUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
-    }
-
     const usdtAddress = _paymentSettings.usdt || DEFAULT_USDT_ADDRESS;
 
     addressBox.innerHTML = `
@@ -3187,7 +3175,6 @@ document.addEventListener('keydown', (e) => {
 // ✅ AUTH MODAL SYSTEM — router based (no in-page modal)
 // ═══════════════════════════════════════════════════════════════
 export function renderAuthModal() {
-  // No-op — kept for backward compatibility
   return;
 }
 
@@ -3289,7 +3276,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// ✅ FLOATING SUPPORT CHAT (unified with conversations)
+// ✅ FLOATING SUPPORT CHAT
 // ═══════════════════════════════════════════════════════════════
 let _supportUser = null;
 let _supportUnsub = null;
@@ -3924,4 +3911,4 @@ window.openImageLightbox = function(url) {
   }
 };
 
-console.log('✅ components.js loaded — service advance + full payment + admin-panel compatible.');
+console.log('✅ components.js loaded — payment type preview now updates instantly.');
