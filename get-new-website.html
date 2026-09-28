@@ -911,7 +911,7 @@
                     </div>
                 </div>
 
-                <!-- CATEGORY CHIPS -->
+                <!-- CATEGORY CHIPS (populated by JS after data ready) -->
                 <div id="categoryChipsWrap"></div>
 
                 <!-- FILTER BAR -->
@@ -942,8 +942,15 @@
                     <span id="activeFilterLabel"></span>
                 </div>
 
-                <!-- DESIGN GRID -->
-                <div id="designGrid" class="design-grid"></div>
+                <!-- DESIGN GRID (initial skeletons pre-rendered for instant first paint) -->
+                <div id="designGrid" class="design-grid">
+                    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w60"></div><div class="sk-line"></div><div class="sk-line w40"></div></div></div>
+                    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w60"></div><div class="sk-line"></div><div class="sk-line w40"></div></div></div>
+                    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w60"></div><div class="sk-line"></div><div class="sk-line w40"></div></div></div>
+                    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w60"></div><div class="sk-line"></div><div class="sk-line w40"></div></div></div>
+                    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w60"></div><div class="sk-line"></div><div class="sk-line w40"></div></div></div>
+                    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w60"></div><div class="sk-line"></div><div class="sk-line w40"></div></div></div>
+                </div>
 
                 <!-- PAGINATION -->
                 <nav id="paginationNav" class="pagination-nav" aria-label="Design pagination" style="display:none;"></nav>
@@ -1047,6 +1054,23 @@
     let _isLoading = false;
 
     // ═══════════════════════════════════════════════════════════
+    // ✅ INITIAL DATA READINESS GATE
+    // Prevents "No design directions yet" flash before templates load.
+    // Nothing renders until BOTH categories + templates are ready.
+    // ═══════════════════════════════════════════════════════════
+    let isInitialDataReady = false;   // master gate
+    let categoriesReady = false;
+    let templatesReady = false;
+
+    function tryRenderAll() {
+        if (isInitialDataReady) return;
+        if (!categoriesReady || !templatesReady) return;
+        isInitialDataReady = true;
+        renderCategoryChips();
+        renderDesigns();
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // URL PARAMS
     // ═══════════════════════════════════════════════════════════
     (function readUrlParams() {
@@ -1061,7 +1085,6 @@
             }
             const cat = params.get('cat') || params.get('category');
             if (cat) {
-                // URL might pass raw id or "cat:slug" — accept both
                 activeCategoryId = String(cat);
             }
         } catch (_) {}
@@ -1192,31 +1215,55 @@
                 currentPage = 1;
             }
 
-            renderCategoryChips();
-            renderDesigns();
+            // ✅ Mark templates as ready → trigger render (only if categories also ready)
+            if (!templatesReady) {
+                templatesReady = true;
+                tryRenderAll();
+            } else if (isInitialDataReady) {
+                // Later updates → render directly
+                renderCategoryChips();
+                renderDesigns();
+            }
         } catch (err) {
             console.error('loadDesignTemplates error:', err);
-            skeletonGrid(0);
+
+            // ── Error fallback: force-mark everything ready and show error state directly
+            categoriesReady = true;
+            templatesReady = true;
+            isInitialDataReady = true;
+
+            const countEl = document.getElementById('resultCount');
+            const filterEl = document.getElementById('activeFilterLabel');
             const grid = document.getElementById('designGrid');
-            if (grid) grid.innerHTML = `
-                <div class="selector-empty">
-                    <i class="big fas fa-exclamation-triangle" style="color:#f87171;opacity:1;"></i>
-                    <h3>Could not load designs</h3>
-                    <p>${escapeHtml(err.message || 'Something went wrong.')}</p>
-                    <button class="btn-primary" onclick="window.location.reload()">
-                        <i class="fas fa-sync"></i> Retry
-                    </button>
-                </div>
-            `;
+            const nav = document.getElementById('paginationNav');
+
+            if (countEl) countEl.innerHTML = `<strong>Error</strong>`;
+            if (filterEl) filterEl.textContent = '';
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="selector-empty">
+                        <i class="big fas fa-exclamation-triangle" style="color:#f87171;opacity:1;"></i>
+                        <h3>Could not load designs</h3>
+                        <p>${escapeHtml(err.message || 'Something went wrong.')}</p>
+                        <button class="btn-primary" onclick="window.location.reload()">
+                            <i class="fas fa-sync"></i> Retry
+                        </button>
+                    </div>
+                `;
+            }
+            if (nav) { nav.innerHTML = ''; nav.style.display = 'none'; }
         } finally {
             _isLoading = false;
         }
     }
 
     // ═══════════════════════════════════════════════════════════
-    // RENDER CATEGORY CHIPS
+    // RENDER CATEGORY CHIPS (gated)
     // ═══════════════════════════════════════════════════════════
     function renderCategoryChips() {
+        // ✅ Gate: don't render until initial data is ready
+        if (!isInitialDataReady) return;
+
         const wrap = document.getElementById('categoryChipsWrap');
         if (!wrap) return;
 
@@ -1254,7 +1301,7 @@
             ];
         }
 
-        // FIX: If activeCategoryId is not in the new chips set, reset it
+        // If activeCategoryId is not in the new chips set, reset it
         const validIds = new Set(chips.map(c => c.id));
         if (!validIds.has(activeCategoryId)) {
             activeCategoryId = 'all';
@@ -1276,7 +1323,7 @@
             btn.addEventListener('click', () => {
                 const id = btn.dataset.catId;
                 activeCategoryId = id || 'all';
-                currentPage = 1; // FIX: reset page on category change
+                currentPage = 1;
                 wrap.querySelectorAll('.cat-chip').forEach(b => b.classList.toggle('active', b === btn));
                 renderDesigns();
             });
@@ -1342,9 +1389,12 @@
     }
 
     // ═══════════════════════════════════════════════════════════
-    // RENDER DESIGNS
+    // RENDER DESIGNS (gated)
     // ═══════════════════════════════════════════════════════════
     function renderDesigns() {
+        // ✅ Gate: don't render until initial data is ready
+        if (!isInitialDataReady) return;
+
         const grid = document.getElementById('designGrid');
         const countEl = document.getElementById('resultCount');
         const filterEl = document.getElementById('activeFilterLabel');
@@ -1397,7 +1447,6 @@
 
         // ── Case A: No designs at all ──
         if (total === 0) {
-            // FIX: no scratch card when there's nothing at all
             grid.innerHTML = `
                 <div class="selector-empty" style="grid-column: 1/-1;">
                     <i class="big fas fa-palette"></i>
@@ -1415,7 +1464,6 @@
 
         // ── Case B: Filters produce zero ──
         if (list.length === 0) {
-            // FIX: no scratch card when filters exclude all (keeps UI clean)
             grid.innerHTML = `
                 <div class="selector-empty" style="grid-column: 1/-1;">
                     <i class="big fas fa-search"></i>
@@ -1652,7 +1700,7 @@
     // ═══════════════════════════════════════════════════════════
     document.getElementById('sortFilter')?.addEventListener('change', (e) => {
         currentSort = e.target.value || 'featured';
-        currentPage = 1; // FIX: reset page on sort change
+        currentPage = 1;
         renderDesigns();
     });
 
@@ -1676,23 +1724,41 @@
     // BOOT
     // ═══════════════════════════════════════════════════════════
     (async function boot() {
+        // Skeletons are already pre-rendered in HTML for instant first paint.
+        // This call ensures consistency if HTML was tampered with.
         skeletonGrid(6);
+
         loadUsdRate();
 
+        // ── Listen for service categories ──
         try {
             listenServiceCategories((active, all) => {
                 allServiceCategories = (active && active.length ? active : (all || []));
-                renderCategoryChips();
-                renderDesigns();
+
+                if (!categoriesReady) {
+                    categoriesReady = true;
+                    tryRenderAll();  // will render only if templates are also ready
+                } else if (isInitialDataReady) {
+                    // Later updates → render directly
+                    renderCategoryChips();
+                    renderDesigns();
+                }
             });
         } catch (err) {
             console.warn('[boot] serviceCategories listener failed:', err);
+            // Even if categories fail, mark as ready so templates can trigger render
+            if (!categoriesReady) {
+                categoriesReady = true;
+                tryRenderAll();
+            }
         }
 
+        // ── Listen for add-ons (doesn't affect initial render) ──
         try {
             listenAddOns((active) => { allAddOns = active || []; });
         } catch (_) {}
 
+        // ── Load design templates (this gates the final render) ──
         await loadDesignTemplates();
 
         console.log('🎨 Design Selector ready — source:', templateSource, '| designs:', allDesignTemplates.length, '| per page:', PER_PAGE);
