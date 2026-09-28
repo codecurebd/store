@@ -608,7 +608,6 @@ let adminMessageUnsubs = [];
 let _notifUser = null;
 
 function stopAllNotifListeners() {
-  // FIX: proper cleanup
   adminMessageUnsubs.forEach((fn) => {
     try { fn(); } catch (_) {}
   });
@@ -645,7 +644,7 @@ function startAdminMessageListener(user) {
       where('participants', 'array-contains', uid)
     );
     const unsub = onSnapshot(qParts, (snapshot) => {
-      if (_notifUser !== user) return;  // FIX: discard stale snapshot
+      if (_notifUser !== user) return;
       processNotifSnapshot(snapshot, user);
     }, (error) => {
       console.warn('[notif] participants error:', error?.code, error?.message);
@@ -1761,8 +1760,31 @@ function renderQrZoomModal() {
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
+// ═══════════════════════════════════════════════════════════════
+// ✅ RENDER PAYMENT MODAL
+// FIX: Removed `if (isAgencyServiceFlow()) return;` guard so that
+// configure-service.html (which IS an agency page) can render the
+// payment modal and process the service advance / full payment.
+// Cart popup & cart sidebar remain gated by isAgencyServiceFlow().
+// ═══════════════════════════════════════════════════════════════
 export function renderPaymentModal() {
-  if (isAgencyServiceFlow()) return;
+  // Skip only on pages that truly never need it (admin-only, auth, etc.)
+  try {
+    const raw = (window.location.pathname || '').split('/').pop() || '';
+    const page = raw.toLowerCase();
+    const SKIP_PAGES = [
+      'admin-login.html',
+      'admin-panel.html',
+      'admin-order-dev.html',
+      'auth.html',
+      'messages.html',
+      'my-fix-requests.html',
+      'settings.html',
+      'order-progress.html',
+      'mainta.html'
+    ];
+    if (SKIP_PAGES.includes(page)) return;
+  } catch (_) {}
 
   renderQrZoomModal();
 
@@ -1949,10 +1971,6 @@ export function renderPaymentModal() {
 
           const duePaidFully = newDueBDT <= 0 && newDueUSD <= 0;
 
-          // ═══════════════════════════════════════════════════════
-          // FIX: Add-on mode — update specific add-on
-          // Uses serverTimestamp() instead of new Date().toISOString()
-          // ═══════════════════════════════════════════════════════
           const isAddOnMode =
             dueData.orderData &&
             dueData.orderData._addOnMode === true &&
@@ -1986,7 +2004,7 @@ export function renderPaymentModal() {
               currentAddOns[idx] = {
                 ...currentAddOns[idx],
                 paymentStatus: 'paid',
-                paidAt: new Date().toISOString(),   // set ISO in field, but Firestore update below uses serverTimestamp for updatedAt
+                paidAt: new Date().toISOString(),
                 paymentTxnId: txnId,
                 paymentMethod: method,
               };
@@ -2004,7 +2022,6 @@ export function renderPaymentModal() {
             try { await window.refreshCampaignPage(); } catch (_) {}
           }
 
-          // Gently reload to refresh state
           setTimeout(() => window.location.reload(), 1200);
 
         } catch (err) {
@@ -2019,7 +2036,7 @@ export function renderPaymentModal() {
       }
 
       // ══════════════════════════════════════════════════════════
-      // SERVICE ADVANCE PAYMENT MODE
+      // SERVICE ADVANCE / FULL PAYMENT MODE
       // ══════════════════════════════════════════════════════════
       const _pendingSvc = window._pendingCheckoutData;
       if (_pendingSvc && _pendingSvc.type === 'service' && _pendingSvc.isServiceAdvance && _pendingSvc._servicePayload) {
@@ -2070,12 +2087,23 @@ export function renderPaymentModal() {
           return;
         }
 
+        // ✅ Read selected payment type
+        const paymentTypeRadio = document.querySelector('input[name="paymentType"]:checked');
+        const paymentType = paymentTypeRadio?.value === 'full' ? 'full' : 'advance';
+        const isFullPayment = paymentType === 'full';
+
         const sp = _pendingSvc._servicePayload;
         const rate = Number(sp.usdRate) > 0 ? Number(sp.usdRate) : 125;
         const baseUSD = Number(sp.basePrice) || 0;
         const baseBDT = Math.round(baseUSD * rate);
         const addOnsUSD = Number(sp.addOnsTotal) || 0;
         const addOnsBDT = Math.round(addOnsUSD * rate);
+
+        // ✅ Compute paid/due based on payment type
+        const paidUSD = isFullPayment ? (baseUSD + addOnsUSD) : baseUSD;
+        const paidBDT = isFullPayment ? (baseBDT + addOnsBDT) : baseBDT;
+        const dueUSD = isFullPayment ? 0 : addOnsUSD;
+        const dueBDT = isFullPayment ? 0 : addOnsBDT;
 
         const btn = document.getElementById('paymentSubmitBtn');
         setLoading(btn, true, 'Submitting…');
@@ -2097,13 +2125,13 @@ export function renderPaymentModal() {
               name: a.name,
               price: Number(a.price) || 0,
               icon: a.icon || 'fa-puzzle-piece',
-              paymentStatus: 'pending',
-              paidAt: null,
-              paymentTxnId: null,
-              paymentMethod: null,
+              paymentStatus: isFullPayment ? 'paid' : 'pending',
+              paidAt: isFullPayment ? new Date().toISOString() : null,
+              paymentTxnId: isFullPayment ? txnId : null,
+              paymentMethod: isFullPayment ? method : null,
             })),
             addOnsTotal: addOnsUSD,
-            addOnsPaymentLater: true,
+            addOnsPaymentLater: !isFullPayment,
             designReferences: sp.designReferences || [],
             projectDescription: sp.projectDescription || '',
             total: Number(sp.totalUSD) || (baseUSD + addOnsUSD),
@@ -2111,14 +2139,14 @@ export function renderPaymentModal() {
             estimateBDT: Number(sp.totalBDT) || Math.round((baseUSD + addOnsUSD) * rate),
             advancePaymentUSD: baseUSD,
             advancePaymentBDT: baseBDT,
-            amountUSD: baseUSD,
-            amountBDT: baseBDT,
-            dueAmountUSD: addOnsUSD,
-            dueAmountBDT: addOnsBDT,
+            amountUSD: paidUSD,
+            amountBDT: paidBDT,
+            dueAmountUSD: dueUSD,
+            dueAmountBDT: dueBDT,
             usdRate: rate,
             status: 'pending',
             paymentMethod: method,
-            paymentType: 'advance',
+            paymentType: paymentType,   // 'advance' or 'full'
             transactionId: txnId,
             senderNumber: senderNumber,
             paymentVerified: false,
@@ -2130,7 +2158,10 @@ export function renderPaymentModal() {
 
           const ref = await addDoc(collection(db, 'orders'), orderData);
 
-          window.showToast('✅ Service request submitted! We\'ll review it soon.', 'success');
+          const successMsg = isFullPayment
+            ? '✅ Service request submitted! Full payment received.'
+            : '✅ Service request submitted! Base advance received — add-ons payable later.';
+          window.showToast(successMsg, 'success');
           window.closePaymentModal();
           window._pendingCheckoutData = null;
 
@@ -2138,7 +2169,7 @@ export function renderPaymentModal() {
             _pendingSvc.onSuccess({ orderId: ref.id, orderData });
           }
         } catch (err) {
-          console.error('Service advance payment error:', err);
+          console.error('Service payment error:', err);
           errorDiv.textContent = '⚠️ ' + err.message;
           errorDiv.classList.remove('hidden');
           window.showToast('⚠️ ' + err.message, 'error');
@@ -2148,6 +2179,9 @@ export function renderPaymentModal() {
         return;
       }
 
+      // ══════════════════════════════════════════════════════════
+      // NORMAL CHECKOUT (store) & CAMPAIGN
+      // ══════════════════════════════════════════════════════════
       const pending = window._pendingCheckoutData;
       if (!pending) {
         showToast('Checkout data missing. Please try again.', 'error');
@@ -2223,7 +2257,6 @@ export function renderPaymentModal() {
           if (!campSnap.exists()) throw new Error('Campaign not found.');
           const camp = campSnap.data();
 
-          // FIX: proper 0 handling for slot check
           const remainingSlots = camp.remainingSlots !== undefined
             ? Number(camp.remainingSlots)
             : Number(camp.totalSlots || 0);
@@ -2232,7 +2265,6 @@ export function renderPaymentModal() {
             throw new Error('This campaign is closed or full.');
           }
 
-          // Check duplicate
           const dupQ = query(
             collection(db, 'orders'),
             where('userId', '==', auth.currentUser.uid),
@@ -2286,9 +2318,6 @@ export function renderPaymentModal() {
 
           await addDoc(collection(db, 'orders'), orderData);
 
-          // ═══════════════════════════════════════════════════════
-          // FIX: Slot decrement — graceful fallback if rules block
-          // ═══════════════════════════════════════════════════════
           const updates = {
             remainingSlots: increment(-1),
             updatedAt: serverTimestamp(),
@@ -2297,8 +2326,6 @@ export function renderPaymentModal() {
 
           try {
             await updateDoc(campRef, updates);
-
-            // Auto-close campaign if slots exhausted
             const afterSnap = await getDoc(campRef);
             if (afterSnap.exists()) {
               const afterData = afterSnap.data();
@@ -2317,9 +2344,7 @@ export function renderPaymentModal() {
               }
             }
           } catch (slotErr) {
-            // Rules block user update — order is created but slot not decremented
             console.warn('[campaign] slot decrement failed (rules?):', slotErr?.code);
-            // Non-fatal — admin can adjust manually
             showToast('✅ Order placed! Admin will confirm your slot.', 'success');
           }
 
@@ -2419,7 +2444,14 @@ export function renderPaymentModal() {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// ✅ OPEN PAYMENT MODAL
+// FIX: For service advance, show BOTH payment options (advance/full).
+// Advance is default selected; full is available if user wants to pay
+// everything (base + all add-ons) upfront.
+// ═══════════════════════════════════════════════════════════════
 export function openPaymentModal(data) {
+  // Lazy-create modal if not present
   if (!document.getElementById('paymentModal')) {
     renderPaymentModal();
   }
@@ -2439,50 +2471,48 @@ export function openPaymentModal(data) {
 
   document.getElementById('paymentModal').dataset.duemode = 'false';
 
+  // ── Configure payment-type radios per scenario ──
+  const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
+  const advanceRadio = document.querySelector('input[name="paymentType"][value="advance"]');
+  const fullLabel = fullRadio?.closest('label');
+  const advanceLabel = advanceRadio?.closest('label');
+
   if (data && data.type === 'service' && data.isServiceAdvance) {
-    const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
-    const advanceRadio = document.querySelector('input[name="paymentType"][value="advance"]');
+    // ✅ Service: show BOTH options, default to advance
     if (fullRadio) {
-      fullRadio.checked = true;
       fullRadio.disabled = false;
-      if (fullRadio.closest('label')) fullRadio.closest('label').style.display = '';
+      fullRadio.checked = false;
+      if (fullLabel) { fullLabel.style.display = ''; fullLabel.classList.remove('hidden'); }
     }
     if (advanceRadio) {
-      advanceRadio.disabled = true;
-      advanceRadio.checked = false;
-      if (advanceRadio.closest('label')) advanceRadio.closest('label').style.display = 'none';
+      advanceRadio.disabled = false;
+      advanceRadio.checked = true;   // default
+      if (advanceLabel) { advanceLabel.style.display = ''; advanceLabel.classList.remove('hidden'); }
     }
   } else if (data && data.type === 'campaign') {
-    const fullOpt = document.querySelector('input[name="paymentType"][value="full"]');
-    const advOpt = document.querySelector('input[name="paymentType"][value="advance"]');
-    if (fullOpt) {
-      fullOpt.closest('label')?.classList.add('hidden');
-      fullOpt.disabled = true;
+    // Campaign: only advance
+    if (fullRadio) {
+      fullRadio.checked = false;
+      fullRadio.disabled = true;
+      if (fullLabel) fullLabel.classList.add('hidden');
     }
-    if (advOpt) {
-      advOpt.checked = true;
-      advOpt.closest('label')?.classList.remove('hidden');
+    if (advanceRadio) {
+      advanceRadio.checked = true;
+      advanceRadio.disabled = false;
+      if (advanceLabel) advanceLabel.classList.remove('hidden');
     }
   } else {
-    const fullOpt = document.querySelector('input[name="paymentType"][value="full"]');
-    if (fullOpt) {
-      fullOpt.disabled = false;
-      fullOpt.closest('label')?.classList.remove('hidden');
+    // Normal checkout: show both, default full
+    if (fullRadio) {
+      fullRadio.disabled = false;
+      fullRadio.checked = true;
+      if (fullLabel) { fullLabel.style.display = ''; fullLabel.classList.remove('hidden'); }
     }
-  }
-
-  if (!(data && data.type === 'service' && data.isServiceAdvance)) {
-    document.querySelectorAll('input[name="paymentType"]').forEach(el => {
-      if (el.value === 'advance') {
-        el.disabled = false;
-        if (el.closest('label')) el.closest('label').style.display = '';
-      }
-    });
-  }
-
-  if (!(data && data.type === 'campaign')) {
-    const fullRadio = document.querySelector('input[name="paymentType"][value="full"]');
-    if (fullRadio) fullRadio.checked = true;
+    if (advanceRadio) {
+      advanceRadio.disabled = false;
+      advanceRadio.checked = false;
+      if (advanceLabel) { advanceLabel.style.display = ''; advanceLabel.classList.remove('hidden'); }
+    }
   }
 
   document.getElementById('paymentOrderId').value = '';
@@ -2631,6 +2661,12 @@ window.closePaymentModal = function() {
   window._duePaymentData = null;
 };
 
+// ═══════════════════════════════════════════════════════════════
+// ✅ UPDATE PAYMENT METHOD UI
+// FIX: Handles service advance + full payment display.
+// Reads `_servicePayload` for base/addons totals and updates the
+// header + amount-to-send based on selected payment type.
+// ═══════════════════════════════════════════════════════════════
 window.updatePaymentMethodUI = function() {
   const method = document.getElementById('paymentMethodSelect')?.value || '';
   const paymentType = document.querySelector('input[name="paymentType"]:checked')?.value || 'full';
@@ -2653,55 +2689,101 @@ window.updatePaymentMethodUI = function() {
 
   details.classList.remove('hidden');
   const rate = Number(_paymentSettings.usdRate) > 0 ? Number(_paymentSettings.usdRate) : 125;
-  const totalUSD = Number(_paymentOrderTotalUSD) || 0;
-  const totalBDT = Math.round(totalUSD * rate);
 
   const pending = window._pendingCheckoutData;
   const isCampaign = pending && pending.type === 'campaign';
   const isServiceAdv = pending && pending.type === 'service' && pending.isServiceAdvance;
-  const campaignAdvanceBDT = isCampaign
-    ? (Number(pending.amountBDT) || Number(pending.totalBDT) || 500)
-    : 500;
-  const campaignAdvanceUSD = isCampaign
-    ? (Number(pending.amountUSD) || Number((campaignAdvanceBDT / rate).toFixed(2)))
-    : Number((500 / rate).toFixed(2));
-  const campaignFullBDT = isCampaign
-    ? (Number(pending.campaignPrice) || campaignAdvanceBDT)
-    : totalBDT;
 
-  let payableBDT = totalBDT;
-  let payableUSD = totalUSD;
+  let payableUSD = Number(_paymentOrderTotalUSD) || 0;
+  let payableBDT = Math.round(payableUSD * rate);
+  let svcCtx = null;
 
-  if (paymentType === 'advance' && !isDueMode && !isServiceAdv) {
-    payableBDT = campaignAdvanceBDT;
-    payableUSD = campaignAdvanceUSD;
+  // ── Service advance/full computation ──
+  if (isServiceAdv) {
+    const sp = (pending && pending._servicePayload) || {};
+    const baseUSD = Number(sp.basePrice) || 0;
+    const addOnsUSD = Number(sp.addOnsTotal) || 0;
+    const baseBDT = Math.round(baseUSD * rate);
+    const addOnsBDT = Math.round(addOnsUSD * rate);
+    svcCtx = { baseUSD, addOnsUSD, baseBDT, addOnsBDT };
+
+    if (paymentType === 'advance') {
+      payableUSD = baseUSD;
+      payableBDT = baseBDT;
+    } else {
+      payableUSD = baseUSD + addOnsUSD;
+      payableBDT = baseBDT + addOnsBDT;
+    }
+
+    // Update header to reflect current payable
+    const hdrUSD = document.getElementById('paymentTotalUSD');
+    if (hdrUSD) hdrUSD.textContent = '$' + payableUSD.toFixed(2);
+    bdtRow.classList.remove('hidden');
+  } else if (isCampaign) {
+    const campBDT = Number(pending.amountBDT) || Number(pending.totalBDT) || 500;
+    const campUSD = Number(pending.amountUSD) || Number((campBDT / rate).toFixed(2));
+    payableUSD = campUSD;
+    payableBDT = campBDT;
+    const hdrUSD = document.getElementById('paymentTotalUSD');
+    if (hdrUSD) hdrUSD.textContent = '$' + payableUSD.toFixed(2);
+    bdtRow.classList.remove('hidden');
+  } else if (isDueMode) {
+    bdtRow.classList.remove('hidden');
+  } else {
+    // Normal checkout
+    if (paymentType === 'advance') {
+      payableBDT = 500;
+      payableUSD = Number((500 / rate).toFixed(2));
+      const hdrUSD = document.getElementById('paymentTotalUSD');
+      if (hdrUSD) hdrUSD.textContent = '$' + payableUSD.toFixed(2);
+    } else {
+      const hdrUSD = document.getElementById('paymentTotalUSD');
+      if (hdrUSD) hdrUSD.textContent = '$' + payableUSD.toFixed(2);
+    }
+    bdtRow.classList.remove('hidden');
   }
 
+  // ══════════════════════════════════════════════════
+  // bKash / Nagad
+  // ══════════════════════════════════════════════════
   if (method === 'bKash' || method === 'Nagad') {
     bdtRow.classList.remove('hidden');
+
     let bdtText;
-    if (isDueMode) {
-      bdtText = '৳' + totalBDT.toLocaleString('en-BD') + ' (Due)';
-    } else if (isServiceAdv) {
-      bdtText = '৳' + totalBDT.toLocaleString('en-BD') + ' (Base Advance)';
+    if (isServiceAdv && svcCtx) {
+      if (paymentType === 'advance') {
+        bdtText = '৳' + svcCtx.baseBDT.toLocaleString('en-BD') + ' (Base Advance)';
+      } else {
+        bdtText = '৳' + (svcCtx.baseBDT + svcCtx.addOnsBDT).toLocaleString('en-BD') + ' (Full)';
+      }
+    } else if (isDueMode) {
+      bdtText = '৳' + payableBDT.toLocaleString('en-BD') + ' (Due)';
+    } else if (isCampaign) {
+      bdtText = '৳' + payableBDT.toLocaleString('en-BD') + ' (Campaign Advance)';
     } else if (paymentType === 'advance') {
       bdtText = '৳' + payableBDT.toLocaleString('en-BD') + ' (Advance)';
     } else {
-      bdtText = '৳' + totalBDT.toLocaleString('en-BD');
+      bdtText = '৳' + payableBDT.toLocaleString('en-BD');
     }
     document.getElementById('paymentTotalBDT').textContent = bdtText;
 
     rateNote.classList.remove('hidden');
-    if (isDueMode) {
-      rateNote.textContent = `Due Payment: Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
-    } else if (isServiceAdv) {
-      rateNote.textContent = `Base Package Advance: ৳${totalBDT.toLocaleString('en-BD')} · Add-ons paid later from My Orders`;
+    if (isServiceAdv && svcCtx) {
+      if (paymentType === 'advance') {
+        rateNote.textContent = `Pay ৳${svcCtx.baseBDT.toLocaleString('en-BD')} base advance now · Add-ons $${svcCtx.addOnsUSD.toFixed(2)} (≈ ৳${svcCtx.addOnsBDT.toLocaleString('en-BD')}) can be paid individually later from My Orders`;
+      } else {
+        rateNote.textContent = `Full payment ৳${(svcCtx.baseBDT + svcCtx.addOnsBDT).toLocaleString('en-BD')} · Base + all add-ons included · No remaining due`;
+      }
+    } else if (isDueMode) {
+      rateNote.textContent = `Due Payment: Send exactly ৳${payableBDT.toLocaleString('en-BD')}`;
+    } else if (isCampaign) {
+      rateNote.textContent = `Campaign Advance: ৳${payableBDT.toLocaleString('en-BD')} ($${payableUSD.toFixed(2)} at 1 USD = ৳${rate})`;
     } else if (paymentType === 'advance') {
-      const dueBase = isCampaign ? campaignFullBDT : totalBDT;
-      const dueBDT = Math.max(0, dueBase - payableBDT);
-      rateNote.textContent = `Advance Payment: ৳${payableBDT.toLocaleString('en-BD')} · Remaining Due: ৳${dueBDT.toLocaleString('en-BD')} (Pay after work)`;
+      const totalBDT = Math.round((Number(_paymentOrderTotalUSD) || 0) * rate);
+      const dueBDT = Math.max(0, totalBDT - payableBDT);
+      rateNote.textContent = `Advance ৳${payableBDT.toLocaleString('en-BD')} · Remaining ৳${dueBDT.toLocaleString('en-BD')} pay after work`;
     } else {
-      rateNote.textContent = `Rate: 1 USD = ৳${rate} · Send exactly ৳${totalBDT.toLocaleString('en-BD')}`;
+      rateNote.textContent = `Rate: 1 USD = ৳${rate} · Send exactly ৳${payableBDT.toLocaleString('en-BD')}`;
     }
 
     const number = method === 'bKash' ? (_paymentSettings.bkash || '') : (_paymentSettings.nagad || '');
@@ -2748,18 +2830,28 @@ window.updatePaymentMethodUI = function() {
     document.getElementById('paymentSenderHint').textContent = `Your personal ${method} number (sender)`;
     document.getElementById('paymentSubmitBtn').disabled = !number;
 
+  // ══════════════════════════════════════════════════
+  // USDT (BEP20)
+  // ══════════════════════════════════════════════════
   } else if (method === 'USDT') {
     bdtRow.classList.add('hidden');
     rateNote.classList.remove('hidden');
-    if (isDueMode) {
-      rateNote.textContent = `Due payment: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
-    } else if (isServiceAdv) {
-      rateNote.textContent = `Base Package Advance: $${totalUSD.toFixed(2)} USD (send exactly this amount on BEP20)`;
+
+    if (isServiceAdv && svcCtx) {
+      if (paymentType === 'advance') {
+        rateNote.textContent = `Base advance: $${svcCtx.baseUSD.toFixed(2)} USD · Add-ons ($${svcCtx.addOnsUSD.toFixed(2)}) can be paid individually later`;
+      } else {
+        rateNote.textContent = `Full payment: $${(svcCtx.baseUSD + svcCtx.addOnsUSD).toFixed(2)} USD (base + all add-ons)`;
+      }
+    } else if (isDueMode) {
+      rateNote.textContent = `Due payment: $${payableUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+    } else if (isCampaign) {
+      rateNote.textContent = `Campaign advance: $${payableUSD.toFixed(2)} USD (send exactly this amount on BEP20)`;
     } else if (paymentType === 'advance') {
-      const dueUSD = Math.max(0, Number((totalUSD - payableUSD).toFixed(2)));
+      const dueUSD = Math.max(0, Number((Number(_paymentOrderTotalUSD) - payableUSD).toFixed(2)));
       rateNote.textContent = `Advance Payment: $${payableUSD.toFixed(2)} USD · Remaining Due: $${dueUSD.toFixed(2)} USD`;
     } else {
-      rateNote.textContent = `Order total: $${totalUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
+      rateNote.textContent = `Order total: $${payableUSD.toFixed(2)} USD (send exactly this amount in USDT on BEP20)`;
     }
 
     const usdtAddress = _paymentSettings.usdt || DEFAULT_USDT_ADDRESS;
@@ -2800,7 +2892,7 @@ window.updatePaymentMethodUI = function() {
         <li>Select network: <strong>BSC (BEP20)</strong></li>
         <li>Paste the address: <strong class="select-all">${usdtAddress}</strong></li>
         <li>Enter amount: <strong>$${payableUSD.toFixed(2)} USDT</strong></li>
-        <li>Double‑check the network and address, then submit</li>
+        <li>Double-check the network and address, then submit</li>
         <li>Copy the <strong>Transaction ID (TXID)</strong> and your <strong>Sender Address</strong> below</li>
       </ol>
       <p class="text-xs text-blue-600"><i class="fas fa-info-circle"></i> Need help? <a href="https://www.binance.com/en/support/faq/how-to-withdraw-cryptocurrency-from-binance-360033577672" target="_blank" class="underline">Binance withdrawal guide</a></p>
@@ -3096,7 +3188,6 @@ document.addEventListener('keydown', (e) => {
 // ═══════════════════════════════════════════════════════════════
 export function renderAuthModal() {
   // No-op — kept for backward compatibility
-  // Auth is handled by dedicated auth.html page
   return;
 }
 
@@ -3241,7 +3332,6 @@ function _supportParseContent(content) {
   return { text: textParts.join('\n'), imageUrl };
 }
 
-// FIX: ensure conversation doc exists (unified with messages.html)
 async function _ensureConversationDoc(user) {
   if (!user) return null;
   const convId = `conv_${user.uid}_admin`;
@@ -3261,11 +3351,10 @@ async function _ensureConversationDoc(user) {
     return convId;
   } catch (err) {
     console.warn('[support] ensure conversation failed:', err?.code || err?.message);
-    return convId; // still return ID for message writes
+    return convId;
   }
 }
 
-// FIX: update conversation metadata after sending
 async function _updateConversationMeta(convId, text, fromUser) {
   try {
     const updates = {
@@ -3273,7 +3362,6 @@ async function _updateConversationMeta(convId, text, fromUser) {
       lastMessageTime: serverTimestamp(),
     };
     if (fromUser) {
-      // Admin unread count increments when user sends
       updates.unreadCount = increment(1);
     }
     await updateDoc(doc(db, 'conversations', convId), updates);
@@ -3611,7 +3699,6 @@ async function _sendSupportMessage() {
   const convId = _supportConvId || `conv_${_supportUser.uid}_admin`;
   btn.disabled = true;
 
-  // FIX: ensure conversation doc exists (so messages.html sees it)
   await _ensureConversationDoc(_supportUser);
 
   let imageUrl = null;
@@ -3636,7 +3723,6 @@ async function _sendSupportMessage() {
       participants: [_supportUser.uid, 'admin'],
     });
 
-    // FIX: update conversation doc so messages.html shows it
     await _updateConversationMeta(convId, text || '📷 Image', true);
 
     input.value = '';
@@ -3838,4 +3924,4 @@ window.openImageLightbox = function(url) {
   }
 };
 
-console.log('✅ components.js loaded — campaign slot decrement + add-on payment + chat unification fixed.');
+console.log('✅ components.js loaded — service advance + full payment + admin-panel compatible.');
