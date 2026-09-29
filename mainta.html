@@ -166,14 +166,15 @@
       box-shadow: 0 16px 44px rgba(15,23,42,0.06);
     }
 
-    /* ===== LOADING STATE (NEW — round spinner) ===== */
+    /* ===== LOADING STATE (center-focused, fills viewport below hero) ===== */
     .maint-loading-state {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 4.5rem 2rem;
-      min-height: 320px;
+      /* ✅ Fill remaining viewport below navbar + hero + spacing, with sensible floor */
+      min-height: max(320px, calc(100vh - 520px));
+      padding: 2rem 1.5rem;
       gap: 1.15rem;
       background: #ffffff;
       border-radius: 22px;
@@ -677,7 +678,10 @@
       .sub-banner .sb-cta { width: 100%; }
       .sub-banner .sb-cta .btn-primary,
       .sub-banner .sb-cta .btn-outline { width: 100%; justify-content: center; }
-      .maint-loading-state { padding: 3rem 1.5rem; min-height: 240px; }
+      .maint-loading-state {
+        min-height: max(260px, calc(100vh - 420px));
+        padding: 1.5rem 1rem;
+      }
       .maint-loading-state .loading-spinner { width: 50px; height: 50px; border-width: 4px; }
     }
   </style>
@@ -716,7 +720,7 @@
 
         <!-- ═══════════ MAIN CONTENT (state-driven) ═══════════ -->
         <div id="maintRoot">
-          <!-- ✅ Initial loading state: round circle spinner (renders instantly on first paint) -->
+          <!-- ✅ Initial loading state: perfectly centered in remaining viewport -->
           <div class="maint-loading-state" role="status" aria-live="polite">
             <div class="loading-spinner" aria-hidden="true"></div>
             <p class="loading-label">Loading your maintenance dashboard…</p>
@@ -1703,7 +1707,6 @@
     // ── No user → show empty state (fast path) ──
     if (!user) {
       updateNavbarAuth(null, null);
-      // Still need usdRate for pricing preview — fire in background
       loadUsdRate();
       renderNoOrder();
       return;
@@ -1724,7 +1727,7 @@
       loadUsdRate()
     ]);
 
-    // ── User doc → update navbar (name + role) ──
+    // ── User doc → update navbar ──
     if (userRes.status === 'fulfilled' && userRes.value.exists()) {
       currentUserData = userRes.value.data();
       updateNavbarAuth(
@@ -1734,12 +1737,12 @@
       );
     }
 
-    // ── usdRate (from cache or Firestore) ──
+    // ── usdRate ──
     if (rateRes.status === 'fulfilled' && Number(rateRes.value) > 0) {
       usdRate = Number(rateRes.value);
     }
 
-    // ── Orders → determine state ──
+    // ── Orders ──
     if (ordersRes.status !== 'fulfilled') {
       console.warn('[mainta] orders fetch failed:', ordersRes.reason);
       renderNoOrder();
@@ -1770,7 +1773,6 @@
     maintenanceContext = computeMaintenanceContext(qualifiedOrder);
     renderDashboard(qualifiedOrder);
 
-    // ── Attach live listener for real-time updates ──
     if (unsubOrders) { try { unsubOrders(); } catch(_) {} unsubOrders = null; }
     unsubOrders = onSnapshot(doc(db, 'orders', qualifiedOrder.id), (s) => {
       if (!s.exists()) return;
@@ -1792,7 +1794,7 @@
     if (unsubOrders) { try { unsubOrders(); } catch (_) {} }
   });
 
-  console.log('⚡ mainta.html loaded — parallel fetch + cached usdRate + spinner loading.');
+  console.log('⚡ mainta.html loaded — centered loading + parallel fetch + cached usdRate.');
 </script>
 </body>
 </html>
