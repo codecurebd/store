@@ -166,6 +166,51 @@
       box-shadow: 0 16px 44px rgba(15,23,42,0.06);
     }
 
+    /* ===== LOADING STATE (NEW — round spinner) ===== */
+    .maint-loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4.5rem 2rem;
+      min-height: 320px;
+      gap: 1.15rem;
+      background: #ffffff;
+      border-radius: 22px;
+      border: 1px solid rgba(15,23,42,0.06);
+      box-shadow: 0 4px 20px rgba(15,23,42,0.03);
+      text-align: center;
+    }
+    .maint-loading-state .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(37,99,235,0.12);
+      border-top-color: #2563eb;
+      border-right-color: #7c3aed;
+      border-radius: 50%;
+      animation: maintSpin 0.85s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes maintSpin {
+      to { transform: rotate(360deg); }
+    }
+    .maint-loading-state .loading-label {
+      color: #334155;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .maint-loading-state .loading-sub {
+      color: #94a3b8;
+      font-size: 0.8rem;
+      margin: 0;
+      font-weight: 500;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .maint-loading-state .loading-spinner { animation-duration: 1.4s; }
+    }
+
     /* ===== BUTTONS ===== */
     .btn-primary {
       background: linear-gradient(135deg, #007AFF, #5856D6);
@@ -250,7 +295,7 @@
       justify-content: center;
     }
 
-    /* ===== MAINTENANCE FEATURES (for empty state) ===== */
+    /* ===== FEATURE GRID ===== */
     .feature-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -497,29 +542,16 @@
       border: 1px solid rgba(37,99,235,0.14);
     }
 
-    /* ===== SKELETON ===== */
-    .sk {
-      background: linear-gradient(90deg, #e8edf3 25%, #f1f5f9 50%, #e8edf3 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.2s ease-in-out infinite;
-      border-radius: 14px;
-    }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    .sk-card { min-height: 180px; }
-
-    /* ===== SPINNER ===== */
+    /* ===== SPINNER (inline, for buttons) ===== */
     .spinner {
-      width: 40px; height: 40px;
-      border: 4px solid rgba(37,99,235,0.1);
-      border-top-color: #2563eb;
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
       border-radius: 50%;
-      animation: spin 0.85s linear infinite;
-      margin: 0 auto;
+      animation: maintSpin 0.75s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ===== PROGRESS BAR ===== */
     .progress-track {
@@ -645,6 +677,8 @@
       .sub-banner .sb-cta { width: 100%; }
       .sub-banner .sb-cta .btn-primary,
       .sub-banner .sb-cta .btn-outline { width: 100%; justify-content: center; }
+      .maint-loading-state { padding: 3rem 1.5rem; min-height: 240px; }
+      .maint-loading-state .loading-spinner { width: 50px; height: 50px; border-width: 4px; }
     }
   </style>
 </head>
@@ -682,7 +716,12 @@
 
         <!-- ═══════════ MAIN CONTENT (state-driven) ═══════════ -->
         <div id="maintRoot">
-          <div class="glass-card sk-card sk"></div>
+          <!-- ✅ Initial loading state: round circle spinner (renders instantly on first paint) -->
+          <div class="maint-loading-state" role="status" aria-live="polite">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <p class="loading-label">Loading your maintenance dashboard…</p>
+            <p class="loading-sub">Just a moment</p>
+          </div>
         </div>
 
       </div>
@@ -699,16 +738,16 @@
   // IMPORTS
   // ═══════════════════════════════════════════════════════════
   import {
-    auth, db, collection, doc, getDoc, getDocs, updateDoc,
-    query, where, onSnapshot, serverTimestamp, onAuthStateChanged
+    auth, db, collection, doc, getDoc, getDocs,
+    query, where, onSnapshot, onAuthStateChanged
   } from './firebase-config.js';
   import {
     renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
     renderCartSidebar, renderPaymentModal, renderAuthModal,
-    openPaymentModal, setLoading
+    openPaymentModal, setLoading, getCachedUser
   } from './components.js';
 
-  // COMMON RENDER
+  // COMMON RENDER (runs synchronously — navbar renders instantly from cache)
   renderNavbar();
   renderAuthModal();
   renderFooter();
@@ -722,6 +761,10 @@
   const FREE_TRIAL_DAYS = 90;           // 3 months
   const SUBSCRIPTION_PRICE_USD = 9;
   const STORE_URL = 'get-new-website.html';
+
+  // usdRate cache to save a Firestore read on every page load
+  const USD_RATE_CACHE_KEY = 'ccbd_usd_rate_v1';
+  const USD_RATE_CACHE_TTL = 1000 * 60 * 60; // 1 hour
 
   // ═══════════════════════════════════════════════════════════
   // TOAST
@@ -799,32 +842,47 @@
   let currentUser = null;
   let currentUserData = null;
   let usdRate = 125;
-  let qualifiedOrder = null;       // most recent completed order
+  let qualifiedOrder = null;
   let allUserOrders = [];
   let unsubOrders = null;
   let currentTab = 'overview';
-  let maintenanceContext = null;   // { status, trialEndsAt, daysLeft, planType }
+  let maintenanceContext = null;
 
   // ═══════════════════════════════════════════════════════════
-  // LOAD USD RATE
+  // LOAD USD RATE — cached, non-blocking
   // ═══════════════════════════════════════════════════════════
   async function loadUsdRate() {
+    // Try cache first (instant)
+    try {
+      const raw = localStorage.getItem(USD_RATE_CACHE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.rate > 0 && (Date.now() - parsed.ts) < USD_RATE_CACHE_TTL) {
+          usdRate = Number(parsed.rate);
+          return usdRate; // fast path
+        }
+      }
+    } catch (_) {}
+
+    // Cache miss → fetch from Firestore
     try {
       const snap = await getDoc(doc(db, 'settings', 'payment'));
       if (snap.exists() && Number(snap.data().usdRate) > 0) {
         usdRate = Number(snap.data().usdRate);
+        try {
+          localStorage.setItem(USD_RATE_CACHE_KEY, JSON.stringify({ rate: usdRate, ts: Date.now() }));
+        } catch (_) {}
       }
     } catch (_) {}
+    return usdRate;
   }
 
   // ═══════════════════════════════════════════════════════════
   // COMPUTE MAINTENANCE CONTEXT
-  // Determines: trial / active / expired status for a given order
   // ═══════════════════════════════════════════════════════════
   function computeMaintenanceContext(order) {
     if (!order) return null;
 
-    // Determine "delivered" timestamp
     const deliveredTs = order.maintenanceStartedAt
       || order.completedAt
       || order.activatedAt
@@ -832,7 +890,6 @@
       || order.createdAt;
     const deliveredAt = deliveredTs?.toDate ? deliveredTs.toDate() : new Date(deliveredTs || Date.now());
 
-    // If explicit maintenance object exists on order, use it
     const m = order.maintenance || {};
     if (m.status) {
       const trialEndsTs = m.trialEndsAt || null;
@@ -843,7 +900,7 @@
       const nextBillingAt = nextBillingTs?.toDate ? nextBillingTs.toDate() : (nextBillingTs ? new Date(nextBillingTs) : null);
 
       return {
-        status: m.status,              // 'trial' | 'active' | 'expired' | 'cancelled'
+        status: m.status,
         deliveredAt,
         trialEndsAt,
         daysLeft,
@@ -854,7 +911,6 @@
       };
     }
 
-    // Else: compute default from deliveredAt (auto-trial)
     const trialEndsAt = new Date(deliveredAt.getTime() + FREE_TRIAL_DAYS * 86400000);
     const now = new Date();
     const daysLeft = daysBetween(now, trialEndsAt);
@@ -1012,7 +1068,6 @@
     const planName = order.designTemplateName || order.planName || 'Custom Website';
     const isService = order.type === 'service' || order.orderType === 'service';
 
-    // ═══ Hero customization based on status ═══
     if (badge && ctx) {
       if (ctx.status === 'trial') {
         badge.innerHTML = `<i class="fas fa-gift"></i> Free Trial · ${ctx.daysLeft} days left`;
@@ -1057,10 +1112,8 @@
       `;
     }
 
-    // ═══ Subscription banner ═══
     const subBannerHtml = renderSubscriptionBanner(ctx);
 
-    // ═══ Dashboard ═══
     root.innerHTML = `
       ${subBannerHtml}
 
@@ -1357,7 +1410,6 @@
     renderBackupList();
     renderBillingContent(ctx);
 
-    // Attach tab switching
     document.querySelectorAll('.maint-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         const target = tab.dataset.tab;
@@ -1422,7 +1474,7 @@
             </p>
           </div>
           <div class="sb-cta">
-            <a href="#billing" class="btn-outline" onclick="document.querySelector('[data-tab=&quot;billing&quot;]').click();return false;">
+            <a href="#" class="btn-outline" onclick="event.preventDefault();document.querySelector('[data-tab=&quot;billing&quot;]')?.click();">
               <i class="fas fa-file-invoice-dollar"></i> Manage Billing
             </a>
           </div>
@@ -1454,7 +1506,6 @@
   }
 
   function renderSubscriptionBannerScripts() {
-    // Expose renewal handler globally
     window.renewSubscription = function() {
       if (!qualifiedOrder || !maintenanceContext) return;
       const rate = usdRate > 0 ? usdRate : 125;
@@ -1496,7 +1547,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // BACKUP LIST (mock)
+  // BACKUP LIST
   // ═══════════════════════════════════════════════════════════
   function renderBackupList() {
     const wrap = document.getElementById('backupList');
@@ -1603,7 +1654,7 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ACTION HANDLERS (exposed globally)
+  // ACTION HANDLERS
   // ═══════════════════════════════════════════════════════════
   window.runBackupNow = async function() {
     if (!qualifiedOrder?.id) return;
@@ -1644,99 +1695,94 @@
   };
 
   // ═══════════════════════════════════════════════════════════
-  // LOAD USER ORDERS (find a completed one)
-  // ═══════════════════════════════════════════════════════════
-  async function loadUserOrders(userId) {
-    if (!userId) { renderNoOrder(); return; }
-
-    try {
-      const q = query(
-        collection(db, 'orders'),
-        where('userId', '==', userId)
-      );
-      const snap = await getDocs(q);
-
-      allUserOrders = [];
-      snap.forEach(d => {
-        allUserOrders.push({ id: d.id, ...d.data() });
-      });
-
-      // Sort by createdAt desc
-      allUserOrders.sort((a, b) => {
-        const ta = a.createdAt?.toDate?.()?.getTime() || 0;
-        const tb = b.createdAt?.toDate?.()?.getTime() || 0;
-        return tb - ta;
-      });
-
-      // Find qualified order: completed status
-      const completed = allUserOrders.filter(o => {
-        const s = String(o.status || '').toLowerCase();
-        return s === 'completed' || s === 'active';
-      });
-
-      if (completed.length === 0) {
-        qualifiedOrder = null;
-        maintenanceContext = null;
-        renderNoOrder();
-        return;
-      }
-
-      // Pick most recent completed order
-      qualifiedOrder = completed[0];
-      maintenanceContext = computeMaintenanceContext(qualifiedOrder);
-
-      renderDashboard(qualifiedOrder);
-
-      // Attach live listener on the qualified order (for real-time updates)
-      if (unsubOrders) { try { unsubOrders(); } catch(_) {} unsubOrders = null; }
-      unsubOrders = onSnapshot(doc(db, 'orders', qualifiedOrder.id), (s) => {
-        if (!s.exists()) return;
-        qualifiedOrder = { id: s.id, ...s.data() };
-        maintenanceContext = computeMaintenanceContext(qualifiedOrder);
-        // Re-render (preserve tab)
-        const savedTab = currentTab;
-        renderDashboard(qualifiedOrder);
-        setTimeout(() => {
-          const tabEl = document.querySelector(`.maint-tab[data-tab="${savedTab}"]`);
-          if (tabEl) tabEl.click();
-        }, 10);
-      });
-
-    } catch (err) {
-      console.warn('[mainta] loadUserOrders:', err?.code || err?.message);
-      renderNoOrder();
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // AUTH STATE
+  // ⚡ FAST BOOT: Parallel data fetch + cached usdRate
   // ═══════════════════════════════════════════════════════════
   onAuthStateChanged(auth, async (user) => {
     currentUser = user;
 
-    let name = null;
-    if (user) {
-      try {
-        const uDoc = await getDoc(doc(db, 'users', user.uid));
-        if (uDoc.exists()) {
-          currentUserData = uDoc.data();
-          name = currentUserData.displayName;
-        } else {
-          name = user.email?.split('@')[0] || null;
-        }
-      } catch (_) {
-        name = user.email?.split('@')[0] || null;
-      }
-    }
-    updateNavbarAuth(user, name, currentUserData?.role || 'user');
-
-    await loadUsdRate();
-
-    if (user) {
-      loadUserOrders(user.uid);
-    } else {
+    // ── No user → show empty state (fast path) ──
+    if (!user) {
+      updateNavbarAuth(null, null);
+      // Still need usdRate for pricing preview — fire in background
+      loadUsdRate();
       renderNoOrder();
+      return;
     }
+
+    // ── Show navbar instantly using cached user info ──
+    const cached = getCachedUser?.();
+    if (cached && cached.uid === user.uid) {
+      updateNavbarAuth(user, cached.displayName, cached.role);
+    } else {
+      updateNavbarAuth(user, user.displayName || user.email?.split('@')[0] || null, 'user');
+    }
+
+    // ── ⚡ PARALLEL: fetch orders + user doc + usdRate all at once ──
+    const [ordersRes, userRes, rateRes] = await Promise.allSettled([
+      getDocs(query(collection(db, 'orders'), where('userId', '==', user.uid))),
+      getDoc(doc(db, 'users', user.uid)),
+      loadUsdRate()
+    ]);
+
+    // ── User doc → update navbar (name + role) ──
+    if (userRes.status === 'fulfilled' && userRes.value.exists()) {
+      currentUserData = userRes.value.data();
+      updateNavbarAuth(
+        user,
+        currentUserData.displayName || user.email?.split('@')[0] || null,
+        currentUserData.role || 'user'
+      );
+    }
+
+    // ── usdRate (from cache or Firestore) ──
+    if (rateRes.status === 'fulfilled' && Number(rateRes.value) > 0) {
+      usdRate = Number(rateRes.value);
+    }
+
+    // ── Orders → determine state ──
+    if (ordersRes.status !== 'fulfilled') {
+      console.warn('[mainta] orders fetch failed:', ordersRes.reason);
+      renderNoOrder();
+      return;
+    }
+
+    allUserOrders = [];
+    ordersRes.value.forEach(d => allUserOrders.push({ id: d.id, ...d.data() }));
+    allUserOrders.sort((a, b) => {
+      const ta = a.createdAt?.toDate?.()?.getTime() || 0;
+      const tb = b.createdAt?.toDate?.()?.getTime() || 0;
+      return tb - ta;
+    });
+
+    const completed = allUserOrders.filter(o => {
+      const s = String(o.status || '').toLowerCase();
+      return s === 'completed' || s === 'active';
+    });
+
+    if (completed.length === 0) {
+      qualifiedOrder = null;
+      maintenanceContext = null;
+      renderNoOrder();
+      return;
+    }
+
+    qualifiedOrder = completed[0];
+    maintenanceContext = computeMaintenanceContext(qualifiedOrder);
+    renderDashboard(qualifiedOrder);
+
+    // ── Attach live listener for real-time updates ──
+    if (unsubOrders) { try { unsubOrders(); } catch(_) {} unsubOrders = null; }
+    unsubOrders = onSnapshot(doc(db, 'orders', qualifiedOrder.id), (s) => {
+      if (!s.exists()) return;
+      qualifiedOrder = { id: s.id, ...s.data() };
+      maintenanceContext = computeMaintenanceContext(qualifiedOrder);
+      const savedTab = currentTab;
+      renderDashboard(qualifiedOrder);
+      setTimeout(() => {
+        const tabEl = document.querySelector(`.maint-tab[data-tab="${savedTab}"]`);
+        if (tabEl) tabEl.click();
+      }, 10);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════
@@ -1746,7 +1792,7 @@
     if (unsubOrders) { try { unsubOrders(); } catch (_) {} }
   });
 
-  console.log('🛠️ mainta.html loaded — maintenance dashboard ready.');
+  console.log('⚡ mainta.html loaded — parallel fetch + cached usdRate + spinner loading.');
 </script>
 </body>
 </html>
