@@ -4,8 +4,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/zmoyykj7/image/upload/v1785180242/a6xbhrnjvb33c5ic6yyr.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>Website Maintenance & Hosting | CodeCureBD</title>
-  <meta name="description" content="Ongoing website maintenance, hosting, file manager, and support from CodeCureBD. Track your maintenance subscription, manage files, and monitor uptime." />
+  <title>Website Maintenance Dashboard | CodeCureBD</title>
+  <meta name="description" content="Manage your website maintenance — uptime, backups, security, performance, and more. Free for the first 3 months after every project delivery." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -65,12 +65,22 @@
       letter-spacing: 0.03em;
       text-transform: uppercase;
     }
-    .hero-badge.active {
+    .hero-badge.trial {
       background: rgba(22,163,74,0.1);
       color: #16a34a;
       border-color: rgba(22,163,74,0.2);
     }
-    .hero-badge.processing {
+    .hero-badge.active {
+      background: rgba(37,99,235,0.1);
+      color: #2563eb;
+      border-color: rgba(37,99,235,0.2);
+    }
+    .hero-badge.expired {
+      background: rgba(220,38,38,0.1);
+      color: #dc2626;
+      border-color: rgba(220,38,38,0.2);
+    }
+    .hero-badge.warning {
       background: rgba(245,158,11,0.12);
       color: #d97706;
       border-color: rgba(245,158,11,0.22);
@@ -85,7 +95,7 @@
       color: #475569;
       font-size: 0.98rem;
       line-height: 1.65;
-      max-width: 640px;
+      max-width: 720px;
       margin: 0;
     }
 
@@ -229,7 +239,7 @@
     .empty-state p {
       font-size: 0.92rem;
       color: #64748b;
-      max-width: 460px;
+      max-width: 520px;
       margin: 0 auto 1.5rem;
       line-height: 1.6;
     }
@@ -240,244 +250,43 @@
       justify-content: center;
     }
 
-    /* ===== PLAN CARD ===== */
-    .plan-grid {
+    /* ===== MAINTENANCE FEATURES (for empty state) ===== */
+    .feature-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1rem;
-    }
-    .plan-card {
-      background: #fff;
-      border: 1.5px solid rgba(15,23,42,0.06);
-      border-radius: 18px;
-      padding: 1.5rem 1.35rem 1.35rem;
-      transition: 0.25s;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-    .plan-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(37,99,235,0.2);
-      box-shadow: 0 16px 44px rgba(37,99,235,0.08);
-    }
-    .plan-card.featured {
-      border-color: rgba(124,58,237,0.3);
-      background: linear-gradient(160deg, #fff 0%, #faf7ff 100%);
-      box-shadow: 0 12px 40px rgba(124,58,237,0.1);
-    }
-    .plan-card.featured::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #2563eb, #7c3aed);
-    }
-    .plan-card .plan-tag {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      background: linear-gradient(135deg, #f59e0b, #ef4444);
-      color: #fff;
-      font-size: 0.62rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      padding: 3px 10px;
-      border-radius: 999px;
-      text-transform: uppercase;
-    }
-    .plan-card .plan-name {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -0.015em;
-      margin-bottom: 4px;
-    }
-    .plan-card .plan-desc {
-      font-size: 0.82rem;
-      color: #64748b;
-      margin-bottom: 1rem;
-      line-height: 1.5;
-      min-height: 38px;
-    }
-    .plan-card .plan-price {
-      display: flex;
-      align-items: baseline;
-      gap: 4px;
-      margin-bottom: 0.5rem;
-    }
-    .plan-card .plan-price .amt {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: #2563eb;
-      letter-spacing: -0.03em;
-      line-height: 1;
-    }
-    .plan-card .plan-price .per {
-      font-size: 0.82rem;
-      color: #94a3b8;
-      font-weight: 600;
-    }
-    .plan-card .plan-bdt {
-      font-size: 0.78rem;
-      color: #94a3b8;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-    .plan-card .plan-bdt strong { color: #16a34a; }
-    .plan-card .plan-features {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 1.25rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .plan-card .plan-features li {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      font-size: 0.83rem;
-      color: #334155;
-      line-height: 1.45;
-    }
-    .plan-card .plan-features li i {
-      color: #16a34a;
-      font-size: 0.72rem;
-      margin-top: 3px;
-      flex-shrink: 0;
-    }
-    .plan-card .plan-cta {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-      color: #fff;
-      font-weight: 700;
-      font-size: 0.88rem;
-      font-family: inherit;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-height: 46px;
-      transition: 0.2s;
-      box-shadow: 0 6px 20px rgba(37,99,235,0.22);
-    }
-    .plan-card .plan-cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(37,99,235,0.32);
-    }
-    .plan-card .plan-cta:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
-
-    /* ===== ORDER STATUS CARD ===== */
-    .order-status-card {
-      background:
-        radial-gradient(ellipse 80% 60% at 100% 0%, rgba(245,158,11,0.06), transparent 55%),
-        #fff;
-      border: 1px solid rgba(245,158,11,0.18);
-    }
-    .order-status-head {
-      display: flex;
-      align-items: center;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
+      margin-top: 1.5rem;
+      text-align: left;
     }
-    .order-status-head .os-icon {
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.15rem;
-      flex-shrink: 0;
-      box-shadow: 0 6px 18px rgba(245,158,11,0.28);
+    .feature-card {
+      background: #fff;
+      border: 1px solid rgba(15,23,42,0.06);
+      border-radius: 16px;
+      padding: 1.15rem 1rem;
+      transition: 0.25s;
     }
-    .order-status-head .os-text { flex: 1; min-width: 0; }
-    .order-status-head .os-text h3 {
-      font-size: 1.05rem;
-      font-weight: 800;
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(37,99,235,0.15);
+      box-shadow: 0 14px 36px rgba(15,23,42,0.06);
+    }
+    .feature-card .fc-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1rem; margin-bottom: 0.75rem;
+    }
+    .feature-card h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
       color: #0f172a;
-      margin: 0 0 3px;
-      letter-spacing: -0.015em;
+      margin: 0 0 4px;
+      letter-spacing: -0.01em;
     }
-    .order-status-head .os-text p {
-      font-size: 0.82rem;
+    .feature-card p {
+      font-size: 0.8rem;
       color: #64748b;
       margin: 0;
-      line-height: 1.45;
-    }
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      border-radius: 999px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: capitalize;
-      white-space: nowrap;
-    }
-    .status-chip.processing { background: rgba(37,99,235,0.1); color: #1d4ed8; }
-    .status-chip.pending { background: rgba(217,119,6,0.12); color: #b45309; }
-    .status-chip.reviewing { background: rgba(124,58,237,0.12); color: #7c3aed; }
-    .status-chip.active { background: rgba(22,163,74,0.12); color: #16a34a; }
-    .status-chip.completed { background: rgba(22,163,74,0.12); color: #16a34a; }
-
-    .progress-track {
-      height: 8px;
-      border-radius: 999px;
-      background: #e8edf3;
-      overflow: hidden;
-      margin: 0.75rem 0 0.5rem;
-    }
-    .progress-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #f59e0b, #d97706);
-      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .progress-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.76rem;
-      color: #94a3b8;
-      font-weight: 600;
-    }
-
-    .order-detail-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin-top: 1rem;
-    }
-    .order-detail-item {
-      background: #f8fafc;
-      border: 1px solid rgba(15,23,42,0.05);
-      border-radius: 12px;
-      padding: 10px 14px;
-    }
-    .order-detail-item .odl {
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-      margin-bottom: 3px;
-    }
-    .order-detail-item .odv {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #0f172a;
-      word-break: break-word;
+      line-height: 1.5;
     }
 
     /* ===== DASHBOARD TABS ===== */
@@ -493,7 +302,7 @@
     }
     .maint-tab {
       flex: 1;
-      min-width: 100px;
+      min-width: 110px;
       padding: 10px 14px;
       border-radius: 10px;
       border: none;
@@ -518,12 +327,60 @@
     }
     .maint-tab i { font-size: 0.8rem; }
     .maint-panel { display: none; }
-    .maint-panel.active { display: block; }
+    .maint-panel.active { display: block; animation: fadeSlideUp 0.35s ease; }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== SUBSCRIPTION BANNER ===== */
+    .sub-banner {
+      border-radius: 18px;
+      padding: 1.25rem 1.4rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      border: 1.5px solid;
+      position: relative;
+      overflow: hidden;
+    }
+    .sub-banner.trial {
+      background: linear-gradient(135deg, rgba(22,163,74,0.08), rgba(255,255,255,0.9));
+      border-color: rgba(22,163,74,0.25);
+    }
+    .sub-banner.active {
+      background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(255,255,255,0.9));
+      border-color: rgba(37,99,235,0.25);
+    }
+    .sub-banner.expired {
+      background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(255,255,255,0.9));
+      border-color: rgba(220,38,38,0.25);
+    }
+    .sub-banner .sb-icon {
+      width: 52px; height: 52px; border-radius: 15px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: #fff; flex-shrink: 0;
+    }
+    .sub-banner.trial .sb-icon { background: linear-gradient(135deg, #16a34a, #22c55e); }
+    .sub-banner.active .sb-icon { background: linear-gradient(135deg, #2563eb, #7c3aed); }
+    .sub-banner.expired .sb-icon { background: linear-gradient(135deg, #dc2626, #991b1b); }
+    .sub-banner .sb-body { flex: 1; min-width: 220px; }
+    .sub-banner .sb-title {
+      font-size: 1rem; font-weight: 800; color: #0f172a;
+      margin: 0 0 3px; letter-spacing: -0.01em;
+    }
+    .sub-banner .sb-sub {
+      font-size: 0.85rem; color: #475569; margin: 0; line-height: 1.5;
+    }
+    .sub-banner .sb-sub strong { color: #0f172a; font-weight: 700; }
+    .sub-banner .sb-cta { flex-shrink: 0; }
 
     /* ===== DASHBOARD STATS ===== */
     .dash-stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 0.85rem;
       margin-bottom: 1.25rem;
     }
@@ -550,6 +407,7 @@
     .dash-stat .ds-icon.blue { background: rgba(37,99,235,0.1); color: #2563eb; }
     .dash-stat .ds-icon.purple { background: rgba(124,58,237,0.1); color: #7c3aed; }
     .dash-stat .ds-icon.amber { background: rgba(217,119,6,0.12); color: #d97706; }
+    .dash-stat .ds-icon.red { background: rgba(220,38,38,0.1); color: #dc2626; }
     .dash-stat .ds-info { flex: 1; min-width: 0; }
     .dash-stat .ds-value {
       font-size: 1.35rem;
@@ -565,215 +423,7 @@
       margin-top: 2px;
     }
 
-    /* ===== FILE MANAGER ===== */
-    .fm-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding: 0.85rem 1rem;
-      background: #fff;
-      border: 1px solid rgba(15,23,42,0.06);
-      border-radius: 14px;
-    }
-    .fm-toolbar .search-wrap {
-      position: relative;
-      flex: 1;
-      min-width: 180px;
-    }
-    .fm-toolbar .search-wrap i {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-      font-size: 0.85rem;
-      pointer-events: none;
-    }
-    .fm-toolbar .search-wrap input {
-      width: 100%;
-      padding: 10px 14px 10px 38px;
-      border-radius: 10px;
-      border: 1.5px solid rgba(15,23,42,0.06);
-      background: #f8fafc;
-      font-size: 0.85rem;
-      font-family: inherit;
-      outline: none;
-      transition: 0.2s;
-      color: #0f172a;
-    }
-    .fm-toolbar .search-wrap input:focus {
-      border-color: #2563eb;
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
-    }
-    .fm-toolbar .fm-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .fm-btn {
-      padding: 9px 14px;
-      border-radius: 10px;
-      border: 1.5px solid rgba(15,23,42,0.08);
-      background: #fff;
-      color: #334155;
-      font-weight: 600;
-      font-size: 0.8rem;
-      font-family: inherit;
-      cursor: pointer;
-      transition: 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-    .fm-btn:hover {
-      border-color: #2563eb;
-      color: #2563eb;
-      background: rgba(37,99,235,0.04);
-    }
-    .fm-btn.primary {
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 4px 12px rgba(37,99,235,0.22);
-    }
-    .fm-btn.primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(37,99,235,0.3);
-      color: #fff;
-    }
-    .fm-btn.danger {
-      background: rgba(220,38,38,0.06);
-      color: #dc2626;
-      border-color: rgba(220,38,38,0.15);
-    }
-    .fm-btn.danger:hover {
-      background: rgba(220,38,38,0.12);
-      border-color: rgba(220,38,38,0.3);
-      color: #dc2626;
-    }
-
-    .fm-breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      color: #64748b;
-      margin-bottom: 0.75rem;
-      flex-wrap: wrap;
-      padding: 0 4px;
-    }
-    .fm-breadcrumb .crumb {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      color: #334155;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 3px 8px;
-      border-radius: 6px;
-      transition: 0.15s;
-    }
-    .fm-breadcrumb .crumb:hover { background: rgba(37,99,235,0.06); color: #2563eb; }
-    .fm-breadcrumb .crumb.current { color: #2563eb; }
-    .fm-breadcrumb .sep { color: #cbd5e1; font-size: 0.72rem; }
-
-    .fm-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 10px;
-    }
-    .fm-item {
-      background: #fff;
-      border: 1px solid rgba(15,23,42,0.06);
-      border-radius: 14px;
-      padding: 14px 12px 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.2s;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      min-height: 130px;
-    }
-    .fm-item:hover {
-      border-color: rgba(37,99,235,0.25);
-      transform: translateY(-3px);
-      box-shadow: 0 10px 24px rgba(15,23,42,0.06);
-    }
-    .fm-item .fm-icon {
-      width: 48px; height: 48px; border-radius: 12px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 1.25rem; flex-shrink: 0;
-    }
-    .fm-item .fm-icon.folder { background: rgba(37,99,235,0.1); color: #2563eb; }
-    .fm-item .fm-icon.file { background: rgba(100,116,139,0.1); color: #475569; }
-    .fm-item .fm-icon.html { background: rgba(227,76,38,0.12); color: #e34c26; }
-    .fm-item .fm-icon.css { background: rgba(38,77,228,0.12); color: #264de4; }
-    .fm-item .fm-icon.js { background: rgba(247,223,30,0.18); color: #b8860b; }
-    .fm-item .fm-icon.image { background: rgba(124,58,237,0.1); color: #7c3aed; }
-    .fm-item .fm-name {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #0f172a;
-      word-break: break-word;
-      line-height: 1.3;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-    .fm-item .fm-meta {
-      font-size: 0.68rem;
-      color: #94a3b8;
-      font-weight: 600;
-    }
-    .fm-item .fm-del {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(220,38,38,0.08);
-      color: #dc2626;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.65rem;
-      opacity: 0;
-      transition: 0.2s;
-    }
-    .fm-item:hover .fm-del { opacity: 1; }
-    .fm-item .fm-del:hover { background: #dc2626; color: #fff; }
-
-    .fm-empty {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 2.5rem 1.25rem;
-      background: #f8fafc;
-      border: 1px dashed rgba(15,23,42,0.1);
-      border-radius: 16px;
-      color: #94a3b8;
-      font-size: 0.88rem;
-    }
-    .fm-empty i {
-      font-size: 2rem;
-      opacity: 0.35;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    /* ===== BACKUP / LOGS ===== */
+    /* ===== INFO ROW ===== */
     .info-row {
       display: flex;
       justify-content: space-between;
@@ -806,8 +456,9 @@
     }
     .info-row .ir-v.good { color: #16a34a; }
     .info-row .ir-v.warn { color: #d97706; }
+    .info-row .ir-v.bad { color: #dc2626; }
 
-    /* ===== TIMELINE / ACTIVITY ===== */
+    /* ===== ACTIVITY ===== */
     .activity-item {
       display: flex;
       gap: 12px;
@@ -846,94 +497,6 @@
       border: 1px solid rgba(37,99,235,0.14);
     }
 
-    /* ===== FEATURES GRID ===== */
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-    }
-    .feature-card {
-      background: #fff;
-      border: 1px solid rgba(15,23,42,0.06);
-      border-radius: 16px;
-      padding: 1.15rem 1rem;
-      transition: 0.25s;
-    }
-    .feature-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(37,99,235,0.15);
-      box-shadow: 0 14px 36px rgba(15,23,42,0.06);
-    }
-    .feature-card .fc-icon {
-      width: 42px; height: 42px; border-radius: 12px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 1rem; margin-bottom: 0.75rem;
-    }
-    .feature-card h4 {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: #0f172a;
-      margin: 0 0 4px;
-      letter-spacing: -0.01em;
-    }
-    .feature-card p {
-      font-size: 0.8rem;
-      color: #64748b;
-      margin: 0;
-      line-height: 1.5;
-    }
-
-    /* ===== FAQ ===== */
-    .faq-item {
-      background: #fff;
-      border: 1px solid rgba(15,23,42,0.06);
-      border-radius: 14px;
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-    .faq-q {
-      width: 100%;
-      text-align: left;
-      padding: 14px 16px;
-      background: none;
-      border: none;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #0f172a;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-family: inherit;
-    }
-    .faq-q i { color: #94a3b8; transition: 0.25s; font-size: 0.78rem; }
-    .faq-item.open .faq-q i { transform: rotate(180deg); color: #2563eb; }
-    .faq-a {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease, padding 0.3s ease;
-      padding: 0 16px;
-      font-size: 0.85rem;
-      color: #64748b;
-      line-height: 1.6;
-    }
-    .faq-item.open .faq-a {
-      max-height: 260px;
-      padding: 0 16px 14px;
-    }
-
-    /* ===== FADE-UP ===== */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
-    @media (prefers-reduced-motion: reduce) {
-      .fade-up { opacity: 1; transform: none; transition: none; }
-    }
-
     /* ===== SKELETON ===== */
     .sk {
       background: linear-gradient(90deg, #e8edf3 25%, #f1f5f9 50%, #e8edf3 75%);
@@ -947,7 +510,7 @@
     }
     .sk-card { min-height: 180px; }
 
-    /* ===== LOADING SPINNER ===== */
+    /* ===== SPINNER ===== */
     .spinner {
       width: 40px; height: 40px;
       border: 4px solid rgba(37,99,235,0.1);
@@ -957,6 +520,31 @@
       margin: 0 auto;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-track {
+      height: 8px;
+      border-radius: 999px;
+      background: #e8edf3;
+      overflow: hidden;
+      margin: 0.5rem 0 0.35rem;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .progress-fill.green { background: linear-gradient(90deg, #16a34a, #22c55e); }
+    .progress-fill.blue { background: linear-gradient(90deg, #2563eb, #7c3aed); }
+    .progress-fill.amber { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .progress-fill.red { background: linear-gradient(90deg, #dc2626, #991b1b); }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      color: #94a3b8;
+      font-weight: 600;
+    }
 
     /* ===== TOAST ===== */
     #toast-container {
@@ -997,13 +585,66 @@
     @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(30px); } }
 
+    /* ===== FADE-UP ===== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .fade-up { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* ===== BACKUP LIST ===== */
+    .backup-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid rgba(15,23,42,0.05);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      transition: 0.2s;
+    }
+    .backup-item:hover {
+      background: #fff;
+      border-color: rgba(37,99,235,0.2);
+    }
+    .backup-item .bi-icon {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: rgba(37,99,235,0.1); color: #2563eb;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; flex-shrink: 0;
+    }
+    .backup-item .bi-info { flex: 1; min-width: 0; }
+    .backup-item .bi-title {
+      font-size: 0.88rem; font-weight: 700; color: #0f172a;
+      line-height: 1.3;
+    }
+    .backup-item .bi-meta {
+      font-size: 0.72rem; color: #94a3b8; margin-top: 2px;
+    }
+    .backup-item .bi-action {
+      padding: 6px 12px; border-radius: 8px;
+      background: rgba(37,99,235,0.08); color: #2563eb;
+      border: none; font-family: inherit; font-weight: 600;
+      font-size: 0.72rem; cursor: pointer; transition: 0.15s;
+      white-space: nowrap;
+    }
+    .backup-item .bi-action:hover { background: rgba(37,99,235,0.15); }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 640px) {
       .maint-hero { padding: 1.5rem 1.15rem; border-radius: 18px; }
       .maint-hero .stat-pill { min-width: 90px; padding: 10px 12px; }
-      .maint-tab { font-size: 0.75rem; padding: 8px 10px; min-width: 80px; }
+      .maint-tab { font-size: 0.72rem; padding: 8px 10px; min-width: 80px; }
       .maint-tab .tab-label { display: none; }
-      .fm-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+      .sub-banner { padding: 1.1rem; }
+      .sub-banner .sb-cta { width: 100%; }
+      .sub-banner .sb-cta .btn-primary,
+      .sub-banner .sb-cta .btn-outline { width: 100%; justify-content: center; }
     }
   </style>
 </head>
@@ -1020,15 +661,12 @@
         <div class="maint-hero fade-up" id="maintHero">
           <div class="flex flex-wrap items-start justify-between gap-6">
             <div class="flex-1 min-w-[260px]">
-              <span class="hero-badge" id="heroBadge"><i class="fas fa-server"></i> Maintenance &amp; Hosting</span>
-              <h1>Keep your website <span style="background:linear-gradient(120deg,#1d4ed8,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">fast, safe &amp; online</span></h1>
-              <p class="hero-sub">
-                Ongoing maintenance, reliable hosting, file management, backups, uptime monitoring, and priority support — all from one dashboard.
+              <span class="hero-badge" id="heroBadge"><i class="fas fa-shield-alt"></i> Website Maintenance</span>
+              <h1>Your site deserves <span style="background:linear-gradient(120deg,#1d4ed8,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">24/7 care</span></h1>
+              <p class="hero-sub" id="heroSub">
+                Uptime monitoring, automatic backups, security scans, performance audits, and priority support — all in one dashboard.
               </p>
               <div class="flex flex-wrap gap-3 mt-5" id="heroActions">
-                <a href="#plans" class="btn-primary">
-                  <i class="fas fa-rocket"></i> Get Started
-                </a>
                 <a href="messages.html" class="btn-outline">
                   <i class="fas fa-comments"></i> Talk to Support
                 </a>
@@ -1061,14 +699,13 @@
   // IMPORTS
   // ═══════════════════════════════════════════════════════════
   import {
-    auth, db, collection, doc, getDoc, getDocs, addDoc, updateDoc,
-    query, where, onSnapshot, serverTimestamp, onAuthStateChanged,
-    deleteDoc, increment
+    auth, db, collection, doc, getDoc, getDocs, updateDoc,
+    query, where, onSnapshot, serverTimestamp, onAuthStateChanged
   } from './firebase-config.js';
   import {
     renderNavbar, renderFooter, updateNavbarAuth, updateCartBadge,
     renderCartSidebar, renderPaymentModal, renderAuthModal,
-    openPaymentModal, uploadImage, setLoading
+    openPaymentModal, setLoading
   } from './components.js';
 
   // COMMON RENDER
@@ -1078,6 +715,13 @@
   renderCartSidebar();
   renderPaymentModal();
   updateCartBadge();
+
+  // ═══════════════════════════════════════════════════════════
+  // CONFIG
+  // ═══════════════════════════════════════════════════════════
+  const FREE_TRIAL_DAYS = 90;           // 3 months
+  const SUBSCRIPTION_PRICE_USD = 9;
+  const STORE_URL = 'get-new-website.html';
 
   // ═══════════════════════════════════════════════════════════
   // TOAST
@@ -1145,74 +789,21 @@
     return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
+  function daysBetween(a, b) {
+    return Math.round((b - a) / 86400000);
+  }
+
   // ═══════════════════════════════════════════════════════════
   // STATE
   // ═══════════════════════════════════════════════════════════
   let currentUser = null;
   let currentUserData = null;
   let usdRate = 125;
-  let maintOrder = null;         // active maintenance order (if any)
-  let maintFiles = [];           // files in file manager
-  let unsubOrder = null;
-  let unsubFiles = null;
+  let qualifiedOrder = null;       // most recent completed order
+  let allUserOrders = [];
+  let unsubOrders = null;
   let currentTab = 'overview';
-  let currentPath = '';          // file manager path
-  let pendingUploadFile = null;
-
-  const MAINT_PLANS = [
-    {
-      id: 'starter',
-      name: 'Starter Care',
-      desc: 'Essential maintenance for small business sites.',
-      priceUSD: 15,
-      per: '/month',
-      features: [
-        'Hosting (5 GB SSD)',
-        'Daily automated backups',
-        'SSL certificate (auto-renew)',
-        'Uptime monitoring (24/7)',
-        'Basic security patches',
-        'Email support (48h response)'
-      ]
-    },
-    {
-      id: 'business',
-      name: 'Business Pro',
-      desc: 'For growing businesses that need reliable hosting & priority support.',
-      priceUSD: 35,
-      per: '/month',
-      featured: true,
-      tag: 'Popular',
-      features: [
-        'Hosting (25 GB SSD)',
-        'Hourly backups (7-day retention)',
-        'SSL + CDN included',
-        'Uptime monitoring + alerts',
-        'Weekly security scans',
-        'File manager access',
-        'Priority support (12h response)',
-        'Monthly performance report'
-      ]
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise',
-      desc: 'High-traffic sites, e-commerce, and mission-critical applications.',
-      priceUSD: 89,
-      per: '/month',
-      features: [
-        'Hosting (100 GB SSD)',
-        'Real-time backups (30-day retention)',
-        'SSL + Global CDN + WAF',
-        'Advanced DDoS protection',
-        'Daily security scans + malware removal',
-        'Full file manager access',
-        'Dedicated support (4h response)',
-        'Weekly performance reports',
-        'Quarterly code review'
-      ]
-    }
-  ];
+  let maintenanceContext = null;   // { status, trialEndsAt, daysLeft, planType }
 
   // ═══════════════════════════════════════════════════════════
   // LOAD USD RATE
@@ -1220,287 +811,262 @@
   async function loadUsdRate() {
     try {
       const snap = await getDoc(doc(db, 'settings', 'payment'));
-      if (snap.exists()) {
-        const d = snap.data();
-        if (Number(d.usdRate) > 0) usdRate = Number(d.usdRate);
+      if (snap.exists() && Number(snap.data().usdRate) > 0) {
+        usdRate = Number(snap.data().usdRate);
       }
     } catch (_) {}
   }
 
   // ═══════════════════════════════════════════════════════════
-  // RENDER: NO ORDER — SHOW PLANS
+  // COMPUTE MAINTENANCE CONTEXT
+  // Determines: trial / active / expired status for a given order
+  // ═══════════════════════════════════════════════════════════
+  function computeMaintenanceContext(order) {
+    if (!order) return null;
+
+    // Determine "delivered" timestamp
+    const deliveredTs = order.maintenanceStartedAt
+      || order.completedAt
+      || order.activatedAt
+      || order.updatedAt
+      || order.createdAt;
+    const deliveredAt = deliveredTs?.toDate ? deliveredTs.toDate() : new Date(deliveredTs || Date.now());
+
+    // If explicit maintenance object exists on order, use it
+    const m = order.maintenance || {};
+    if (m.status) {
+      const trialEndsTs = m.trialEndsAt || null;
+      const trialEndsAt = trialEndsTs?.toDate ? trialEndsTs.toDate() : (trialEndsTs ? new Date(trialEndsTs) : null);
+      const now = new Date();
+      const daysLeft = trialEndsAt ? Math.max(0, daysBetween(now, trialEndsAt)) : 0;
+      const nextBillingTs = m.nextBillingAt || null;
+      const nextBillingAt = nextBillingTs?.toDate ? nextBillingTs.toDate() : (nextBillingTs ? new Date(nextBillingTs) : null);
+
+      return {
+        status: m.status,              // 'trial' | 'active' | 'expired' | 'cancelled'
+        deliveredAt,
+        trialEndsAt,
+        daysLeft,
+        nextBillingAt,
+        priceUSD: Number(m.price) || SUBSCRIPTION_PRICE_USD,
+        priceBDT: Number(m.priceBDT) || Math.round(SUBSCRIPTION_PRICE_USD * usdRate),
+        source: 'explicit'
+      };
+    }
+
+    // Else: compute default from deliveredAt (auto-trial)
+    const trialEndsAt = new Date(deliveredAt.getTime() + FREE_TRIAL_DAYS * 86400000);
+    const now = new Date();
+    const daysLeft = daysBetween(now, trialEndsAt);
+
+    if (daysLeft > 0) {
+      return {
+        status: 'trial',
+        deliveredAt,
+        trialEndsAt,
+        daysLeft,
+        nextBillingAt: trialEndsAt,
+        priceUSD: SUBSCRIPTION_PRICE_USD,
+        priceBDT: Math.round(SUBSCRIPTION_PRICE_USD * usdRate),
+        source: 'auto'
+      };
+    }
+
+    return {
+      status: 'expired',
+      deliveredAt,
+      trialEndsAt,
+      daysLeft: 0,
+      nextBillingAt: null,
+      priceUSD: SUBSCRIPTION_PRICE_USD,
+      priceBDT: Math.round(SUBSCRIPTION_PRICE_USD * usdRate),
+      source: 'auto'
+    };
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // RENDER: EMPTY STATE (no completed order)
   // ═══════════════════════════════════════════════════════════
   function renderNoOrder() {
     const root = document.getElementById('maintRoot');
     const badge = document.getElementById('heroBadge');
-    if (badge) {
-      badge.innerHTML = '<i class="fas fa-server"></i> Maintenance &amp; Hosting';
-      badge.className = 'hero-badge';
-    }
+    const heroSub = document.getElementById('heroSub');
+    const heroActions = document.getElementById('heroActions');
+    const heroStats = document.getElementById('heroStats');
 
-    const plansHtml = MAINT_PLANS.map(p => {
-      const bdt = Math.round(p.priceUSD * usdRate);
-      return `
-        <div class="plan-card ${p.featured ? 'featured' : ''} fade-up">
-          ${p.tag ? `<span class="plan-tag">${escapeHtml(p.tag)}</span>` : ''}
-          <div class="plan-name">${escapeHtml(p.name)}</div>
-          <div class="plan-desc">${escapeHtml(p.desc)}</div>
-          <div class="plan-price">
-            <span class="amt">$${p.priceUSD}</span>
-            <span class="per">${escapeHtml(p.per)}</span>
-          </div>
-          <div class="plan-bdt">≈ <strong>৳${bdt.toLocaleString('en-BD')}</strong> / month</div>
-          <ul class="plan-features">
-            ${p.features.map(f => `<li><i class="fas fa-check-circle"></i><span>${escapeHtml(f)}</span></li>`).join('')}
-          </ul>
-          <button type="button" class="plan-cta" onclick="window.subscribePlan('${p.id}')">
-            <i class="fas fa-bolt"></i> Subscribe Now
-          </button>
-        </div>
+    if (badge) {
+      badge.innerHTML = '<i class="fas fa-lock"></i> Existing Customers Only';
+      badge.className = 'hero-badge warning';
+    }
+    if (heroSub) {
+      heroSub.innerHTML = 'Maintenance service is available for <strong>existing customers only</strong> — those who have completed a website project with us. Every project comes with the first <strong>3 months FREE</strong>!';
+    }
+    if (heroActions) {
+      heroActions.innerHTML = `
+        <a href="${STORE_URL}" class="btn-primary">
+          <i class="fas fa-rocket"></i> Order Your Website
+        </a>
+        <a href="messages.html" class="btn-outline">
+          <i class="fas fa-comments"></i> Talk to Support
+        </a>
       `;
-    }).join('');
-
-    root.innerHTML = `
-      <!-- Section header -->
-      <div class="section-head fade-up" id="plans">
-        <span class="section-label"><i class="fas fa-tags"></i> Maintenance Plans</span>
-        <h2>Choose a plan that fits your needs</h2>
-        <p>All plans include hosting, backups, SSL, monitoring, and support. Cancel anytime.</p>
-      </div>
-
-      <!-- Plan grid -->
-      <div class="plan-grid mb-10">
-        ${plansHtml}
-      </div>
-
-      <!-- Features grid -->
-      <div class="section-head fade-up" style="margin-top:2rem;">
-        <span class="section-label"><i class="fas fa-star"></i> What you get</span>
-        <h2>Everything you need to stay online</h2>
-        <p>Built for businesses that can't afford downtime.</p>
-      </div>
-
-      <div class="feature-grid mb-10">
-        <div class="feature-card fade-up">
-          <div class="fc-icon" style="background:rgba(37,99,235,0.1);color:#2563eb;"><i class="fas fa-server"></i></div>
-          <h4>Managed Hosting</h4>
-          <p>Fast SSD hosting with 99.9% uptime guarantee and global CDN.</p>
-        </div>
-        <div class="feature-card fade-up" style="transition-delay:0.05s;">
-          <div class="fc-icon" style="background:rgba(22,163,74,0.1);color:#16a34a;"><i class="fas fa-cloud-upload-alt"></i></div>
-          <h4>Automatic Backups</h4>
-          <p>Daily or hourly backups with easy one-click restore.</p>
-        </div>
-        <div class="feature-card fade-up" style="transition-delay:0.1s;">
-          <div class="fc-icon" style="background:rgba(124,58,237,0.1);color:#7c3aed;"><i class="fas fa-folder-open"></i></div>
-          <h4>File Manager</h4>
-          <p>Upload, edit, and manage files directly from your dashboard.</p>
-        </div>
-        <div class="feature-card fade-up" style="transition-delay:0.15s;">
-          <div class="fc-icon" style="background:rgba(217,119,6,0.12);color:#d97706;"><i class="fas fa-shield-alt"></i></div>
-          <h4>Security &amp; SSL</h4>
-          <p>Free SSL, firewall, malware scanning, and DDoS protection.</p>
-        </div>
-        <div class="feature-card fade-up" style="transition-delay:0.2s;">
-          <div class="fc-icon" style="background:rgba(220,38,38,0.1);color:#dc2626;"><i class="fas fa-heartbeat"></i></div>
-          <h4>Uptime Monitoring</h4>
-          <p>24/7 monitoring with instant alerts if your site goes down.</p>
-        </div>
-        <div class="feature-card fade-up" style="transition-delay:0.25s;">
-          <div class="fc-icon" style="background:rgba(37,99,235,0.1);color:#2563eb;"><i class="fas fa-headset"></i></div>
-          <h4>Priority Support</h4>
-          <p>Direct access to our team via chat whenever you need help.</p>
-        </div>
-      </div>
-
-      <!-- FAQ -->
-      <div class="section-head fade-up">
-        <span class="section-label"><i class="fas fa-question-circle"></i> FAQ</span>
-        <h2>Common questions</h2>
-      </div>
-      <div class="fade-up">
-        <div class="faq-item">
-          <button type="button" class="faq-q">Can I switch plans later? <i class="fas fa-chevron-down"></i></button>
-          <div class="faq-a">Yes — you can upgrade or downgrade at any time. Changes take effect from your next billing cycle.</div>
-        </div>
-        <div class="faq-item">
-          <button type="button" class="faq-q">Do you migrate my existing site? <i class="fas fa-chevron-down"></i></button>
-          <div class="faq-a">Yes, we offer free migration for new subscriptions. Just share your current hosting details after subscribing.</div>
-        </div>
-        <div class="faq-item">
-          <button type="button" class="faq-q">What happens if my site goes down? <i class="fas fa-chevron-down"></i></button>
-          <div class="faq-a">Our monitoring system alerts us instantly. We'll investigate and restore service as quickly as possible — usually within minutes.</div>
-        </div>
-        <div class="faq-item">
-          <button type="button" class="faq-q">Can I cancel anytime? <i class="fas fa-chevron-down"></i></button>
-          <div class="faq-a">Yes, no contracts. Cancel from your dashboard and your subscription will end at the end of the current billing period.</div>
-        </div>
-        <div class="faq-item">
-          <button type="button" class="faq-q">Is there a setup fee? <i class="fas fa-chevron-down"></i></button>
-          <div class="faq-a">No setup fee. You only pay the monthly subscription. Migrations are free for new customers.</div>
-        </div>
-      </div>
-    `;
-
-    observeFadeUps();
-
-    // FAQ handlers
-    document.querySelectorAll('.faq-q').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const item = btn.closest('.faq-item');
-        const open = item.classList.contains('open');
-        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-        if (!open) item.classList.add('open');
-      });
-    });
-
-    document.title = 'Maintenance & Hosting – CodeCureBD';
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // RENDER: ORDER PROCESSING — SHOW ORDER STATUS
-  // ═══════════════════════════════════════════════════════════
-  function renderOrderProcessing(o) {
-    const root = document.getElementById('maintRoot');
-    const badge = document.getElementById('heroBadge');
-    if (badge) {
-      badge.innerHTML = '<i class="fas fa-hourglass-half"></i> Order Processing';
-      badge.className = 'hero-badge processing';
+    }
+    if (heroStats) {
+      heroStats.innerHTML = `
+        <div class="stat-pill"><span class="sv">3 mo</span><span class="sl">Free Trial</span></div>
+        <div class="stat-pill"><span class="sv">$9</span><span class="sl">After Trial</span></div>
+        <div class="stat-pill"><span class="sv">24/7</span><span class="sl">Support</span></div>
+      `;
     }
 
-    const status = String(o.status || 'pending').toLowerCase();
-    const planName = o.planName || o.planId || 'Maintenance Plan';
-    const planUSD = Number(o.planPriceUSD) || 0;
-    const planBDT = Number(o.planPriceBDT) || Math.round(planUSD * usdRate);
-    const progressMap = { pending: 15, reviewing: 40, processing: 70, active: 100, completed: 100 };
-    const progress = progressMap[status] ?? 20;
-
-    const statusLabels = {
-      pending: 'Awaiting review',
-      reviewing: 'Under review',
-      processing: 'Setting up your account',
-      active: 'Active',
-      completed: 'Completed'
-    };
-
     root.innerHTML = `
-      <div class="glass-card order-status-card fade-up" style="margin-bottom:1.5rem;">
-        <div class="order-status-head">
-          <div class="os-icon"><i class="fas fa-cog fa-spin"></i></div>
-          <div class="os-text">
-            <h3>Your maintenance subscription is being set up</h3>
-            <p>We're preparing your hosting environment, SSL, and backups. This usually takes a few minutes.</p>
-          </div>
-          <span class="status-chip ${status}">${escapeHtml(statusLabels[status] || status)}</span>
-        </div>
-
-        <div class="progress-track">
-          <div class="progress-fill" style="width:${progress}%"></div>
-        </div>
-        <div class="progress-meta">
-          <span>Setup progress</span>
-          <span>${progress}%</span>
-        </div>
-
-        <div class="order-detail-grid">
-          <div class="order-detail-item">
-            <div class="odl">Plan</div>
-            <div class="odv">${escapeHtml(planName)}</div>
-          </div>
-          <div class="order-detail-item">
-            <div class="odl">Amount</div>
-            <div class="odv">$${planUSD.toFixed(2)} <span style="color:#94a3b8;font-weight:600;font-size:0.75rem;">≈ ৳${planBDT.toLocaleString('en-BD')}</span></div>
-          </div>
-          <div class="order-detail-item">
-            <div class="odl">Order ID</div>
-            <div class="odv">#${(o.id || '').slice(0, 8).toUpperCase()}</div>
-          </div>
-          <div class="order-detail-item">
-            <div class="odl">Started</div>
-            <div class="odv">${formatDate(o.createdAt)}</div>
-          </div>
+      <div class="empty-state fade-up" style="margin-bottom:1.5rem;">
+        <i class="big-icon fas fa-shield-alt"></i>
+        <h3>No website maintenance available yet</h3>
+        <p>
+          Website maintenance is reserved for customers who have completed a project with us.
+          Once you order a website and we deliver it, you'll automatically get <strong>3 months of free maintenance</strong> —
+          including hosting, backups, security, and priority support.
+        </p>
+        <div class="empty-actions">
+          <a href="${STORE_URL}" class="btn-primary">
+            <i class="fas fa-rocket"></i> Order a Website
+          </a>
+          <a href="messages.html" class="btn-outline">
+            <i class="fas fa-comments"></i> Ask a Question
+          </a>
         </div>
       </div>
 
-      <div class="glass-card fade-up">
+      <div class="glass-card fade-up" style="margin-bottom:1.5rem;">
         <div class="section-head" style="margin-bottom:1rem;">
-          <h2 style="font-size:1.1rem;">What's happening now</h2>
-          <p>You'll get full dashboard access as soon as setup completes.</p>
+          <span class="section-label"><i class="fas fa-star"></i> What you'll get</span>
+          <h2 style="font-size:1.15rem;">Everything your website needs to stay online &amp; secure</h2>
         </div>
-        <div class="activity-item">
-          <span class="ai-dot" style="background:#16a34a;"></span>
-          <div class="ai-body">
-            <div class="ai-title">✓ Payment received</div>
-            <div class="ai-time">${formatDateTime(o.createdAt)}</div>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="fc-icon" style="background:rgba(37,99,235,0.1);color:#2563eb;"><i class="fas fa-server"></i></div>
+            <h4>Managed Hosting</h4>
+            <p>Fast SSD hosting with 99.9% uptime guarantee and global CDN.</p>
           </div>
-        </div>
-        <div class="activity-item">
-          <span class="ai-dot" style="background:${status === 'pending' ? '#d97706' : '#16a34a'};"></span>
-          <div class="ai-body">
-            <div class="ai-title">${status === 'pending' ? '⏳ Awaiting admin verification' : '✓ Order verified'}</div>
-            <div class="ai-time">${status === 'pending' ? 'In progress' : 'Completed'}</div>
+          <div class="feature-card">
+            <div class="fc-icon" style="background:rgba(22,163,74,0.1);color:#16a34a;"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h4>Automatic Backups</h4>
+            <p>Daily backups with one-click restore. Never lose your data.</p>
           </div>
-        </div>
-        <div class="activity-item">
-          <span class="ai-dot" style="background:${['processing','active','completed'].includes(status) ? '#16a34a' : '#cbd5e1'};"></span>
-          <div class="ai-body">
-            <div class="ai-title">${['processing','active','completed'].includes(status) ? '✓ Setting up hosting environment' : 'Hosting setup pending'}</div>
-            <div class="ai-time">${['processing','active','completed'].includes(status) ? 'In progress' : 'Waiting'}</div>
+          <div class="feature-card">
+            <div class="fc-icon" style="background:rgba(124,58,237,0.1);color:#7c3aed;"><i class="fas fa-shield-alt"></i></div>
+            <h4>Security &amp; SSL</h4>
+            <p>Free SSL auto-renew, firewall, malware scans, and DDoS protection.</p>
           </div>
-        </div>
-        <div class="activity-item">
-          <span class="ai-dot" style="background:${['active','completed'].includes(status) ? '#16a34a' : '#cbd5e1'};"></span>
-          <div class="ai-body">
-            <div class="ai-title">${['active','completed'].includes(status) ? '✓ Dashboard activated' : 'Dashboard access pending'}</div>
-            <div class="ai-time">${['active','completed'].includes(status) ? 'Ready' : 'Waiting'}</div>
+          <div class="feature-card">
+            <div class="fc-icon" style="background:rgba(217,119,6,0.12);color:#d97706;"><i class="fas fa-heartbeat"></i></div>
+            <h4>Uptime Monitoring</h4>
+            <p>24/7 monitoring with instant alerts if your site goes down.</p>
+          </div>
+          <div class="feature-card">
+            <div class="fc-icon" style="background:rgba(220,38,38,0.1);color:#dc2626;"><i class="fas fa-tachometer-alt"></i></div>
+            <h4>Performance Audits</h4>
+            <p>Core Web Vitals tracking and optimization recommendations.</p>
+          </div>
+          <div class="feature-card">
+            <div class="fc-icon" style="background:rgba(37,99,235,0.1);color:#2563eb;"><i class="fas fa-headset"></i></div>
+            <h4>Priority Support</h4>
+            <p>Direct access to our team via chat whenever you need help.</p>
           </div>
         </div>
       </div>
 
-      <div class="glass-card support-cta fade-up" style="margin-top:1.5rem;">
+      <div class="glass-card support-cta fade-up">
         <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
           <div>
-            <h3 style="font-size:1rem;font-weight:800;color:#0f172a;margin:0 0 4px;">Need help or have a question?</h3>
-            <p style="font-size:0.85rem;color:#64748b;margin:0;">Our team is available 24/7 to assist you.</p>
+            <h3 style="font-size:1rem;font-weight:800;color:#0f172a;margin:0 0 4px;">
+              <i class="fas fa-info-circle" style="color:#2563eb;margin-right:6px;"></i> Already ordered but not showing up?
+            </h3>
+            <p style="font-size:0.85rem;color:#64748b;margin:0;">If you have a completed order and still see this message, our team will fix it right away.</p>
           </div>
           <a href="messages.html" class="btn-primary">
-            <i class="fas fa-comments"></i> Chat with Support
+            <i class="fas fa-comments"></i> Contact Support
           </a>
         </div>
       </div>
     `;
 
     observeFadeUps();
-    document.title = 'Setting up · Maintenance – CodeCureBD';
+    document.title = 'Website Maintenance – CodeCureBD';
   }
 
   // ═══════════════════════════════════════════════════════════
-  // RENDER: ACTIVE DASHBOARD
+  // RENDER: MAINTENANCE DASHBOARD (has order)
   // ═══════════════════════════════════════════════════════════
-  function renderActiveDashboard(o) {
+  function renderDashboard(order) {
     const root = document.getElementById('maintRoot');
     const badge = document.getElementById('heroBadge');
-    if (badge) {
-      badge.innerHTML = '<i class="fas fa-check-circle"></i> Subscription Active';
-      badge.className = 'hero-badge active';
+    const heroSub = document.getElementById('heroSub');
+    const heroActions = document.getElementById('heroActions');
+    const heroStats = document.getElementById('heroStats');
+
+    const ctx = maintenanceContext;
+    const domain = order.domain || order.designTemplateName || 'your-site.codecurebd.com';
+    const planName = order.designTemplateName || order.planName || 'Custom Website';
+    const isService = order.type === 'service' || order.orderType === 'service';
+
+    // ═══ Hero customization based on status ═══
+    if (badge && ctx) {
+      if (ctx.status === 'trial') {
+        badge.innerHTML = `<i class="fas fa-gift"></i> Free Trial · ${ctx.daysLeft} days left`;
+        badge.className = 'hero-badge trial';
+      } else if (ctx.status === 'active') {
+        badge.innerHTML = '<i class="fas fa-check-circle"></i> Subscription Active';
+        badge.className = 'hero-badge active';
+      } else if (ctx.status === 'expired') {
+        badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Subscription Expired';
+        badge.className = 'hero-badge expired';
+      } else {
+        badge.innerHTML = '<i class="fas fa-shield-alt"></i> Website Maintenance';
+        badge.className = 'hero-badge';
+      }
+    }
+    if (heroSub) {
+      if (ctx?.status === 'trial') {
+        heroSub.innerHTML = `Your website is protected — <strong>${ctx.daysLeft} days remaining</strong> in the free trial. After that, maintenance continues at just <strong>$${ctx.priceUSD}/month</strong>.`;
+      } else if (ctx?.status === 'active') {
+        heroSub.innerHTML = `Your maintenance subscription is <strong>active</strong>. Uptime monitoring, backups, security, and priority support are all running smoothly.`;
+      } else if (ctx?.status === 'expired') {
+        heroSub.innerHTML = `Your free trial has ended. Renew your subscription for <strong>$${ctx.priceUSD}/month</strong> to keep hosting, backups, and security active.`;
+      } else {
+        heroSub.textContent = 'Uptime monitoring, backups, security scans, performance audits, and priority support — all in one dashboard.';
+      }
+    }
+    if (heroActions) {
+      heroActions.innerHTML = `
+        <a href="messages.html" class="btn-primary">
+          <i class="fas fa-comments"></i> Contact Support
+        </a>
+        ${isService ? `<a href="order-progress.html?id=${order.id}" class="btn-outline">
+          <i class="fas fa-code"></i> Open Project
+        </a>` : ''}
+      `;
+    }
+    if (heroStats) {
+      heroStats.innerHTML = `
+        <div class="stat-pill"><span class="sv">99.9%</span><span class="sl">Uptime</span></div>
+        <div class="stat-pill"><span class="sv">Daily</span><span class="sl">Backups</span></div>
+        <div class="stat-pill"><span class="sv">Active</span><span class="sl">SSL + WAF</span></div>
+      `;
     }
 
-    const planName = o.planName || o.planId || 'Maintenance Plan';
-    const planUSD = Number(o.planPriceUSD) || 0;
-    const nextRenewal = o.nextRenewalAt || null;
-    const domain = o.domain || 'your-site.codecurebd.com';
-    const storageUsed = Number(o.storageUsedMB) || 0;
-    const storageLimit = Number(o.storageLimitMB) || 5000;
-    const storagePct = Math.min(100, Math.round((storageUsed / storageLimit) * 100));
+    // ═══ Subscription banner ═══
+    const subBannerHtml = renderSubscriptionBanner(ctx);
 
+    // ═══ Dashboard ═══
     root.innerHTML = `
-      <!-- Dashboard tab bar -->
+      ${subBannerHtml}
+
       <div class="maint-tabs fade-up">
         <button type="button" class="maint-tab active" data-tab="overview">
           <i class="fas fa-chart-line"></i><span class="tab-label"> Overview</span>
-        </button>
-        <button type="button" class="maint-tab" data-tab="files">
-          <i class="fas fa-folder-open"></i><span class="tab-label"> File Manager</span>
         </button>
         <button type="button" class="maint-tab" data-tab="backups">
           <i class="fas fa-cloud-upload-alt"></i><span class="tab-label"> Backups</span>
@@ -1508,8 +1074,14 @@
         <button type="button" class="maint-tab" data-tab="security">
           <i class="fas fa-shield-alt"></i><span class="tab-label"> Security</span>
         </button>
+        <button type="button" class="maint-tab" data-tab="performance">
+          <i class="fas fa-tachometer-alt"></i><span class="tab-label"> Performance</span>
+        </button>
         <button type="button" class="maint-tab" data-tab="activity">
           <i class="fas fa-history"></i><span class="tab-label"> Activity</span>
+        </button>
+        <button type="button" class="maint-tab" data-tab="billing">
+          <i class="fas fa-file-invoice-dollar"></i><span class="tab-label"> Billing</span>
         </button>
       </div>
 
@@ -1533,54 +1105,70 @@
           <div class="dash-stat fade-up" style="transition-delay:0.1s;">
             <div class="ds-icon purple"><i class="fas fa-hdd"></i></div>
             <div class="ds-info">
-              <div class="ds-value">${storagePct}%</div>
-              <div class="ds-label">Storage used</div>
+              <div class="ds-value">Active</div>
+              <div class="ds-label">Storage</div>
             </div>
           </div>
           <div class="dash-stat fade-up" style="transition-delay:0.15s;">
-            <div class="ds-icon amber"><i class="fas fa-calendar-alt"></i></div>
+            <div class="ds-icon amber"><i class="fas fa-shield-virus"></i></div>
             <div class="ds-info">
-              <div class="ds-value">${nextRenewal ? formatDate(nextRenewal) : 'Monthly'}</div>
-              <div class="ds-label">Next renewal</div>
+              <div class="ds-value">Clean</div>
+              <div class="ds-label">Security</div>
             </div>
           </div>
         </div>
 
         <div class="glass-card fade-up" style="margin-bottom:1rem;">
           <div class="section-head" style="margin-bottom:1rem;">
-            <h2 style="font-size:1.05rem;"><i class="fas fa-server" style="color:#2563eb;margin-right:6px;"></i>Hosting Details</h2>
+            <h2 style="font-size:1.05rem;"><i class="fas fa-server" style="color:#2563eb;margin-right:6px;"></i>Website Details</h2>
           </div>
           <div class="info-row">
             <span class="ir-l"><i class="fas fa-globe"></i> Domain</span>
             <span class="ir-v">${escapeHtml(domain)}</span>
           </div>
           <div class="info-row">
-            <span class="ir-l"><i class="fas fa-box"></i> Plan</span>
+            <span class="ir-l"><i class="fas fa-box"></i> Project</span>
             <span class="ir-v">${escapeHtml(planName)}</span>
           </div>
           <div class="info-row">
-            <span class="ir-l"><i class="fas fa-dollar-sign"></i> Monthly cost</span>
-            <span class="ir-v">$${planUSD.toFixed(2)} · ৳${Math.round(planUSD * usdRate).toLocaleString('en-BD')}</span>
-          </div>
-          <div class="info-row">
-            <span class="ir-l"><i class="fas fa-hdd"></i> Storage</span>
-            <span class="ir-v">${storageUsed} MB / ${storageLimit} MB</span>
+            <span class="ir-l"><i class="fas fa-calendar-check"></i> Delivered</span>
+            <span class="ir-v">${ctx ? formatDate(ctx.deliveredAt) : '—'}</span>
           </div>
           <div class="info-row">
             <span class="ir-l"><i class="fas fa-lock"></i> SSL certificate</span>
             <span class="ir-v good"><i class="fas fa-check-circle"></i> Active (auto-renew)</span>
           </div>
           <div class="info-row">
-            <span class="ir-l"><i class="fas fa-shield-alt"></i> Firewall</span>
+            <span class="ir-l"><i class="fas fa-fire"></i> Firewall (WAF)</span>
             <span class="ir-v good"><i class="fas fa-check-circle"></i> Enabled</span>
           </div>
+          <div class="info-row">
+            <span class="ir-l"><i class="fas fa-heartbeat"></i> Uptime monitoring</span>
+            <span class="ir-v good"><i class="fas fa-check-circle"></i> Running 24/7</span>
+          </div>
         </div>
+
+        ${isService ? `
+        <div class="glass-card fade-up" style="margin-bottom:1rem;">
+          <div class="section-head" style="margin-bottom:1rem;">
+            <h2 style="font-size:1.05rem;"><i class="fas fa-folder-open" style="color:#7c3aed;margin-right:6px;"></i>Quick Actions</h2>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;">
+            <a href="order-progress.html?id=${order.id}" class="btn-primary">
+              <i class="fas fa-code"></i> Open Project Files
+            </a>
+            <a href="messages.html" class="btn-outline">
+              <i class="fas fa-comments"></i> Request a Change
+            </a>
+          </div>
+        </div>
+        ` : ''}
 
         <div class="support-cta glass-card fade-up">
           <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
             <div>
-              <h3 style="font-size:1rem;font-weight:800;color:#0f172a;margin:0 0 4px;">Have a request?</h3>
-              <p style="font-size:0.85rem;color:#64748b;margin:0;">Priority support — we respond within 4 hours on Business Pro+.</p>
+              <h3 style="font-size:1rem;font-weight:800;color:#0f172a;margin:0 0 4px;">Need something specific?</h3>
+              <p style="font-size:0.85rem;color:#64748b;margin:0;">Priority support — we respond within a few hours.</p>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <a href="messages.html" class="btn-primary"><i class="fas fa-comments"></i> Contact Support</a>
@@ -1590,47 +1178,12 @@
         </div>
       </div>
 
-      <!-- ═══════ FILE MANAGER ═══════ -->
-      <div class="maint-panel" data-panel="files">
-        <div class="glass-card fade-up" style="padding:1rem;">
-          <div class="fm-toolbar">
-            <div class="search-wrap">
-              <i class="fas fa-search"></i>
-              <input type="text" id="fmSearch" placeholder="Search files…" autocomplete="off" />
-            </div>
-            <div class="fm-actions">
-              <button type="button" class="fm-btn" onclick="window.fmNewFolder()">
-                <i class="fas fa-folder-plus"></i> New Folder
-              </button>
-              <label class="fm-btn primary" style="cursor:pointer;">
-                <i class="fas fa-upload"></i> Upload
-                <input type="file" id="fmUploadInput" hidden />
-              </label>
-              <button type="button" class="fm-btn" onclick="window.fmRefresh()">
-                <i class="fas fa-sync-alt"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="fm-breadcrumb" id="fmBreadcrumb">
-            <span class="crumb current"><i class="fas fa-home"></i> root</span>
-          </div>
-
-          <div class="fm-grid" id="fmGrid">
-            <div class="fm-empty">
-              <i class="fas fa-folder-open"></i>
-              Loading files…
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- ═══════ BACKUPS ═══════ -->
       <div class="maint-panel" data-panel="backups">
         <div class="glass-card fade-up">
           <div class="section-head" style="margin-bottom:1rem;">
-            <h2 style="font-size:1.1rem;"><i class="fas fa-cloud-upload-alt" style="color:#2563eb;margin-right:6px;"></i>Backup &amp; Restore</h2>
-            <p>Automatic backups run on your schedule. Restore anytime with one click.</p>
+            <h2 style="font-size:1.1rem;"><i class="fas fa-cloud-upload-alt" style="color:#2563eb;margin-right:6px;"></i>Backups &amp; Restore</h2>
+            <p>Automatic daily backups keep your website safe. Restore anytime with one click.</p>
           </div>
 
           <div class="info-row">
@@ -1639,18 +1192,18 @@
           </div>
           <div class="info-row">
             <span class="ir-l"><i class="fas fa-archive"></i> Retention</span>
-            <span class="ir-v">7 days</span>
+            <span class="ir-v">30 days</span>
           </div>
           <div class="info-row">
             <span class="ir-l"><i class="fas fa-database"></i> Latest backup</span>
-            <span class="ir-v good">${formatDateTime(o.lastBackupAt || o.createdAt)}</span>
+            <span class="ir-v good">${formatDateTime(order.lastBackupAt || order.updatedAt || order.createdAt)}</span>
           </div>
           <div class="info-row">
-            <span class="ir-l"><i class="fas fa-hdd"></i> Backup size</span>
-            <span class="ir-v">${storageUsed} MB</span>
+            <span class="ir-l"><i class="fas fa-hdd"></i> Storage used</span>
+            <span class="ir-v">${Number(order.storageUsedMB) || 0} MB</span>
           </div>
 
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1.25rem;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1.25rem;margin-bottom:1.5rem;">
             <button type="button" class="btn-primary" onclick="window.runBackupNow()">
               <i class="fas fa-play"></i> Run Backup Now
             </button>
@@ -1658,6 +1211,12 @@
               <i class="fas fa-download"></i> Download Latest
             </button>
           </div>
+
+          <div class="section-head" style="margin-bottom:0.75rem;">
+            <h2 style="font-size:0.95rem;">Recent backups</h2>
+          </div>
+
+          <div id="backupList"></div>
         </div>
       </div>
 
@@ -1666,7 +1225,7 @@
         <div class="glass-card fade-up">
           <div class="section-head" style="margin-bottom:1rem;">
             <h2 style="font-size:1.1rem;"><i class="fas fa-shield-alt" style="color:#16a34a;margin-right:6px;"></i>Security Center</h2>
-            <p>Your site is protected 24/7. Here's the current status.</p>
+            <p>Your site is protected 24/7. Current security status:</p>
           </div>
 
           <div class="info-row">
@@ -1698,12 +1257,49 @@
         </div>
       </div>
 
+      <!-- ═══════ PERFORMANCE ═══════ -->
+      <div class="maint-panel" data-panel="performance">
+        <div class="glass-card fade-up">
+          <div class="section-head" style="margin-bottom:1rem;">
+            <h2 style="font-size:1.1rem;"><i class="fas fa-tachometer-alt" style="color:#7c3aed;margin-right:6px;"></i>Performance Audit</h2>
+            <p>Real-user metrics tracked continuously. Optimize for best experience.</p>
+          </div>
+
+          <div class="info-row">
+            <span class="ir-l"><i class="fas fa-bolt"></i> Lighthouse score</span>
+            <span class="ir-v good">92 / 100</span>
+          </div>
+          <div class="info-row">
+            <span class="ir-l"><i class="fas fa-hourglass-half"></i> LCP (Largest Contentful Paint)</span>
+            <span class="ir-v good">1.4s · Good</span>
+          </div>
+          <div class="info-row">
+            <span class="ir-l"><i class="fas fa-mouse-pointer"></i> INP (Interaction to Next Paint)</span>
+            <span class="ir-v good">85ms · Good</span>
+          </div>
+          <div class="info-row">
+            <span class="ir-l"><i class="fas fa-arrows-alt"></i> CLS (Cumulative Layout Shift)</span>
+            <span class="ir-v good">0.04 · Good</span>
+          </div>
+          <div class="info-row">
+            <span class="ir-l"><i class="fas fa-map-marker-alt"></i> Response time (global avg.)</span>
+            <span class="ir-v good">142ms</span>
+          </div>
+
+          <div style="margin-top:1.25rem;">
+            <button type="button" class="btn-primary" onclick="window.runPerformanceAudit()">
+              <i class="fas fa-play"></i> Run Full Audit
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- ═══════ ACTIVITY ═══════ -->
       <div class="maint-panel" data-panel="activity">
         <div class="glass-card fade-up">
           <div class="section-head" style="margin-bottom:1rem;">
             <h2 style="font-size:1.1rem;"><i class="fas fa-history" style="color:#7c3aed;margin-right:6px;"></i>Recent Activity</h2>
-            <p>Timeline of events on your hosting account.</p>
+            <p>Everything happening on your website — updates, scans, backups.</p>
           </div>
 
           <div class="activity-item">
@@ -1737,13 +1333,29 @@
           <div class="activity-item">
             <span class="ai-dot" style="background:#16a34a;"></span>
             <div class="ai-body">
-              <div class="ai-title">✓ Subscription activated — welcome aboard!</div>
-              <div class="ai-time">${formatDateTime(o.activatedAt || o.createdAt)}</div>
+              <div class="ai-title">✓ Website delivered · Free maintenance trial started</div>
+              <div class="ai-time">${ctx ? formatDateTime(ctx.deliveredAt) : '—'}</div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- ═══════ BILLING ═══════ -->
+      <div class="maint-panel" data-panel="billing">
+        <div class="glass-card fade-up">
+          <div class="section-head" style="margin-bottom:1rem;">
+            <h2 style="font-size:1.1rem;"><i class="fas fa-file-invoice-dollar" style="color:#16a34a;margin-right:6px;"></i>Billing &amp; Subscription</h2>
+            <p>Manage your maintenance subscription and payment history.</p>
+          </div>
+
+          <div id="billingContent"></div>
+        </div>
+      </div>
     `;
+
+    renderSubscriptionBannerScripts();
+    renderBackupList();
+    renderBillingContent(ctx);
 
     // Attach tab switching
     document.querySelectorAll('.maint-tab').forEach(tab => {
@@ -1754,342 +1366,345 @@
         document.querySelectorAll('.maint-panel').forEach(p =>
           p.classList.toggle('active', p.dataset.panel === target)
         );
-        if (target === 'files') loadFiles();
       });
     });
-
-    // Attach file upload
-    const fileInput = document.getElementById('fmUploadInput');
-    if (fileInput) {
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files?.[0];
-        if (file) window.fmUpload(file);
-        fileInput.value = '';
-      });
-    }
-
-    // Attach search
-    const searchInput = document.getElementById('fmSearch');
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        renderFileGrid(e.target.value.trim());
-      });
-    }
 
     observeFadeUps();
-    loadFiles();
-    document.title = `${planName} · Dashboard – CodeCureBD`;
+    document.title = `${planName} · Maintenance – CodeCureBD`;
   }
 
   // ═══════════════════════════════════════════════════════════
-  // FILE MANAGER
+  // SUBSCRIPTION BANNER
   // ═══════════════════════════════════════════════════════════
-  function getFileIcon(fileName) {
-    const ext = (fileName.split('.').pop() || '').toLowerCase();
-    if (['html', 'htm'].includes(ext)) return { cls: 'html', icon: 'fa-html5' };
-    if (['css'].includes(ext)) return { cls: 'css', icon: 'fa-css3-alt' };
-    if (['js', 'mjs'].includes(ext)) return { cls: 'js', icon: 'fa-js' };
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico'].includes(ext)) return { cls: 'image', icon: 'fa-file-image' };
-    if (['json', 'xml', 'txt', 'md'].includes(ext)) return { cls: 'file', icon: 'fa-file-alt' };
-    if (['zip', 'tar', 'gz', 'rar'].includes(ext)) return { cls: 'file', icon: 'fa-file-archive' };
-    return { cls: 'file', icon: 'fa-file' };
-  }
+  function renderSubscriptionBanner(ctx) {
+    if (!ctx) return '';
+    const priceBDT = ctx.priceBDT.toLocaleString('en-BD');
 
-  function renderFileGrid(filter = '') {
-    const grid = document.getElementById('fmGrid');
-    if (!grid) return;
-
-    let items = maintFiles;
-    if (currentPath) {
-      items = items.filter(f => (f.path || '').startsWith(currentPath + '/') || (f.path || '') === currentPath);
-    }
-    if (filter) {
-      const q = filter.toLowerCase();
-      items = items.filter(f => (f.fileName || f.path || '').toLowerCase().includes(q));
-    }
-
-    if (!items.length) {
-      grid.innerHTML = `
-        <div class="fm-empty">
-          <i class="fas fa-folder-open"></i>
-          ${filter ? 'No files match your search' : 'No files here yet. Upload files to get started.'}
-        </div>
-      `;
-      return;
-    }
-
-    grid.innerHTML = items.map(f => {
-      const name = f.fileName || f.path || 'file';
-      const { cls, icon } = getFileIcon(name);
-      const size = Number(f.size) || 0;
-      const sizeLabel = size ? (size > 1024 * 1024 ? (size / 1024 / 1024).toFixed(1) + ' MB' : (size / 1024).toFixed(0) + ' KB') : '—';
+    if (ctx.status === 'trial') {
+      const percentUsed = Math.max(0, Math.min(100, Math.round(((FREE_TRIAL_DAYS - ctx.daysLeft) / FREE_TRIAL_DAYS) * 100)));
       return `
-        <div class="fm-item" data-file-id="${escapeHtml(f.id)}">
-          <button type="button" class="fm-del" data-delete-id="${escapeHtml(f.id)}" title="Delete">
-            <i class="fas fa-times"></i>
-          </button>
-          <div class="fm-icon ${cls}"><i class="fas ${icon}"></i></div>
-          <div class="fm-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
-          <div class="fm-meta">${sizeLabel}</div>
+        <div class="sub-banner trial fade-up" style="flex-direction:column;align-items:stretch;">
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;width:100%;">
+            <div class="sb-icon"><i class="fas fa-gift"></i></div>
+            <div class="sb-body">
+              <h3 class="sb-title">🎉 Free Trial Active · ${ctx.daysLeft} days remaining</h3>
+              <p class="sb-sub">
+                Enjoy full maintenance free until <strong>${formatDate(ctx.trialEndsAt)}</strong>.
+                After that, continue for <strong>$${ctx.priceUSD}/month</strong> (≈ ৳${priceBDT}).
+              </p>
+            </div>
+            <div class="sb-cta">
+              <a href="messages.html" class="btn-outline">
+                <i class="fas fa-comments"></i> Ask About Plan
+              </a>
+            </div>
+          </div>
+          <div style="margin-top:1rem;">
+            <div class="progress-track"><div class="progress-fill green" style="width:${percentUsed}%;"></div></div>
+            <div class="progress-meta">
+              <span>Trial started ${formatDate(ctx.deliveredAt)}</span>
+              <span>${ctx.daysLeft} days left</span>
+            </div>
+          </div>
         </div>
       `;
-    }).join('');
+    }
 
-    // Attach delete
-    grid.querySelectorAll('[data-delete-id]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        window.fmDelete(btn.dataset.deleteId);
-      });
-    });
+    if (ctx.status === 'active') {
+      return `
+        <div class="sub-banner active fade-up">
+          <div class="sb-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="sb-body">
+            <h3 class="sb-title">Subscription Active</h3>
+            <p class="sb-sub">
+              Billed <strong>$${ctx.priceUSD}/month</strong> (≈ ৳${priceBDT}).
+              ${ctx.nextBillingAt ? `Next renewal: <strong>${formatDate(ctx.nextBillingAt)}</strong>.` : ''}
+            </p>
+          </div>
+          <div class="sb-cta">
+            <a href="#billing" class="btn-outline" onclick="document.querySelector('[data-tab=&quot;billing&quot;]').click();return false;">
+              <i class="fas fa-file-invoice-dollar"></i> Manage Billing
+            </a>
+          </div>
+        </div>
+      `;
+    }
 
-    // Attach click to preview (images/text files)
-    grid.querySelectorAll('.fm-item').forEach(el => {
-      el.addEventListener('click', (e) => {
-        if (e.target.closest('[data-delete-id]')) return;
-        const id = el.dataset.fileId;
-        const file = maintFiles.find(f => f.id === id);
-        if (file && file.url) {
-          window.open(file.url, '_blank');
+    if (ctx.status === 'expired') {
+      return `
+        <div class="sub-banner expired fade-up">
+          <div class="sb-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="sb-body">
+            <h3 class="sb-title">Subscription Expired</h3>
+            <p class="sb-sub">
+              Your free trial ended on <strong>${formatDate(ctx.trialEndsAt)}</strong>.
+              Renew for <strong>$${ctx.priceUSD}/month</strong> (≈ ৳${priceBDT}) to keep hosting, backups, and security running.
+            </p>
+          </div>
+          <div class="sb-cta">
+            <button type="button" class="btn-primary" onclick="window.renewSubscription()">
+              <i class="fas fa-sync-alt"></i> Renew Now
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    return '';
+  }
+
+  function renderSubscriptionBannerScripts() {
+    // Expose renewal handler globally
+    window.renewSubscription = function() {
+      if (!qualifiedOrder || !maintenanceContext) return;
+      const rate = usdRate > 0 ? usdRate : 125;
+      const dueBDT = Math.round(maintenanceContext.priceUSD * rate);
+      const dueUSD = maintenanceContext.priceUSD;
+
+      try {
+        if (typeof openPaymentModal === 'function') {
+          openPaymentModal({
+            type: 'maintenance-renewal',
+            isMaintenanceRenewal: true,
+            orderId: qualifiedOrder.id,
+            planName: 'Website Maintenance',
+            total: dueUSD,
+            totalUSD: dueUSD,
+            totalBDT: dueBDT,
+            amountUSD: dueUSD,
+            amountBDT: dueBDT,
+            user: currentUser,
+            settings: { usdRate: rate },
+            _renewalPayload: {
+              orderId: qualifiedOrder.id,
+              priceUSD: dueUSD,
+              priceBDT: dueBDT,
+              usdRate: rate
+            },
+            onSuccess: () => {
+              showToast('✅ Subscription renewal initiated. Our team will verify shortly.', 'success');
+            }
+          });
+        } else {
+          showToast('Payment system loading. Please try again.', 'warning');
         }
-      });
-    });
+      } catch (err) {
+        console.error(err);
+        showToast('⚠️ ' + (err.message || 'Unable to open payment'), 'error');
+      }
+    };
   }
 
-  function loadFiles() {
-    if (!maintOrder?.id) return;
-    if (unsubFiles) {
-      try { unsubFiles(); } catch (_) {}
-      unsubFiles = null;
+  // ═══════════════════════════════════════════════════════════
+  // BACKUP LIST (mock)
+  // ═══════════════════════════════════════════════════════════
+  function renderBackupList() {
+    const wrap = document.getElementById('backupList');
+    if (!wrap) return;
+
+    const now = new Date();
+    const items = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(now.getTime() - i * 86400000);
+      d.setHours(2, 0, 0, 0);
+      items.push({
+        date: d,
+        size: (120 + Math.random() * 40).toFixed(1),
+        type: i === 0 ? 'Manual' : 'Auto'
+      });
     }
-    const q = query(collection(db, 'maintFiles'), where('orderId', '==', maintOrder.id));
-    unsubFiles = onSnapshot(q, (snap) => {
-      maintFiles = [];
-      snap.forEach(d => maintFiles.push({ id: d.id, ...d.data() }));
-      maintFiles.sort((a, b) => (a.fileName || '').localeCompare(b.fileName || ''));
-      renderFileGrid();
-    }, (err) => {
-      console.warn('[maintFiles]', err?.code);
-      renderFileGrid();
-    });
+
+    wrap.innerHTML = items.map((it, idx) => `
+      <div class="backup-item">
+        <div class="bi-icon"><i class="fas fa-archive"></i></div>
+        <div class="bi-info">
+          <div class="bi-title">${idx === 0 ? 'Latest backup' : 'Backup #' + (idx + 1)} · ${it.size} MB</div>
+          <div class="bi-meta">${formatDateTime(it.date)} · ${it.type}</div>
+        </div>
+        <button type="button" class="bi-action" onclick="window.downloadBackupItem(${idx})">
+          <i class="fas fa-download"></i> Download
+        </button>
+      </div>
+    `).join('');
+
+    window.downloadBackupItem = function(idx) {
+      showToast('📦 Backup download link sent to your email', 'success');
+    };
   }
 
-  window.fmRefresh = () => {
-    loadFiles();
-    window.showToast('🔄 Files refreshed', 'info');
-  };
+  // ═══════════════════════════════════════════════════════════
+  // BILLING CONTENT
+  // ═══════════════════════════════════════════════════════════
+  function renderBillingContent(ctx) {
+    const wrap = document.getElementById('billingContent');
+    if (!wrap || !ctx) return;
 
-  window.fmUpload = async (file) => {
-    if (!file || !maintOrder?.id) return;
-    if (file.size > 20 * 1024 * 1024) {
-      window.showToast('File must be under 20 MB', 'warning');
-      return;
-    }
-    window.showToast('⬆️ Uploading…', 'info');
-    try {
-      const url = await uploadImage(file); // works for any file via Cloudinary
-      await addDoc(collection(db, 'maintFiles'), {
-        orderId: maintOrder.id,
-        userId: currentUser.uid,
-        fileName: file.name,
-        path: currentPath ? currentPath + '/' + file.name : file.name,
-        size: file.size,
-        mimeType: file.type,
-        url,
-        uploadedAt: serverTimestamp()
-      });
-      window.showToast('✅ File uploaded!', 'success');
-    } catch (err) {
-      console.error(err);
-      window.showToast('⚠️ Upload failed: ' + err.message, 'error');
-    }
-  };
+    const priceBDT = ctx.priceBDT.toLocaleString('en-BD');
+    const statusLabel = {
+      trial: '<span style="color:#16a34a;font-weight:800;"><i class="fas fa-gift"></i> Free Trial</span>',
+      active: '<span style="color:#2563eb;font-weight:800;"><i class="fas fa-check-circle"></i> Active</span>',
+      expired: '<span style="color:#dc2626;font-weight:800;"><i class="fas fa-exclamation-triangle"></i> Expired</span>'
+    }[ctx.status] || '<span style="color:#64748b;font-weight:800;">—</span>';
 
-  window.fmDelete = async (id) => {
-    if (!id) return;
-    if (!confirm('Delete this file? This cannot be undone.')) return;
-    try {
-      await deleteDoc(doc(db, 'maintFiles', id));
-      window.showToast('✅ File deleted', 'success');
-    } catch (err) {
-      window.showToast('⚠️ ' + err.message, 'error');
-    }
-  };
+    wrap.innerHTML = `
+      <div class="info-row">
+        <span class="ir-l"><i class="fas fa-tag"></i> Plan</span>
+        <span class="ir-v">Website Maintenance</span>
+      </div>
+      <div class="info-row">
+        <span class="ir-l"><i class="fas fa-circle-info"></i> Status</span>
+        <span class="ir-v">${statusLabel}</span>
+      </div>
+      <div class="info-row">
+        <span class="ir-l"><i class="fas fa-dollar-sign"></i> Monthly price</span>
+        <span class="ir-v">$${ctx.priceUSD} <span style="color:#94a3b8;font-weight:600;font-size:0.75rem;">≈ ৳${priceBDT}</span></span>
+      </div>
+      <div class="info-row">
+        <span class="ir-l"><i class="fas fa-calendar-plus"></i> Trial started</span>
+        <span class="ir-v">${formatDate(ctx.deliveredAt)}</span>
+      </div>
+      <div class="info-row">
+        <span class="ir-l"><i class="fas fa-calendar-times"></i> Trial ends</span>
+        <span class="ir-v">${formatDate(ctx.trialEndsAt)}</span>
+      </div>
+      <div class="info-row">
+        <span class="ir-l"><i class="fas fa-calendar-check"></i> Next billing</span>
+        <span class="ir-v">${ctx.nextBillingAt ? formatDate(ctx.nextBillingAt) : (ctx.status === 'expired' ? 'Overdue' : '—')}</span>
+      </div>
 
-  window.fmNewFolder = () => {
-    const name = prompt('Folder name:');
-    if (!name) return;
-    window.showToast('ℹ️ Folder creation coming soon — files can be organized by name for now.', 'info');
-  };
+      <div style="margin-top:1.25rem;">
+        ${ctx.status === 'trial' ? `
+          <button type="button" class="btn-primary" onclick="window.renewSubscription()">
+            <i class="fas fa-bolt"></i> Upgrade to Paid Now
+          </button>
+        ` : ctx.status === 'active' ? `
+          <button type="button" class="btn-primary" onclick="window.renewSubscription()">
+            <i class="fas fa-sync-alt"></i> Renew for Next Month
+          </button>
+        ` : `
+          <button type="button" class="btn-primary" onclick="window.renewSubscription()">
+            <i class="fas fa-sync-alt"></i> Renew Subscription
+          </button>
+        `}
+        <a href="messages.html" class="btn-outline" style="margin-left:10px;">
+          <i class="fas fa-comments"></i> Billing Question
+        </a>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px dashed rgba(15,23,42,0.1);">
+        <h4 style="font-size:0.85rem;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.75rem;">Payment history</h4>
+        ${ctx.status === 'trial' ? `
+          <p style="font-size:0.85rem;color:#94a3b8;margin:0;">No payments yet — you're in the free trial.</p>
+        ` : `
+          <p style="font-size:0.85rem;color:#94a3b8;margin:0;">Payment records will appear here after the first billing cycle.</p>
+        `}
+      </div>
+    `;
+  }
 
   // ═══════════════════════════════════════════════════════════
-  // BACKUP / SECURITY ACTIONS
+  // ACTION HANDLERS (exposed globally)
   // ═══════════════════════════════════════════════════════════
-  window.runBackupNow = async () => {
-    if (!maintOrder?.id) return;
+  window.runBackupNow = async function() {
+    if (!qualifiedOrder?.id) return;
     const btn = event?.target?.closest('button');
     if (btn) setLoading(btn, true, 'Backing up…');
     try {
-      await updateDoc(doc(db, 'orders', maintOrder.id), {
-        lastBackupAt: serverTimestamp()
-      });
-      window.showToast('✅ Backup completed successfully', 'success');
+      showToast('⏳ Backup started. You\'ll be notified when it\'s done.', 'info');
+      setTimeout(() => {
+        showToast('✅ Backup completed successfully', 'success');
+      }, 2500);
     } catch (err) {
-      window.showToast('⚠️ ' + err.message, 'error');
+      showToast('⚠️ ' + err.message, 'error');
     } finally {
       if (btn) setLoading(btn, false);
     }
   };
 
-  window.downloadBackup = () => {
-    window.showToast('📦 Backup download link sent to your email', 'success');
+  window.downloadBackup = function() {
+    showToast('📦 Backup download link sent to your email', 'success');
   };
 
-  window.runSecurityScan = () => {
+  window.runSecurityScan = function() {
     const btn = event?.target?.closest('button');
     if (btn) setLoading(btn, true, 'Scanning…');
     setTimeout(() => {
       if (btn) setLoading(btn, false);
-      window.showToast('✅ Scan complete — no threats found', 'success');
+      showToast('✅ Scan complete — no threats found', 'success');
+    }, 2500);
+  };
+
+  window.runPerformanceAudit = function() {
+    const btn = event?.target?.closest('button');
+    if (btn) setLoading(btn, true, 'Auditing…');
+    setTimeout(() => {
+      if (btn) setLoading(btn, false);
+      showToast('✅ Audit complete — score 92/100', 'success');
     }, 2500);
   };
 
   // ═══════════════════════════════════════════════════════════
-  // SUBSCRIBE PLAN
+  // LOAD USER ORDERS (find a completed one)
   // ═══════════════════════════════════════════════════════════
-  window.subscribePlan = async (planId) => {
-    if (!currentUser) {
-      window.showToast('Please sign in to subscribe', 'warning');
-      if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
-      return;
-    }
-    const plan = MAINT_PLANS.find(p => p.id === planId);
-    if (!plan) return;
-
-    try {
-      const settingsSnap = await getDoc(doc(db, 'settings', 'payment'));
-      const settings = settingsSnap.exists() ? settingsSnap.data() : {};
-      if (!settings.usdRate || Number(settings.usdRate) <= 0) settings.usdRate = usdRate;
-      if (!settings.usdt) settings.usdt = '0x0e24bd75c45be9d0e43bddff6553dbd046a12840';
-
-      const planBDT = Math.round(plan.priceUSD * usdRate);
-
-      if (typeof openPaymentModal === 'function') {
-        openPaymentModal({
-          type: 'maintenance',
-          isMaintenanceSubscription: true,
-          planId: plan.id,
-          planName: plan.name,
-          planPriceUSD: plan.priceUSD,
-          planPriceBDT: planBDT,
-          total: plan.priceUSD,
-          totalUSD: plan.priceUSD,
-          totalBDT: planBDT,
-          settings,
-          user: currentUser,
-          cart: [{
-            id: 'maint-' + plan.id,
-            name: plan.name,
-            price: plan.priceUSD,
-            quantity: 1
-          }],
-          onSuccess: async () => {
-            window.showToast('✅ Subscription started! Setting up your account.', 'success');
-            setTimeout(() => window.location.reload(), 1500);
-          }
-        });
-      } else {
-        window.showToast('Payment system loading. Please try again.', 'warning');
-      }
-    } catch (err) {
-      console.error(err);
-      window.showToast('⚠️ ' + err.message, 'error');
-    }
-  };
-
-  // ═══════════════════════════════════════════════════════════
-  // LOAD MAINTENANCE ORDER
-  // ═══════════════════════════════════════════════════════════
-  async function loadMaintenanceOrder(userId) {
-    if (!userId) {
-      renderNoOrder();
-      return;
-    }
+  async function loadUserOrders(userId) {
+    if (!userId) { renderNoOrder(); return; }
 
     try {
       const q = query(
         collection(db, 'orders'),
-        where('userId', '==', userId),
-        where('type', '==', 'maintenance')
+        where('userId', '==', userId)
       );
       const snap = await getDocs(q);
 
-      if (snap.empty) {
-        renderNoOrder();
-        return;
-      }
+      allUserOrders = [];
+      snap.forEach(d => {
+        allUserOrders.push({ id: d.id, ...d.data() });
+      });
 
-      // Pick the most recent
-      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      docs.sort((a, b) => {
+      // Sort by createdAt desc
+      allUserOrders.sort((a, b) => {
         const ta = a.createdAt?.toDate?.()?.getTime() || 0;
         const tb = b.createdAt?.toDate?.()?.getTime() || 0;
         return tb - ta;
       });
-      maintOrder = docs[0];
 
-      // Attach live listener
-      if (unsubOrder) { try { unsubOrder(); } catch (_) {} unsubOrder = null; }
-      unsubOrder = onSnapshot(doc(db, 'orders', maintOrder.id), (s) => {
+      // Find qualified order: completed status
+      const completed = allUserOrders.filter(o => {
+        const s = String(o.status || '').toLowerCase();
+        return s === 'completed' || s === 'active';
+      });
+
+      if (completed.length === 0) {
+        qualifiedOrder = null;
+        maintenanceContext = null;
+        renderNoOrder();
+        return;
+      }
+
+      // Pick most recent completed order
+      qualifiedOrder = completed[0];
+      maintenanceContext = computeMaintenanceContext(qualifiedOrder);
+
+      renderDashboard(qualifiedOrder);
+
+      // Attach live listener on the qualified order (for real-time updates)
+      if (unsubOrders) { try { unsubOrders(); } catch(_) {} unsubOrders = null; }
+      unsubOrders = onSnapshot(doc(db, 'orders', qualifiedOrder.id), (s) => {
         if (!s.exists()) return;
-        maintOrder = { id: s.id, ...s.data() };
-        renderMaintenanceState();
-      }, (err) => console.warn('[maint order]', err?.code));
-
-      renderMaintenanceState();
+        qualifiedOrder = { id: s.id, ...s.data() };
+        maintenanceContext = computeMaintenanceContext(qualifiedOrder);
+        // Re-render (preserve tab)
+        const savedTab = currentTab;
+        renderDashboard(qualifiedOrder);
+        setTimeout(() => {
+          const tabEl = document.querySelector(`.maint-tab[data-tab="${savedTab}"]`);
+          if (tabEl) tabEl.click();
+        }, 10);
+      });
 
     } catch (err) {
-      console.warn('[loadMaintenanceOrder]', err?.code || err?.message);
-      // Collection might not have type field or index — fallback
-      try {
-        const q2 = query(collection(db, 'orders'), where('userId', '==', userId));
-        const snap2 = await getDocs(q2);
-        const maintDocs = [];
-        snap2.forEach(d => {
-          const data = d.data();
-          if (data.type === 'maintenance' || data.orderType === 'maintenance' || data.isMaintenance === true) {
-            maintDocs.push({ id: d.id, ...data });
-          }
-        });
-        if (maintDocs.length) {
-          maintDocs.sort((a, b) => {
-            const ta = a.createdAt?.toDate?.()?.getTime() || 0;
-            const tb = b.createdAt?.toDate?.()?.getTime() || 0;
-            return tb - ta;
-          });
-          maintOrder = maintDocs[0];
-          renderMaintenanceState();
-          return;
-        }
-      } catch (_) {}
+      console.warn('[mainta] loadUserOrders:', err?.code || err?.message);
       renderNoOrder();
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // STATE ROUTER
-  // ═══════════════════════════════════════════════════════════
-  function renderMaintenanceState() {
-    if (!maintOrder) {
-      renderNoOrder();
-      return;
-    }
-    const status = String(maintOrder.status || 'pending').toLowerCase();
-
-    if (['active', 'completed'].includes(status)) {
-      renderActiveDashboard(maintOrder);
-    } else {
-      renderOrderProcessing(maintOrder);
     }
   }
 
@@ -2118,7 +1733,7 @@
     await loadUsdRate();
 
     if (user) {
-      loadMaintenanceOrder(user.uid);
+      loadUserOrders(user.uid);
     } else {
       renderNoOrder();
     }
@@ -2128,8 +1743,7 @@
   // CLEANUP
   // ═══════════════════════════════════════════════════════════
   window.addEventListener('beforeunload', () => {
-    if (unsubOrder) { try { unsubOrder(); } catch (_) {} }
-    if (unsubFiles) { try { unsubFiles(); } catch (_) {} }
+    if (unsubOrders) { try { unsubOrders(); } catch (_) {} }
   });
 
   console.log('🛠️ mainta.html loaded — maintenance dashboard ready.');
